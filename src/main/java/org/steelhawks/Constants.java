@@ -20,7 +20,7 @@ public final class Constants {
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
     public static final CANBus CAN_BUS = new CANBus(TunerConstants.DrivetrainConstants.CANBusName);
-    public static final String ROBOT_NAME = "NAME YOUR ROBOT";
+    public static final String ROBOT_NAME = "ReefscapePreAlpha";
 
     private static final Mode SIM_MODE = IN_REPLAY_MODE ? Mode.REPLAY : Mode.SIM;
     /**
@@ -69,6 +69,8 @@ public final class Constants {
          */
         public static final Pose2d BLUE_STARTING_POSE =
             new Pose2d(new Translation2d(0, 0), new Rotation2d());
+        public static final Pose2d REEF_POSE =
+            new Pose2d(4.475370, 4.106833, new Rotation2d());
     }
 
     /**
@@ -88,19 +90,19 @@ public final class Constants {
      */
     public static final class AutonConstants {
 
-        public static final double TRANSLATION_KP = 0;
+        public static final double TRANSLATION_KP = 5;
         public static final double TRANSLATION_KI = 0;
         public static final double TRANSLATION_KD = 0;
 
-        public static final double ROTATION_KP = 0;
+        public static final double ROTATION_KP = 5;
         public static final double ROTATION_KI = 0;
         public static final double ROTATION_KD = 0;
 
-        public static final double AUTO_ALIGN_KP = 0.0;
+        public static final double AUTO_ALIGN_KP = 3.0;
         public static final double AUTO_ALIGN_KI = 0.0;
         public static final double AUTO_ALIGN_KD = 0.0;
-        public static final double ANGLE_MAX_VELOCITY = 0.0;
-        public static final double ANGLE_MAX_ACCELERATION = 0.0;
+        public static final double ANGLE_MAX_VELOCITY = 15.0;
+        public static final double ANGLE_MAX_ACCELERATION = 20.0;
 
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 0.0;
