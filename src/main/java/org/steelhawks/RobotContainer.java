@@ -164,7 +164,13 @@ public class RobotContainer {
                 () -> -driver.getRightX()));
 
         driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
-        driver.y().onTrue(s_Swerve.testZeroedModules());
+
+        driver.rightBumper().whileTrue( // align to processor
+            DriveCommands.joystickDriveAtAngle(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> new Rotation2d(-Math.PI / 2)));
+
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(
