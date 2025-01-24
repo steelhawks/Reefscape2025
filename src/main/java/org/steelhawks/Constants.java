@@ -70,7 +70,7 @@ public final class Constants {
         public static final Pose2d BLUE_STARTING_POSE =
             new Pose2d(new Translation2d(0, 0), new Rotation2d());
         public static final Pose2d REEF_POSE =
-            new Pose2d(4.475370, 4.106833, new Rotation2d());
+            new Pose2d(4.459432, 4.023238, new Rotation2d());
     }
 
     /**

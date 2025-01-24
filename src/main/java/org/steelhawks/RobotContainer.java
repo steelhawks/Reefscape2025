@@ -171,6 +171,12 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> new Rotation2d(-Math.PI / 2)));
 
+        driver.leftBumper().whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> s_Swerve.calculateTurnAngle(() -> FieldConstants.REEF_POSE)));
+
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(
