@@ -1,0 +1,190 @@
+package org.steelhawks;
+
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.littletonrobotics.junction.Logger;
+import org.steelhawks.subsystems.LED.LEDColor;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import org.steelhawks.Constants.*;
+import org.steelhawks.commands.DriveCommands;
+import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.swerve.*;
+import org.steelhawks.subsystems.vision.*;
+import org.steelhawks.util.AllianceFlip;
+
+public class RobotContainer {
+
+    private SwerveDriveSimulation mDriveSimulation;
+
+    private final LED s_LED = LED.getInstance();
+    public static Swerve s_Swerve;
+    public static Vision s_Vision;
+
+    private final Trigger interruptPathfinding;
+
+    private final CommandXboxController driver =
+        new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController operator =
+        new CommandXboxController(OIConstants.OPERATOR_CONTROLLER_PORT);
+
+    /**
+     * Anything that relies on Driver Station/FMS information should run here.
+     */
+    public void waitForDs() {
+        boolean isRed = AllianceFlip.shouldFlip();
+        Color c1 = isRed ? Color.kBlue : Color.kRed;
+        Color c2 = isRed ? Color.kRed : Color.kBlue;
+
+        s_LED.setDefaultLighting(
+            s_LED.movingDiscontinuousGradient(
+                c1, c2));
+    }
+
+    /**
+     * The implementation for MapleSim's physics simulator.
+     * This only runs during the SIM mode of CURRENT_MODE.
+     */
+    public void updatePhysicsSimulation() {
+        if (Constants.CURRENT_MODE != Mode.SIM) return;
+
+        // physics sim to simulate the field
+        SimulatedArena.getInstance().simulationPeriodic();
+
+        Pose3d[] algaePoses =
+            SimulatedArena.getInstance()
+                .getGamePiecesArrayByType("Algae");
+        Pose3d[] coralPoses =
+            SimulatedArena.getInstance()
+                .getGamePiecesArrayByType("Coral");
+
+        Logger.recordOutput("FieldSimulation/AlgaePoses", algaePoses);
+        Logger.recordOutput("FieldSimulation/CoralPoses", coralPoses);
+        Logger.recordOutput("FieldSimulation/RobotPosition", mDriveSimulation.getSimulatedDriveTrainPose());
+    }
+
+    /**
+     * Resets all game pieces on the MapleSim field.
+     */
+    public void resetSimulation() {
+        if (Constants.CURRENT_MODE != Mode.SIM) return;
+
+        Pose2d startPose = new Pose2d(3, 3, new Rotation2d());
+        mDriveSimulation.setSimulationWorldPose(startPose);
+        s_Swerve.setPose(startPose);
+        SimulatedArena.getInstance().resetFieldForAuto();
+    }
+
+    public RobotContainer() {
+        interruptPathfinding = new Trigger(
+            () ->
+                Math.abs(driver.getLeftY()) > Constants.Deadbands.DRIVE_DEADBAND ||
+                Math.abs(driver.getLeftX()) > Constants.Deadbands.DRIVE_DEADBAND ||
+                Math.abs(driver.getRightX()) > Constants.Deadbands.DRIVE_DEADBAND);
+
+        switch (Constants.CURRENT_MODE) {
+            case REAL -> {
+                s_Swerve =
+                    new Swerve(
+                        new GyroIOPigeon2(),
+                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                        new ModuleIOTalonFX(TunerConstants.BackRight));
+                s_Vision =
+                    new Vision(
+                        s_Swerve,
+                        new VisionIOLimelight(KVision.CAM_01_NAME, s_Swerve::getRotation));
+            }
+            case SIM -> {
+                mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d()));
+                SimulatedArena.getInstance().addDriveTrainSimulation(mDriveSimulation);
+
+                s_Swerve =
+                    new Swerve(
+                        new GyroIOSim(mDriveSimulation.getGyroSimulation()),
+                        new ModuleIOSim(mDriveSimulation.getModules()[0]),
+                        new ModuleIOSim(mDriveSimulation.getModules()[1]),
+                        new ModuleIOSim(mDriveSimulation.getModules()[2]),
+                        new ModuleIOSim(mDriveSimulation.getModules()[3]));
+                s_Vision =
+                    new Vision(
+                        s_Swerve,
+                        new VisionIOPhotonSim(KVision.CAM_01_NAME,
+                            new Transform3d(
+                                new Translation3d(0, 0, 0), new Rotation3d()),
+                        mDriveSimulation::getSimulatedDriveTrainPose));
+            }
+            default -> {
+                s_Swerve =
+                    new Swerve(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {});
+                s_Vision =
+                    new Vision(
+                        s_Swerve,
+                        new VisionIO() {});
+            }
+        }
+
+        Autos.configureTuningCommands();
+        configurePathfindingCommands();
+        configureDefaultCommands();
+        configureTestBindings();
+        configureAltBindings();
+        configureTriggers();
+        configureOperator();
+        configureDriver();
+    }
+
+    private void configurePathfindingCommands() {}
+    private void configureDefaultCommands() {}
+    private void configureTestBindings() {}
+    private void configureAltBindings() {}
+
+    private void configureTriggers() {
+        s_Swerve.isPathfinding()
+            .whileTrue(
+                s_LED.fadeCommand(LEDColor.PURPLE));
+    }
+
+    private void configureDriver() {
+        s_Swerve.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX()));
+
+        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
+        driver.y().onTrue(s_Swerve.testZeroedModules());
+        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
+            .alongWith(
+                Commands.either(
+                    s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
+                    s_LED.flashCommand(LEDColor.RED, 0.2, 2),
+                    () -> s_Swerve.isSlowMode())));
+
+        if (RobotBase.isReal()) {
+            driver.b().onTrue(
+                s_Swerve.zeroHeading(
+                    new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
+        }
+
+        if (Constants.CURRENT_MODE == Mode.SIM) {
+            driver.b().onTrue(
+                s_Swerve.zeroHeading(
+                    new Pose2d(
+                        mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
+        }
+    }
+
+    private void configureOperator() {}
+}
