@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -25,6 +26,7 @@ public class RobotContainer {
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
     public static Vision s_Vision;
+    public static Elevator s_Elevator;
 
     private final Trigger interruptPathfinding;
 
@@ -99,7 +101,11 @@ public class RobotContainer {
                 s_Vision =
                     new Vision(
                         s_Swerve,
-                        new VisionIOLimelight(KVision.CAM_01_NAME, s_Swerve::getRotation));
+                        new VisionIOPhoton("HD_USB_Camera", new Transform3d(
+                            new Translation3d(0, 0, 0), new Rotation3d())));
+                s_Elevator =
+                    new Elevator(
+                        new ElevatorIOTalonFX());
             }
             case SIM -> {
                 mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d()));
@@ -119,6 +125,9 @@ public class RobotContainer {
                             new Transform3d(
                                 new Translation3d(0, 0, 0), new Rotation3d()),
                         mDriveSimulation::getSimulatedDriveTrainPose));
+                s_Elevator =
+                    new Elevator(
+                        new ElevatorIOSim());
             }
             default -> {
                 s_Swerve =
@@ -132,6 +141,9 @@ public class RobotContainer {
                     new Vision(
                         s_Swerve,
                         new VisionIO() {});
+                s_Elevator =
+                    new Elevator(
+                        new ElevatorIO() {});
             }
         }
 
@@ -196,6 +208,19 @@ public class RobotContainer {
                     new Pose2d(
                         mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
         }
+
+
+        driver.povUp().whileTrue(
+            s_Elevator.elevatorManual(.1));
+
+        driver.povDown().whileTrue(
+            s_Elevator.elevatorManual(-.1));
+
+        driver.povLeft().onTrue(
+            s_Elevator.homeCommand());
+
+        driver.povRight().onTrue(
+            s_Elevator.setDesiredState(KElevator.State.L1));
     }
 
     private void configureOperator() {}
