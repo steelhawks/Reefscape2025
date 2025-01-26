@@ -11,6 +11,7 @@ import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.subsystems.LED.LEDColor;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import static org.steelhawks.subsystems.elevator.KElevator.State.*;
 import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
@@ -18,6 +19,8 @@ import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
+
+
 
 public class RobotContainer {
 
@@ -101,7 +104,7 @@ public class RobotContainer {
                 s_Vision =
                     new Vision(
                         s_Swerve,
-                        new VisionIOPhoton("HD_USB_Camera", new Transform3d(
+                        new VisionIOPhoton("Arducam_OV2311_USB_Camera", new Transform3d(
                             new Translation3d(0, 0, 0), new Rotation3d())));
                 s_Elevator =
                     new Elevator(
@@ -166,6 +169,10 @@ public class RobotContainer {
         s_Swerve.isPathfinding()
             .whileTrue(
                 s_LED.fadeCommand(LEDColor.PURPLE));
+
+        s_Elevator.atLimit()
+            .onTrue(
+                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1));
     }
 
     private void configureDriver() {
@@ -220,7 +227,7 @@ public class RobotContainer {
             s_Elevator.homeCommand());
 
         driver.povRight().onTrue(
-            s_Elevator.setDesiredState(KElevator.State.L1));
+            s_Elevator.setDesiredState(L3));
     }
 
     private void configureOperator() {}

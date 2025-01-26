@@ -6,6 +6,8 @@ public interface ElevatorIO {
 
     @AutoLog
     class ElevatorIOInputs {
+        public double setpoint = 0;
+
         public boolean leftConnected = false;
         public double leftPositionRad = 0;
         public double leftVelocityRadPerSec = 0;
@@ -30,8 +32,23 @@ public interface ElevatorIO {
         public boolean atTopLimit = false;
     }
 
+    /**
+     * Updates the set of loggable inputs.
+     */
     default void updateInputs(ElevatorIOInputs inputs) {}
+
+    /**
+     * Runs the elevator at a given voltage.
+     */
     default void runElevator(double volts) {}
+
+    /**
+     * Runs the elevator at a given speed.
+     */
     default void runElevatorViaSpeed(double speed) {}
+
+    /**
+     * Stops the elevator.
+     */
     default void stop() {}
 }

@@ -17,7 +17,7 @@ public final class KElevator {
 
     public static final int LIMIT_SWITCH_ID = 0;
     public static final int LEFT_ID = 20;
-    public static final int RIGHT_ID = 20;
+    public static final int RIGHT_ID = 21;
     public static final int CANCODER_ID = 22;
 
     public static final double KS = 0;

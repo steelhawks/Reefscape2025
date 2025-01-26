@@ -7,12 +7,17 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+
+import static edu.wpi.first.units.Units.Volts;
 
 public class Elevator extends SubsystemBase {
 
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private boolean mEnabled = false;
+    private final SysIdRoutine mSysId;
     private final ElevatorIO io;
 
     private final ProfiledPIDController mController;
@@ -44,6 +49,16 @@ public class Elevator extends SubsystemBase {
 
         mController.setTolerance(KElevator.TOLERANCE);
 
+        mSysId =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null,
+                    null,
+                    null,
+                    (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
+                new SysIdRoutine.Mechanism(
+                    (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
+
         this.io = io;
         enable();
     }
@@ -56,8 +71,8 @@ public class Elevator extends SubsystemBase {
         if (!mEnabled) return;
 
         double fb = mController.calculate(inputs.encoderPositionRotations);
-        TrapezoidProfile.State goal = mController.getSetpoint();
-        double ff = mFeedforward.calculate(goal.velocity);
+        double velocitySetpoint  = mController.getSetpoint().velocity;
+        double ff = mFeedforward.calculate(velocitySetpoint);
         double volts = fb + ff;
 
         if ((inputs.atTopLimit && volts >= 0) || (inputs.limitSwitchPressed && volts <= 0)) {
@@ -68,9 +83,18 @@ public class Elevator extends SubsystemBase {
         io.runElevator(volts);
     }
 
+    public Trigger atGoal() {
+        return new Trigger(mController::atGoal);
+    }
+
+    public Trigger atLimit() {
+        return new Trigger(() -> inputs.atTopLimit || inputs.limitSwitchPressed);
+    }
+
     public Command setDesiredState(KElevator.State state) {
         return Commands.runOnce(
             () -> {
+                inputs.setpoint = state.rotations;
                 mController.setGoal(state.rotations);
                 enable();
             }, this);

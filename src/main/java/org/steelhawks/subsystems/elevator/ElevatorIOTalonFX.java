@@ -8,12 +8,12 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import org.steelhawks.Constants;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
@@ -50,14 +50,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         mCANcoder = new CANcoder(KElevator.CANCODER_ID, Constants.CAN_BUS);
         mLimitSwitch = new DigitalInput(KElevator.LIMIT_SWITCH_ID);
 
-        mLeftMotor.setInverted(false);
-        mRightMotor.setInverted(true);
+        var leftConfig = new TalonFXConfiguration();
+        leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        var config = new TalonFXConfiguration();
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var rightConfig = new TalonFXConfiguration();
+        rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        mLeftMotor.getConfigurator().apply(config);
-        mRightMotor.getConfigurator().apply(config);
+        mLeftMotor.getConfigurator().apply(leftConfig);
+        mRightMotor.getConfigurator().apply(rightConfig);
 
         mCANcoder.getConfigurator().apply(
             new CANcoderConfiguration().withMagnetSensor(
