@@ -76,7 +76,9 @@ public class Vision extends SubsystemBase {
             // Add tag poses
             for (int tagId : inputs[cameraIndex].tagIds) {
                 var tagPose = KVision.APRIL_TAG_FIELD_LAYOUT.getTagPose(tagId);
-                tagPose.ifPresent(tagPoses::add);
+                if (tagPose.isPresent()) {
+                    tagPoses.add(tagPose.get());
+                }
             }
 
             for (var observation : inputs[cameraIndex].poseObservations) {

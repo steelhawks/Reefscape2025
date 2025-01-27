@@ -51,7 +51,7 @@ import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.subsystems.vision.Vision;
 import org.steelhawks.util.LocalADStarAK;
 
-public class Swerve extends SubsystemBase implements Vision.VisionConsumer {
+public class Swerve extends SubsystemBase {
 
     private static final double SLOW_SPEED_MULTIPLIER = 0.2;
     private static double SPEED_MULTIPLIER = 1;
@@ -277,7 +277,6 @@ public class Swerve extends SubsystemBase implements Vision.VisionConsumer {
      * @param timestampSeconds The timestamp of the vision measurement.
      * @param visionMeasurementStdDevs The standard deviations of the vision measurement.
      */
-    @Override
     public void accept(
         Pose2d visionRobotPoseMeters,
         double timestampSeconds,

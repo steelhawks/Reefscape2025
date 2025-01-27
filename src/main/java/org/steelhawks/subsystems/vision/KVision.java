@@ -11,7 +11,7 @@ public final class KVision {
 
     public static final int LATENCY_WAIT_TIME = 250;
 
-    public static final String CAM_01_NAME = "camera_0";
+    public static final String CAM_01_NAME = "Arducam_OV2311_USB_Camera";
     public static final String CAM_02_NAME = "camera_1";
 
     // If using a Limelight, configure on Web GUI.

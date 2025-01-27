@@ -21,6 +21,7 @@ public final class Constants {
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
     public static final CANBus CAN_BUS = new CANBus(TunerConstants.DrivetrainConstants.CANBusName);
     public static final String ROBOT_NAME = "ReefscapePreAlpha";
+    public static final double SIM_UPDATE_LOOP = 0.020;
 
     private static final Mode SIM_MODE = IN_REPLAY_MODE ? Mode.REPLAY : Mode.SIM;
     /**

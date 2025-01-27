@@ -11,7 +11,6 @@ import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.subsystems.LED.LEDColor;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import static org.steelhawks.subsystems.elevator.KElevator.State.*;
 import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
@@ -20,6 +19,7 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 
+import static org.steelhawks.subsystems.elevator.KElevator.State.*;
 
 
 public class RobotContainer {
@@ -103,9 +103,8 @@ public class RobotContainer {
                         new ModuleIOTalonFX(TunerConstants.BackRight));
                 s_Vision =
                     new Vision(
-                        s_Swerve,
-                        new VisionIOPhoton("Arducam_OV2311_USB_Camera", new Transform3d(
-                            new Translation3d(0, 0, 0), new Rotation3d())));
+                        s_Swerve::accept,
+                        new VisionIOPhoton(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT));
                 s_Elevator =
                     new Elevator(
                         new ElevatorIOTalonFX());
@@ -123,11 +122,9 @@ public class RobotContainer {
                         new ModuleIOSim(mDriveSimulation.getModules()[3]));
                 s_Vision =
                     new Vision(
-                        s_Swerve,
-                        new VisionIOPhotonSim(KVision.CAM_01_NAME,
-                            new Transform3d(
-                                new Translation3d(0, 0, 0), new Rotation3d()),
-                        mDriveSimulation::getSimulatedDriveTrainPose));
+                        s_Swerve::accept,
+                        new VisionIOPhotonSim(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT,
+                            mDriveSimulation::getSimulatedDriveTrainPose));
                 s_Elevator =
                     new Elevator(
                         new ElevatorIOSim());
@@ -142,7 +139,7 @@ public class RobotContainer {
                         new ModuleIO() {});
                 s_Vision =
                     new Vision(
-                        s_Swerve,
+                        s_Swerve::accept,
                         new VisionIO() {});
                 s_Elevator =
                     new Elevator(
