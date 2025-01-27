@@ -28,6 +28,8 @@ public class Elevator extends SubsystemBase {
     private final Alert leftMotorDisconnected;
     private final Alert rightMotorDisconnected;
     private final Alert canCoderDisconnected;
+    private final Alert limitSwitchDisconnected;
+    private final Alert canCoderMagnetBad;
 
     public void enable() {
         mEnabled = true;
@@ -67,7 +69,7 @@ public class Elevator extends SubsystemBase {
 
         leftMotorDisconnected =
             new Alert(
-            "Left Elevator Motor Disconnected", AlertType.kError);
+                "Left Elevator Motor Disconnected", AlertType.kError);
 
         rightMotorDisconnected =
             new Alert(
@@ -76,6 +78,14 @@ public class Elevator extends SubsystemBase {
         canCoderDisconnected =
             new Alert(
                 "Elevator CANcoder Disconnected", AlertType.kError);
+
+        limitSwitchDisconnected =
+            new Alert(
+                "Elevator Limit Switch Disconnected", AlertType.kError);
+
+        canCoderMagnetBad =
+            new Alert(
+                "Elevator CANcoder Magnet Bad", AlertType.kError);
 
         this.io = io;
         enable();
@@ -89,6 +99,8 @@ public class Elevator extends SubsystemBase {
         leftMotorDisconnected.set(!inputs.leftConnected);
         rightMotorDisconnected.set(!inputs.rightConnected);
         canCoderDisconnected.set(!inputs.encoderConnected);
+        limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
+        canCoderMagnetBad.set(!inputs.magnetGood);
 
         if (!mEnabled) return;
 
