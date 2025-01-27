@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Reefstate;
 
 import static edu.wpi.first.units.Units.Volts;
 
@@ -94,6 +95,7 @@ public class Elevator extends SubsystemBase {
     public Command setDesiredState(KElevator.State state) {
         return Commands.runOnce(
             () -> {
+//                Reefstate.updateReefState();
                 inputs.setpoint = state.rotations;
                 mController.setGoal(state.rotations);
                 enable();
@@ -119,7 +121,5 @@ public class Elevator extends SubsystemBase {
         .finallyDo(() -> io.stop())
         .withName("Home Elevator");
     }
-
-
 }
 

@@ -172,7 +172,10 @@ public class RobotContainer {
 
         s_Elevator.atLimit()
             .onTrue(
-                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1));
+                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
+            .whileFalse(
+                s_LED.setColorCommand(LEDColor.WHITE));
+
     }
 
     private void configureDriver() {

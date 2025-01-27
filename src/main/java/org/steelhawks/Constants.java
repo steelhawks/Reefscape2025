@@ -71,6 +71,21 @@ public final class Constants {
             new Pose2d(new Translation2d(0, 0), new Rotation2d());
         public static final Pose2d REEF_POSE =
             new Pose2d(4.459432, 4.023238, new Rotation2d());
+
+        // Reef Sections
+        public static final Pose2d LEFT_SECTION =
+            new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI));
+        public static final Pose2d TOP_LEFT_SECTION =
+            new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3));
+        public static final Pose2d BOTTOM_LEFT_SECTION =
+            new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3));
+
+        public static final Pose2d RIGHT_SECTION =
+            new Pose2d(5.321046, 4.025900, new Rotation2d());
+        public static final Pose2d TOP_RIGHT_SECTION =
+            new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3));
+        public static final Pose2d BOTTOM_RIGHT_SECTION =
+            new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3));
     }
 
     /**
