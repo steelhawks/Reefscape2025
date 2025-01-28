@@ -194,7 +194,7 @@ public class RobotContainer {
             DriveCommands.joystickDriveAtAngle(
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
-                () -> s_Swerve.calculateTurnAngle(() -> FieldConstants.REEF_POSE)));
+                () -> s_Swerve.calculateTurnAngle(FieldConstants.REEF_POSE)));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(

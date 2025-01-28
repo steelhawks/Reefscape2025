@@ -33,6 +33,7 @@ public class Elevator extends SubsystemBase {
 
     public void enable() {
         mEnabled = true;
+        mController.reset(inputs.encoderPositionRotations);
     }
 
     public void disable() {
@@ -140,7 +141,6 @@ public class Elevator extends SubsystemBase {
     public Command setDesiredState(KElevator.State state) {
         return Commands.runOnce(
             () -> {
-//                Reefstate.updateReefState();
                 inputs.setpoint = state.rotations;
                 mController.setGoal(state.rotations);
                 enable();
@@ -151,7 +151,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(this::disable, this)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(speed)))
+                    () -> io.runElevatorViaSpeed(speed), this))
             .finallyDo(
                 () -> io.stop())
             .withName("Manual Elevator");

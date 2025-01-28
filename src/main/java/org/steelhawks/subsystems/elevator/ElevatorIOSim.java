@@ -18,12 +18,11 @@ public class ElevatorIOSim implements ElevatorIO {
         Units.inchesToMeters(1.729 / 2.0);
     private static final double ELEVATOR_GEARING = 10.0 / 1.0;
     private static final double MIN_HEIGHT = 0; //m
-    private static final double MAX_HEIGHT = 2.5; //m
-
+    public static final double MAX_HEIGHT = 2.5; //m
     private static final double ELEVATOR_WIDTH =
         Units.inchesToMeters(27);
 
-    private final LoggedMechanism2d mElevatorMechanism;
+    private final ElevatorVisualizer mVisualizer;
     private final ElevatorSim mElevatorSim;
     private final EncoderSim mEncoderSim;
     private final DCMotor mMotor;
@@ -32,10 +31,6 @@ public class ElevatorIOSim implements ElevatorIO {
 
     public ElevatorIOSim() {
         mMotor = DCMotor.getFalcon500(2);
-
-        mElevatorMechanism =
-            new LoggedMechanism2d(
-                ELEVATOR_WIDTH, MAX_HEIGHT);
 
         mElevatorSim =
             new ElevatorSim(
@@ -49,6 +44,12 @@ public class ElevatorIOSim implements ElevatorIO {
                 MAX_HEIGHT,
                 true,
                 0);
+
+        mVisualizer =
+            new ElevatorVisualizer(
+                mElevatorSim::getPositionMeters,
+                ELEVATOR_WIDTH,
+                MAX_HEIGHT);
 
         mEncoderSim =
             new EncoderSim(
@@ -77,7 +78,6 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.rightAppliedVolts = appliedVolts;
         inputs.rightCurrentAmps = inputs.leftCurrentAmps;
 
-        Logger.recordOutput("Elevator/Mechanism", mElevatorMechanism);
         mEncoderSim.setDistance(mElevatorSim.getPositionMeters());
 
         inputs.encoderConnected = true;
@@ -89,6 +89,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
         inputs.atTopLimit = mElevatorSim.hasHitUpperLimit();
         inputs.limitSwitchPressed = mElevatorSim.hasHitLowerLimit();
+
+        mVisualizer.update();
     }
 
     @Override

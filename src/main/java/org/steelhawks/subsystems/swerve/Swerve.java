@@ -401,9 +401,9 @@ public class Swerve extends SubsystemBase {
      * a specified target position. The angle is returned as a Rotation2d object
      * and is normalized to the range [-π, π] radians for easier use in rotation-based calculations.
      */
-    public Rotation2d calculateTurnAngle(Supplier<Pose2d> targetAngle) {
-        double dx = targetAngle.get().getX() - getPose().getX();
-        double dy = targetAngle.get().getY() - getPose().getY();
+    public Rotation2d calculateTurnAngle(Pose2d targetAngle) {
+        double dx = targetAngle.getX() - getPose().getX();
+        double dy = targetAngle.getY() - getPose().getY();
 
         double angleToTarget = Math.atan2(dy, dx);
         double calculatedAngle = angleToTarget - getRotation().getRadians();
