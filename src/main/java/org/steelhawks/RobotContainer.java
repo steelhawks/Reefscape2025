@@ -32,14 +32,13 @@ import static org.steelhawks.subsystems.elevator.KElevator.State.*;
 public class RobotContainer {
 
     private SwerveDriveSimulation mDriveSimulation;
+    private final Trigger interruptPathfinding;
 
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
     public static Vision s_Vision;
     public static Elevator s_Elevator;
     public static Intake s_Intake;
-
-    private final Trigger interruptPathfinding;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -94,11 +93,11 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        interruptPathfinding = new Trigger(
-            () ->
-                Math.abs(driver.getLeftY()) > Constants.Deadbands.DRIVE_DEADBAND ||
-                Math.abs(driver.getLeftX()) > Constants.Deadbands.DRIVE_DEADBAND ||
-                Math.abs(driver.getRightX()) > Constants.Deadbands.DRIVE_DEADBAND);
+        interruptPathfinding =
+            new Trigger(() ->
+                Math.abs(driver.getLeftY()) > Deadbands.DRIVE_DEADBAND ||
+                Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
+                Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
 
         switch (Constants.CURRENT_MODE) {
             case REAL -> {

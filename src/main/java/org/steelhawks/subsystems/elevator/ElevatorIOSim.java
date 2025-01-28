@@ -6,8 +6,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.steelhawks.Constants;
 import org.steelhawks.util.Conversions;
 
@@ -18,7 +16,7 @@ public class ElevatorIOSim implements ElevatorIO {
         Units.inchesToMeters(1.729 / 2.0);
     private static final double ELEVATOR_GEARING = 10.0 / 1.0;
     private static final double MIN_HEIGHT = 0; //m
-    public static final double MAX_HEIGHT = 2.5; //m
+    public static final double MAX_HEIGHT = 1; //m
     private static final double ELEVATOR_WIDTH =
         Units.inchesToMeters(27);
 

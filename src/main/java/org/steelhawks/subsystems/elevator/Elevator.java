@@ -1,6 +1,7 @@
 package org.steelhawks.subsystems.elevator;
 
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -141,8 +142,10 @@ public class Elevator extends SubsystemBase {
     public Command setDesiredState(KElevator.State state) {
         return Commands.runOnce(
             () -> {
-                inputs.setpoint = state.rotations;
-                mController.setGoal(state.rotations);
+                double goal =
+                    MathUtil.clamp(state.rotations, 0, KElevator.MAX_ROTATIONS);
+                inputs.setpoint = goal;
+                mController.setGoal(goal);
                 enable();
             }, this);
     }
