@@ -15,6 +15,13 @@ import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.elevator.*;
+import org.steelhawks.subsystems.intake.Intake;
+import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
+import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
+import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
+import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
+import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
+import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -30,6 +37,7 @@ public class RobotContainer {
     public static Swerve s_Swerve;
     public static Vision s_Vision;
     public static Elevator s_Elevator;
+    public static Intake s_Intake;
 
     private final Trigger interruptPathfinding;
 
@@ -108,6 +116,10 @@ public class RobotContainer {
                 s_Elevator =
                     new Elevator(
                         new ElevatorIOTalonFX());
+                s_Intake =
+                    new Intake(
+                        new AlgaeIntakeIOTalonFX(),
+                        new CoralIntakeIOTalonFX());
             }
             case SIM -> {
                 mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d()));
@@ -128,6 +140,10 @@ public class RobotContainer {
                 s_Elevator =
                     new Elevator(
                         new ElevatorIOSim());
+                s_Intake =
+                    new Intake(
+                        new AlgaeIntakeIOSim(),
+                        new CoralIntakeIOSim());
             }
             default -> {
                 s_Swerve =
@@ -144,6 +160,10 @@ public class RobotContainer {
                 s_Elevator =
                     new Elevator(
                         new ElevatorIO() {});
+                s_Intake =
+                    new Intake(
+                        new AlgaeIntakeIO() {},
+                        new CoralIntakeIO() {});
             }
         }
 
