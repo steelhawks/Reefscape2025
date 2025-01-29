@@ -26,7 +26,7 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 
-import static org.steelhawks.subsystems.elevator.KElevator.State.*;
+import static org.steelhawks.subsystems.elevator.ElevatorConstants.State.*;
 
 
 public class RobotContainer {

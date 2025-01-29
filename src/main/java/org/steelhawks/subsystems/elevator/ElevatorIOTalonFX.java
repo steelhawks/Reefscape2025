@@ -45,10 +45,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
 
     public ElevatorIOTalonFX() {
-        mLeftMotor = new TalonFX(KElevator.LEFT_ID, Constants.CAN_BUS);
-        mRightMotor = new TalonFX(KElevator.RIGHT_ID, Constants.CAN_BUS);
-        mCANcoder = new CANcoder(KElevator.CANCODER_ID, Constants.CAN_BUS);
-        mLimitSwitch = new DigitalInput(KElevator.LIMIT_SWITCH_ID);
+        mLeftMotor = new TalonFX(ElevatorConstants.LEFT_ID, Constants.CAN_BUS);
+        mRightMotor = new TalonFX(ElevatorConstants.RIGHT_ID, Constants.CAN_BUS);
+        mCANcoder = new CANcoder(ElevatorConstants.CANCODER_ID, Constants.CAN_BUS);
+        mLimitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
 
         var leftConfig = new TalonFXConfiguration();
         leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -142,9 +142,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
 
 
-        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == KElevator.LIMIT_SWITCH_ID;
+        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == ElevatorConstants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atTopLimit = inputs.encoderPositionRotations >= KElevator.MAX_ROTATIONS;
+        inputs.atTopLimit = inputs.encoderPositionRotations >= ElevatorConstants.MAX_ROTATIONS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;

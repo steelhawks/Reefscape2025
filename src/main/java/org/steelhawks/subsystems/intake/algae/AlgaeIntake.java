@@ -4,7 +4,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.subsystems.intake.KIntake;
+import org.steelhawks.subsystems.intake.IntakeConstants;
 
 public class AlgaeIntake {
 
@@ -29,49 +29,49 @@ public class AlgaeIntake {
 
         mController =
             new ProfiledPIDController(
-                KIntake.ALGAE_KP.getAsDouble(),
-                KIntake.ALGAE_KI.getAsDouble(),
-                KIntake.ALGAE_KD.getAsDouble(),
+                IntakeConstants.ALGAE_KP.getAsDouble(),
+                IntakeConstants.ALGAE_KI.getAsDouble(),
+                IntakeConstants.ALGAE_KD.getAsDouble(),
                 new TrapezoidProfile.Constraints(
-                    KIntake.ALGAE_MAX_VELOCITY_PER_SEC.getAsDouble(),
-                    KIntake.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
+                    IntakeConstants.ALGAE_MAX_VELOCITY_PER_SEC.getAsDouble(),
+                    IntakeConstants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
 
-        mController.setTolerance(KIntake.ALGAE_TOLERANCE.getAsDouble());
+        mController.setTolerance(IntakeConstants.ALGAE_TOLERANCE.getAsDouble());
 
         mFeedforward =
             new ArmFeedforward(
-                KIntake.ALGAE_KS.getAsDouble(),
-                KIntake.ALGAE_KG.getAsDouble(),
-                KIntake.ALGAE_KV.getAsDouble());
+                IntakeConstants.ALGAE_KS.getAsDouble(),
+                IntakeConstants.ALGAE_KG.getAsDouble(),
+                IntakeConstants.ALGAE_KV.getAsDouble());
     }
 
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeIntake", inputs);
 
-        if (KIntake.ALGAE_KP.hasChanged(hashCode()) ||
-            KIntake.ALGAE_KI.hasChanged(hashCode()) ||
-            KIntake.ALGAE_KD.hasChanged(hashCode()) ||
-            KIntake.ALGAE_MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
-            KIntake.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
+        if (IntakeConstants.ALGAE_KP.hasChanged(hashCode()) ||
+            IntakeConstants.ALGAE_KI.hasChanged(hashCode()) ||
+            IntakeConstants.ALGAE_KD.hasChanged(hashCode()) ||
+            IntakeConstants.ALGAE_MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
+            IntakeConstants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
         ) {
             disable();
             mController.setPID(
-                KIntake.ALGAE_KP.getAsDouble(),
-                KIntake.ALGAE_KI.getAsDouble(),
-                KIntake.ALGAE_KD.getAsDouble());
+                IntakeConstants.ALGAE_KP.getAsDouble(),
+                IntakeConstants.ALGAE_KI.getAsDouble(),
+                IntakeConstants.ALGAE_KD.getAsDouble());
 
             enable();
         }
 
-        if (KIntake.ALGAE_KS.hasChanged(hashCode()) ||
-            KIntake.ALGAE_KG.hasChanged(hashCode()) ||
-            KIntake.ALGAE_KV.hasChanged(hashCode())
+        if (IntakeConstants.ALGAE_KS.hasChanged(hashCode()) ||
+            IntakeConstants.ALGAE_KG.hasChanged(hashCode()) ||
+            IntakeConstants.ALGAE_KV.hasChanged(hashCode())
         ) {
             mFeedforward = new ArmFeedforward(
-                KIntake.ALGAE_KS.getAsDouble(),
-                KIntake.ALGAE_KG.getAsDouble(),
-                KIntake.ALGAE_KV.getAsDouble());
+                IntakeConstants.ALGAE_KS.getAsDouble(),
+                IntakeConstants.ALGAE_KG.getAsDouble(),
+                IntakeConstants.ALGAE_KV.getAsDouble());
         }
 
         if (!mEnabled) return;

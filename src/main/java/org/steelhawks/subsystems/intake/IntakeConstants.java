@@ -2,7 +2,7 @@ package org.steelhawks.subsystems.intake;
 
 import org.steelhawks.util.LoggedTunableNumber;
 
-public class KIntake {
+public class IntakeConstants {
 
     // Algae
     public static final int ALGAE_PIVOT_ID = 30;

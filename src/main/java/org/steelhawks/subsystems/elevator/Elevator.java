@@ -44,20 +44,20 @@ public class Elevator extends SubsystemBase {
     public Elevator(ElevatorIO io) {
         mController =
             new ProfiledPIDController(
-                KElevator.KP.getAsDouble(),
-                KElevator.KI.getAsDouble(),
-                KElevator.KD.getAsDouble(),
+                ElevatorConstants.KP.getAsDouble(),
+                ElevatorConstants.KI.getAsDouble(),
+                ElevatorConstants.KD.getAsDouble(),
                 new TrapezoidProfile.Constraints(
-                    KElevator.MAX_VELOCITY_PER_SEC.getAsDouble(),
-                    KElevator.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
+                    ElevatorConstants.MAX_VELOCITY_PER_SEC.getAsDouble(),
+                    ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
 
         mFeedforward =
             new ElevatorFeedforward(
-                KElevator.KS.getAsDouble(),
-                KElevator.KG.getAsDouble(),
-                KElevator.KV.getAsDouble());
+                ElevatorConstants.KS.getAsDouble(),
+                ElevatorConstants.KG.getAsDouble(),
+                ElevatorConstants.KV.getAsDouble());
 
-        mController.setTolerance(KElevator.TOLERANCE);
+        mController.setTolerance(ElevatorConstants.TOLERANCE);
 
         mSysId =
             new SysIdRoutine(
@@ -104,30 +104,30 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-        if (KElevator.KP.hasChanged(hashCode()) ||
-            KElevator.KI.hasChanged(hashCode()) ||
-            KElevator.KD.hasChanged(hashCode()) ||
-            KElevator.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
-            KElevator.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
+        if (ElevatorConstants.KP.hasChanged(hashCode()) ||
+            ElevatorConstants.KI.hasChanged(hashCode()) ||
+            ElevatorConstants.KD.hasChanged(hashCode()) ||
+            ElevatorConstants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
+            ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
         ) {
             disable();
             mController.setPID(
-                KElevator.KP.getAsDouble(),
-                KElevator.KI.getAsDouble(),
-                KElevator.KD.getAsDouble());
+                ElevatorConstants.KP.getAsDouble(),
+                ElevatorConstants.KI.getAsDouble(),
+                ElevatorConstants.KD.getAsDouble());
 
             enable();
         }
 
-        if (KElevator.KS.hasChanged(hashCode()) ||
-            KElevator.KG.hasChanged(hashCode()) ||
-            KElevator.KV.hasChanged(hashCode())
+        if (ElevatorConstants.KS.hasChanged(hashCode()) ||
+            ElevatorConstants.KG.hasChanged(hashCode()) ||
+            ElevatorConstants.KV.hasChanged(hashCode())
         ) {
             mFeedforward =
                 new ElevatorFeedforward(
-                    KElevator.KS.getAsDouble(),
-                    KElevator.KG.getAsDouble(),
-                    KElevator.KV.getAsDouble());
+                    ElevatorConstants.KS.getAsDouble(),
+                    ElevatorConstants.KG.getAsDouble(),
+                    ElevatorConstants.KV.getAsDouble());
         }
 
         if (!mEnabled) return;
@@ -165,11 +165,11 @@ public class Elevator extends SubsystemBase {
         return mSysId.dynamic(dir);
     }
 
-    public Command setDesiredState(KElevator.State state) {
+    public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.rotations, 0, KElevator.MAX_ROTATIONS);
+                    MathUtil.clamp(state.rotations, 0, ElevatorConstants.MAX_ROTATIONS);
                 inputs.setpoint = goal;
                 mController.setGoal(goal);
                 enable();
@@ -190,7 +190,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(this::disable)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(-KElevator.MANUAL_ELEVATOR_INCREMENT), this))
+                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT), this))
         .until(() -> inputs.limitSwitchPressed)
         .finallyDo(() -> io.stop())
         .withName("Home Elevator");

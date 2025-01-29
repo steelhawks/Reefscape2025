@@ -44,9 +44,9 @@ public class Reefstate {
     }
 
     // Updates reef state when coral is placed
-    public static void placeCoral(int section, boolean left, boolean L2, boolean L3, boolean L4) {
+    public static void placeCoral(int section, boolean leftBranch, boolean L2, boolean L3, boolean L4) {
         ReefSection reefSection = mReefSections.get(section);
-        if (left) {
+        if (leftBranch) {
             reefSection.mLeftBranch.updateBranchState(L2, L3, L4);
         } else {
             reefSection.mRightBranch.updateBranchState(L2, L3, L4);

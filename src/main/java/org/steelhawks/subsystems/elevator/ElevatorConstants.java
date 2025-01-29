@@ -2,7 +2,7 @@ package org.steelhawks.subsystems.elevator;
 
 import org.steelhawks.util.LoggedTunableNumber;
 
-public final class KElevator {
+public final class ElevatorConstants {
 
     public enum State {
         L4(3),
