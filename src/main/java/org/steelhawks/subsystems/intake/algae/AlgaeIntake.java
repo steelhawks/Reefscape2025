@@ -36,7 +36,7 @@ public class AlgaeIntake {
                     KIntake.ALGAE_MAX_VELOCITY_PER_SEC.getAsDouble(),
                     KIntake.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
 
-        mController.setTolerance(KIntake.TOLERANCE.getAsDouble());
+        mController.setTolerance(KIntake.ALGAE_TOLERANCE.getAsDouble());
 
         mFeedforward =
             new ArmFeedforward(
