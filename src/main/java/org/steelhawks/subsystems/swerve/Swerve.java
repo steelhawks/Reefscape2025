@@ -109,6 +109,7 @@ public class Swerve extends SubsystemBase {
     private final SwerveModule[] swerveModules = new SwerveModule[4]; // FL, FR, BL, BR
     private final SysIdRoutine driveSysId;
     private final SysIdRoutine turnSysId;
+    private final SysIdRoutine angularSysId;
     private final Alert gyroDisconnectedAlert =
         new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
@@ -189,6 +190,16 @@ public class Swerve extends SubsystemBase {
                     (state) -> Logger.recordOutput("Swerve/TurnSysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> runTurnCharacterization(voltage.in(Volts)), null, this));
+
+        angularSysId =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null,
+                    null,
+                    null,
+                    (state) -> Logger.recordOutput("Swerve/AngularSysIdState", state.toString())),
+                new SysIdRoutine.Mechanism(
+                    (voltage) -> runAngularCharacterization(voltage.in(Volts)), null, this));
     }
 
     @Override
@@ -300,6 +311,15 @@ public class Swerve extends SubsystemBase {
     public void runTurnCharacterization(double output) {
         for (int i = 0; i < 4; i++) {
             swerveModules[i].runTurnCharacterization(output);
+        }
+    }
+
+    /**
+     * Runs the robot in a circular motion with the specified turn output.
+     */
+    public void runAngularCharacterization(double output) {
+        for (int i = 0; i < 4; i++) {
+            swerveModules[i].runAngularCharacterization(output);
         }
     }
 
@@ -520,6 +540,24 @@ public class Swerve extends SubsystemBase {
                 0.01)))
             .withTimeout(1.0)
             .andThen(turnSysId.dynamic(direction));
+    }
+
+    /**
+     * Returns a command to run a quasistatic test to characterize the robot's angular motion.
+     */
+    public Command angularSysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return run(() -> runAngularCharacterization(0.0))
+            .withTimeout(1.0)
+            .andThen(angularSysId.quasistatic(direction));
+    }
+
+    /**
+     * Returns a command to run a dynamic test to characterize the robot's angular motion.
+     */
+    public Command angularSysIdDynamic(SysIdRoutine.Direction direction) {
+        return run(() -> runAngularCharacterization(0.0))
+            .withTimeout(1.0)
+            .andThen(angularSysId.dynamic(direction));
     }
 
     /**

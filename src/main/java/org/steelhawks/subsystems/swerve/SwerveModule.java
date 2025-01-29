@@ -85,13 +85,22 @@ public class SwerveModule {
     }
 
     /**
-     * Runs the module with specified output.
-     *
-     * @param output
+     * Characterizes the turn motor feedforward.
      */
     public void runTurnCharacterization(double output) {
         io.setDriveOpenLoop(0);
         io.setTurnOpenLoop(output);
+    }
+
+    /**
+     * Characterizes the robot's angular motion.
+     * Useful for finding the Moment of Inertia.
+     */
+    public void runAngularCharacterization(double output) {
+        io.setDriveOpenLoop(output);
+        io.setTurnPosition(
+            new Rotation2d(constants.LocationX, constants.LocationY)
+                .plus(Rotation2d.kCCW_Pi_2));
     }
 
     /**
