@@ -15,7 +15,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 public final class Constants {
 
-    public static final boolean TUNING_MODE = false;
+    public static final boolean TUNING_MODE = true;
     public static final boolean IN_REPLAY_MODE = false;
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
