@@ -17,6 +17,7 @@ public final class Constants {
 
     public static final boolean TUNING_MODE = false;
     public static final boolean IN_REPLAY_MODE = false;
+    public static final boolean USE_MOTION_MAGIC = true;
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
     public static final CANBus CAN_BUS = new CANBus(TunerConstants.DrivetrainConstants.CANBusName);

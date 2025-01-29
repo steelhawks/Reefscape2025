@@ -6,12 +6,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -24,6 +19,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
+import org.steelhawks.Constants;
 import org.steelhawks.generated.TunerConstants;
 
 import java.util.Queue;
@@ -46,6 +42,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Voltage control requests
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
+    private final MotionMagicVoltage positionVoltageRequestMotionMagic = new MotionMagicVoltage(0.0);
     private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
 
     // Torque-current control requests
@@ -253,7 +250,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void setTurnPosition(Rotation2d rotation) {
         turnTalon.setControl(
             switch (constants.SteerMotorClosedLoopOutput) {
-                case Voltage -> positionVoltageRequest.withPosition(rotation.getRotations());
+                case Voltage -> Constants.USE_MOTION_MAGIC ?
+                    positionVoltageRequestMotionMagic.withPosition(rotation.getRotations()) :
+                        positionVoltageRequest.withPosition(rotation.getRotations());
                 case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
                     rotation.getRotations());
             });
