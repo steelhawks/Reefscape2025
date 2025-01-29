@@ -67,6 +67,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final StatusSignal<Temperature> driveTemp;
 
     // turn motor inputs
+    private final StatusSignal<Boolean> turnMagnetBad;
     private final StatusSignal<Angle> turnAbsolutePosition;
     private final StatusSignal<Angle> turnPosition;
     private final Queue<Double> turnPositionQueue;
@@ -149,6 +150,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveTemp = driveTalon.getDeviceTemp();
 
         // Create turn status signals
+        turnMagnetBad = cancoder.getFault_BadMagnet();
         turnAbsolutePosition = cancoder.getAbsolutePosition();
         turnPosition = turnTalon.getPosition();
         turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(turnTalon.getPosition());
@@ -166,12 +168,13 @@ public class ModuleIOTalonFX implements ModuleIO {
             driveAppliedVolts,
             driveCurrent,
             driveTemp,
+            turnMagnetBad,
             turnAbsolutePosition,
             turnVelocity,
             turnAppliedVolts,
             turnCurrent,
             turnTemp);
-        ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
+        ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon, cancoder);
     }
 
     @Override
@@ -180,7 +183,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         var driveStatus =
             BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
         var turnStatus =
-            BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
+            BaseStatusSignal.refreshAll(turnMagnetBad, turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
         var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
 
         // turn inputs
@@ -189,17 +192,18 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
         inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
         inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
-        inputs.driveMotorTemperatureCelsius = driveTemp.getValueAsDouble();
+        inputs.driveTempCelsius = driveTemp.getValueAsDouble();
 
         // turn inputs
         inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
         inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
+        inputs.turnMagnetGood = !turnMagnetBad.getValue();
         inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
         inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
         inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
         inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
         inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
-        inputs.turnMotorTemperatureCelsius = turnTemp.getValueAsDouble();
+        inputs.turnTempCelsius = turnTemp.getValueAsDouble();
 
         // odometry inputs
         inputs.odometryTimestamps =
