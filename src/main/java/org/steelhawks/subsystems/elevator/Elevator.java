@@ -24,7 +24,7 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
 
     private final ProfiledPIDController mController;
-    private final ElevatorFeedforward mFeedforward;
+    private ElevatorFeedforward mFeedforward;
 
     private final Alert leftMotorDisconnected;
     private final Alert rightMotorDisconnected;
@@ -44,18 +44,18 @@ public class Elevator extends SubsystemBase {
     public Elevator(ElevatorIO io) {
         mController =
             new ProfiledPIDController(
-                KElevator.KP,
-                KElevator.KI,
-                KElevator.KD,
+                KElevator.KP.getAsDouble(),
+                KElevator.KI.getAsDouble(),
+                KElevator.KD.getAsDouble(),
                 new TrapezoidProfile.Constraints(
-                    KElevator.MAX_VELOCITY_PER_SEC,
-                    KElevator.MAX_ACCELERATION_PER_SEC_SQUARED));
+                    KElevator.MAX_VELOCITY_PER_SEC.getAsDouble(),
+                    KElevator.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
 
         mFeedforward =
             new ElevatorFeedforward(
-                KElevator.KS,
-                KElevator.KG,
-                KElevator.KV);
+                KElevator.KS.getAsDouble(),
+                KElevator.KG.getAsDouble(),
+                KElevator.KV.getAsDouble());
 
         mController.setTolerance(KElevator.TOLERANCE);
 
@@ -103,6 +103,32 @@ public class Elevator extends SubsystemBase {
         canCoderDisconnected.set(!inputs.encoderConnected);
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
+
+        if (KElevator.KP.hasChanged(hashCode()) ||
+            KElevator.KI.hasChanged(hashCode()) ||
+            KElevator.KD.hasChanged(hashCode()) ||
+            KElevator.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
+            KElevator.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
+        ) {
+            disable();
+            mController.setPID(
+                KElevator.KP.getAsDouble(),
+                KElevator.KI.getAsDouble(),
+                KElevator.KD.getAsDouble());
+
+            enable();
+        }
+
+        if (KElevator.KS.hasChanged(hashCode()) ||
+            KElevator.KG.hasChanged(hashCode()) ||
+            KElevator.KV.hasChanged(hashCode())
+        ) {
+            mFeedforward =
+                new ElevatorFeedforward(
+                    KElevator.KS.getAsDouble(),
+                    KElevator.KG.getAsDouble(),
+                    KElevator.KV.getAsDouble());
+        }
 
         if (!mEnabled) return;
 

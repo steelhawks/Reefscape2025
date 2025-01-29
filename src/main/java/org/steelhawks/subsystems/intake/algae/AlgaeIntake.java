@@ -13,7 +13,7 @@ public class AlgaeIntake {
     private boolean mEnabled;
 
     private final ProfiledPIDController mController;
-    private final ArmFeedforward mFeedforward;
+    private ArmFeedforward mFeedforward;
 
     public void enable() {
         mController.reset(inputs.pivotPositionRad);
@@ -29,23 +29,50 @@ public class AlgaeIntake {
 
         mController =
             new ProfiledPIDController(
-                KIntake.ALGAE_KP,
-                KIntake.ALGAE_KI,
-                KIntake.ALGAE_KD,
+                KIntake.ALGAE_KP.getAsDouble(),
+                KIntake.ALGAE_KI.getAsDouble(),
+                KIntake.ALGAE_KD.getAsDouble(),
                 new TrapezoidProfile.Constraints(
-                    KIntake.ALGAE_MAX_VELO,
-                    KIntake.ALGAE_MAX_ACCEL));
+                    KIntake.ALGAE_MAX_VELOCITY_PER_SEC.getAsDouble(),
+                    KIntake.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
+
+        mController.setTolerance(KIntake.TOLERANCE.getAsDouble());
 
         mFeedforward =
             new ArmFeedforward(
-                KIntake.ALGAE_KS,
-                KIntake.ALGAE_KG,
-                KIntake.ALGAE_KV);
+                KIntake.ALGAE_KS.getAsDouble(),
+                KIntake.ALGAE_KG.getAsDouble(),
+                KIntake.ALGAE_KV.getAsDouble());
     }
 
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeIntake", inputs);
+
+        if (KIntake.ALGAE_KP.hasChanged(hashCode()) ||
+            KIntake.ALGAE_KI.hasChanged(hashCode()) ||
+            KIntake.ALGAE_KD.hasChanged(hashCode()) ||
+            KIntake.ALGAE_MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
+            KIntake.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
+        ) {
+            disable();
+            mController.setPID(
+                KIntake.ALGAE_KP.getAsDouble(),
+                KIntake.ALGAE_KI.getAsDouble(),
+                KIntake.ALGAE_KD.getAsDouble());
+
+            enable();
+        }
+
+        if (KIntake.ALGAE_KS.hasChanged(hashCode()) ||
+            KIntake.ALGAE_KG.hasChanged(hashCode()) ||
+            KIntake.ALGAE_KV.hasChanged(hashCode())
+        ) {
+            mFeedforward = new ArmFeedforward(
+                KIntake.ALGAE_KS.getAsDouble(),
+                KIntake.ALGAE_KG.getAsDouble(),
+                KIntake.ALGAE_KV.getAsDouble());
+        }
 
         if (!mEnabled) return;
 

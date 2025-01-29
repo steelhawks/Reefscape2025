@@ -1,5 +1,7 @@
 package org.steelhawks.subsystems.intake;
 
+import org.steelhawks.util.LoggedTunableNumber;
+
 public class KIntake {
 
     // Algae
@@ -7,15 +9,26 @@ public class KIntake {
     public static final int ALGAE_INTAKE_ID = 31;
     public static final int PIVOT_CANCODER_ID = 32;
 
-    public static final double ALGAE_KP = 0;
-    public static final double ALGAE_KI = 0;
-    public static final double ALGAE_KD = 0;
-    public static final double ALGAE_MAX_VELO = 0;
-    public static final double ALGAE_MAX_ACCEL = 0;
+    public static final LoggedTunableNumber ALGAE_KP =
+        new LoggedTunableNumber("Intake/Algae/KP", 0);
+    public static final LoggedTunableNumber ALGAE_KI =
+        new LoggedTunableNumber("Intake/Algae/KI", 0);
+    public static final LoggedTunableNumber ALGAE_KD =
+        new LoggedTunableNumber("Intake/Algae/KD", 0);
+    public static final LoggedTunableNumber ALGAE_MAX_VELOCITY_PER_SEC =
+        new LoggedTunableNumber("Intake/Algae/MaxVelocityPerSec", 0);
+    public static final LoggedTunableNumber ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED =
+        new LoggedTunableNumber("Intake/Algae/MaxAccelerationPerSecSquared", 0);
 
-    public static final double ALGAE_KS = 0;
-    public static final double ALGAE_KG = 0;
-    public static final double ALGAE_KV = 0;
+    public static final LoggedTunableNumber ALGAE_KS =
+        new LoggedTunableNumber("Intake/Algae/KS", 0);
+    public static final LoggedTunableNumber ALGAE_KG =
+        new LoggedTunableNumber("Intake/Algae/KG", 0);
+    public static final LoggedTunableNumber ALGAE_KV =
+        new LoggedTunableNumber("Intake/Algae/KV", 0);
+
+    public static final LoggedTunableNumber TOLERANCE =
+        new LoggedTunableNumber("Intake/Algae/Tolerance", 0);
 
     // Coral
 
