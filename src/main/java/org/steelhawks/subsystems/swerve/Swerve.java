@@ -99,7 +99,7 @@ public class Swerve extends SubsystemBase {
                     TunerConstants.FrontLeft.SteerMotorGearRatio,
                     Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
                     Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-                    Inches.of(2),
+                    Meters.of(TunerConstants.FrontLeft.WheelRadius),
                     KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
                     WHEEL_COF));
 
