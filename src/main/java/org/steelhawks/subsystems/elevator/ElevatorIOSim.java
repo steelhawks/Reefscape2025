@@ -85,8 +85,9 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.encoderVelocityRotationsPerSec =
             Conversions.metersToRotations(mEncoderSim.getRate(), SPROCKET_RAD);
 
-        inputs.atTopLimit = mElevatorSim.hasHitUpperLimit();
+        inputs.limitSwitchConnected = true;
         inputs.limitSwitchPressed = mElevatorSim.hasHitLowerLimit();
+        inputs.atTopLimit = mElevatorSim.hasHitUpperLimit();
 
         mVisualizer.update();
     }

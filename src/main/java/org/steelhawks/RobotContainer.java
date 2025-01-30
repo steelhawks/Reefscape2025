@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -249,5 +250,29 @@ public class RobotContainer {
             s_Elevator.setDesiredState(L3));
     }
 
-    private void configureOperator() {}
+    private void configureOperator() {
+        operator.x()
+            .whileTrue(
+                s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward)
+                    .alongWith(
+                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
+
+        operator.y()
+            .whileTrue(
+                s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+                    .alongWith(
+                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
+
+        operator.a()
+            .whileTrue(
+                s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward)
+                    .alongWith(
+                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
+
+        operator.b()
+            .whileTrue(
+                s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward)
+                    .alongWith(
+                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
+    }
 }
