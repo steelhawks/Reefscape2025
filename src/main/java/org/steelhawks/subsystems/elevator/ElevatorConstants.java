@@ -35,6 +35,24 @@ public final class ElevatorConstants {
             0.5,
             3);
 
+    public static final ElevatorConstants ALPHA =
+        new ElevatorConstants(
+            0,
+            20,
+            21,
+            22,
+            0,
+            0.15,
+            2.6,
+            3.9,
+            0,
+            0.01,
+            5.2,
+            8,
+            0.005,
+            0.5,
+            3);
+
     public static final ElevatorConstants HAWKRIDER = DEFAULT;
 
     public final int LIMIT_SWITCH_ID;

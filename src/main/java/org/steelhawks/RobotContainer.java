@@ -133,7 +133,7 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {}, ElevatorConstants.DEFAULT);
+                            new ElevatorIO() {}, ElevatorConstants.ALPHA);
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
