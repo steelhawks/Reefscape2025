@@ -198,14 +198,14 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {});
                 switch (Constants.getRobot()) {
-                    case HAWKRIDER ->
+                    case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
                         s_Vision =
                             new Vision(
                                 s_Swerve::accept,
                                 new VisionIO() {},
                                 new VisionIO() {},
                                 new VisionIO() {});
-                    default ->
+                    default -> // assume everything else has one
                         s_Vision =
                             new Vision(
                                 s_Swerve::accept,
@@ -254,6 +254,7 @@ public class RobotContainer {
     }
 
     private void configureDriver() {
+        /* ------------- Swerve Controls ------------- */
         s_Swerve.setDefaultCommand(
             DriveCommands.joystickDrive(
                 () -> -driver.getLeftY(),
@@ -262,7 +263,8 @@ public class RobotContainer {
 
         driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
 
-        driver.rightBumper().whileTrue( // align to processor
+        // align robot front to processor
+        driver.rightBumper().whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
@@ -294,7 +296,7 @@ public class RobotContainer {
                         mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
         }
 
-
+        /* ------------- Elevator Controls ------------- */
         driver.povUp().whileTrue(
             s_Elevator.elevatorManual(.1));
 
@@ -315,6 +317,7 @@ public class RobotContainer {
                 Commands.runOnce(
                     () -> altMode = !altMode));
 
+        /* ------------- SysId Controls ------------- */
         operator.x()
             .whileTrue(
                 s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward)
