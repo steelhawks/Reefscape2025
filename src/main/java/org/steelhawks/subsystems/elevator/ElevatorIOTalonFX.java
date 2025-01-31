@@ -145,37 +145,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
         inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
 
-        inputs.limitSwitchConnected = limitSwitchConnected();
+        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
         inputs.atTopLimit = inputs.encoderPositionRotations >= constants.MAX_ROTATIONS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
-    }
-
-    private boolean limitSwitchConnected() {
-        int retries = 0;
-        final int MAX_RETRIES = 10;
-
-        while (retries < MAX_RETRIES) {
-            boolean consistentReading =
-                canCoderPosition.getValueAsDouble() - constants.TOLERANCE <= 0 &&
-                    !mLimitSwitch.get();
-
-            if (consistentReading) {
-                return true;  // switch is connected
-            }
-
-            retries++;
-            Timer.delay(0.1);
-        }
-
-        if (canCoderPosition.getValueAsDouble() - constants.TOLERANCE > 0) {
-            // elevator is not at the bottom, return true for now
-            return true;
-        }
-
-        return false;
     }
 
     @Override

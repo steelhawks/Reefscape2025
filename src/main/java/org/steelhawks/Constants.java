@@ -15,7 +15,7 @@ import static edu.wpi.first.units.Units.Feet;
 
 public final class Constants {
 
-    public static final boolean USE_MOTION_MAGIC = true;
+    public static final boolean USE_MOTION_MAGIC = false;
     public static final boolean TUNING_MODE = false;
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
@@ -43,7 +43,7 @@ public final class Constants {
      *     </p>If you want to replay a log file set it to the robot type you want to replay and just run the simulator.
      * </p>
      */
-    private static final RobotType ROBOT_TYPE = RobotType.SIMBOT;
+    private static final RobotType ROBOT_TYPE = RobotType.HAWKRIDER;
 
     public static Mode getMode() {
         return switch (ROBOT_TYPE) {
