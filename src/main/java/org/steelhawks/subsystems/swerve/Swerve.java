@@ -48,6 +48,7 @@ import org.steelhawks.Constants;
 import org.steelhawks.Constants.Mode;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
+import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.LocalADStarAK;
 
 public class Swerve extends SubsystemBase {
@@ -511,6 +512,32 @@ public class Swerve extends SubsystemBase {
         double angleToTarget = Math.atan2(dy, dx);
         double calculatedAngle = angleToTarget - getRotation().getRadians();
         return new Rotation2d(Math.IEEEremainder(calculatedAngle, 2 * Math.PI));
+    }
+
+    public Pose2d findClosestReef() {
+        Pose2d[] reefPoses = {
+            FieldConstants.LEFT_SECTION,
+            FieldConstants.TOP_LEFT_SECTION,
+            FieldConstants.BOTTOM_LEFT_SECTION,
+            FieldConstants.RIGHT_SECTION,
+            FieldConstants.TOP_RIGHT_SECTION,
+            FieldConstants.BOTTOM_RIGHT_SECTION
+        };
+
+        double closestDistance = Double.MAX_VALUE;
+        Pose2d closestPose = null;
+
+        for (Pose2d reefPose : reefPoses) {
+            Pose2d validated = AllianceFlip.validate(reefPose);
+            double distance = getPose().getTranslation().getDistance(validated.getTranslation());
+
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestPose = validated;
+            }
+        }
+
+        return closestPose;
     }
 
     public boolean shouldContinuePathfinding(BooleanSupplier stopCondition) {

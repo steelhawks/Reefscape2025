@@ -275,11 +275,12 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> new Rotation2d(-Math.PI / 2)));
 
+        // align robot front to face towards closest reef
         driver.leftBumper().whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
-                () -> s_Swerve.calculateTurnAngle(FieldConstants.REEF_POSE)));
+                () -> s_Swerve.calculateTurnAngle(s_Swerve.findClosestReef())));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
