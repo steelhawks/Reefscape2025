@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED.LEDColor;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -117,15 +118,22 @@ public class RobotContainer {
 //                            new ModuleIOTalonFX(TunerConstants.BackRight));
                 }
                 case ALPHABOT -> {
-//                    s_Swerve =
-//                        new Swerve(
-//                            new GyroIOPigeon2(
-//                                TunerConstantsDevBot.DrivetrainConstants.Pigeon2Id,
-//                                TunerConstantsDevBot.DrivetrainConstants.CANBusName),
-//                            new ModuleIOTalonFX(TunerConstantsDevBot.FrontLeft),
-//                            new ModuleIOTalonFX(TunerConstantsDevBot.FrontRight),
-//                            new ModuleIOTalonFX(TunerConstantsDevBot.BackLeft),
-//                            new ModuleIOTalonFX(TunerConstantsDevBot.BackRight));
+                    s_Swerve =
+                        new Swerve(
+                            new GyroIOPigeon2(
+                                TunerConstantsAlpha.DrivetrainConstants.Pigeon2Id,
+                                TunerConstantsAlpha.DrivetrainConstants.CANBusName),
+                            new ModuleIOTalonFX(TunerConstantsAlpha.FrontLeft),
+                            new ModuleIOTalonFX(TunerConstantsAlpha.FrontRight),
+                            new ModuleIOTalonFX(TunerConstantsAlpha.BackLeft),
+                            new ModuleIOTalonFX(TunerConstantsAlpha.BackRight));
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIO() {});
+                    s_Elevator =
+                        new Elevator(
+                            new ElevatorIO() {}, null);
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -147,8 +155,8 @@ public class RobotContainer {
                             ElevatorConfig.HAWKRIDER);
                     s_Intake =
                         new Intake(
-                            new AlgaeIntakeIOTalonFX(),
-                            new CoralIntakeIOTalonFX());
+                            new AlgaeIntakeIO() {},
+                            new CoralIntakeIO() {});
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3,

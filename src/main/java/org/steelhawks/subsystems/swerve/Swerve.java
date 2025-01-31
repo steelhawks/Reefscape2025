@@ -46,6 +46,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.util.LocalADStarAK;
 
@@ -58,6 +59,7 @@ public class Swerve extends SubsystemBase {
     public static final double ODOMETRY_FREQUENCY =
         Constants.getCANBus().isNetworkFD() ? 250.0 : 100.0;
     public static final double DRIVE_BASE_RADIUS;
+
     // PathPlanner config constants
     private static final double ROBOT_MASS_KG;
     private static final double ROBOT_MOI;
@@ -92,6 +94,48 @@ public class Swerve extends SubsystemBase {
 
     static {
         switch (Constants.getRobot()) {
+            case ALPHABOT -> {
+                DRIVE_BASE_RADIUS =
+                    Math.max(
+                        Math.max(
+                            Math.hypot(TunerConstantsAlpha.FrontLeft.LocationX, TunerConstantsAlpha.FrontLeft.LocationY),
+                            Math.hypot(TunerConstantsAlpha.FrontRight.LocationX, TunerConstantsAlpha.FrontRight.LocationY)),
+                        Math.max(
+                            Math.hypot(TunerConstantsAlpha.BackLeft.LocationX, TunerConstantsAlpha.BackLeft.LocationY),
+                            Math.hypot(TunerConstantsAlpha.BackRight.LocationX, TunerConstantsAlpha.BackRight.LocationY)));
+                ROBOT_MASS_KG = Units.lbsToKilograms(138 + (6.0 / 16.0));
+                ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(30), 2));
+                WHEEL_COF = COTS.WHEELS.COLSONS.cof;
+                PP_CONFIG =
+                    new RobotConfig(
+                        ROBOT_MASS_KG,
+                        ROBOT_MOI,
+                        new ModuleConfig(
+                            TunerConstantsAlpha.FrontLeft.WheelRadius,
+                            TunerConstantsAlpha.kSpeedAt12Volts.in(MetersPerSecond),
+                            WHEEL_COF,
+                            DCMotor.getKrakenX60Foc(1)
+                                .withReduction(TunerConstantsAlpha.FrontLeft.DriveMotorGearRatio),
+                            TunerConstantsAlpha.FrontLeft.SlipCurrent,
+                            1),
+                        getModuleTranslations());
+                MAPLE_SIM_CONFIG =
+                    DriveTrainSimulationConfig.Default()
+                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+                        .withCustomModuleTranslations(getModuleTranslations())
+                        .withGyro(COTS.ofPigeon2())
+                        .withSwerveModule(
+                            new SwerveModuleSimulationConfig(
+                                DCMotor.getKrakenX60(1),
+                                DCMotor.getFalcon500(1),
+                                TunerConstantsAlpha.FrontLeft.DriveMotorGearRatio,
+                                TunerConstantsAlpha.FrontLeft.SteerMotorGearRatio,
+                                Volts.of(TunerConstantsAlpha.FrontLeft.DriveFrictionVoltage),
+                                Volts.of(TunerConstantsAlpha.FrontLeft.SteerFrictionVoltage),
+                                Meters.of(TunerConstantsAlpha.FrontLeft.WheelRadius),
+                                KilogramSquareMeters.of(TunerConstantsAlpha.FrontLeft.SteerInertia),
+                                WHEEL_COF));
+            }
             case HAWKRIDER -> {
                 DRIVE_BASE_RADIUS =
                     Math.max(
@@ -139,16 +183,19 @@ public class Swerve extends SubsystemBase {
                 ROBOT_MASS_KG = 0;
                 ROBOT_MOI = 0;
                 WHEEL_COF = 0;
-                PP_CONFIG = new RobotConfig(
-                    ROBOT_MASS_KG,
-                    ROBOT_MOI,
-                    new ModuleConfig(
-                        0,
-                        0,
-                        WHEEL_COF,
-                        DCMotor.getKrakenX60Foc(1),
-                        0,
-                        0));
+                PP_CONFIG =
+                    new RobotConfig(
+                        ROBOT_MASS_KG,
+                        ROBOT_MOI,
+                        new ModuleConfig(
+                            TunerConstantsHawkRider.FrontLeft.WheelRadius,
+                            TunerConstantsHawkRider.kSpeedAt12Volts.in(MetersPerSecond),
+                            WHEEL_COF,
+                            DCMotor.getKrakenX60Foc(1)
+                                .withReduction(TunerConstantsHawkRider.FrontLeft.DriveMotorGearRatio),
+                            TunerConstantsHawkRider.FrontLeft.SlipCurrent,
+                            1),
+                        getModuleTranslations());
                 MAPLE_SIM_CONFIG =
                     DriveTrainSimulationConfig.Default();
             }
