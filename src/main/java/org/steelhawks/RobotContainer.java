@@ -34,6 +34,8 @@ public class RobotContainer {
 
     private SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
+    private final Trigger isAltMode;
+    private boolean altMode = false;
 
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
@@ -99,6 +101,7 @@ public class RobotContainer {
                 Math.abs(driver.getLeftY()) > Deadbands.DRIVE_DEADBAND ||
                 Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
                 Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
+        isAltMode = new Trigger(() -> altMode);
 
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
@@ -187,6 +190,10 @@ public class RobotContainer {
             .whileTrue(
                 s_LED.fadeCommand(LEDColor.PURPLE));
 
+        isAltMode
+            .whileTrue(
+                s_LED.bounceWaveCommand(LEDColor.PURPLE));
+
         s_Elevator.atLimit()
             .onTrue(
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
@@ -251,6 +258,12 @@ public class RobotContainer {
     }
 
     private void configureOperator() {
+        operator.start()
+            .and(operator.back())
+            .onTrue(
+                Commands.runOnce(
+                    () -> altMode = !altMode));
+
         operator.x()
             .whileTrue(
                 s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward)

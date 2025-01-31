@@ -5,16 +5,20 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import org.steelhawks.Constants;
+import org.steelhawks.util.PhoenixUtil;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -42,7 +46,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     private boolean atTopLimit = false;
     private boolean atBottomLimit = false;
-
 
     public ElevatorIOTalonFX() {
         mLeftMotor = new TalonFX(ElevatorConstants.LEFT_ID, Constants.CAN_BUS);
@@ -141,13 +144,37 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
         inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
 
-
-        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == ElevatorConstants.LIMIT_SWITCH_ID;
+        inputs.limitSwitchConnected = limitSwitchConnected();
         inputs.limitSwitchPressed = !mLimitSwitch.get();
         inputs.atTopLimit = inputs.encoderPositionRotations >= ElevatorConstants.MAX_ROTATIONS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
+    }
+
+    private boolean limitSwitchConnected() {
+        int retries = 0;
+        final int MAX_RETRIES = 10;
+
+        while (retries < MAX_RETRIES) {
+            boolean consistentReading =
+                canCoderPosition.getValueAsDouble() - ElevatorConstants.TOLERANCE <= 0 &&
+                    !mLimitSwitch.get();
+
+            if (consistentReading) {
+                return true;  // switch is connected
+            }
+
+            retries++;
+            Timer.delay(0.1);
+        }
+
+        if (canCoderPosition.getValueAsDouble() - ElevatorConstants.TOLERANCE > 0) {
+            // elevator is not at the bottom, return true for now
+            return true;
+        }
+
+        return false;
     }
 
     @Override
