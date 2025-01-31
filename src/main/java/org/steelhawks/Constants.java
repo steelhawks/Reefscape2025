@@ -6,30 +6,27 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
 
 import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Meters;
 
 public final class Constants {
 
-    public static final boolean TUNING_MODE = false;
-    public static final boolean IN_REPLAY_MODE = false;
     public static final boolean USE_MOTION_MAGIC = true;
+    public static final boolean TUNING_MODE = false;
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
     public static final String ROBOT_NAME = "ReefscapePreAlpha";
     public static final double SIM_UPDATE_LOOP = 0.020;
 
-    private static final Mode SIM_MODE = IN_REPLAY_MODE ? Mode.REPLAY : Mode.SIM;
-    /**
-     * This defines the runtime mode used by AdvantageKit. The mode is always "real" when running
-     * on a roboRIO. Change the value of "SIM_MODE" to switch between "sim" (physics sim) and "replay"
-     * (log replay from a file).
-     */
-    public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
+    public enum Mode {
+        REAL,
+        SIM,
+        REPLAY
+    }
 
     public enum RobotType {
         ALPHABOT,
@@ -38,41 +35,41 @@ public final class Constants {
         SIMBOT
     }
 
-    public static final RobotType ROBOT_TYPE = RobotType.ALPHABOT;
+    /**
+     * The robot type.
+     *
+     * <p>
+     *     To run a physics simulator make sure you set it to RobotType.SIMBOT
+     *     </p>If you want to replay a log file set it to the robot type you want to replay and just run the simulator.
+     * </p>
+     */
+    private static final RobotType ROBOT_TYPE = RobotType.SIMBOT;
+
+    public static Mode getMode() {
+        return switch (ROBOT_TYPE) {
+            case ALPHABOT, OMEGABOT, HAWKRIDER ->
+                RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+            case SIMBOT -> Mode.SIM;
+        };
+    }
 
     public static RobotType getRobot() {
-        if (CURRENT_MODE == Mode.REAL) {
-            return ROBOT_TYPE;
+        if (RobotBase.isReal() && ROBOT_TYPE == RobotType.SIMBOT) {
+            new Alert("Invalid robot selected, using omega robot as default.", AlertType.kError)
+                .set(true);
+            return RobotType.OMEGABOT;
         }
 
-        return RobotType.SIMBOT;
+        return ROBOT_TYPE;
     }
 
     public static CANBus getCANBus() {
         return switch (getRobot()) {
-            case ALPHABOT, SIMBOT -> new CANBus("");
             case OMEGABOT -> new CANBus();
+            case ALPHABOT, SIMBOT -> new CANBus("");
             case HAWKRIDER -> new CANBus("canivore");
         };
     }
-
-    public enum Mode {
-        /**
-         * Running on a real robot.
-         */
-        REAL,
-
-        /**
-         * Running a physics simulator.
-         */
-        SIM,
-
-        /**
-         * Replaying from a log file.
-         */
-        REPLAY
-    }
-
 
     /**
      * Constants for the operator interface.
@@ -248,12 +245,6 @@ public final class Constants {
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
-        }
-    }
-
-    public static void main(String[] args) {
-        if (CURRENT_MODE == Mode.SIM && RobotBase.isReal()) {
-            throw new IllegalStateException("Robot is in sim mode but running on real hardware. Check your code.");
         }
     }
 }

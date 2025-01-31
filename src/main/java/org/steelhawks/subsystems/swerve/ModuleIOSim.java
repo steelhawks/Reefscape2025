@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
+import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.util.PhoenixUtil;
 import java.util.Arrays;
@@ -38,8 +39,9 @@ public class ModuleIOSim implements ModuleIO {
         this.moduleSimulation = moduleSimulation;
 
         double currentLimit;
-        switch (Constants.ROBOT_TYPE) {
+        switch (Constants.getRobot()) {
             case HAWKRIDER -> currentLimit = TunerConstantsHawkRider.FrontLeft.SlipCurrent;
+            case ALPHABOT -> currentLimit = TunerConstantsAlpha.FrontLeft.SlipCurrent;
             default -> currentLimit = 120;
         }
 

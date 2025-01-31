@@ -64,13 +64,13 @@ public final class Autos {
 
     @AutoLogOutput(key = "Auton/Selector")
     private static int getSelector() {
-        if (Constants.CURRENT_MODE == Mode.REAL) {
+        if (Constants.getMode() == Mode.REAL) {
             for (int i = 0; i < mAutonSelector.length; i++) {
                 if (mAutonSelector[i].get()) {
                     return i;
                 }
             }
-        } else if (Constants.CURRENT_MODE == Mode.SIM) {
+        } else if (Constants.getMode() == Mode.SIM) {
             for (int i = 0; i < mSimAutonSelector.length; i++) {
                 if (mSimAutonSelector[i].getValue()) {
                     return i;

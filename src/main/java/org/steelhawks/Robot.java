@@ -75,9 +75,12 @@ public class Robot extends LoggedRobot {
             WPILibVersion.Version);
         DriverStation.silenceJoystickConnectionWarning(true);
         Logger.recordMetadata("Robot", Constants.ROBOT_NAME);
+        Logger.recordMetadata("Robot Mode", Constants.getMode().toString());
+        Logger.recordMetadata("Robot Type", Constants.getRobot().toString());
+        Logger.recordMetadata("Robot in Tuning Mode", String.valueOf(Constants.TUNING_MODE));
 
         // Set up data receivers & replay source
-        switch (Constants.CURRENT_MODE) {
+        switch (Constants.getMode()) {
             case REAL -> {
                 // Running on a real robot, log to a USB stick ("/U/logs")
                 Logger.addDataReceiver(new WPILOGWriter());
@@ -130,7 +133,7 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {
         setState(RobotState.DISABLED);
 
-        if (Constants.CURRENT_MODE == Mode.SIM) {
+        if (Constants.getMode() == Mode.SIM) {
             robotContainer.resetSimulation();
         }
     }
@@ -187,14 +190,14 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void simulationInit() {
-        if (Constants.CURRENT_MODE == Mode.SIM) {
+        if (Constants.getMode() == Mode.SIM) {
             robotContainer.resetSimulation();
         }
     }
 
     @Override
     public void simulationPeriodic() {
-        if (Constants.CURRENT_MODE == Mode.SIM) {
+        if (Constants.getMode() == Mode.SIM) {
             robotContainer.updatePhysicsSimulation();
         }
     }

@@ -340,7 +340,7 @@ public class Swerve extends SubsystemBase {
             mPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
 
-        gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.CURRENT_MODE != Mode.SIM);
+        gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
     }
 
     /**

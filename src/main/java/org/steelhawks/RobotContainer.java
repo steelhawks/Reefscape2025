@@ -67,7 +67,7 @@ public class RobotContainer {
      * This only runs during the SIM mode of CURRENT_MODE.
      */
     public void updatePhysicsSimulation() {
-        if (Constants.CURRENT_MODE != Mode.SIM) return;
+        if (Constants.getMode() != Mode.SIM) return;
 
         // physics sim to simulate the field
         SimulatedArena.getInstance().simulationPeriodic();
@@ -88,7 +88,7 @@ public class RobotContainer {
      * Resets all game pieces on the MapleSim field.
      */
     public void resetSimulation() {
-        if (Constants.CURRENT_MODE != Mode.SIM) return;
+        if (Constants.getMode() != Mode.SIM) return;
 
         Pose2d startPose = new Pose2d(3, 3, new Rotation2d());
         mDriveSimulation.setSimulationWorldPose(startPose);
@@ -104,7 +104,7 @@ public class RobotContainer {
                 Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isAltMode = new Trigger(() -> altMode);
 
-        if (Constants.CURRENT_MODE != Mode.REPLAY) {
+        if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
                 case OMEGABOT -> {
 //                    s_Swerve =
@@ -178,7 +178,7 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim(),
-                            switch (Constants.ROBOT_TYPE) {
+                            switch (Constants.getRobot()) {
                                 case HAWKRIDER -> ElevatorConstants.HAWKRIDER;
                                 default -> ElevatorConstants.DEFAULT;
                             });
@@ -189,7 +189,7 @@ public class RobotContainer {
                 }
             }
 
-            if (Constants.CURRENT_MODE == Mode.REPLAY) {
+            if (Constants.getMode() == Mode.REPLAY) {
                 s_Swerve =
                     new Swerve(
                         new GyroIO() {},
@@ -287,7 +287,7 @@ public class RobotContainer {
                     new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
         }
 
-        if (Constants.CURRENT_MODE == Mode.SIM) {
+        if (Constants.getMode() == Mode.SIM) {
             driver.b().onTrue(
                 s_Swerve.zeroHeading(
                     new Pose2d(
