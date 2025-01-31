@@ -218,6 +218,14 @@ public class Swerve extends SubsystemBase {
         PhoenixOdometryThread.getInstance().start();
 
         // Configure AutoBuilder for PathPlanner
+        final AutonConstants constants;
+
+        switch (Constants.getRobot()) {
+            case OMEGABOT -> constants = AutonConstants.OMEGA;
+            case ALPHABOT -> constants = AutonConstants.ALPHA;
+            default -> constants = AutonConstants.HAWKRIDER;
+        }
+
         AutoBuilder.configure(
             this::getPose,
             this::setPose,
@@ -225,11 +233,11 @@ public class Swerve extends SubsystemBase {
             this::runVelocity,
             new PPHolonomicDriveController(
                 new PIDConstants(
-                    AutonConstants.TRANSLATION_KP,
-                    AutonConstants.TRANSLATION_KI, AutonConstants.TRANSLATION_KD),
+                    constants.TRANSLATION_KP,
+                    constants.TRANSLATION_KI, constants.TRANSLATION_KD),
                 new PIDConstants(
-                    AutonConstants.ROTATION_KP,
-                    AutonConstants.ROTATION_KI, AutonConstants.ROTATION_KD)),
+                    constants.ROTATION_KP,
+                    constants.ROTATION_KI, constants.ROTATION_KD)),
             PP_CONFIG,
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
             this);

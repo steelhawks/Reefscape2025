@@ -133,7 +133,7 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {}, null);
+                            new ElevatorIO() {}, ElevatorConstants.DEFAULT);
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -151,8 +151,8 @@ public class RobotContainer {
                             new VisionIOPhoton(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT));
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIOTalonFX(ElevatorConfig.HAWKRIDER),
-                            ElevatorConfig.HAWKRIDER);
+                            new ElevatorIOTalonFX(ElevatorConstants.HAWKRIDER),
+                            ElevatorConstants.HAWKRIDER);
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
@@ -177,7 +177,11 @@ public class RobotContainer {
                                 mDriveSimulation::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIOSim(), ElevatorConfig.HAWKRIDER);
+                            new ElevatorIOSim(),
+                            switch (Constants.ROBOT_TYPE) {
+                                case HAWKRIDER -> ElevatorConstants.HAWKRIDER;
+                                default -> ElevatorConstants.DEFAULT;
+                            });
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIOSim(),
@@ -209,7 +213,7 @@ public class RobotContainer {
                 }
                 s_Elevator =
                     new Elevator(
-                        new ElevatorIO() {}, ElevatorConfig.HAWKRIDER);
+                        new ElevatorIO() {}, ElevatorConstants.HAWKRIDER);
                 s_Intake =
                     new Intake(
                         new AlgaeIntakeIO() {},

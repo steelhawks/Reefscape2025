@@ -26,6 +26,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import org.steelhawks.Constants;
 import org.steelhawks.Constants.*;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
@@ -92,13 +93,20 @@ public class DriveCommands {
     public static Command joystickDriveAtAngle(
         DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
 
+        final AutonConstants constants;
+        switch (Constants.getRobot()) {
+            case OMEGABOT -> constants = AutonConstants.OMEGA;
+            case ALPHABOT -> constants = AutonConstants.ALPHA;
+            default -> constants = AutonConstants.HAWKRIDER;
+        }
+
         ProfiledPIDController alignController =
             new ProfiledPIDController(
-                AutonConstants.AUTO_ALIGN_KP,
-                AutonConstants.AUTO_ALIGN_KI,
-                AutonConstants.AUTO_ALIGN_KD,
+                constants.AUTO_ALIGN_KP,
+                constants.AUTO_ALIGN_KI,
+                constants.AUTO_ALIGN_KD,
                 new TrapezoidProfile.Constraints(
-                    AutonConstants.ANGLE_MAX_VELOCITY, AutonConstants.ANGLE_MAX_ACCELERATION));
+                    constants.ANGLE_MAX_VELOCITY, constants.ANGLE_MAX_ACCELERATION));
         alignController.enableContinuousInput(-Math.PI, Math.PI);
 
         return Commands.run(
@@ -137,7 +145,7 @@ public class DriveCommands {
      * @return The command to drive to the target position.
      */
     public static Command driveToPosition(Pose2d target, BooleanSupplier emergencyStop) {
-        return AutoBuilder.pathfindToPose(target, AutonConstants.CONSTRAINTS)
+        return AutoBuilder.pathfindToPose(target, AutonConstants.HAWKRIDER.CONSTRAINTS)
             .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
                 .beforeStarting(() -> s_Swerve.setPathfinding(true))
                     .finallyDo(() -> s_Swerve.setPathfinding(false))
@@ -152,7 +160,7 @@ public class DriveCommands {
      * @return The command to drive to the target path.
      */
     public static Command driveToPath(PathPlannerPath path, BooleanSupplier emergencyStop) {
-        return AutoBuilder.pathfindThenFollowPath(path, AutonConstants.CONSTRAINTS)
+        return AutoBuilder.pathfindThenFollowPath(path, AutonConstants.HAWKRIDER.CONSTRAINTS)
             .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
                 .beforeStarting(() -> s_Swerve.setPathfinding(true))
                     .finallyDo(() -> s_Swerve.setPathfinding(false))

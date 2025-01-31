@@ -38,7 +38,7 @@ public final class Constants {
         SIMBOT
     }
 
-    public static final RobotType ROBOT_TYPE = RobotType.HAWKRIDER;
+    public static final RobotType ROBOT_TYPE = RobotType.ALPHABOT;
 
     public static RobotType getRobot() {
         if (CURRENT_MODE == Mode.REAL) {
@@ -71,26 +71,6 @@ public final class Constants {
          * Replaying from a log file.
          */
         REPLAY
-    }
-
-    public static final class ElevatorConfig {
-        public static final ElevatorConstants HAWKRIDER =
-            new ElevatorConstants(
-                0,
-                20,
-                21,
-                22,
-                0,
-                0.15,
-                2.6,
-                3.9,
-                0,
-                0.01,
-                5.2,
-                8,
-                0.005,
-                0.5,
-                3);
     }
 
 
@@ -152,77 +132,122 @@ public final class Constants {
      */
     public static final class AutonConstants {
 
-        public static final double TRANSLATION_KP = 5;
-        public static final double TRANSLATION_KI = 0;
-        public static final double TRANSLATION_KD = 0;
+        public static final AutonConstants OMEGA = new AutonConstants(
+            5,
+            0.0,
+            0.0,
+            5,
+            0.0,
+            0.0,
+            3,
+            0.0,
+            0.0,
+            15,
+            20,
+            3,
+            4,
+            5,
+            8);
 
-        public static final double ROTATION_KP = 5;
-        public static final double ROTATION_KI = 0;
-        public static final double ROTATION_KD = 0;
+        public static final AutonConstants ALPHA = new AutonConstants(
+            5,
+            0.0,
+            0.0,
+            5,
+            0.0,
+            0.0,
+            3,
+            0.0,
+            0.0,
+            15,
+            20,
+            3,
+            4,
+            5,
+            8);
 
-        public static final double AUTO_ALIGN_KP = 3.0;
-        public static final double AUTO_ALIGN_KI = 0.0;
-        public static final double AUTO_ALIGN_KD = 0.0;
-        public static final double ANGLE_MAX_VELOCITY = 15.0;
-        public static final double ANGLE_MAX_ACCELERATION = 20.0;
+        public static final AutonConstants HAWKRIDER = new AutonConstants(
+            5,
+            0.0,
+            0.0,
+            5,
+            0.0,
+            0.0,
+            3,
+            0.0,
+            0.0,
+            15,
+            20,
+            3,
+            4,
+            5,
+            8);
+
+        public final double TRANSLATION_KP;
+        public final double TRANSLATION_KI;
+        public final double TRANSLATION_KD;
+
+        public final double ROTATION_KP;
+        public final double ROTATION_KI;
+        public final double ROTATION_KD;
+
+        public final double AUTO_ALIGN_KP;
+        public final double AUTO_ALIGN_KI;
+        public final double AUTO_ALIGN_KD;
+        public final double ANGLE_MAX_VELOCITY;
+        public final double ANGLE_MAX_ACCELERATION;
 
         // Pathfinder
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 0.0;
-        public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 0.0;
-        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 0.0;
-        public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 0.0;
+        public final double MAX_VELOCITY_METERS_PER_SECOND;
+        public final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
+        public final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+        public final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED;
 
-        public static final PathConstraints CONSTRAINTS =
-            new PathConstraints(
-                MAX_VELOCITY_METERS_PER_SECOND,
-                MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
-                MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
-    }
+        public final PathConstraints CONSTRAINTS;
 
-    /**
-     * Function to validate that all constants are set.
-     */
-    @SuppressWarnings("unused")
-    public static void validate() {
+        public AutonConstants(
+            double translationKp,
+            double translationKi,
+            double translationKd,
+            double rotationKp,
+            double rotationKi,
+            double rotationKd,
+            double autoAlignKp,
+            double autoAlignKi,
+            double autoAlignKd,
+            double angleMaxVelocity,
+            double angleMaxAcceleration,
+            double maxVelocityMetersPerSecond,
+            double maxAccelerationMetersPerSecondSquared,
+            double maxAngularVelocityRadiansPerSecond,
+            double maxAngularAccelerationRadiansPerSecondSquared
+        ) {
+            TRANSLATION_KP = translationKp;
+            TRANSLATION_KI = translationKi;
+            TRANSLATION_KD = translationKd;
 
-        if (CURRENT_MODE == Mode.REAL) {
-            if (getCANBus() == null) {
-                throw new IllegalStateException("CAN Bus must be set in Constants.java");
-            }
-        }
+            ROTATION_KP = rotationKp;
+            ROTATION_KI = rotationKi;
+            ROTATION_KD = rotationKd;
 
-        if (ROBOT_NAME == "NAME YOUR ROBOT") {
-            throw new IllegalStateException("Robot name must be set in Constants.java");
-        }
+            AUTO_ALIGN_KP = autoAlignKp;
+            AUTO_ALIGN_KI = autoAlignKi;
+            AUTO_ALIGN_KD = autoAlignKd;
 
-        if (FieldConstants.FIELD_LENGTH.in(Meters) == 0) {
-            throw new IllegalStateException("Field length must be set in Constants.java");
-        }
+            ANGLE_MAX_VELOCITY = angleMaxVelocity;
+            ANGLE_MAX_ACCELERATION = angleMaxAcceleration;
 
-        if (AutonConstants.TRANSLATION_KP == 0
-            || AutonConstants.TRANSLATION_KI == 0
-            || AutonConstants.TRANSLATION_KD == 0) {
-            throw new IllegalStateException("Translation PID must be set in Constants.java");
-        }
+            MAX_VELOCITY_METERS_PER_SECOND = maxVelocityMetersPerSecond;
+            MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = maxAccelerationMetersPerSecondSquared;
+            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = maxAngularVelocityRadiansPerSecond;
+            MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = maxAngularAccelerationRadiansPerSecondSquared;
 
-        if (AutonConstants.ROTATION_KP == 0
-            || AutonConstants.ROTATION_KI == 0
-            || AutonConstants.ROTATION_KD == 0) {
-            throw new IllegalStateException("Rotation PID must be set in Constants.java");
-        }
-
-        if (AutonConstants.AUTO_ALIGN_KP == 0
-            || AutonConstants.AUTO_ALIGN_KI == 0
-            || AutonConstants.AUTO_ALIGN_KD == 0) {
-            throw new IllegalStateException("Auto Align PID must be set in Constants.java");
-        }
-
-        if (AutonConstants.MAX_VELOCITY_METERS_PER_SECOND == 0
-            || AutonConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED == 0
-            || AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND == 0
-            || AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED == 0) {
-            throw new IllegalStateException("Pathfinder constraints must be set in Constants.java");
+            CONSTRAINTS =
+                new PathConstraints(
+                    MAX_VELOCITY_METERS_PER_SECOND,
+                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
+                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
         }
     }
 
