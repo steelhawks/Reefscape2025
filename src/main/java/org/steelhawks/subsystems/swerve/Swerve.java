@@ -41,14 +41,12 @@ import org.steelhawks.Constants.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Mode;
-import org.steelhawks.generated.TunerConstants;
-import org.steelhawks.subsystems.vision.Vision;
+import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.util.LocalADStarAK;
 
 public class Swerve extends SubsystemBase {
@@ -58,50 +56,15 @@ public class Swerve extends SubsystemBase {
     private boolean isPathfinding = false;
 
     public static final double ODOMETRY_FREQUENCY =
-        new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
-    public static final double DRIVE_BASE_RADIUS =
-        Math.max(
-            Math.max(
-                Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-                Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
-            Math.max(
-                Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-                Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-
+        Constants.getCANBus().isNetworkFD() ? 250.0 : 100.0;
+    public static final double DRIVE_BASE_RADIUS;
     // PathPlanner config constants
-    private static final double ROBOT_MASS_KG = Units.lbsToKilograms(138 + (6.0 / 16.0));
-    private static final double ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(30), 2));
-    private static final double WHEEL_COF = COTS.WHEELS.COLSONS.cof;
-    private static final RobotConfig PP_CONFIG =
-        new RobotConfig(
-            ROBOT_MASS_KG,
-            ROBOT_MOI,
-            new ModuleConfig(
-                TunerConstants.FrontLeft.WheelRadius,
-                TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
-                WHEEL_COF,
-                DCMotor.getKrakenX60Foc(1)
-                    .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
-                TunerConstants.FrontLeft.SlipCurrent,
-                1),
-            getModuleTranslations());
+    private static final double ROBOT_MASS_KG;
+    private static final double ROBOT_MOI;
+    private static final double WHEEL_COF;
+    private static final RobotConfig PP_CONFIG;
 
-    public static final DriveTrainSimulationConfig MAPLE_SIM_CONFIG =
-        DriveTrainSimulationConfig.Default()
-            .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
-            .withCustomModuleTranslations(getModuleTranslations())
-            .withGyro(COTS.ofPigeon2())
-            .withSwerveModule(
-                new SwerveModuleSimulationConfig(
-                    DCMotor.getKrakenX60(1),
-                    DCMotor.getFalcon500(1),
-                    TunerConstants.FrontLeft.DriveMotorGearRatio,
-                    TunerConstants.FrontLeft.SteerMotorGearRatio,
-                    Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
-                    Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-                    Meters.of(TunerConstants.FrontLeft.WheelRadius),
-                    KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
-                    WHEEL_COF));
+    public static final DriveTrainSimulationConfig MAPLE_SIM_CONFIG;
 
     public static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
@@ -127,6 +90,71 @@ public class Swerve extends SubsystemBase {
     private final SwerveDrivePoseEstimator mPoseEstimator =
         new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
+    static {
+        switch (Constants.getRobot()) {
+            case HAWKRIDER -> {
+                DRIVE_BASE_RADIUS =
+                    Math.max(
+                        Math.max(
+                            Math.hypot(TunerConstantsHawkRider.FrontLeft.LocationX, TunerConstantsHawkRider.FrontLeft.LocationY),
+                            Math.hypot(TunerConstantsHawkRider.FrontRight.LocationX, TunerConstantsHawkRider.FrontRight.LocationY)),
+                        Math.max(
+                            Math.hypot(TunerConstantsHawkRider.BackLeft.LocationX, TunerConstantsHawkRider.BackLeft.LocationY),
+                            Math.hypot(TunerConstantsHawkRider.BackRight.LocationX, TunerConstantsHawkRider.BackRight.LocationY)));
+                ROBOT_MASS_KG = Units.lbsToKilograms(138 + (6.0 / 16.0));
+                ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(30), 2));
+                WHEEL_COF = COTS.WHEELS.COLSONS.cof;
+                PP_CONFIG =
+                    new RobotConfig(
+                        ROBOT_MASS_KG,
+                        ROBOT_MOI,
+                        new ModuleConfig(
+                            TunerConstantsHawkRider.FrontLeft.WheelRadius,
+                            TunerConstantsHawkRider.kSpeedAt12Volts.in(MetersPerSecond),
+                            WHEEL_COF,
+                            DCMotor.getKrakenX60Foc(1)
+                                .withReduction(TunerConstantsHawkRider.FrontLeft.DriveMotorGearRatio),
+                            TunerConstantsHawkRider.FrontLeft.SlipCurrent,
+                            1),
+                        getModuleTranslations());
+                MAPLE_SIM_CONFIG =
+                    DriveTrainSimulationConfig.Default()
+                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+                        .withCustomModuleTranslations(getModuleTranslations())
+                        .withGyro(COTS.ofPigeon2())
+                        .withSwerveModule(
+                            new SwerveModuleSimulationConfig(
+                                DCMotor.getKrakenX60(1),
+                                DCMotor.getFalcon500(1),
+                                TunerConstantsHawkRider.FrontLeft.DriveMotorGearRatio,
+                                TunerConstantsHawkRider.FrontLeft.SteerMotorGearRatio,
+                                Volts.of(TunerConstantsHawkRider.FrontLeft.DriveFrictionVoltage),
+                                Volts.of(TunerConstantsHawkRider.FrontLeft.SteerFrictionVoltage),
+                                Meters.of(TunerConstantsHawkRider.FrontLeft.WheelRadius),
+                                KilogramSquareMeters.of(TunerConstantsHawkRider.FrontLeft.SteerInertia),
+                                WHEEL_COF));
+            }
+            default -> {
+                DRIVE_BASE_RADIUS = 1.0;
+                ROBOT_MASS_KG = 0;
+                ROBOT_MOI = 0;
+                WHEEL_COF = 0;
+                PP_CONFIG = new RobotConfig(
+                    ROBOT_MASS_KG,
+                    ROBOT_MOI,
+                    new ModuleConfig(
+                        0,
+                        0,
+                        WHEEL_COF,
+                        DCMotor.getKrakenX60Foc(1),
+                        0,
+                        0));
+                MAPLE_SIM_CONFIG =
+                    DriveTrainSimulationConfig.Default();
+            }
+        }
+    }
+
     public Swerve(
         GyroIO gyroIO,
         ModuleIO flModuleIO,
@@ -134,10 +162,10 @@ public class Swerve extends SubsystemBase {
         ModuleIO blModuleIO,
         ModuleIO brModuleIO) {
         this.gyroIO = gyroIO;
-        swerveModules[0] = new SwerveModule(flModuleIO, 0, TunerConstants.FrontLeft);
-        swerveModules[1] = new SwerveModule(frModuleIO, 1, TunerConstants.FrontRight);
-        swerveModules[2] = new SwerveModule(blModuleIO, 2, TunerConstants.BackLeft);
-        swerveModules[3] = new SwerveModule(brModuleIO, 3, TunerConstants.BackRight);
+        swerveModules[0] = new SwerveModule(flModuleIO, 0, TunerConstantsHawkRider.FrontLeft);
+        swerveModules[1] = new SwerveModule(frModuleIO, 1, TunerConstantsHawkRider.FrontRight);
+        swerveModules[2] = new SwerveModule(blModuleIO, 2, TunerConstantsHawkRider.BackLeft);
+        swerveModules[3] = new SwerveModule(brModuleIO, 3, TunerConstantsHawkRider.BackRight);
 
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
@@ -268,7 +296,7 @@ public class Swerve extends SubsystemBase {
     public void runVelocity(ChassisSpeeds speeds) {
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstantsHawkRider.kSpeedAt12Volts);
 
         // Log unoptimized setpoints and setpoint speeds
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -446,7 +474,7 @@ public class Swerve extends SubsystemBase {
      * Returns the maximum linear speed in meters per sec.
      */
     public double getMaxLinearSpeedMetersPerSec() {
-        return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+        return TunerConstantsHawkRider.kSpeedAt12Volts.in(MetersPerSecond);
     }
 
     /**
@@ -468,10 +496,10 @@ public class Swerve extends SubsystemBase {
      */
     public static Translation2d[] getModuleTranslations() {
         return new Translation2d[]{
-            new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-            new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
-            new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-            new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
+            new Translation2d(TunerConstantsHawkRider.FrontLeft.LocationX, TunerConstantsHawkRider.FrontLeft.LocationY),
+            new Translation2d(TunerConstantsHawkRider.FrontRight.LocationX, TunerConstantsHawkRider.FrontRight.LocationY),
+            new Translation2d(TunerConstantsHawkRider.BackLeft.LocationX, TunerConstantsHawkRider.BackLeft.LocationY),
+            new Translation2d(TunerConstantsHawkRider.BackRight.LocationX, TunerConstantsHawkRider.BackRight.LocationY)
         };
     }
 

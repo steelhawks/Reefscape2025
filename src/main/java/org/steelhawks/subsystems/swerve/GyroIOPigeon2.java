@@ -9,22 +9,23 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import org.steelhawks.generated.TunerConstants;
 
 import java.util.Queue;
 
 public class GyroIOPigeon2 implements GyroIO {
 
-    private final Pigeon2 pigeon =
-        new Pigeon2(
-            TunerConstants.DrivetrainConstants.Pigeon2Id,
-            TunerConstants.DrivetrainConstants.CANBusName);
-    private final StatusSignal<Angle> yaw = pigeon.getYaw();
+    private final Pigeon2 pigeon;
+    private final StatusSignal<Angle> yaw;
     private final Queue<Double> yawPositionQueue;
     private final Queue<Double> yawTimestampQueue;
-    private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+    private final StatusSignal<AngularVelocity> yawVelocity;
 
-    public GyroIOPigeon2() {
+    public GyroIOPigeon2(int pigeon2Id, String canBus) {
+        pigeon = new Pigeon2(pigeon2Id, canBus);
+
+        yaw = pigeon.getYaw();
+        yawVelocity = pigeon.getAngularVelocityZWorld();
+
         pigeon.getConfigurator().apply(new Pigeon2Configuration());
         pigeon.getConfigurator().setYaw(0.0);
         yaw.setUpdateFrequency(Swerve.ODOMETRY_FREQUENCY);

@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import org.steelhawks.Constants;
-import org.steelhawks.generated.TunerConstants;
 
 import java.util.Queue;
 
@@ -81,9 +80,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
             constants) {
         this.constants = constants;
-        driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-        turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-        cancoder = new CANcoder(constants.EncoderId, TunerConstants.DrivetrainConstants.CANBusName);
+        driveTalon = new TalonFX(constants.DriveMotorId, Constants.getCANBus());
+        turnTalon = new TalonFX(constants.SteerMotorId, Constants.getCANBus());
+        cancoder = new CANcoder(constants.EncoderId, Constants.getCANBus());
 
         // Configure drive motor
         var driveConfig = constants.DriveMotorInitialConfigs;

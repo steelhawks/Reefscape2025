@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED.LEDColor;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -103,52 +103,81 @@ public class RobotContainer {
                 Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isAltMode = new Trigger(() -> altMode);
 
-        switch (Constants.CURRENT_MODE) {
-            case REAL -> {
-                s_Swerve =
-                    new Swerve(
-                        new GyroIOPigeon2(),
-                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                        new ModuleIOTalonFX(TunerConstants.FrontRight),
-                        new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight));
-                s_Vision =
-                    new Vision(
-                        s_Swerve::accept,
-                        new VisionIOPhoton(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT));
-                s_Elevator =
-                    new Elevator(
-                        new ElevatorIOTalonFX());
-                s_Intake =
-                    new Intake(
-                        new AlgaeIntakeIOTalonFX(),
-                        new CoralIntakeIOTalonFX());
-            }
-            case SIM -> {
-                mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d()));
-                SimulatedArena.getInstance().addDriveTrainSimulation(mDriveSimulation);
+        if (Constants.CURRENT_MODE != Mode.REPLAY) {
+            switch (Constants.getRobot()) {
+                case OMEGABOT -> {
+//                    s_Swerve =
+//                        new Swerve(
+//                            new GyroIOPigeon2(
+//                                TunerConstants.DrivetrainConstants.Pigeon2Id,
+//                                TunerConstants.DrivetrainConstants.CANBusName),
+//                            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+//                            new ModuleIOTalonFX(TunerConstants.FrontRight),
+//                            new ModuleIOTalonFX(TunerConstants.BackLeft),
+//                            new ModuleIOTalonFX(TunerConstants.BackRight));
+                }
+                case ALPHABOT -> {
+//                    s_Swerve =
+//                        new Swerve(
+//                            new GyroIOPigeon2(
+//                                TunerConstantsDevBot.DrivetrainConstants.Pigeon2Id,
+//                                TunerConstantsDevBot.DrivetrainConstants.CANBusName),
+//                            new ModuleIOTalonFX(TunerConstantsDevBot.FrontLeft),
+//                            new ModuleIOTalonFX(TunerConstantsDevBot.FrontRight),
+//                            new ModuleIOTalonFX(TunerConstantsDevBot.BackLeft),
+//                            new ModuleIOTalonFX(TunerConstantsDevBot.BackRight));
+                }
+                case HAWKRIDER -> {
+                    s_Swerve =
+                        new Swerve(
+                            new GyroIOPigeon2(
+                                TunerConstantsHawkRider.DrivetrainConstants.Pigeon2Id,
+                                TunerConstantsHawkRider.DrivetrainConstants.CANBusName),
+                            new ModuleIOTalonFX(TunerConstantsHawkRider.FrontLeft),
+                            new ModuleIOTalonFX(TunerConstantsHawkRider.FrontRight),
+                            new ModuleIOTalonFX(TunerConstantsHawkRider.BackLeft),
+                            new ModuleIOTalonFX(TunerConstantsHawkRider.BackRight));
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIOPhoton(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT));
+                    s_Elevator =
+                        new Elevator(
+                            new ElevatorIOTalonFX(ElevatorConfig.HAWKRIDER),
+                            ElevatorConfig.HAWKRIDER);
+                    s_Intake =
+                        new Intake(
+                            new AlgaeIntakeIOTalonFX(),
+                            new CoralIntakeIOTalonFX());
+                }
+                case SIMBOT -> {
+                    mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3,
+                        new Rotation2d()));
+                    SimulatedArena.getInstance().addDriveTrainSimulation(mDriveSimulation);
 
-                s_Swerve =
-                    new Swerve(
-                        new GyroIOSim(mDriveSimulation.getGyroSimulation()),
-                        new ModuleIOSim(mDriveSimulation.getModules()[0]),
-                        new ModuleIOSim(mDriveSimulation.getModules()[1]),
-                        new ModuleIOSim(mDriveSimulation.getModules()[2]),
-                        new ModuleIOSim(mDriveSimulation.getModules()[3]));
-                s_Vision =
-                    new Vision(
-                        s_Swerve::accept,
-                        new VisionIOPhotonSim(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT,
-                            mDriveSimulation::getSimulatedDriveTrainPose));
-                s_Elevator =
-                    new Elevator(
-                        new ElevatorIOSim());
-                s_Intake =
-                    new Intake(
-                        new AlgaeIntakeIOSim(),
-                        new CoralIntakeIOSim());
+                    s_Swerve =
+                        new Swerve(
+                            new GyroIOSim(mDriveSimulation.getGyroSimulation()),
+                            new ModuleIOSim(mDriveSimulation.getModules()[0]),
+                            new ModuleIOSim(mDriveSimulation.getModules()[1]),
+                            new ModuleIOSim(mDriveSimulation.getModules()[2]),
+                            new ModuleIOSim(mDriveSimulation.getModules()[3]));
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIOPhotonSim(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT,
+                                mDriveSimulation::getSimulatedDriveTrainPose));
+                    s_Elevator =
+                        new Elevator(
+                            new ElevatorIOSim(), ElevatorConfig.HAWKRIDER);
+                    s_Intake =
+                        new Intake(
+                            new AlgaeIntakeIOSim(),
+                            new CoralIntakeIOSim());
+                }
             }
-            default -> {
+
+            if (Constants.CURRENT_MODE == Mode.REPLAY) {
                 s_Swerve =
                     new Swerve(
                         new GyroIO() {},
@@ -156,13 +185,23 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {});
-                s_Vision =
-                    new Vision(
-                        s_Swerve::accept,
-                        new VisionIO() {});
+                switch (Constants.getRobot()) {
+                    case HAWKRIDER ->
+                        s_Vision =
+                            new Vision(
+                                s_Swerve::accept,
+                                new VisionIO() {},
+                                new VisionIO() {},
+                                new VisionIO() {});
+                    default ->
+                        s_Vision =
+                            new Vision(
+                                s_Swerve::accept,
+                                new VisionIO() {});
+                }
                 s_Elevator =
                     new Elevator(
-                        new ElevatorIO() {});
+                        new ElevatorIO() {}, ElevatorConfig.HAWKRIDER);
                 s_Intake =
                     new Intake(
                         new AlgaeIntakeIO() {},

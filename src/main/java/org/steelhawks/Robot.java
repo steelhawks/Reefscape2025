@@ -17,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
 
@@ -101,10 +101,10 @@ public class Robot extends LoggedRobot {
         // Check for valid swerve config
         var modules =
             new SwerveModuleConstants[]{
-                TunerConstants.FrontLeft,
-                TunerConstants.FrontRight,
-                TunerConstants.BackLeft,
-                TunerConstants.BackRight
+                TunerConstantsHawkRider.FrontLeft,
+                TunerConstantsHawkRider.FrontRight,
+                TunerConstantsHawkRider.BackLeft,
+                TunerConstantsHawkRider.BackRight
             };
         for (var constants : modules) {
             if (constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated

@@ -17,32 +17,58 @@ public final class ElevatorConstants {
         public double rotations;
     }
 
-    public static final int LIMIT_SWITCH_ID = 0;
-    public static final int LEFT_ID = 20;
-    public static final int RIGHT_ID = 21;
-    public static final int CANCODER_ID = 22;
+    public final int LIMIT_SWITCH_ID;
+    public final int LEFT_ID;
+    public final int RIGHT_ID;
+    public final int CANCODER_ID;
 
-    public static final LoggedTunableNumber KS =
-        new LoggedTunableNumber("Elevator/KS", 0);
-    public static final LoggedTunableNumber KG =
-        new LoggedTunableNumber("Elevator/KG", 0.15);
-    public static final LoggedTunableNumber KV =
-        new LoggedTunableNumber("Elevator/KV", 2.6);
+    public final LoggedTunableNumber KS;
+    public final LoggedTunableNumber KG;
+    public final LoggedTunableNumber KV;
 
-    public static final LoggedTunableNumber KP =
-        new LoggedTunableNumber("Elevator/KP", 3.9);
-    public static final LoggedTunableNumber KI =
-        new LoggedTunableNumber("Elevator/KI", 0);
-    public static final LoggedTunableNumber KD =
-        new LoggedTunableNumber("Elevator/KD", 0.001);
+    public final LoggedTunableNumber KP;
+    public final LoggedTunableNumber KI;
+    public final LoggedTunableNumber KD;
 
-    public static final LoggedTunableNumber MAX_VELOCITY_PER_SEC =
-        new LoggedTunableNumber("Elevator/Max Velocity Per Sec", 5.2);
-    public static final LoggedTunableNumber MAX_ACCELERATION_PER_SEC_SQUARED =
-        new LoggedTunableNumber("Elevator/Max Acceleration Per Sec Squared", 8);
+    public final LoggedTunableNumber MAX_VELOCITY_PER_SEC;
+    public final LoggedTunableNumber MAX_ACCELERATION_PER_SEC_SQUARED;
 
-    public static final double TOLERANCE = 0.005;
-    public static final double MANUAL_ELEVATOR_INCREMENT = 0.5;
+    public final double TOLERANCE;
+    public final double MANUAL_ELEVATOR_INCREMENT;
 
-    public static final double MAX_ROTATIONS = 3;
+    public final double MAX_ROTATIONS;
+
+    public ElevatorConstants(
+        int limitSwitchId,
+        int leftMotorId,
+        int rightMotorId,
+        int canCoderId,
+        double kS,
+        double kG,
+        double kV,
+        double kP,
+        double kI,
+        double kD,
+        double maxVelocityPerSec,
+        double maxAccelerationPerSecSquared,
+        double tolerance,
+        double manualElev,
+        double maxRotations
+    ) {
+        LIMIT_SWITCH_ID = limitSwitchId;
+        LEFT_ID = leftMotorId;
+        RIGHT_ID = rightMotorId;
+        CANCODER_ID = canCoderId;
+        KS = new LoggedTunableNumber("Elevator/KS", kS);
+        KG = new LoggedTunableNumber("Elevator/KG", kG);
+        KV = new LoggedTunableNumber("Elevator/KV", kV);
+        KP = new LoggedTunableNumber("Elevator/KP", kP);
+        KI = new LoggedTunableNumber("Elevator/KI", kI);
+        KD = new LoggedTunableNumber("Elevator/KD", kD);
+        MAX_VELOCITY_PER_SEC = new LoggedTunableNumber("Elevator/Max Velocity Per Sec", maxVelocityPerSec);
+        MAX_ACCELERATION_PER_SEC_SQUARED = new LoggedTunableNumber("Elevator/Max Acceleration Per Sec Squared", maxAccelerationPerSecSquared);
+        TOLERANCE = tolerance;
+        MANUAL_ELEVATOR_INCREMENT = manualElev;
+        MAX_ROTATIONS = maxRotations;
+    }
 }

@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
-import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
@@ -20,7 +20,6 @@ public final class Constants {
     public static final boolean USE_MOTION_MAGIC = true;
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
-    public static final CANBus CAN_BUS = new CANBus(TunerConstants.DrivetrainConstants.CANBusName);
     public static final String ROBOT_NAME = "ReefscapePreAlpha";
     public static final double SIM_UPDATE_LOOP = 0.020;
 
@@ -31,6 +30,31 @@ public final class Constants {
      * (log replay from a file).
      */
     public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
+
+    public enum RobotType {
+        ALPHABOT,
+        OMEGABOT,
+        HAWKRIDER,
+        SIMBOT
+    }
+
+    public static final RobotType ROBOT_TYPE = RobotType.HAWKRIDER;
+
+    public static RobotType getRobot() {
+        if (CURRENT_MODE == Mode.REAL) {
+            return ROBOT_TYPE;
+        }
+
+        return RobotType.SIMBOT;
+    }
+
+    public static CANBus getCANBus() {
+        return switch (getRobot()) {
+            case ALPHABOT, SIMBOT -> new CANBus("");
+            case OMEGABOT -> new CANBus();
+            case HAWKRIDER -> new CANBus("canivore");
+        };
+    }
 
     public enum Mode {
         /**
@@ -48,6 +72,27 @@ public final class Constants {
          */
         REPLAY
     }
+
+    public static final class ElevatorConfig {
+        public static final ElevatorConstants HAWKRIDER =
+            new ElevatorConstants(
+                0,
+                20,
+                21,
+                22,
+                0,
+                0.15,
+                2.6,
+                3.9,
+                0,
+                0.01,
+                5.2,
+                8,
+                0.005,
+                0.5,
+                3);
+    }
+
 
     /**
      * Constants for the operator interface.
@@ -142,7 +187,7 @@ public final class Constants {
     public static void validate() {
 
         if (CURRENT_MODE == Mode.REAL) {
-            if (CAN_BUS == null) {
+            if (getCANBus() == null) {
                 throw new IllegalStateException("CAN Bus must be set in Constants.java");
             }
         }
@@ -178,6 +223,12 @@ public final class Constants {
             || AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND == 0
             || AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED == 0) {
             throw new IllegalStateException("Pathfinder constraints must be set in Constants.java");
+        }
+    }
+
+    public static void main(String[] args) {
+        if (CURRENT_MODE == Mode.SIM && RobotBase.isReal()) {
+            throw new IllegalStateException("Robot is in sim mode but running on real hardware. Check your code.");
         }
     }
 }

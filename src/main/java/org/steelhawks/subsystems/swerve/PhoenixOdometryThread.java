@@ -1,11 +1,10 @@
 package org.steelhawks.subsystems.swerve;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
-import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ public class PhoenixOdometryThread extends Thread {
     private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
     private static final boolean isCANFD =
-        new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD();
+        Constants.getCANBus().isNetworkFD();
     private static PhoenixOdometryThread instance = null;
 
     public static PhoenixOdometryThread getInstance() {

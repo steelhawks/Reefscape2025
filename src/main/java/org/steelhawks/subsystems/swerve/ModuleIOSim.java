@@ -5,7 +5,8 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.Constants;
+import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.util.PhoenixUtil;
 import java.util.Arrays;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
@@ -35,9 +36,16 @@ public class ModuleIOSim implements ModuleIO {
 
     public ModuleIOSim(SwerveModuleSimulation moduleSimulation) {
         this.moduleSimulation = moduleSimulation;
+
+        double currentLimit;
+        switch (Constants.ROBOT_TYPE) {
+            case HAWKRIDER -> currentLimit = TunerConstantsHawkRider.FrontLeft.SlipCurrent;
+            default -> currentLimit = 120;
+        }
+
         this.driveMotor = moduleSimulation
             .useGenericMotorControllerForDrive()
-            .withCurrentLimit(Amps.of(TunerConstants.FrontLeft.SlipCurrent));
+            .withCurrentLimit(Amps.of(currentLimit));
         this.turnMotor = moduleSimulation.useGenericControllerForSteer().withCurrentLimit(Amps.of(20));
 
         this.driveController = new PIDController(0.05, 0.0, 0.0);

@@ -5,22 +5,21 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import org.steelhawks.Constants;
-import org.steelhawks.util.PhoenixUtil;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
+
+    private final ElevatorConstants constants;
 
     private final TalonFX mLeftMotor;
     private final TalonFX mRightMotor;
@@ -47,11 +46,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private boolean atTopLimit = false;
     private boolean atBottomLimit = false;
 
-    public ElevatorIOTalonFX() {
-        mLeftMotor = new TalonFX(ElevatorConstants.LEFT_ID, Constants.CAN_BUS);
-        mRightMotor = new TalonFX(ElevatorConstants.RIGHT_ID, Constants.CAN_BUS);
-        mCANcoder = new CANcoder(ElevatorConstants.CANCODER_ID, Constants.CAN_BUS);
-        mLimitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
+
+    public ElevatorIOTalonFX(ElevatorConstants constants) {
+        this.constants = constants;
+        mLeftMotor = new TalonFX(constants.LEFT_ID, Constants.getCANBus());
+        mRightMotor = new TalonFX(constants.RIGHT_ID, Constants.getCANBus());
+        mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());
+        mLimitSwitch = new DigitalInput(constants.LIMIT_SWITCH_ID);
 
         var leftConfig = new TalonFXConfiguration();
         leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -146,7 +147,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         inputs.limitSwitchConnected = limitSwitchConnected();
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atTopLimit = inputs.encoderPositionRotations >= ElevatorConstants.MAX_ROTATIONS;
+        inputs.atTopLimit = inputs.encoderPositionRotations >= constants.MAX_ROTATIONS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
@@ -158,7 +159,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         while (retries < MAX_RETRIES) {
             boolean consistentReading =
-                canCoderPosition.getValueAsDouble() - ElevatorConstants.TOLERANCE <= 0 &&
+                canCoderPosition.getValueAsDouble() - constants.TOLERANCE <= 0 &&
                     !mLimitSwitch.get();
 
             if (consistentReading) {
@@ -169,7 +170,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             Timer.delay(0.1);
         }
 
-        if (canCoderPosition.getValueAsDouble() - ElevatorConstants.TOLERANCE > 0) {
+        if (canCoderPosition.getValueAsDouble() - constants.TOLERANCE > 0) {
             // elevator is not at the bottom, return true for now
             return true;
         }

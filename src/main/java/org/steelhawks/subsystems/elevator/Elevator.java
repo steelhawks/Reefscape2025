@@ -19,6 +19,7 @@ import static edu.wpi.first.units.Units.Volts;
 public class Elevator extends SubsystemBase {
 
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
+    private final ElevatorConstants constants;
     private boolean mEnabled = false;
     private final SysIdRoutine mSysId;
     private final ElevatorIO io;
@@ -41,23 +42,22 @@ public class Elevator extends SubsystemBase {
         mEnabled = false;
     }
 
-    public Elevator(ElevatorIO io) {
+    public Elevator(ElevatorIO io, ElevatorConstants constants) {
+        this.constants = constants;
+
         mController =
             new ProfiledPIDController(
-                ElevatorConstants.KP.getAsDouble(),
-                ElevatorConstants.KI.getAsDouble(),
-                ElevatorConstants.KD.getAsDouble(),
+                constants.KP.getAsDouble(),
+                constants.KI.getAsDouble(),
+                constants.KD.getAsDouble(),
                 new TrapezoidProfile.Constraints(
-                    ElevatorConstants.MAX_VELOCITY_PER_SEC.getAsDouble(),
-                    ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
-
+                    constants.MAX_VELOCITY_PER_SEC.getAsDouble(),
+                    constants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
         mFeedforward =
             new ElevatorFeedforward(
-                ElevatorConstants.KS.getAsDouble(),
-                ElevatorConstants.KG.getAsDouble(),
-                ElevatorConstants.KV.getAsDouble());
-
-        mController.setTolerance(ElevatorConstants.TOLERANCE);
+                constants.KS.getAsDouble(),
+                constants.KG.getAsDouble(),
+                constants.KV.getAsDouble());
 
         mSysId =
             new SysIdRoutine(
@@ -104,30 +104,30 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-        if (ElevatorConstants.KP.hasChanged(hashCode()) ||
-            ElevatorConstants.KI.hasChanged(hashCode()) ||
-            ElevatorConstants.KD.hasChanged(hashCode()) ||
-            ElevatorConstants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
-            ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
+        if (constants.KP.hasChanged(hashCode()) ||
+            constants.KI.hasChanged(hashCode()) ||
+            constants.KD.hasChanged(hashCode()) ||
+            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
+            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
         ) {
             disable();
             mController.setPID(
-                ElevatorConstants.KP.getAsDouble(),
-                ElevatorConstants.KI.getAsDouble(),
-                ElevatorConstants.KD.getAsDouble());
+                constants.KP.getAsDouble(),
+                constants.KI.getAsDouble(),
+                constants.KD.getAsDouble());
 
             enable();
         }
 
-        if (ElevatorConstants.KS.hasChanged(hashCode()) ||
-            ElevatorConstants.KG.hasChanged(hashCode()) ||
-            ElevatorConstants.KV.hasChanged(hashCode())
+        if (constants.KS.hasChanged(hashCode()) ||
+            constants.KG.hasChanged(hashCode()) ||
+            constants.KV.hasChanged(hashCode())
         ) {
             mFeedforward =
                 new ElevatorFeedforward(
-                    ElevatorConstants.KS.getAsDouble(),
-                    ElevatorConstants.KG.getAsDouble(),
-                    ElevatorConstants.KV.getAsDouble());
+                    constants.KS.getAsDouble(),
+                    constants.KG.getAsDouble(),
+                    constants.KV.getAsDouble());
         }
 
         if (!mEnabled) return;
@@ -169,7 +169,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.rotations, 0, ElevatorConstants.MAX_ROTATIONS);
+                    MathUtil.clamp(state.rotations, 0, constants.MAX_ROTATIONS);
                 inputs.setpoint = goal;
                 mController.setGoal(goal);
                 enable();
@@ -190,7 +190,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(this::disable)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT), this))
+                    () -> io.runElevatorViaSpeed(-constants.MANUAL_ELEVATOR_INCREMENT), this))
         .until(() -> inputs.limitSwitchPressed)
         .finallyDo(() -> io.stop())
         .withName("Home Elevator");
