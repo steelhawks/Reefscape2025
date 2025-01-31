@@ -134,6 +134,10 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIO() {}, ElevatorConstants.ALPHA);
+                    s_Intake = 
+                        new Intake(
+                            new AlgaeIntakeIOTalonFX(), 
+                            new CoralIntakeIOTalonFX());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
