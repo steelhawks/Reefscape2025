@@ -198,22 +198,27 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {});
                 switch (Constants.getRobot()) {
-                    case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
+                    case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                         s_Vision =
                             new Vision(
                                 s_Swerve::accept,
                                 new VisionIO() {},
                                 new VisionIO() {},
                                 new VisionIO() {});
-                    default -> // assume everything else has one
+                        s_Elevator =
+                            new Elevator(
+                                new ElevatorIO() {}, ElevatorConstants.HAWKRIDER);
+                    }
+                    default -> { // assume everything else has one
                         s_Vision =
                             new Vision(
                                 s_Swerve::accept,
                                 new VisionIO() {});
+                        s_Elevator =
+                            new Elevator(
+                                new ElevatorIO() {}, ElevatorConstants.DEFAULT);
+                    }
                 }
-                s_Elevator =
-                    new Elevator(
-                        new ElevatorIO() {}, ElevatorConstants.HAWKRIDER);
                 s_Intake =
                     new Intake(
                         new AlgaeIntakeIO() {},
