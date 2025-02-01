@@ -22,7 +22,6 @@ import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
-import org.steelhawks.subsystems.intake.coral.CoralIntakeConstants;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;

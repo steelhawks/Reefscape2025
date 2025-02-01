@@ -1,23 +1,23 @@
 package org.steelhawks.subsystems.intake.algae;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
-import org.steelhawks.subsystems.elevator.ElevatorIO;
+import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.intake.IntakeConstants;
+
+import static edu.wpi.first.units.Units.Volts;
 
 public class AlgaeIntake {
 
     private final AlgaeIntakeIOInputsAutoLogged inputs = new AlgaeIntakeIOInputsAutoLogged();
     private final IntakeConstants constants;
     private boolean mEnabled = false;
-    private final SysIdRoutine mSysId;
+//    private final SysIdRoutine mSysId;
     private final AlgaeIntakeIO io;
 
 
@@ -42,6 +42,28 @@ public class AlgaeIntake {
     public AlgaeIntake(AlgaeIntakeIO io, IntakeConstants constants) {
         this.io = io;
         this.constants = constants;
+
+        intakeMotorDisconnected =
+            new Alert("Intake Motor is Disconnected", AlertType.kError);
+        pivotMotorDisconnected =
+            new Alert("Pivot Motor is Disconnected", AlertType.kError);
+        canCoderDisconnected =
+            new Alert("CANcoder is Disconnected", AlertType.kError);
+        limitSwitchDisconnected =
+            new Alert("Limit Switch is Disconnected", AlertType.kError);
+        canCoderMagnetBad =
+            new Alert("CANcoder Magnet is Bad", AlertType.kError);
+
+//        mSysId =
+//            new SysIdRoutine(
+//                new SysIdRoutine.Config(
+//                    null,
+//                    null,
+//                    null,
+//                    (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
+//                new SysIdRoutine.Mechanism(
+//                    (voltage) -> io.runPivot(voltage.in(Volts)), null, RobotContainer.));
+
 
         mController =
             new ProfiledPIDController(

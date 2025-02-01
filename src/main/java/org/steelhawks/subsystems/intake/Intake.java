@@ -24,7 +24,6 @@ public class Intake extends SubsystemBase {
     private final IntakeConstants constants;
 
     private final SysIdRoutine mAlgaeSysId;
-    private final SysIdRoutine mCoralSysId;
 
 
     public Intake(AlgaeIntakeIO algaeIO, CoralIntakeIO coralIO, IntakeConstants constants) {
@@ -41,16 +40,6 @@ public class Intake extends SubsystemBase {
                     (state) -> Logger.recordOutput("Intake/Algae/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> mAlgaeIntake.runCharacterization(voltage.in(Volts)), null, this));
-
-        // mCoralSysId =
-        //     new SysIdRoutine(
-        //         new SysIdRoutine.Config(
-        //             null,
-        //             null,
-        //             null,
-        //             (state) -> Logger.recordOutput("Intake/Algae/SysIdState", state.toString())),
-        //         new SysIdRoutine.Mechanism(
-        //             (voltage) -> mCoralIntake.runCharacterization(voltage.in(Volts)), null, this));
     }
 
     @Override
@@ -71,20 +60,12 @@ public class Intake extends SubsystemBase {
         return mAlgaeSysId.dynamic(dir);
     }
 
-    public Command coralSysIdQuasistatic(SysIdRoutine.Direction dir) {
-        return mCoralSysId.quasistatic(dir);
-    }
-
-    public Command coralSysIdDynamic(SysIdRoutine.Direction dir) {
-        return mCoralSysId.dynamic(dir);
-    }
-
     public Command setDesiredAlgaeIntakeState(IntakeConstants.AlgaeIntakeState state) {
         return Commands.runOnce(
             () -> {
                 double goal =
                     MathUtil.clamp(state.rotations, 0, constants.ALGAE_MAX_ROTATIONS);
-                inputs.setpoint = goal;
+//                inputs.setpoint = goal;
                 mAlgaeIntake.mController.setGoal(goal);
                 mAlgaeIntake.enable();
             }, this);
