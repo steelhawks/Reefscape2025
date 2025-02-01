@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.vision;
 
+import static org.steelhawks.subsystems.vision.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -9,55 +10,55 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.littletonrobotics.junction.Logger;
 import org.steelhawks.subsystems.vision.VisionIO.PoseObservationType;
-
 import java.util.LinkedList;
 import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
-
-    @FunctionalInterface
-    public interface VisionConsumer {
-        void accept(Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs);
-    }
-
-    private final VisionConsumer mConsumer;
+    private final VisionConsumer consumer;
     private final VisionIO[] io;
     private final VisionIOInputsAutoLogged[] inputs;
     private final Alert[] disconnectedAlerts;
 
-
     public Vision(VisionConsumer consumer, VisionIO... io) {
-
-        if (io == null || io.length == 0) {
-            throw new IllegalArgumentException("VisionIO array cannot be null or empty.");
-        }
-
-        this.mConsumer = consumer;
+        this.consumer = consumer;
         this.io = io;
 
+        // Initialize inputs
         this.inputs = new VisionIOInputsAutoLogged[io.length];
-        this.disconnectedAlerts = new Alert[io.length];
-
         for (int i = 0; i < inputs.length; i++) {
             inputs[i] = new VisionIOInputsAutoLogged();
+        }
+
+        // Initialize disconnected alerts
+        this.disconnectedAlerts = new Alert[io.length];
+        for (int i = 0; i < inputs.length; i++) {
             disconnectedAlerts[i] =
-                new Alert("Vision " + i + " disconnected", Alert.AlertType.kError);
+                new Alert(
+                    "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
         }
     }
 
-    public Rotation2d getTargetX(int camIndex) {
-        return inputs[camIndex].latestTargetObservation.tx();
+    /**
+     * Returns the X angle to the best target, which can be used for simple servoing with vision.
+     *
+     * @param cameraIndex The index of the camera to use.
+     */
+    public Rotation2d getTargetX(int cameraIndex) {
+        return inputs[cameraIndex].latestTargetObservation.tx();
     }
 
+    @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
             io[i].updateInputs(inputs[i]);
-            Logger.processInputs("Vision/Camera" + i, inputs[i]);
+            Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
         }
 
+        // Initialize logging values
         List<Pose3d> allTagPoses = new LinkedList<>();
         List<Pose3d> allRobotPoses = new LinkedList<>();
         List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
@@ -68,6 +69,7 @@ public class Vision extends SubsystemBase {
             // Update disconnected alert
             disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
+            // Initialize logging values
             List<Pose3d> tagPoses = new LinkedList<>();
             List<Pose3d> robotPoses = new LinkedList<>();
             List<Pose3d> robotPosesAccepted = new LinkedList<>();
@@ -75,24 +77,29 @@ public class Vision extends SubsystemBase {
 
             // Add tag poses
             for (int tagId : inputs[cameraIndex].tagIds) {
-                var tagPose = KVision.APRIL_TAG_FIELD_LAYOUT.getTagPose(tagId);
+                var tagPose = APRIL_TAG_LAYOUT.getTagPose(tagId);
                 if (tagPose.isPresent()) {
                     tagPoses.add(tagPose.get());
                 }
             }
 
+            // Loop over pose observations
             for (var observation : inputs[cameraIndex].poseObservations) {
-                boolean rejectPose = observation.tagCount() == 0
-                    || (observation.tagCount() == 1
-                    && observation.ambiguity() > KVision.MAX_AMBIGUITY)
-                    || Math.abs(observation.pose().getZ()) > KVision.MAX_Z_ERROR
+                // Check whether to reject pose
+                boolean rejectPose =
+                    observation.tagCount() == 0 // Must have at least one tag
+                        || (observation.tagCount() == 1
+                        && observation.ambiguity() > MAX_AMBIGUITY) // Cannot be high ambiguity
+                        || Math.abs(observation.pose().getZ())
+                        > MAX_ZERROR // Must have realistic Z coordinate
 
-                    // MUST BE IN THE FIELD
-                    || observation.pose().getX() < 0.0
-                    || observation.pose().getX() > KVision.APRIL_TAG_FIELD_LAYOUT.getFieldLength()
-                    || observation.pose().getY() < 0.0
-                    || observation.pose().getY() > KVision.APRIL_TAG_FIELD_LAYOUT.getFieldWidth();
+                        // Must be within the field boundaries
+                        || observation.pose().getX() < 0.0
+                        || observation.pose().getX() > APRIL_TAG_LAYOUT.getFieldLength()
+                        || observation.pose().getY() < 0.0
+                        || observation.pose().getY() > APRIL_TAG_LAYOUT.getFieldWidth();
 
+                // Add pose to log
                 robotPoses.add(observation.pose());
                 if (rejectPose) {
                     robotPosesRejected.add(observation.pose());
@@ -100,37 +107,44 @@ public class Vision extends SubsystemBase {
                     robotPosesAccepted.add(observation.pose());
                 }
 
-                if (rejectPose)
+                // Skip if rejected
+                if (rejectPose) {
                     continue;
+                }
 
-                // calc standard deviation
-                double stdDevFactor = Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
-                double linearStdDev = KVision.LINEAR_STD_DEV_BASELINE * stdDevFactor;
-                double angularStdDev = KVision.ANGULAR_STD_DEV_BASELINE * stdDevFactor;
+                // Calculate standard deviations
+                double stdDevFactor =
+                    Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
+                double linearStdDev = LINEAR_STD_DEV_BASELINE * stdDevFactor;
+                double angularStdDev = ANGULAR_STD_DEV_BASELINE * stdDevFactor;
                 if (observation.type() == PoseObservationType.MEGATAG_2) {
-                    linearStdDev *= KVision.LINEAR_STD_DEV_MEGATAG2_FACTOR;
-                    angularStdDev *= KVision.ANGULAR_STD_DEV_MEGATAG2_FACTOR;
+                    linearStdDev *= LINEAR_STD_DEV_MEGATAG2_FACTOR;
+                    angularStdDev *= ANGULAR_STD_DEV_MEGATAG2_FACTOR;
                 }
-                if (cameraIndex < KVision.CAM_STD_DEV_FACTORS.length) {
-                    linearStdDev *= KVision.CAM_STD_DEV_FACTORS[cameraIndex];
-                    angularStdDev *= KVision.CAM_STD_DEV_FACTORS[cameraIndex];
+                if (cameraIndex < CAMERA_STD_DEV_FACTORS.length) {
+                    linearStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
+                    angularStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
                 }
 
-                mConsumer.accept(
+                // Send vision observation
+                consumer.accept(
                     observation.pose().toPose2d(),
                     observation.timestamp(),
                     VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
             }
 
+            // Log camera datadata
             Logger.recordOutput(
-                "Vision/Camera" + cameraIndex + "/TagPoses", tagPoses.toArray(new Pose3d[tagPoses.size()]));
+                "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
+                tagPoses.toArray(new Pose3d[tagPoses.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + cameraIndex + "/RobotPoses", robotPoses.toArray(new Pose3d[robotPoses.size()]));
+                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
+                robotPoses.toArray(new Pose3d[robotPoses.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + cameraIndex + "/RobotPosesAccepted",
+                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
                 robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + cameraIndex + "/RobotPosesRejected",
+                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
                 robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
             allTagPoses.addAll(tagPoses);
             allRobotPoses.addAll(robotPoses);
@@ -138,8 +152,11 @@ public class Vision extends SubsystemBase {
             allRobotPosesRejected.addAll(robotPosesRejected);
         }
 
-        Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
-        Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[allRobotPoses.size()]));
+        // Log summary data
+        Logger.recordOutput(
+            "Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
+        Logger.recordOutput(
+            "Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[allRobotPoses.size()]));
         Logger.recordOutput(
             "Vision/Summary/RobotPosesAccepted",
             allRobotPosesAccepted.toArray(new Pose3d[allRobotPosesAccepted.size()]));
@@ -147,5 +164,12 @@ public class Vision extends SubsystemBase {
             "Vision/Summary/RobotPosesRejected",
             allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
     }
-}
 
+    @FunctionalInterface
+    public static interface VisionConsumer {
+        public void accept(
+            Pose2d visionRobotPoseMeters,
+            double timestampSeconds,
+            Matrix<N3, N1> visionMeasurementStdDevs);
+    }
+}

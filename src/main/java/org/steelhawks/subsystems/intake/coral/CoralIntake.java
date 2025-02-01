@@ -8,7 +8,7 @@ import org.steelhawks.subsystems.intake.IntakeConstants;
 
 public class CoralIntake {
 
-    private final CoralIOInputsAutoLogged inputs = new CoralIOInputsAutoLogged();
+    private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
     private final CoralIntakeIO io;
     private boolean mEnabled;
 
@@ -30,6 +30,8 @@ public class CoralIntake {
 
         if (!mEnabled) return;
 
-        io.runIntake();
+//        io.runIntake();
     }
+
+    public void runCharacterization(double volts) {}
 }

@@ -21,6 +21,7 @@ import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
+import org.steelhawks.subsystems.intake.coral.CoralIntakeConstants;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
@@ -137,7 +138,7 @@ public class RobotContainer {
                     s_Intake = 
                         new Intake(
                             new AlgaeIntakeIOTalonFX(), 
-                            new CoralIntakeIOTalonFX());
+                            new CoralIntakeIOTalonFX(CoralIntakeConstants.ALPHA));
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -152,7 +153,9 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhoton(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT));
+                            new VisionIOPhoton(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0),
+                            new VisionIOLimelight(VisionConstants.CAMERA1NAME, () -> s_Swerve.getRotation()),
+                            new VisionIOLimelight(VisionConstants.CAMERA2NAME, () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX(ElevatorConstants.HAWKRIDER),
@@ -177,7 +180,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhotonSim(KVision.CAM_01_NAME, KVision.CAM_01_TO_ROBOT,
+                            new VisionIOPhotonSim(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0,
                                 mDriveSimulation::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
