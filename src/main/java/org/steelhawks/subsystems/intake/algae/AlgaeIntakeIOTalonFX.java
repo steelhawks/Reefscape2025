@@ -1,4 +1,209 @@
 package org.steelhawks.subsystems.intake.algae;
 
+import org.steelhawks.Constants;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
+import org.steelhawks.subsystems.intake.IntakeConstants;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
+
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
+
+    private final IntakeConstants constants;
+
+    private final TalonFX mIntakeMotor;
+    private final TalonFX mPivotMotor;
+    private final CANcoder mCANcoder;
+
+    private final DigitalInput mLimitSwitch;
+
+    private final StatusSignal<Angle> intakePosition;
+    private final StatusSignal<AngularVelocity> intakeVelocity;
+    private final StatusSignal<Voltage> intakeVoltage;
+    private final StatusSignal<Current> intakeCurrent;
+    private final StatusSignal<Temperature> intakeTemp;
+
+    private final StatusSignal<Angle> pivotPosition;
+    private final StatusSignal<AngularVelocity> pivotVelocity;
+    private final StatusSignal<Voltage> pivotVoltage;
+    private final StatusSignal<Current> pivotCurrent;
+    private final StatusSignal<Temperature> pivotTemp;
+
+    private final StatusSignal<Boolean> magnetFault;
+    private final StatusSignal<Angle> canCoderPosition;
+    private final StatusSignal<AngularVelocity> canCoderVelocity;
+
+    private boolean atTopLimit = false;
+    private boolean atBottomLimit = false;
+
+    public AlgaeIntakeIOTalonFX(IntakeConstants constants) {
+        this.constants = constants;
+        mIntakeMotor = new TalonFX(constants.ALGAE_INTAKE_MOTOR_ID, Constants.getCANBus());
+        mPivotMotor = new TalonFX(constants.ALGAE_PIVOT_MOTOR_ID, Constants.getCANBus());
+        mCANcoder = new CANcoder(constants.ALGAE_CANCODER_ID, Constants.getCANBus());
+        mLimitSwitch = new DigitalInput(constants.ALGAE_LIMIT_SWITCH_ID);
+
+        var intakeConfig = new TalonFXConfiguration();
+        intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        var pivotConfig = new TalonFXConfiguration();
+        pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        mIntakeMotor.getConfigurator().apply(intakeConfig);
+        mPivotMotor.getConfigurator().apply(pivotConfig);
+
+        mCANcoder.getConfigurator().apply(
+            new CANcoderConfiguration().withMagnetSensor(
+                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
+
+        mCANcoder.setPosition(0);
+
+        intakePosition = mIntakeMotor.getPosition();
+        intakeVelocity = mIntakeMotor.getVelocity();
+        intakeVoltage = mIntakeMotor.getSupplyVoltage();
+        intakeCurrent = mIntakeMotor.getStatorCurrent();
+        intakeTemp = mIntakeMotor.getDeviceTemp();
+
+        pivotPosition = mPivotMotor.getPosition();
+        pivotVelocity = mPivotMotor.getVelocity();
+        pivotVoltage = mPivotMotor.getSupplyVoltage();
+        pivotCurrent = mPivotMotor.getStatorCurrent();
+        pivotTemp = mPivotMotor.getDeviceTemp();
+
+        magnetFault = mCANcoder.getFault_BadMagnet();
+        canCoderPosition = mCANcoder.getPosition();
+        canCoderVelocity = mCANcoder.getVelocity();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(
+            50,
+            intakePosition,
+            intakeVelocity,
+            intakeVoltage,
+            intakeCurrent,
+            intakeTemp,
+
+            pivotPosition,
+            pivotVelocity,
+            pivotVoltage,
+            pivotCurrent,
+            pivotTemp,
+
+            magnetFault,
+            canCoderPosition,
+            canCoderVelocity);
+
+        ParentDevice.optimizeBusUtilizationForAll(mIntakeMotor, mPivotMotor, mCANcoder);
+    }
+
+    
+    @Override
+    public void updateInputs(AlgaeIntakeIOInputs inputs) {
+        inputs.intakeConnected =
+            BaseStatusSignal.refreshAll(
+                intakePosition,
+                intakeVelocity,
+                intakeVoltage,
+                intakeCurrent,
+                intakeTemp).isOK();
+        inputs.intakePositionRad = Units.rotationsToRadians(intakePosition.getValueAsDouble());
+        inputs.intakeVelocityRadPerSec = Units.rotationsToRadians(intakeVelocity.getValueAsDouble());
+        inputs.intakeAppliedVolts = intakeVoltage.getValueAsDouble();
+        inputs.intakeCurrentAmps = intakeCurrent.getValueAsDouble();
+        inputs.intakeTempCelsius = intakeTemp.getValueAsDouble();
+
+        inputs.pivotConnected =
+            BaseStatusSignal.refreshAll(
+                pivotPosition,
+                pivotVelocity,
+                pivotVoltage,
+                pivotCurrent,
+                pivotTemp).isOK();
+        inputs.pivotPositionRad = Units.rotationsToRadians(pivotPosition.getValueAsDouble());
+        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelocity.getValueAsDouble());
+        inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
+        inputs.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
+        inputs.pivotTempCelsius = pivotTemp.getValueAsDouble();
+
+        inputs.encoderConnected =
+            BaseStatusSignal.refreshAll(
+                magnetFault,
+                canCoderPosition,
+                canCoderVelocity).isOK();
+        inputs.magnetGood = !magnetFault.getValue();
+        inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
+        inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
+
+        inputs.limitSwitchConnected = limitSwitchConnected();
+        inputs.limitSwitchPressed = !mLimitSwitch.get();
+        inputs.atBottomLimit = inputs.encoderPositionRotations >= constants.ALGAE_MAX_ROTATIONS;
+
+        atTopLimit = inputs.atBottomLimit;
+        atBottomLimit = inputs.limitSwitchPressed;
+    }
+
+    private boolean limitSwitchConnected() {
+        int retries = 0;
+        final int MAX_RETRIES = 10;
+
+        while (retries < MAX_RETRIES) {
+            boolean consistentReading =
+                canCoderPosition.getValueAsDouble() - constants.ALGAE_TOLERANCE <= 0 &&
+                    !mLimitSwitch.get();
+
+            if (consistentReading) {
+                return true;  // switch is connected
+            }
+
+            retries++;
+            Timer.delay(0.1);
+        }
+
+        if (canCoderPosition.getValueAsDouble() - constants.ALGAE_TOLERANCE > 0) {
+            // elevator is not at the bottom, return true for now
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void runPivot(double volts) {
+        mPivotMotor.setVoltage(volts);
+    }
+
+    @Override
+    public void stopPivot() {
+        mPivotMotor.stopMotor();
+    }
+
+    @Override
+    public void runIntake(double volts) {
+        mIntakeMotor.setVoltage(volts);
+    }
+
+    @Override
+    public void stopIntake() {
+        mIntakeMotor.stopMotor();
+    }
 }

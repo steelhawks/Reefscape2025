@@ -21,9 +21,9 @@ public interface CoralIntakeIO {
     default void updateInputs(CoralIntakeIOInputs inputs) {}
 
     /**
-     * Runs the coral intake at a given percentage of maximum output.
+     * Runs the coral outtake at a given percentage of maximum output.
      */
-    default void runIntake(double percentageOutput) {}
+    default void runOuttake(double percentageOutput) {}
 
     /**
      * Stops the elevator.

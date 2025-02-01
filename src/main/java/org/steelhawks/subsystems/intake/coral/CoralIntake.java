@@ -9,6 +9,7 @@ import org.steelhawks.subsystems.intake.IntakeConstants;
 public class CoralIntake {
 
     private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
+    private final IntakeConstants constants;
     private final CoralIntakeIO io;
     private boolean mEnabled;
 
@@ -20,8 +21,9 @@ public class CoralIntake {
         mEnabled = false;
     }
 
-    public CoralIntake(CoralIntakeIO io) {
+    public CoralIntake(CoralIntakeIO io, IntakeConstants constants) {
         this.io = io;
+        this.constants = constants;
     }
 
     public void periodic() {

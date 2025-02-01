@@ -18,6 +18,7 @@ import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
+import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
@@ -137,8 +138,9 @@ public class RobotContainer {
                             new ElevatorIO() {}, ElevatorConstants.ALPHA);
                     s_Intake = 
                         new Intake(
-                            new AlgaeIntakeIOTalonFX(), 
-                            new CoralIntakeIOTalonFX(CoralIntakeConstants.ALPHA));
+                            new AlgaeIntakeIOTalonFX(IntakeConstants.ALPHA), 
+                            new CoralIntakeIOTalonFX(IntakeConstants.ALPHA),
+                            IntakeConstants.ALPHA);
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -163,7 +165,8 @@ public class RobotContainer {
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {});
+                            new CoralIntakeIO() {},
+                            IntakeConstants.HAWKRIDER);
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3,
@@ -192,7 +195,8 @@ public class RobotContainer {
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIOSim(),
-                            new CoralIntakeIOSim());
+                            new CoralIntakeIOSim(),
+                            IntakeConstants.DEFAULT);
                 }
             }
 
@@ -229,7 +233,8 @@ public class RobotContainer {
                 s_Intake =
                     new Intake(
                         new AlgaeIntakeIO() {},
-                        new CoralIntakeIO() {});
+                        new CoralIntakeIO() {},
+                        IntakeConstants.DEFAULT);
             }
         }
 

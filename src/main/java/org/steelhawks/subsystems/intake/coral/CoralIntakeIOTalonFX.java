@@ -1,6 +1,8 @@
 package org.steelhawks.subsystems.intake.coral;
 
 import org.steelhawks.Constants;
+import org.steelhawks.subsystems.intake.IntakeConstants;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -18,7 +20,7 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     
-    private final CoralIntakeConstants constants;
+    private final IntakeConstants constants;
     private final TalonFX mIntakeMotor;
 
     private final StatusSignal<Angle> position;
@@ -27,9 +29,9 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     private final StatusSignal<Current> current;
     private final StatusSignal<Temperature> temp;
 
-    public CoralIntakeIOTalonFX(CoralIntakeConstants constants) {
+    public CoralIntakeIOTalonFX(IntakeConstants constants) {
         this.constants = constants;
-        mIntakeMotor = new TalonFX(constants.MOTOR_ID, Constants.getCANBus());
+        mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         
         var motorConfig = new TalonFXConfiguration();
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -71,7 +73,7 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     }
 
     @Override
-    public void runIntake(double percentageOutput) {
+    public void runOuttake(double percentageOutput) {
         mIntakeMotor.set(percentageOutput);
     }
 

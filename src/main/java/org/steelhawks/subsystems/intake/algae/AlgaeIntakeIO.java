@@ -5,23 +5,47 @@ import org.littletonrobotics.junction.AutoLog;
 public interface AlgaeIntakeIO {
 
     @AutoLog
-    class AlgaeIOInputs {
+    class AlgaeIntakeIOInputs {
+        public double setpoint = 0;
 
-        public boolean canCoderConnected = false;
-        public boolean magnetGood = false;
+        public boolean intakeConnected = false;
+        public double intakePositionRad = 0;
+        public double intakeVelocityRadPerSec = 0;
+        public double intakeAppliedVolts = 0;
+        public double intakeCurrentAmps = 0;
+        public double intakeTempCelsius = 0;
+
+        public boolean pivotConnected = false;
         public double pivotPositionRad = 0;
         public double pivotVelocityRadPerSec = 0;
+        public double pivotAppliedVolts = 0;
+        public double pivotCurrentAmps = 0;
+        public double pivotTempCelsius = 0;
+
+        public boolean encoderConnected = false;
+        public boolean magnetGood = false;
+        public double encoderPositionRotations = 0;
+        public double encoderVelocityRotationsPerSec = 0;
+
+        public boolean limitSwitchConnected = false;
+        public boolean limitSwitchPressed = false;
+        public boolean atBottomLimit = false;
     }
 
     /**
      * Updates the set of loggable inputs.
      */
-    default void updateInputs(AlgaeIOInputs inputs)  {}
+    default void updateInputs(AlgaeIntakeIOInputs inputs)  {}
 
     /**
      * Runs the pivot at a given voltage.
      */
     default void runPivot(double volts) {}
+
+    /**
+     * Stops the pivot
+     */
+    default void stopPivot() {}
 
     /**
      * Runs the intake
@@ -32,9 +56,4 @@ public interface AlgaeIntakeIO {
      * Stops the intake
      */
     default void stopIntake() {}
-
-    /**
-     * Stops the pivot
-     */
-    default void stopPivot() {}
 }
