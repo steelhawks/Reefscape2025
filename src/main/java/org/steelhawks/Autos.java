@@ -1,6 +1,9 @@
 package org.steelhawks;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -9,10 +12,13 @@ import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.Constants.Mode;
+
+import java.io.IOException;
 
 public final class Autos {
 
@@ -131,5 +137,26 @@ public final class Autos {
     @AutoLogOutput(key = "Auton/Selected")
     public static String getAutonName() {
         return AutonMode.values()[getSelector()].getAutonName();
+    }
+
+    public static Command getTestAuton() {
+        return Commands.runOnce(
+            () ->
+                RobotContainer.s_Swerve.setPose(
+                    new Pose2d(8.272273, 1.914906, new Rotation2d())))
+            .andThen(
+                DriveCommands.followPath(getPath("olan"))
+            )
+            ;
+    }
+
+    public static PathPlannerPath getPath(String choreo) {
+        try {
+            return PathPlannerPath.fromChoreoTrajectory(choreo);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

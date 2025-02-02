@@ -17,7 +17,6 @@ public class AlgaeIntake {
     private final AlgaeIntakeIOInputsAutoLogged inputs = new AlgaeIntakeIOInputsAutoLogged();
     private final IntakeConstants constants;
     private boolean mEnabled = false;
-//    private final SysIdRoutine mSysId;
     private final AlgaeIntakeIO io;
 
 
@@ -53,17 +52,6 @@ public class AlgaeIntake {
             new Alert("Limit Switch is Disconnected", AlertType.kError);
         canCoderMagnetBad =
             new Alert("CANcoder Magnet is Bad", AlertType.kError);
-
-//        mSysId =
-//            new SysIdRoutine(
-//                new SysIdRoutine.Config(
-//                    null,
-//                    null,
-//                    null,
-//                    (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
-//                new SysIdRoutine.Mechanism(
-//                    (voltage) -> io.runPivot(voltage.in(Volts)), null, RobotContainer.));
-
 
         mController =
             new ProfiledPIDController(

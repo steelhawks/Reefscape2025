@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
     // AprilTag layout
@@ -19,8 +20,9 @@ public class VisionConstants {
     // (Not used by Limelight, configure in web UI instead)
 
     public static Transform3d ROBOT_TO_CAMERA0 =
-        new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, 0.35, 0.79));
-
+        new Transform3d(
+            Units.inchesToMeters(-7.5), 0.0, 0.2, new Rotation3d(0.0, 0.35, 0.79));
+// -7.5
     // Limelight offsets used for Vision Simulation
     public static Transform3d ROBOT_TO_CAMERA1 =
         new Transform3d(0, 0, 0, new Rotation3d());
@@ -41,8 +43,8 @@ public class VisionConstants {
     public static double[] CAMERA_STD_DEV_FACTORS =
         new double[] {
             0.2, // Camera 0
-            1.0, // Camera 1
-            1.0 // Camera 2
+            0.8, // Camera 1
+            0.8// Camera 2
         };
 
     // Multipliers to apply for MegaTag 2 observations

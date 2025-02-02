@@ -247,7 +247,13 @@ public class RobotContainer {
         configureDriver();
     }
 
-    private void configurePathfindingCommands() {}
+    private void configurePathfindingCommands() {
+        /* ------------- Pathfinding Poses ------------- */
+
+        driver.leftTrigger().onTrue(
+            DriveCommands.driveToPosition(FieldConstants.PROCESSOR, interruptPathfinding));
+    }
+
     private void configureDefaultCommands() {}
     private void configureTestBindings() {}
     private void configureAltBindings() {}

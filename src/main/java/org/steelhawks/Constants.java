@@ -43,7 +43,7 @@ public final class Constants {
      *     </p>If you want to replay a log file set it to the robot type you want to replay and just run the simulator.
      * </p>
      */
-    private static final RobotType ROBOT_TYPE = RobotType.SIMBOT;
+    private static final RobotType ROBOT_TYPE = RobotType.HAWKRIDER;
 
     public static Mode getMode() {
         return switch (ROBOT_TYPE) {
@@ -110,6 +110,9 @@ public final class Constants {
             new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3));
         public static final Pose2d BOTTOM_RIGHT_SECTION =
             new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3));
+
+        public static final Pose2d PROCESSOR =
+            new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2));
     }
 
     /**
@@ -175,8 +178,8 @@ public final class Constants {
             0.0,
             15,
             20,
-            3,
-            4,
+            1,
+            2,
             5,
             8);
 
