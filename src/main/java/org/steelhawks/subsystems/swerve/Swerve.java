@@ -95,6 +95,47 @@ public class Swerve extends SubsystemBase {
 
     static {
         switch (Constants.getRobot()) {
+//            case OMEGABOT -> {
+//                DRIVE_BASE_RADIUS =
+//                    Math.max(
+//                        Math.max(
+//                            Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
+//                            Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
+//                        Math.max(
+//                            Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
+//                            Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+//                ROBOT_MASS_KG = 0;
+//                ROBOT_MOI = 0;
+//                WHEEL_COF = COTS.WHEELS.COLSONS.cof;
+//                PP_CONFIG =
+//                    new RobotConfig(
+//                        ROBOT_MASS_KG,
+//                        ROBOT_MOI,
+//                        new ModuleConfig(
+//                            TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
+//                            WHEEL_COF,
+//                            DCMotor.getKrakenX60(1)
+//                                .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
+//                            TunerConstants.FrontLeft.SlipCurrent,
+//                            1),
+//                        getModuleTranslations());
+//                MAPLE_SIM_CONFIG =
+//                    DriveTrainSimulationConfig.Default()
+//                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+//                        .withCustomModuleTranslations(getModuleTranslations())
+//                        .withGyro(COTS.ofPigeon2())
+//                        .withSwerveModule(
+//                            new SwerveModuleSimulationConfig(
+//                                DCMotor.getKrakenX60(1),
+//                                DCMotor.getKrakenX60(1),
+//                                TunerConstants.FrontLeft.DriveMotorGearRatio,
+//                                TunerConstants.FrontLeft.SteerMotorGearRatio,
+//                                Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
+//                                Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
+//                                Meters.of(TunerConstants.FrontLeft.WheelRadius),
+//                                KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
+//                                WHEEL_COF));
+//            }
             case ALPHABOT -> {
                 DRIVE_BASE_RADIUS =
                     Math.max(

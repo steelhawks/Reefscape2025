@@ -238,13 +238,17 @@ public class RobotContainer {
         }
 
         Autos.configureTuningCommands();
-        configurePathfindingCommands();
         configureDefaultCommands();
         configureTestBindings();
         configureAltBindings();
         configureTriggers();
         configureOperator();
         configureDriver();
+
+        if (Constants.getRobot() == RobotType.SIMBOT)
+            return;
+
+        configurePathfindingCommands();
     }
 
     private void configurePathfindingCommands() {

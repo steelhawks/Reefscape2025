@@ -18,7 +18,7 @@ public class AlgaeIntake {
     private final IntakeConstants constants;
     private boolean mEnabled = false;
     private final AlgaeIntakeIO io;
-    
+
     public final ProfiledPIDController mController;
     private ArmFeedforward mFeedforward;
 

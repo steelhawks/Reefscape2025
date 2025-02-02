@@ -43,7 +43,7 @@ public final class Constants {
      *     </p>If you want to replay a log file set it to the robot type you want to replay and just run the simulator.
      * </p>
      */
-    private static final RobotType ROBOT_TYPE = RobotType.HAWKRIDER;
+    private static final RobotType ROBOT_TYPE = RobotType.SIMBOT;
 
     public static Mode getMode() {
         return switch (ROBOT_TYPE) {
