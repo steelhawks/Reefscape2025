@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED.LEDColor;
@@ -108,15 +109,15 @@ public class RobotContainer {
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
                 case OMEGABOT -> {
-//                    s_Swerve =
-//                        new Swerve(
-//                            new GyroIOPigeon2(
-//                                TunerConstants.DrivetrainConstants.Pigeon2Id,
-//                                TunerConstants.DrivetrainConstants.CANBusName),
-//                            new ModuleIOTalonFX(TunerConstants.FrontLeft),
-//                            new ModuleIOTalonFX(TunerConstants.FrontRight),
-//                            new ModuleIOTalonFX(TunerConstants.BackLeft),
-//                            new ModuleIOTalonFX(TunerConstants.BackRight));
+                    s_Swerve =
+                        new Swerve(
+                            new GyroIOPigeon2(
+                                TunerConstants.DrivetrainConstants.Pigeon2Id,
+                                TunerConstants.DrivetrainConstants.CANBusName),
+                            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                            new ModuleIOTalonFX(TunerConstants.FrontRight),
+                            new ModuleIOTalonFX(TunerConstants.BackLeft),
+                            new ModuleIOTalonFX(TunerConstants.BackRight));
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
