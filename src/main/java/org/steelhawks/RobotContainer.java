@@ -35,6 +35,8 @@ import static org.steelhawks.subsystems.elevator.ElevatorConstants.State.*;
 
 public class RobotContainer {
 
+    public static final boolean useVision = false;
+
     private SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
     private final Trigger isAltMode;
