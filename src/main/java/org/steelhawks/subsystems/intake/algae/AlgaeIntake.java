@@ -18,8 +18,7 @@ public class AlgaeIntake {
     private final IntakeConstants constants;
     private boolean mEnabled = false;
     private final AlgaeIntakeIO io;
-
-
+    
     public final ProfiledPIDController mController;
     private ArmFeedforward mFeedforward;
 
@@ -74,6 +73,12 @@ public class AlgaeIntake {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeIntake", inputs);
+
+        intakeMotorDisconnected.set(!inputs.intakeConnected);
+        pivotMotorDisconnected.set(!inputs.pivotConnected);
+        canCoderDisconnected.set(!inputs.encoderConnected);
+        limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
+        canCoderMagnetBad.set(!inputs.magnetGood);
 
         if (constants.ALGAE_KP.hasChanged(hashCode()) ||
             constants.ALGAE_KI.hasChanged(hashCode()) ||
