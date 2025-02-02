@@ -35,6 +35,8 @@ public final class ElevatorConstants {
             0.5,
             3);
 
+    public static final ElevatorConstants OMEGA = DEFAULT;
+
     public static final ElevatorConstants ALPHA =
         new ElevatorConstants(
             0,

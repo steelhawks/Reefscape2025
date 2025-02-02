@@ -35,8 +35,8 @@ public class IntakeConstants {
             0.5,
             3);
 
+    public static final IntakeConstants OMEGA = DEFAULT;
     public static final IntakeConstants ALPHA = DEFAULT;
-
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
 

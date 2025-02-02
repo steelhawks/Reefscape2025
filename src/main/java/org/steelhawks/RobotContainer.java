@@ -117,6 +117,18 @@ public class RobotContainer {
 //                            new ModuleIOTalonFX(TunerConstants.FrontRight),
 //                            new ModuleIOTalonFX(TunerConstants.BackLeft),
 //                            new ModuleIOTalonFX(TunerConstants.BackRight));
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIO() {});
+                    s_Elevator =
+                        new Elevator(
+                            new ElevatorIO() {}, ElevatorConstants.OMEGA);
+                    s_Intake =
+                        new Intake(
+                            new AlgaeIntakeIO() {},
+                            new CoralIntakeIO() {},
+                            IntakeConstants.OMEGA);
                 }
                 case ALPHABOT -> {
                     s_Swerve =
