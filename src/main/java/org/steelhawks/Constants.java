@@ -35,6 +35,9 @@ public final class Constants {
         SIMBOT
     }
 
+    // Change this based on what robot is being used.
+    private static final RobotType ROBOT = RobotType.ALPHABOT;
+
     /**
      * The robot type.
      *
@@ -43,7 +46,14 @@ public final class Constants {
      *     </p>If you want to replay a log file set it to the robot type you want to replay and just run the simulator.
      * </p>
      */
-    private static final RobotType ROBOT_TYPE = RobotType.SIMBOT;
+    private static final RobotType ROBOT_TYPE =
+        isCI() ?
+            RobotType.SIMBOT : // set to simbot when doing CI check on GitHub
+            ROBOT; // actual mode you want
+
+    private static boolean isCI() {
+        return System.getenv("CI") != null;
+    }
 
     public static Mode getMode() {
         return switch (ROBOT_TYPE) {

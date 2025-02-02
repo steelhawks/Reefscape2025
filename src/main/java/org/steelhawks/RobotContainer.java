@@ -187,10 +187,7 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim(),
-                            switch (Constants.getRobot()) {
-                                case HAWKRIDER -> ElevatorConstants.HAWKRIDER;
-                                default -> ElevatorConstants.DEFAULT;
-                            });
+                            ElevatorConstants.HAWKRIDER);
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIOSim(),
@@ -238,17 +235,13 @@ public class RobotContainer {
         }
 
         Autos.configureTuningCommands();
+        configurePathfindingCommands();
         configureDefaultCommands();
         configureTestBindings();
         configureAltBindings();
         configureTriggers();
         configureOperator();
         configureDriver();
-
-        if (Constants.getRobot() == RobotType.SIMBOT)
-            return;
-
-        configurePathfindingCommands();
     }
 
     private void configurePathfindingCommands() {
