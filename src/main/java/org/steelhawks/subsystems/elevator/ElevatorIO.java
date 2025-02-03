@@ -48,6 +48,11 @@ public interface ElevatorIO {
     default void runElevatorViaSpeed(double speed) {}
 
     /**
+     * Zeros the position of the motor encoders.
+     */
+    default void zeroMotorEncoders() {}
+
+    /**
      * Stops the elevator.
      */
     default void stop() {}

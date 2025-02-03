@@ -29,14 +29,14 @@ public final class Constants {
     }
 
     public enum RobotType {
-        ALPHABOT,
         OMEGABOT,
+        ALPHABOT,
         HAWKRIDER,
         SIMBOT
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.HAWKRIDER;
+    private static final RobotType ROBOT = RobotType.ALPHABOT;
 
     /**
      * The robot type.

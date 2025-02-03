@@ -14,8 +14,8 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -46,7 +46,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private boolean atTopLimit = false;
     private boolean atBottomLimit = false;
 
-
     public ElevatorIOTalonFX(ElevatorConstants constants) {
         this.constants = constants;
         mLeftMotor = new TalonFX(constants.LEFT_ID, Constants.getCANBus());
@@ -70,6 +69,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
         mCANcoder.setPosition(0);
+        zeroMotorEncoders();
 
         leftPosition = mLeftMotor.getPosition();
         leftVelocity = mLeftMotor.getVelocity();
@@ -110,6 +110,20 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
+
+        double leftPos = leftPosition.getValueAsDouble();
+        double rightPos = rightPosition.getValueAsDouble();
+
+        double leftVelo = leftVelocity.getValueAsDouble();
+        double rightVelo = rightVelocity.getValueAsDouble();
+
+        if (Constants.getRobot() == RobotType.ALPHABOT) { // 10:1 gear ratio
+            leftPos /= 10;
+            rightPos /= 10;
+            leftVelo /= 10;
+            rightVelo /= 10;
+        }
+
         inputs.leftConnected =
             BaseStatusSignal.refreshAll(
                 leftPosition,
@@ -117,8 +131,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 leftVoltage,
                 leftCurrent,
                 leftTemp).isOK();
-        inputs.leftPositionRad = Units.rotationsToRadians(leftPosition.getValueAsDouble());
-        inputs.leftVelocityRadPerSec = Units.rotationsToRadians(leftVelocity.getValueAsDouble());
+        inputs.leftPositionRad = Units.rotationsToRadians(leftPos);
+        inputs.leftVelocityRadPerSec = Units.rotationsToRadians(leftVelo);
         inputs.leftAppliedVolts = leftVoltage.getValueAsDouble();
         inputs.leftCurrentAmps = leftCurrent.getValueAsDouble();
         inputs.leftTempCelsius = leftTemp.getValueAsDouble();
@@ -130,8 +144,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 rightVoltage,
                 rightCurrent,
                 rightTemp).isOK();
-        inputs.rightPositionRad = Units.rotationsToRadians(rightPosition.getValueAsDouble());
-        inputs.rightVelocityRadPerSec = Units.rotationsToRadians(rightVelocity.getValueAsDouble());
+        inputs.rightPositionRad = Units.rotationsToRadians(rightPos);
+        inputs.rightVelocityRadPerSec = Units.rotationsToRadians(rightVelo);
         inputs.rightAppliedVolts = rightVoltage.getValueAsDouble();
         inputs.rightCurrentAmps = rightCurrent.getValueAsDouble();
         inputs.rightTempCelsius = rightTemp.getValueAsDouble();
@@ -145,9 +159,20 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
         inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
 
+        if (Constants.getRobot() == RobotType.ALPHABOT) {
+            inputs.encoderConnected = inputs.leftConnected && inputs.rightConnected;
+            inputs.magnetGood = inputs.encoderConnected;
+            inputs.encoderPositionRotations = (leftPos + rightPos) / 2.0;
+            inputs.encoderVelocityRotationsPerSec = (leftVelo + rightVelo) / 2.0;
+        }
+
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atTopLimit = inputs.encoderPositionRotations >= constants.MAX_ROTATIONS;
+        inputs.atTopLimit = inputs.encoderPositionRotations >= constants.MAX_HEIGHT;
+
+//        if (Constants.getRobot() == RobotType.ALPHABOT) {
+//            inputs.atTopLimit = (inputs.leftPositionRad + inputs.rightPositionRad) / 2.0 >= constants.MAX_HEIGHT;
+//        }
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
@@ -155,6 +180,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void runElevator(double volts) {
+        if ((atTopLimit && volts >= 0) || (atBottomLimit && volts <= 0)) {
+            stop();
+            return;
+        }
+
         mLeftMotor.setVoltage(volts);
         mRightMotor.setVoltage(volts);
     }
@@ -169,6 +199,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         mLeftMotor.set(speed);
         mRightMotor.set(speed);
+    }
+
+    @Override
+    public void zeroMotorEncoders() {
+        mLeftMotor.setPosition(0);
+        mRightMotor.setPosition(0);
     }
 
     @Override

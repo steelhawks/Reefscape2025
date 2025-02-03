@@ -22,10 +22,8 @@ import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
-import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
-import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -53,9 +51,6 @@ public class RobotContainer {
     private final CommandXboxController operator =
         new CommandXboxController(OIConstants.OPERATOR_CONTROLLER_PORT);
 
-    /**
-     * Anything that relies on Driver Station/FMS information should run here.
-     */
     public void waitForDs() {
         boolean isRed = AllianceFlip.shouldFlip();
         Color c1 = isRed ? Color.kBlue : Color.kRed;
@@ -66,10 +61,6 @@ public class RobotContainer {
                 c1, c2));
     }
 
-    /**
-     * The implementation for MapleSim's physics simulator.
-     * This only runs during the SIM mode of CURRENT_MODE.
-     */
     public void updatePhysicsSimulation() {
         if (Constants.getMode() != Mode.SIM) return;
 
@@ -88,9 +79,6 @@ public class RobotContainer {
         Logger.recordOutput("FieldSimulation/RobotPosition", mDriveSimulation.getSimulatedDriveTrainPose());
     }
 
-    /**
-     * Resets all game pieces on the MapleSim field.
-     */
     public void resetSimulation() {
         if (Constants.getMode() != Mode.SIM) return;
 
@@ -149,11 +137,11 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {}, ElevatorConstants.ALPHA);
+                            new ElevatorIOTalonFX(ElevatorConstants.ALPHA), ElevatorConstants.ALPHA);
                     s_Intake = 
                         new Intake(
-                            new AlgaeIntakeIOTalonFX(IntakeConstants.ALPHA), 
-                            new CoralIntakeIOTalonFX(IntakeConstants.ALPHA),
+                            new AlgaeIntakeIO() {},
+                            new CoralIntakeIO() {},
                             IntakeConstants.ALPHA);
                 }
                 case HAWKRIDER -> {
@@ -355,26 +343,15 @@ public class RobotContainer {
         /* ------------- SysId Controls ------------- */
         operator.x()
             .whileTrue(
-                s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
-
+                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
         operator.y()
-            .whileTrue(
-                s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
-
+            .onTrue(
+                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
         operator.a()
-            .whileTrue(
-                s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
-
+            .onTrue(
+                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
         operator.b()
-            .whileTrue(
-                s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
+            .onTrue(
+                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 }

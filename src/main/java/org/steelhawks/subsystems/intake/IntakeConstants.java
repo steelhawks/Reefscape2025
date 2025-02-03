@@ -17,9 +17,9 @@ public class IntakeConstants {
 
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
-            0, 
+            16,
             
-            0,
+            1,
             20,
             21,
             22,

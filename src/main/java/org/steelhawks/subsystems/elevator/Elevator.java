@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 
 import static edu.wpi.first.units.Units.Volts;
 
@@ -158,18 +160,20 @@ public class Elevator extends SubsystemBase {
     ///////////////////////
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
-        return mSysId.quasistatic(dir);
+        return mSysId.quasistatic(dir)
+            .finallyDo(() -> io.stop());
     }
 
     public Command sysIdDynamic(SysIdRoutine.Direction dir) {
-        return mSysId.dynamic(dir);
+        return mSysId.dynamic(dir)
+            .finallyDo(() -> io.stop());
     }
 
     public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.rotations, 0, constants.MAX_ROTATIONS);
+                    MathUtil.clamp(state.getRotations(), 0, constants.MAX_HEIGHT);
                 inputs.setpoint = goal;
                 mController.setGoal(goal);
                 enable();
@@ -192,7 +196,12 @@ public class Elevator extends SubsystemBase {
                 Commands.run(
                     () -> io.runElevatorViaSpeed(-constants.MANUAL_ELEVATOR_INCREMENT), this))
         .until(() -> inputs.limitSwitchPressed)
-        .finallyDo(() -> io.stop())
+        .finallyDo(() -> {
+            io.stop();
+            if (Constants.getRobot() == RobotType.ALPHABOT) {
+                io.zeroMotorEncoders();
+            }
+        })
         .withName("Home Elevator");
     }
 }
