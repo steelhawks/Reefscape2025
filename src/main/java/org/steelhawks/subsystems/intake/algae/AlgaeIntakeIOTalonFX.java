@@ -154,37 +154,12 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
         inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
 
-        inputs.limitSwitchConnected = limitSwitchConnected();
+        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
         inputs.atBottomLimit = inputs.encoderPositionRotations >= constants.ALGAE_MAX_ROTATIONS;
 
         atTopLimit = inputs.atBottomLimit;
         atBottomLimit = inputs.limitSwitchPressed;
-    }
-
-    private boolean limitSwitchConnected() {
-        int retries = 0;
-        final int MAX_RETRIES = 10;
-
-        while (retries < MAX_RETRIES) {
-            boolean consistentReading =
-                canCoderPosition.getValueAsDouble() - constants.ALGAE_TOLERANCE <= 0 &&
-                    !mLimitSwitch.get();
-
-            if (consistentReading) {
-                return true;  // switch is connected
-            }
-
-            retries++;
-            Timer.delay(0.1);
-        }
-
-        if (canCoderPosition.getValueAsDouble() - constants.ALGAE_TOLERANCE > 0) {
-            // elevator is not at the bottom, return true for now
-            return true;
-        }
-
-        return false;
     }
 
     @Override
@@ -198,8 +173,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     }
 
     @Override
-    public void runIntake(double volts) {
-        mIntakeMotor.setVoltage(volts);
+    public void runIntake(double speed) {
+        mIntakeMotor.set(speed);
     }
 
     @Override

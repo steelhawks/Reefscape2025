@@ -29,9 +29,6 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 
-import static org.steelhawks.subsystems.elevator.ElevatorConstants.State.*;
-
-
 public class RobotContainer {
 
     public static final boolean useVision = false;
@@ -248,8 +245,8 @@ public class RobotContainer {
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
 
-        driver.leftTrigger().onTrue(
-            DriveCommands.driveToPosition(FieldConstants.PROCESSOR, interruptPathfinding));
+//        driver.leftTrigger().onTrue(
+//            DriveCommands.driveToPosition(FieldConstants.PROCESSOR, interruptPathfinding));
     }
 
     private void configureDefaultCommands() {}
@@ -270,7 +267,6 @@ public class RobotContainer {
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
             .whileFalse(
                 s_LED.setColorCommand(LEDColor.WHITE));
-
     }
 
     private void configureDriver() {
@@ -281,7 +277,7 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
+//        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
 
         // align robot front to processor
         driver.rightBumper().whileTrue(
@@ -289,13 +285,6 @@ public class RobotContainer {
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> new Rotation2d(-Math.PI / 2)));
-
-        // align robot front to face towards closest reef
-        driver.leftBumper().whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> s_Swerve.calculateTurnAngle(s_Swerve.findClosestReef())));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
@@ -327,11 +316,9 @@ public class RobotContainer {
         driver.povLeft().onTrue(
             s_Elevator.homeCommand());
 
-//        driver.povRight().onTrue(
-//            s_Elevator.setDesiredState(L3));
-
+        /* ------------- Coral Controls ------------- */
         driver.povRight().whileTrue(
-            s_Intake.shoot());
+            s_Intake.shootCoral());
     }
 
     private void configureOperator() {
@@ -340,6 +327,19 @@ public class RobotContainer {
             .onTrue(
                 Commands.runOnce(
                     () -> altMode = !altMode));
+
+        /* ------------- Elevator Controls ------------- */
+//        operator.x().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+//
+//        operator.y().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+//
+//        operator.a().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+//
+//        operator.b().onTrue(
+//            s_Elevator.homeCommand());
 
         /* ------------- SysId Controls ------------- */
         operator.x()

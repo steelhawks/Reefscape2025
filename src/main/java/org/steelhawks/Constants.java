@@ -143,6 +143,26 @@ public final class Constants {
         public static final double DRIVE_DEADBAND = 0.3;
     }
 
+    public static final class LEDConstants {
+
+        public static final LEDConstants DEFAULT =
+            new LEDConstants(0, 40);
+
+        public static final LEDConstants OMEGA = DEFAULT;
+        public static final LEDConstants ALPHA = DEFAULT;
+        public static final LEDConstants HAWKRIDER = DEFAULT;
+
+        public final int PORT;
+        public final int LENGTH;
+
+        private LEDConstants(
+            int port, int length
+        ) {
+            PORT = port;
+            LENGTH = length;
+        }
+    }
+
     /**
      * Constants for autonomous driving functions.
      */
