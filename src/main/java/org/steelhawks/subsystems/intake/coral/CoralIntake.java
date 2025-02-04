@@ -35,5 +35,14 @@ public class CoralIntake {
 //        io.runIntake();
     }
 
-    public void runCharacterization(double volts) {}
+    public void runIntake() {
+        io.runIntake(.5);
+    }
+
+    public void runOuttake() {
+        io.runIntake(-.5);
+    }
+    public void stop() {
+        io.stop();
+    }
 }

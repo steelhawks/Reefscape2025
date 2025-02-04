@@ -46,8 +46,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private boolean atTopLimit = false;
     private boolean atBottomLimit = false;
 
-    public ElevatorIOTalonFX(ElevatorConstants constants) {
-        this.constants = constants;
+    public ElevatorIOTalonFX() {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = ElevatorConstants.ALPHA;
+            case HAWKRIDER -> constants = ElevatorConstants.HAWKRIDER;
+            default -> constants = ElevatorConstants.OMEGA;
+        }
+
         mLeftMotor = new TalonFX(constants.LEFT_ID, Constants.getCANBus());
         mRightMotor = new TalonFX(constants.RIGHT_ID, Constants.getCANBus());
         mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());

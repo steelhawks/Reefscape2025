@@ -24,6 +24,7 @@ import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
+import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -79,12 +80,11 @@ public class RobotContainer {
         Logger.recordOutput("FieldSimulation/RobotPosition", mDriveSimulation.getSimulatedDriveTrainPose());
     }
 
-    public void resetSimulation() {
+    public void resetSimulation(Pose2d startingPose) {
         if (Constants.getMode() != Mode.SIM) return;
 
-        Pose2d startPose = new Pose2d(3, 3, new Rotation2d());
-        mDriveSimulation.setSimulationWorldPose(startPose);
-        s_Swerve.setPose(startPose);
+        mDriveSimulation.setSimulationWorldPose(startingPose);
+        s_Swerve.setPose(startingPose);
         SimulatedArena.getInstance().resetFieldForAuto();
     }
 
@@ -114,12 +114,11 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {}, ElevatorConstants.OMEGA);
+                            new ElevatorIO() {});
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {},
-                            IntakeConstants.OMEGA);
+                            new CoralIntakeIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -137,12 +136,11 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIOTalonFX(ElevatorConstants.ALPHA), ElevatorConstants.ALPHA);
+                            new ElevatorIOTalonFX());
                     s_Intake = 
                         new Intake(
                             new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {},
-                            IntakeConstants.ALPHA);
+                            new CoralIntakeIOTalonFX(IntakeConstants.ALPHA));
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -162,13 +160,11 @@ public class RobotContainer {
                             new VisionIOLimelight(VisionConstants.CAMERA2NAME, () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIOTalonFX(ElevatorConstants.HAWKRIDER),
-                            ElevatorConstants.HAWKRIDER);
+                            new ElevatorIOTalonFX());
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {},
-                            IntakeConstants.HAWKRIDER);
+                            new CoralIntakeIO() {});
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3,
@@ -189,13 +185,11 @@ public class RobotContainer {
                                 mDriveSimulation::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIOSim(),
-                            ElevatorConstants.HAWKRIDER);
+                            new ElevatorIOSim());
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIOSim(),
-                            new CoralIntakeIOSim(),
-                            IntakeConstants.DEFAULT);
+                            new CoralIntakeIOSim());
                 }
             }
 
@@ -207,7 +201,18 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {});
+
                 switch (Constants.getRobot()) {
+                    case OMEGABOT, ALPHABOT -> {
+                        s_Vision =
+                            new Vision(
+                                s_Swerve::accept,
+                                new VisionIO() {});
+                        s_Intake =
+                            new Intake(
+                                new AlgaeIntakeIO() {},
+                                new CoralIntakeIO() {});
+                    }
                     case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                         s_Vision =
                             new Vision(
@@ -215,25 +220,18 @@ public class RobotContainer {
                                 new VisionIO() {},
                                 new VisionIO() {},
                                 new VisionIO() {});
-                        s_Elevator =
-                            new Elevator(
-                                new ElevatorIO() {}, ElevatorConstants.HAWKRIDER);
                     }
                     default -> { // assume everything else has one
                         s_Vision =
                             new Vision(
                                 s_Swerve::accept,
                                 new VisionIO() {});
-                        s_Elevator =
-                            new Elevator(
-                                new ElevatorIO() {}, ElevatorConstants.DEFAULT);
                     }
                 }
-                s_Intake =
-                    new Intake(
-                        new AlgaeIntakeIO() {},
-                        new CoralIntakeIO() {},
-                        IntakeConstants.DEFAULT);
+
+                s_Elevator =
+                    new Elevator(
+                        new ElevatorIO() {});
             }
         }
 
@@ -329,8 +327,11 @@ public class RobotContainer {
         driver.povLeft().onTrue(
             s_Elevator.homeCommand());
 
-        driver.povRight().onTrue(
-            s_Elevator.setDesiredState(L3));
+//        driver.povRight().onTrue(
+//            s_Elevator.setDesiredState(L3));
+
+        driver.povRight().whileTrue(
+            s_Intake.shoot());
     }
 
     private void configureOperator() {

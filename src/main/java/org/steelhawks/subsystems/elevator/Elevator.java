@@ -44,8 +44,12 @@ public class Elevator extends SubsystemBase {
         mEnabled = false;
     }
 
-    public Elevator(ElevatorIO io, ElevatorConstants constants) {
-        this.constants = constants;
+    public Elevator(ElevatorIO io) {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = ElevatorConstants.ALPHA;
+            case HAWKRIDER -> constants = ElevatorConstants.HAWKRIDER;
+            default -> constants = ElevatorConstants.OMEGA;
+        }
 
         mController =
             new ProfiledPIDController(

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntake;
@@ -26,10 +27,16 @@ public class Intake extends SubsystemBase {
     private final SysIdRoutine mAlgaeSysId;
 
 
-    public Intake(AlgaeIntakeIO algaeIO, CoralIntakeIO coralIO, IntakeConstants constants) {
+    public Intake(AlgaeIntakeIO algaeIO, CoralIntakeIO coralIO) {
+
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = IntakeConstants.ALPHA;
+            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
+            default -> constants = IntakeConstants.OMEGA;
+        }
+
         mAlgaeIntake = new AlgaeIntake(algaeIO, constants);
         mCoralIntake = new CoralIntake(coralIO, constants);
-        this.constants = constants;
 
         mAlgaeSysId =
             new SysIdRoutine(
@@ -69,6 +76,12 @@ public class Intake extends SubsystemBase {
                 mAlgaeIntake.mController.setGoal(goal);
                 mAlgaeIntake.enable();
             }, this);
+    }
+
+    public Command shoot() {
+        return Commands.run(
+            () -> mCoralIntake.runOuttake())
+            .finallyDo(() -> mCoralIntake.stop());
     }
 
     

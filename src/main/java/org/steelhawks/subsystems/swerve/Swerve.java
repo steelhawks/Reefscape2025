@@ -2,7 +2,6 @@ package org.steelhawks.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -266,9 +265,9 @@ public class Swerve extends SubsystemBase {
         final AutonConstants constants;
 
         switch (Constants.getRobot()) {
-            case OMEGABOT -> constants = AutonConstants.OMEGA;
             case ALPHABOT -> constants = AutonConstants.ALPHA;
-            default -> constants = AutonConstants.HAWKRIDER;
+            case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
+            default -> constants = AutonConstants.OMEGA;
         }
 
         AutoBuilder.configure(
@@ -295,9 +294,6 @@ public class Swerve extends SubsystemBase {
         PathPlannerLogging.setLogTargetPoseCallback(
             (targetPose) ->
                 Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
-
-//        Pose2d pose = new Pose2d(6.157915, 2.269965, new Rotation2d());
-//        setPose(pose);
 
         driveSysId =
             new SysIdRoutine(
@@ -544,7 +540,8 @@ public class Swerve extends SubsystemBase {
      * Returns the current odometry rotation.
      */
     public Rotation2d getRotation() {
-        return getPose().getRotation();
+        return gyroInputs.connected ?
+            gyroInputs.yawPosition : getPose().getRotation();
     }
 
     /**

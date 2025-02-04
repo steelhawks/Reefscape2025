@@ -19,7 +19,6 @@ public final class Constants {
     public static final boolean TUNING_MODE = false;
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
-    public static final String ROBOT_NAME = "ReefscapePreAlpha";
     public static final double SIM_UPDATE_LOOP = 0.020;
 
     public enum Mode {
@@ -55,6 +54,14 @@ public final class Constants {
         return System.getenv("CI") != null;
     }
 
+    public static final String ROBOT_NAME =
+        switch (ROBOT) {
+            case OMEGABOT -> "Omega";
+            case ALPHABOT -> "Alpha";
+            case HAWKRIDER -> "Hawk Rider";
+            case SIMBOT -> "Simulation";
+        };
+
     public static Mode getMode() {
         return switch (ROBOT_TYPE) {
             case ALPHABOT, OMEGABOT, HAWKRIDER ->
@@ -75,8 +82,7 @@ public final class Constants {
 
     public static CANBus getCANBus() {
         return switch (getRobot()) {
-            case OMEGABOT -> new CANBus();
-            case ALPHABOT, SIMBOT -> new CANBus("");
+            case OMEGABOT, ALPHABOT, SIMBOT -> new CANBus("");
             case HAWKRIDER -> new CANBus("canivore");
         };
     }
