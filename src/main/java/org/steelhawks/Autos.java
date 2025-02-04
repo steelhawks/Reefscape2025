@@ -17,126 +17,34 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.subsystems.elevator.Elevator;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.subsystems.intake.Intake;
+import org.steelhawks.subsystems.swerve.Swerve;
 
 import java.io.IOException;
 
 public final class Autos {
 
-    private static final int AUTOS_COUNT = 5;
-    private static final int DIO_OFFSET = 20;
-
-    private static LoggedDashboardChooser<Command> mAutoChooser;
-    private static final DigitalInput[] mAutonSelector = new DigitalInput[AUTOS_COUNT];
-    private static final DIOSim[] mSimAutonSelector = new DIOSim[AUTOS_COUNT];
+    private static final Elevator s_Elevator = RobotContainer.s_Elevator;
+    private static final Swerve s_Swerve = RobotContainer.s_Swerve;
+    private static final Intake s_Intake = RobotContainer.s_Intake;
 
     private static final Alert noAutosSelectedAlert = new Alert("No auton selected", AlertType.kError);
 
-    static {
-        for (int i = 0; i < mAutonSelector.length; i++) {
-            mAutonSelector[i] = new DigitalInput(DIO_OFFSET + i);
-            if (RobotBase.isSimulation()) {
-                mSimAutonSelector[i] = new DIOSim(mAutonSelector[i]);
-            }
-        }
-    }
-
-    public static void configureTuningCommands() {
-        mAutoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-        // Set up SysId routines
-        mAutoChooser.addOption(
-            "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(RobotContainer.s_Swerve));
-        mAutoChooser.addOption(
-            "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve));
-        mAutoChooser.addOption(
-            "Drive SysId (Quasistatic Forward)",
-            RobotContainer.s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        mAutoChooser.addOption(
-            "Drive SysId (Quasistatic Reverse)",
-            RobotContainer.s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        mAutoChooser.addOption(
-            "Drive SysId (Dynamic Forward)", RobotContainer.s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
-        mAutoChooser.addOption(
-            "Drive SysId (Dynamic Reverse)", RobotContainer.s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
-        mAutoChooser.addOption(
-            "Turn SysId (Quasistatic Forward)", RobotContainer.s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        mAutoChooser.addOption(
-            "Turn SysId (Quasistatic Reverse)", RobotContainer.s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        mAutoChooser.addOption(
-            "Turn SysId (Dynamic Forward)", RobotContainer.s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kForward));
-        mAutoChooser.addOption(
-            "Turn SysId (Dynamic Reverse)", RobotContainer.s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kReverse));
-    }
-
-    @AutoLogOutput(key = "Auton/Selector")
-    private static int getSelector() {
-        if (Constants.getMode() == Mode.REAL) {
-            for (int i = 0; i < mAutonSelector.length; i++) {
-                if (mAutonSelector[i].get()) {
-                    return i;
-                }
-            }
-        } else if (Constants.getMode() == Mode.SIM) {
-            for (int i = 0; i < mSimAutonSelector.length; i++) {
-                if (mSimAutonSelector[i].getValue()) {
-                    return i;
-                }
-            }
-        }
-
-        return -1;
-    }
-
-    private enum AutonMode {
-
-        AUTON_01("test auton", true, Commands.print("Auton 1"));
-
-        private final String autonName;
-        private final boolean useVision;
-        private final Command autonCommand;
-
-        AutonMode(String autonName, boolean useVision, Command autonCommand) {
-            this.autonName = autonName;
-            this.useVision = useVision;
-            this.autonCommand = autonCommand;
-        }
-
-        public boolean getUseVision() {
-            return useVision;
-        }
-
-        public String getAutonName() {
-            return autonName;
-        }
-
-        public Command getCommand() {
-            return autonCommand;
+    private static Command followTrajectory(String choreo) {
+        try {
+            PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(choreo);
+            return DriveCommands.followPath(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static Command getAutonCommand() {
-        noAutosSelectedAlert.set(false);
-        int selectorIndex = getSelector();
-
-        if (Robot.getState() == Robot.RobotState.TEST) {
-            return mAutoChooser.get();
-        }
-
-        if (selectorIndex != -1 && selectorIndex < AutonMode.values().length) {
-            return AutonMode.values()[selectorIndex].getCommand();
-        }
-
-        noAutosSelectedAlert.set(true);
-        return Commands.print("No auton selected");
-    }
-
-    public static boolean getUseVision() {
-        return AutonMode.values()[getSelector()].getUseVision();
-    }
-
-    @AutoLogOutput(key = "Auton/Selected")
-    public static String getAutonName() {
-        return AutonMode.values()[getSelector()].getAutonName();
+        return Commands.none();
     }
 
     public static Command getTestAuton() {
@@ -145,18 +53,6 @@ public final class Autos {
                 RobotContainer.s_Swerve.setPose(
                     new Pose2d(8.272273, 1.914906, new Rotation2d())))
             .andThen(
-                DriveCommands.followPath(getPath("olan"))
-            )
-            ;
-    }
-
-    public static PathPlannerPath getPath(String choreo) {
-        try {
-            return PathPlannerPath.fromChoreoTrajectory(choreo);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+                followTrajectory("olan"));
     }
 }
