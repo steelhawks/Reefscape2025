@@ -220,12 +220,6 @@ public class RobotContainer {
                                 new VisionIO() {},
                                 new VisionIO() {});
                     }
-                    default -> { // assume everything else has one
-                        s_Vision =
-                            new Vision(
-                                s_Swerve::accept,
-                                new VisionIO() {});
-                    }
                 }
 
                 s_Elevator =

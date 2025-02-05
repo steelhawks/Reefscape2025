@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.intake.algae;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,8 +15,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
-import java.io.Console;
-
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 public class AlgaeIntake extends SubsystemBase {
@@ -162,6 +162,28 @@ public class AlgaeIntake extends SubsystemBase {
         return Commands.run(
             () -> io.runPivot(.2 * 12), this) // 0.2 speed
             .until(() -> inputs.limitSwitchPressed)
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    private static final double kS = 0;
+    private static final double kG = 0;
+    private static final double kV = 0;
+
+    public Command applykS() {
+        return Commands.run(
+            () -> io.runPivot(kS), this)
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command applykG() {
+        return Commands.run(
+            () -> io.runPivot(Math.cos(inputs.encoderPositionRads) * kG), this)
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command applykV(AngularVelocity desiredVelocity) {
+        return Commands.run(
+            () -> io.runPivot(kS + kG + (kV * desiredVelocity.in(RadiansPerSecond))))
             .finallyDo(() -> io.stopPivot());
     }
 }

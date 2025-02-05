@@ -1,8 +1,6 @@
 package org.steelhawks.subsystems.intake.algae;
 
 import org.steelhawks.Constants;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
-import org.steelhawks.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -24,7 +22,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
@@ -148,8 +145,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 canCoderPosition,
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
-        inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
+        inputs.encoderPositionRads = canCoderPosition.getValueAsDouble();
+        inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();

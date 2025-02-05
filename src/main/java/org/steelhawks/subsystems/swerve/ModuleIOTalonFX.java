@@ -20,16 +20,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import org.steelhawks.Constants;
-
 import java.util.Queue;
 
-/**
- * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
- * CANcoder. Configured using a set of module constants from Phoenix.
- *
- * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
- */
+
 public class ModuleIOTalonFX implements ModuleIO {
+
     private final SwerveModuleConstants<
         TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
         constants;

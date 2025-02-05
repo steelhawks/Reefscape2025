@@ -5,6 +5,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
+import java.util.Arrays;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 public class Elevator extends SubsystemBase {
@@ -59,6 +62,7 @@ public class Elevator extends SubsystemBase {
                 new TrapezoidProfile.Constraints(
                     constants.MAX_VELOCITY_PER_SEC.getAsDouble(),
                     constants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
+        mController.setTolerance(constants.TOLERANCE);
         mFeedforward =
             new ElevatorFeedforward(
                 constants.KS.getAsDouble(),
@@ -222,9 +226,15 @@ public class Elevator extends SubsystemBase {
     }
 
     private static final double kS = .18;
-    private static final double kG = 0.00625;
+    private static final double kG = 0.18625; // 0.00625
+
+    // change in Voltage over change in velocity
+    private static final Double[] kVAll = {
+        (4.0 - 3.0) / (3.6177734375000004 - 2.68291015625)
+    };
+
     private static final double kV =
-        (3.6177734375000004 - 2.68291015625) / (4.0 - 3.0);
+        Arrays.stream(kVAll).mapToDouble(Double::doubleValue).average().orElse(0.0);
 
     public Command applykS() {
         return Commands.run(
@@ -237,16 +247,15 @@ public class Elevator extends SubsystemBase {
     public Command applykG() {
         return Commands.run(
             () -> {
-                double volts = kS + kG;
-                io.runElevator(volts);
+                io.runElevator(kG);
             }, this)
             .finallyDo(() -> io.stop());
     }
 
-    public Command applykV() {
+    public Command applykV(AngularVelocity desiredVelocity) {
         return Commands.run(
             () -> {
-                double volts = kS + kG + kV;
+                double volts = kS + kG + (kV * desiredVelocity.in(RadiansPerSecond));
                 io.runElevator(volts);
             }, this)
             .finallyDo(() -> io.stop());
