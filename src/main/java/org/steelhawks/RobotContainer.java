@@ -1,6 +1,8 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -232,7 +234,10 @@ public class RobotContainer {
             }
         }
 
-        Autos.configureTuningCommands();
+        if (Constants.TUNING_MODE) {
+            new Alert("Tuning mode enabled", AlertType.kInfo).set(true);
+        }
+
         configurePathfindingCommands();
         configureDefaultCommands();
         configureTestBindings();

@@ -25,6 +25,7 @@ import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.util.VirtualSubsystem;
 
 public class Robot extends LoggedRobot {
 
@@ -145,6 +146,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
+        VirtualSubsystem.periodicAll();
+
         // Switch thread to high priority to improve loop timing
         Threads.setCurrentThreadPriority(true, 99);
         CommandScheduler.getInstance().run();
@@ -203,11 +206,6 @@ public class Robot extends LoggedRobot {
     public void testInit() {
         setState(RobotState.TEST);
         CommandScheduler.getInstance().cancelAll();
-        var testCommand = Autos.getAutonCommand();
-
-        if (testCommand != null && Constants.TUNING_MODE) {
-            testCommand.schedule();
-        }
     }
 
     @Override
