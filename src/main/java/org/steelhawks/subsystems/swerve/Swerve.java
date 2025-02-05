@@ -2,6 +2,7 @@ package org.steelhawks.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
+import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -50,6 +51,7 @@ import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.util.AllianceFlip;
+import org.steelhawks.util.HolonomicController;
 import org.steelhawks.util.LocalADStarAK;
 
 public class Swerve extends SubsystemBase {
@@ -382,6 +384,10 @@ public class Swerve extends SubsystemBase {
         }
 
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
+    }
+
+    public void followChoreoTrajectory(SwerveSample sample) {
+        runVelocity(HolonomicController.calculate(sample));
     }
 
     /**
