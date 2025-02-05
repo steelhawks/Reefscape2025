@@ -62,17 +62,17 @@ public final class ElevatorConstants {
             14,
             15,
             50,
-            0,
-            0.15,
+            0.18,
+            0.00625,
             2.6,
             3.9,
             0,
             0.01,
-            5.2,
-            8,
+            3,
+            5,
             0.005,
             0.25,
-            Units.radiansToRotations(40));
+            Units.radiansToRotations(59));
 
     public static final ElevatorConstants HAWKRIDER =
         new ElevatorConstants(

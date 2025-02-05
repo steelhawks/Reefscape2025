@@ -317,8 +317,12 @@ public class RobotContainer {
             s_Elevator.homeCommand());
 
         /* ------------- Coral Controls ------------- */
+//        driver.povRight().whileTrue(
+//            s_Intake.shootCoral());
+
+        /* ------------- Elevator SYSID ------------- */
         driver.povRight().whileTrue(
-            s_Intake.shootCoral());
+            s_Elevator.applyVolts(4));
     }
 
     private void configureOperator() {

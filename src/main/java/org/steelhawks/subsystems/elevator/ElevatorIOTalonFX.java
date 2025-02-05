@@ -19,6 +19,9 @@ import org.steelhawks.Constants.RobotType;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
+    // 10:1 gear ratio
+    private static final double ELEVATOR_GEAR_RATIO = 1.0 / 10.0;
+
     private final ElevatorConstants constants;
 
     private final TalonFX mLeftMotor;
@@ -122,11 +125,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         double leftVelo = leftVelocity.getValueAsDouble();
         double rightVelo = rightVelocity.getValueAsDouble();
 
-        if (Constants.getRobot() == RobotType.ALPHABOT) { // 10:1 gear ratio
-            leftPos /= 10;
-            rightPos /= 10;
-            leftVelo /= 10;
-            rightVelo /= 10;
+        if (Constants.getRobot() == RobotType.ALPHABOT) {
+            leftPos *= ELEVATOR_GEAR_RATIO;
+            rightPos *= ELEVATOR_GEAR_RATIO;
+            leftVelo *= ELEVATOR_GEAR_RATIO;
+            rightVelo *= ELEVATOR_GEAR_RATIO;
         }
 
         inputs.leftConnected =

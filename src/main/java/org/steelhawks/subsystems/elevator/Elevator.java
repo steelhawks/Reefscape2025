@@ -136,6 +136,18 @@ public class Elevator extends SubsystemBase {
                     constants.KV.getAsDouble());
         }
 
+        // update tunable numbers
+        if (Constants.TUNING_MODE) {
+            constants.KS.hasChanged(hashCode());
+            constants.KG.hasChanged(hashCode());
+            constants.KV.hasChanged(hashCode());
+            constants.KP.hasChanged(hashCode());
+            constants.KI.hasChanged(hashCode());
+            constants.KD.hasChanged(hashCode());
+            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
+            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
+        }
+
         if (!mEnabled) return;
 
         double fb = mController.calculate(inputs.encoderPositionRotations);
@@ -207,6 +219,46 @@ public class Elevator extends SubsystemBase {
             }
         })
         .withName("Home Elevator");
+    }
+
+    private static final double kS = .18;
+    private static final double kG = 0.00625;
+    private static final double kV =
+        (3.6177734375000004 - 2.68291015625) / (4.0 - 3.0);
+
+    public Command applykS() {
+        return Commands.run(
+            () -> {
+                io.runElevator(kS);
+            }, this)
+            .finallyDo(() -> io.stop());
+    }
+
+    public Command applykG() {
+        return Commands.run(
+            () -> {
+                double volts = kS + kG;
+                io.runElevator(volts);
+            }, this)
+            .finallyDo(() -> io.stop());
+    }
+
+    public Command applykV() {
+        return Commands.run(
+            () -> {
+                double volts = kS + kG + kV;
+                io.runElevator(volts);
+            }, this)
+            .finallyDo(() -> io.stop());
+    }
+
+    public Command applyVolts(double volts) {
+        return Commands.run(
+            () -> {
+                Logger.recordOutput("Elevator/AppliedVolts", volts);
+                io.runElevator(volts);
+            }, this)
+            .finallyDo(() -> io.stop());
     }
 }
 

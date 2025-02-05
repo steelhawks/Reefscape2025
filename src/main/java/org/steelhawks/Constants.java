@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 
-import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
 
 public final class Constants {
 
@@ -100,8 +100,8 @@ public final class Constants {
      */
     public static final class FieldConstants {
 
-        public static final Distance FIELD_LENGTH = Feet.of(57 + (6.0 / 12.0) + ((7.0 / 8.0) / 12.0));
-        public static final Distance FIELD_WIDTH = Feet.of(26 + (5.0 / 12.0));
+        public static final Distance FIELD_LENGTH = Inches.of(690.876);
+        public static final Distance FIELD_WIDTH = Inches.of(317);
 
         /*
          * To properly use the auto flip feature, the poses MUST be for the blue alliance.
