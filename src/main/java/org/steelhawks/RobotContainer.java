@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -324,8 +323,8 @@ public class RobotContainer {
 //            s_Intake.shootCoral());
 
         /* ------------- Elevator SYSID ------------- */
-        driver.povRight().whileTrue(
-            s_Elevator.applyVolts(4));
+//        driver.povRight().whileTrue(
+//            s_Elevator.applyVolts(4));
     }
 
     private void configureOperator() {
@@ -336,30 +335,36 @@ public class RobotContainer {
                     () -> altMode = !altMode));
 
         /* ------------- Elevator Controls ------------- */
-//        operator.x().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
-//
-//        operator.y().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
-//
-//        operator.a().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
-//
-//        operator.b().onTrue(
-//            s_Elevator.homeCommand());
+        operator.x().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
-        /* ------------- SysId Controls ------------- */
-        operator.x()
-            .whileTrue(
-                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        operator.y()
-            .onTrue(
-                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        operator.a()
-            .onTrue(
-                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        operator.b()
-            .onTrue(
-                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        operator.y().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+
+        operator.a().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+
+        operator.b().onTrue(
+            s_Elevator.homeCommand());
+
+        /* ------------- Intake Controls ------------- */
+
+        // coral intake
+        operator.leftBumper().whileTrue(
+            s_Intake.intakeCoral());
+
+        // coral shoot
+        operator.leftTrigger().whileTrue(
+            s_Intake.shootCoral());
+
+        // intake algae
+//        operator.rightBumper().whileTrue(
+//            s_Intake.
+//        )
+
+        // shoot algae
+//        operator.rightTrigger().whileTrue(
+//            s_Intake.
+//        )
     }
 }
