@@ -6,12 +6,12 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
-import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
 import java.io.Console;
@@ -26,7 +26,7 @@ public class AlgaeIntake extends SubsystemBase {
     private boolean mEnabled = false;
     private final AlgaeIntakeIO io;
 
-    public final ProfiledPIDController mController;
+    private final ProfiledPIDController mController;
     private ArmFeedforward mFeedforward;
 
     private final Alert intakeMotorDisconnected;
@@ -137,6 +137,14 @@ public class AlgaeIntake extends SubsystemBase {
         io.runPivot(pid + ff);
     }
 
+    public Trigger atGoal() {
+        return new Trigger(mController::atGoal);
+    }
+
+    public Trigger atLimit() {
+        return new Trigger(() -> inputs.limitSwitchPressed);
+    }
+
     public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
         return mAlgaeSysId.quasistatic(dir);
     }
@@ -145,4 +153,15 @@ public class AlgaeIntake extends SubsystemBase {
         return mAlgaeSysId.dynamic(dir);
     }
 
+    public void setDesiredState(double goal) {
+        inputs.setpoint = goal;
+        mController.setGoal(goal);
+    }
+
+    public Command homeCommand() {
+        return Commands.run(
+            () -> io.runPivot(.2 * 12), this) // 0.2 speed
+            .until(() -> inputs.limitSwitchPressed)
+            .finallyDo(() -> io.stopPivot());
+    }
 }

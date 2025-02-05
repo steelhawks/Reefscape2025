@@ -272,6 +272,10 @@ public class RobotContainer {
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
             .whileFalse(
                 s_LED.setColorCommand(LEDColor.WHITE));
+
+        s_Intake.algaeAtLimit()
+            .onTrue(
+                s_LED.flashCommand(LEDColor.BLUE, 0.1, 1));
     }
 
     private void configureDriver() {

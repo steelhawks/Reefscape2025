@@ -52,9 +52,6 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     private final StatusSignal<Angle> canCoderPosition;
     private final StatusSignal<AngularVelocity> canCoderVelocity;
 
-    private boolean atTopLimit = false;
-    private boolean atBottomLimit = false;
-
     public AlgaeIntakeIOTalonFX(IntakeConstants constants) {
         this.constants = constants;
         mIntakeMotor = new TalonFX(constants.ALGAE_INTAKE_MOTOR_ID, Constants.getCANBus());
@@ -156,10 +153,6 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atBottomLimit = inputs.encoderPositionRotations >= constants.ALGAE_MAX_ROTATIONS;
-
-        atTopLimit = inputs.atBottomLimit;
-        atBottomLimit = inputs.limitSwitchPressed;
     }
 
     @Override

@@ -3,8 +3,10 @@ package org.steelhawks.subsystems.intake;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.steelhawks.Constants;
+import org.steelhawks.subsystems.intake.IntakeConstants.State;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntake;
@@ -32,6 +34,14 @@ public class Intake {
     /* COMMAND FACTORIES */
     ///////////////////////
 
+    public Trigger algaeAtGoal() {
+        return mAlgaeIntake.atGoal();
+    }
+
+    public Trigger algaeAtLimit() {
+        return mAlgaeIntake.atLimit();
+    }
+
     public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
         return mAlgaeIntake.sysIdQuasistatic(dir);
     }
@@ -40,15 +50,18 @@ public class Intake {
         return mAlgaeIntake.sysIdDynamic(dir);
     }
 
-    public Command setDesiredState(IntakeConstants.AlgaeIntakeState state) {
+    public Command setDesiredState(State state) {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.rotations, 0, constants.ALGAE_MAX_ROTATIONS);
-//                inputs.setpoint = goal;
-                mAlgaeIntake.mController.setGoal(goal);
+                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
+                mAlgaeIntake.setDesiredState(goal);
                 mAlgaeIntake.enable();
             }, mAlgaeIntake);
+    }
+
+    public Command homeAlgae() {
+        return mAlgaeIntake.homeCommand();
     }
 
     public Command shootCoral() {

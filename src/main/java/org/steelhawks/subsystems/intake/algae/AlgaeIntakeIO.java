@@ -29,7 +29,6 @@ public interface AlgaeIntakeIO {
 
         public boolean limitSwitchConnected = false;
         public boolean limitSwitchPressed = false;
-        public boolean atBottomLimit = false;
     }
 
     /**

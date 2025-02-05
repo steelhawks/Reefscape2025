@@ -1,18 +1,36 @@
 package org.steelhawks.subsystems.intake;
 
+import org.steelhawks.Constants;
 import org.steelhawks.util.LoggedTunableNumber;
 
 public class IntakeConstants {
-    
-    public enum AlgaeIntakeState {
-        HOME(2),                    // Vertical
-        INTAKE(1);                  
 
-        AlgaeIntakeState(double rotations) {
-            this.rotations = rotations;
+    public enum State {
+        HOME(0.0, 0.0, 3.0),
+        INTAKE(0.0, 0.0, 2.0);
+
+        private final double alphaRadians;
+        private final double omegaRadians;
+        private final double hawkriderRadians;
+
+        State(double alpha, double omega, double hawkrider) {
+            this.alphaRadians = alpha;
+            this.omegaRadians = omega;
+            this.hawkriderRadians = hawkrider;
         }
 
-        public double rotations;
+        public double getRadians() {
+            switch (Constants.getRobot()) {
+                case ALPHABOT:
+                    return alphaRadians;
+                case OMEGABOT:
+                    return omegaRadians;
+                case HAWKRIDER:
+                    return hawkriderRadians;
+                default:
+                    return 0;
+            }
+        }
     }
 
     public static final IntakeConstants DEFAULT =
@@ -55,14 +73,15 @@ public class IntakeConstants {
             0.005,
             0.5,
             3);
+
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
 
-    // ----------------------- CORAL -----------------------
+    // -------------------- CORAL --------------------
     public final int CORAL_INTAKE_MOTOR_ID;
 
 
-    // ----------------------- ALGAE -----------------------
+    // -------------------- ALGAE --------------------
     public final int ALGAE_LIMIT_SWITCH_ID;
 
     public final int ALGAE_INTAKE_MOTOR_ID;
@@ -84,7 +103,7 @@ public class IntakeConstants {
     public final double ALGAE_TOLERANCE;
     public final double ALGAE_MANUAL_PIVOT_INCREMENT;
 
-    public final double ALGAE_MAX_ROTATIONS;
+    public final double ALGAE_MAX_RADIANS;
 
     public IntakeConstants(
         int coral_intakeMotorId,
@@ -103,7 +122,7 @@ public class IntakeConstants {
         double algae_maxAccelerationPerSecSquared,
         double algae_tolerance,
         double algae_manualPivotIncrement,
-        double algae_maxRotations
+        double algae_maxRadians
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
 
@@ -121,6 +140,6 @@ public class IntakeConstants {
         ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED = new LoggedTunableNumber("Algae Intake/Max Acceleration Per Sec Squared", algae_maxAccelerationPerSecSquared);
         ALGAE_TOLERANCE = algae_tolerance;
         ALGAE_MANUAL_PIVOT_INCREMENT = algae_manualPivotIncrement;
-        ALGAE_MAX_ROTATIONS = algae_maxRotations;
+        ALGAE_MAX_RADIANS = algae_maxRadians;
     }  
 }
