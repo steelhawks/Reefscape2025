@@ -2,7 +2,6 @@ package org.steelhawks.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -46,6 +45,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.RobotContainer;
+import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.util.AllianceFlip;
@@ -95,47 +96,48 @@ public class Swerve extends SubsystemBase {
 
     static {
         switch (Constants.getRobot()) {
-//            case OMEGABOT -> {
-//                DRIVE_BASE_RADIUS =
-//                    Math.max(
-//                        Math.max(
-//                            Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-//                            Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
-//                        Math.max(
-//                            Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-//                            Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-//                ROBOT_MASS_KG = 0;
-//                ROBOT_MOI = 0;
-//                WHEEL_COF = COTS.WHEELS.COLSONS.cof;
-//                PP_CONFIG =
-//                    new RobotConfig(
-//                        ROBOT_MASS_KG,
-//                        ROBOT_MOI,
-//                        new ModuleConfig(
-//                            TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
-//                            WHEEL_COF,
-//                            DCMotor.getKrakenX60(1)
-//                                .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
-//                            TunerConstants.FrontLeft.SlipCurrent,
-//                            1),
-//                        getModuleTranslations());
-//                MAPLE_SIM_CONFIG =
-//                    DriveTrainSimulationConfig.Default()
-//                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
-//                        .withCustomModuleTranslations(getModuleTranslations())
-//                        .withGyro(COTS.ofPigeon2())
-//                        .withSwerveModule(
-//                            new SwerveModuleSimulationConfig(
-//                                DCMotor.getKrakenX60(1),
-//                                DCMotor.getKrakenX60(1),
-//                                TunerConstants.FrontLeft.DriveMotorGearRatio,
-//                                TunerConstants.FrontLeft.SteerMotorGearRatio,
-//                                Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
-//                                Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-//                                Meters.of(TunerConstants.FrontLeft.WheelRadius),
-//                                KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
-//                                WHEEL_COF));
-//            }
+            case OMEGABOT -> {
+                DRIVE_BASE_RADIUS =
+                    Math.max(
+                        Math.max(
+                            Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
+                            Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
+                        Math.max(
+                            Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
+                            Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+                ROBOT_MASS_KG = Units.lbsToKilograms(51.2);
+                ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(25, 2));
+                WHEEL_COF = COTS.WHEELS.COLSONS.cof;
+                PP_CONFIG =
+                    new RobotConfig(
+                        ROBOT_MASS_KG,
+                        ROBOT_MOI,
+                        new ModuleConfig(
+                            TunerConstants.FrontLeft.WheelRadius,
+                            TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
+                            WHEEL_COF,
+                            DCMotor.getKrakenX60Foc(1)
+                                .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
+                            TunerConstants.FrontLeft.SlipCurrent,
+                            1),
+                        getModuleTranslations());
+                MAPLE_SIM_CONFIG =
+                    DriveTrainSimulationConfig.Default()
+                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+                        .withCustomModuleTranslations(getModuleTranslations())
+                        .withGyro(COTS.ofPigeon2())
+                        .withSwerveModule(
+                            new SwerveModuleSimulationConfig(
+                                DCMotor.getKrakenX60(1),
+                                DCMotor.getKrakenX60(1),
+                                TunerConstants.FrontLeft.DriveMotorGearRatio,
+                                TunerConstants.FrontLeft.SteerMotorGearRatio,
+                                Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
+                                Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
+                                Meters.of(TunerConstants.FrontLeft.WheelRadius),
+                                KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
+                                WHEEL_COF));
+            }
             case ALPHABOT -> {
                 DRIVE_BASE_RADIUS =
                     Math.max(
@@ -263,9 +265,9 @@ public class Swerve extends SubsystemBase {
         final AutonConstants constants;
 
         switch (Constants.getRobot()) {
-            case OMEGABOT -> constants = AutonConstants.OMEGA;
             case ALPHABOT -> constants = AutonConstants.ALPHA;
-            default -> constants = AutonConstants.HAWKRIDER;
+            case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
+            default -> constants = AutonConstants.OMEGA;
         }
 
         AutoBuilder.configure(
@@ -292,9 +294,6 @@ public class Swerve extends SubsystemBase {
         PathPlannerLogging.setLogTargetPoseCallback(
             (targetPose) ->
                 Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
-
-//        Pose2d pose = new Pose2d(6.157915, 2.269965, new Rotation2d());
-//        setPose(pose);
 
         driveSysId =
             new SysIdRoutine(
@@ -417,6 +416,9 @@ public class Swerve extends SubsystemBase {
         Pose2d visionRobotPoseMeters,
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs) {
+
+        if (!RobotContainer.useVision) return;
+
         mPoseEstimator.addVisionMeasurement(
             visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
@@ -538,7 +540,8 @@ public class Swerve extends SubsystemBase {
      * Returns the current odometry rotation.
      */
     public Rotation2d getRotation() {
-        return getPose().getRotation();
+        return gyroInputs.connected ?
+            gyroInputs.yawPosition : getPose().getRotation();
     }
 
     /**
@@ -619,13 +622,13 @@ public class Swerve extends SubsystemBase {
      */
     public static Translation2d[] getModuleTranslations() {
         return switch (Constants.getRobot()) {
-            case OMEGABOT -> null;
-//                new Translation2d[]{
-//                    new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-//                    new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
-//                    new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-//                    new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
-//            };
+            case OMEGABOT ->
+                new Translation2d[]{
+                    new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
+                    new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
+                    new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
+                    new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
+            };
             case ALPHABOT -> new Translation2d[]{
                 new Translation2d(TunerConstantsAlpha.FrontLeft.LocationX, TunerConstantsAlpha.FrontLeft.LocationY),
                 new Translation2d(TunerConstantsAlpha.FrontRight.LocationX, TunerConstantsAlpha.FrontRight.LocationY),

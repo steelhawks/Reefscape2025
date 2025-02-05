@@ -5,17 +5,24 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
+import java.io.Console;
+
 import static edu.wpi.first.units.Units.Volts;
 
-public class AlgaeIntake {
+public class AlgaeIntake extends SubsystemBase {
 
     private final AlgaeIntakeIOInputsAutoLogged inputs = new AlgaeIntakeIOInputsAutoLogged();
     private final IntakeConstants constants;
+    private final SysIdRoutine mAlgaeSysId;
     private boolean mEnabled = false;
     private final AlgaeIntakeIO io;
 
@@ -37,9 +44,14 @@ public class AlgaeIntake {
         mEnabled = false;
     }
 
-    public AlgaeIntake(AlgaeIntakeIO io, IntakeConstants constants) {
+    public AlgaeIntake(AlgaeIntakeIO io) {
         this.io = io;
-        this.constants = constants;
+
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = IntakeConstants.ALPHA;
+            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
+            default -> constants = IntakeConstants.OMEGA;
+        }
 
         intakeMotorDisconnected =
             new Alert("Intake Motor is Disconnected", AlertType.kError);
@@ -51,6 +63,16 @@ public class AlgaeIntake {
             new Alert("Limit Switch is Disconnected", AlertType.kError);
         canCoderMagnetBad =
             new Alert("CANcoder Magnet is Bad", AlertType.kError);
+
+        mAlgaeSysId =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null,
+                    null,
+                    null,
+                    (state) -> Logger.recordOutput("Intake/Algae/SysIdState", state.toString())),
+                new SysIdRoutine.Mechanism(
+                    (voltage) -> io.runPivot(voltage.in(Volts)), null, this));
 
         mController =
             new ProfiledPIDController(
@@ -70,6 +92,7 @@ public class AlgaeIntake {
                 constants.ALGAE_KV.getAsDouble());
     }
 
+    @Override
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeIntake", inputs);
@@ -114,8 +137,12 @@ public class AlgaeIntake {
         io.runPivot(pid + ff);
     }
 
-    public void runCharacterization(double volts) {
-        io.runPivot(volts);
+    public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return mAlgaeSysId.quasistatic(dir);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction dir) {
+        return mAlgaeSysId.dynamic(dir);
     }
 
 }

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED.LEDColor;
@@ -23,7 +24,6 @@ import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
-import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
@@ -31,10 +31,9 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 
-import static org.steelhawks.subsystems.elevator.ElevatorConstants.State.*;
-
-
 public class RobotContainer {
+
+    public static final boolean useVision = false;
 
     private SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
@@ -52,9 +51,6 @@ public class RobotContainer {
     private final CommandXboxController operator =
         new CommandXboxController(OIConstants.OPERATOR_CONTROLLER_PORT);
 
-    /**
-     * Anything that relies on Driver Station/FMS information should run here.
-     */
     public void waitForDs() {
         boolean isRed = AllianceFlip.shouldFlip();
         Color c1 = isRed ? Color.kBlue : Color.kRed;
@@ -65,10 +61,6 @@ public class RobotContainer {
                 c1, c2));
     }
 
-    /**
-     * The implementation for MapleSim's physics simulator.
-     * This only runs during the SIM mode of CURRENT_MODE.
-     */
     public void updatePhysicsSimulation() {
         if (Constants.getMode() != Mode.SIM) return;
 
@@ -87,15 +79,11 @@ public class RobotContainer {
         Logger.recordOutput("FieldSimulation/RobotPosition", mDriveSimulation.getSimulatedDriveTrainPose());
     }
 
-    /**
-     * Resets all game pieces on the MapleSim field.
-     */
-    public void resetSimulation() {
+    public void resetSimulation(Pose2d startingPose) {
         if (Constants.getMode() != Mode.SIM) return;
 
-        Pose2d startPose = new Pose2d(3, 3, new Rotation2d());
-        mDriveSimulation.setSimulationWorldPose(startPose);
-        s_Swerve.setPose(startPose);
+        mDriveSimulation.setSimulationWorldPose(startingPose);
+        s_Swerve.setPose(startingPose);
         SimulatedArena.getInstance().resetFieldForAuto();
     }
 
@@ -110,27 +98,26 @@ public class RobotContainer {
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
                 case OMEGABOT -> {
-//                    s_Swerve =
-//                        new Swerve(
-//                            new GyroIOPigeon2(
-//                                TunerConstants.DrivetrainConstants.Pigeon2Id,
-//                                TunerConstants.DrivetrainConstants.CANBusName),
-//                            new ModuleIOTalonFX(TunerConstants.FrontLeft),
-//                            new ModuleIOTalonFX(TunerConstants.FrontRight),
-//                            new ModuleIOTalonFX(TunerConstants.BackLeft),
-//                            new ModuleIOTalonFX(TunerConstants.BackRight));
+                    s_Swerve =
+                        new Swerve(
+                            new GyroIOPigeon2(
+                                TunerConstants.DrivetrainConstants.Pigeon2Id,
+                                TunerConstants.DrivetrainConstants.CANBusName),
+                            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                            new ModuleIOTalonFX(TunerConstants.FrontRight),
+                            new ModuleIOTalonFX(TunerConstants.BackLeft),
+                            new ModuleIOTalonFX(TunerConstants.BackRight));
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {}, ElevatorConstants.OMEGA);
+                            new ElevatorIO() {});
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {},
-                            IntakeConstants.OMEGA);
+                            new CoralIntakeIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -148,12 +135,11 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {}, ElevatorConstants.ALPHA);
+                            new ElevatorIOTalonFX());
                     s_Intake = 
                         new Intake(
-                            new AlgaeIntakeIOTalonFX(IntakeConstants.ALPHA), 
-                            new CoralIntakeIOTalonFX(IntakeConstants.ALPHA),
-                            IntakeConstants.ALPHA);
+                            new AlgaeIntakeIO() {},
+                            new CoralIntakeIOTalonFX(IntakeConstants.ALPHA));
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -173,13 +159,11 @@ public class RobotContainer {
                             new VisionIOLimelight(VisionConstants.CAMERA2NAME, () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIOTalonFX(ElevatorConstants.HAWKRIDER),
-                            ElevatorConstants.HAWKRIDER);
+                            new ElevatorIOTalonFX());
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {},
-                            IntakeConstants.HAWKRIDER);
+                            new CoralIntakeIO() {});
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3,
@@ -200,13 +184,11 @@ public class RobotContainer {
                                 mDriveSimulation::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIOSim(),
-                            ElevatorConstants.HAWKRIDER);
+                            new ElevatorIOSim());
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIOSim(),
-                            new CoralIntakeIOSim(),
-                            IntakeConstants.DEFAULT);
+                            new CoralIntakeIOSim());
                 }
             }
 
@@ -218,7 +200,18 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {});
+
                 switch (Constants.getRobot()) {
+                    case OMEGABOT, ALPHABOT -> {
+                        s_Vision =
+                            new Vision(
+                                s_Swerve::accept,
+                                new VisionIO() {});
+                        s_Intake =
+                            new Intake(
+                                new AlgaeIntakeIO() {},
+                                new CoralIntakeIO() {});
+                    }
                     case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                         s_Vision =
                             new Vision(
@@ -226,25 +219,18 @@ public class RobotContainer {
                                 new VisionIO() {},
                                 new VisionIO() {},
                                 new VisionIO() {});
-                        s_Elevator =
-                            new Elevator(
-                                new ElevatorIO() {}, ElevatorConstants.HAWKRIDER);
                     }
                     default -> { // assume everything else has one
                         s_Vision =
                             new Vision(
                                 s_Swerve::accept,
                                 new VisionIO() {});
-                        s_Elevator =
-                            new Elevator(
-                                new ElevatorIO() {}, ElevatorConstants.DEFAULT);
                     }
                 }
-                s_Intake =
-                    new Intake(
-                        new AlgaeIntakeIO() {},
-                        new CoralIntakeIO() {},
-                        IntakeConstants.DEFAULT);
+
+                s_Elevator =
+                    new Elevator(
+                        new ElevatorIO() {});
             }
         }
 
@@ -263,8 +249,9 @@ public class RobotContainer {
 
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
-        driver.leftTrigger().onTrue(
-            DriveCommands.driveToPosition(FieldConstants.PROCESSOR, interruptPathfinding));
+
+//        driver.leftTrigger().onTrue(
+//            DriveCommands.driveToPosition(FieldConstants.PROCESSOR, interruptPathfinding));
     }
 
     private void configureDefaultCommands() {}
@@ -285,7 +272,6 @@ public class RobotContainer {
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
             .whileFalse(
                 s_LED.setColorCommand(LEDColor.WHITE));
-
     }
 
     private void configureDriver() {
@@ -296,7 +282,7 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
+//        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
 
         // align robot front to processor
         driver.rightBumper().whileTrue(
@@ -304,13 +290,6 @@ public class RobotContainer {
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> new Rotation2d(-Math.PI / 2)));
-
-        // align robot front to face towards closest reef
-        driver.leftBumper().whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> s_Swerve.calculateTurnAngle(s_Swerve.findClosestReef())));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
@@ -342,8 +321,13 @@ public class RobotContainer {
         driver.povLeft().onTrue(
             s_Elevator.homeCommand());
 
-        driver.povRight().onTrue(
-            s_Elevator.setDesiredState(L3));
+        /* ------------- Coral Controls ------------- */
+//        driver.povRight().whileTrue(
+//            s_Intake.shootCoral());
+
+        /* ------------- Elevator SYSID ------------- */
+        driver.povRight().whileTrue(
+            s_Elevator.applyVolts(4));
     }
 
     private void configureOperator() {
@@ -353,29 +337,31 @@ public class RobotContainer {
                 Commands.runOnce(
                     () -> altMode = !altMode));
 
+        /* ------------- Elevator Controls ------------- */
+//        operator.x().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+//
+//        operator.y().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+//
+//        operator.a().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+//
+//        operator.b().onTrue(
+//            s_Elevator.homeCommand());
+
         /* ------------- SysId Controls ------------- */
         operator.x()
             .whileTrue(
-                s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
-
+                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
         operator.y()
-            .whileTrue(
-                s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
-
+            .onTrue(
+                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
         operator.a()
-            .whileTrue(
-                s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
-
+            .onTrue(
+                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
         operator.b()
-            .whileTrue(
-                s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward)
-                    .alongWith(
-                        s_LED.flashCommand(LEDColor.BLUE, 0.1, 1)));
+            .onTrue(
+                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 }

@@ -1,20 +1,39 @@
 package org.steelhawks.subsystems.elevator;
 
+import edu.wpi.first.math.util.Units;
+import org.steelhawks.Constants;
 import org.steelhawks.util.LoggedTunableNumber;
 
 public final class ElevatorConstants {
 
     public enum State {
-        L4(3),
-        L3(2),
-        L2(1),
-        L1(.5);
+        L4(0.0, 0.0, 3.0),
+        L3(0.0, 0.0, 2.0),
+        L2(0.0, 0.0, 1.0),
+        L1(0.0, 0.0, 0.5);
 
-        State(double rotations) {
-            this.rotations = rotations;
+        private final double alphaRotations;
+        private final double omegaRotations;
+        private final double hawkriderRotations;
+
+        State(double alpha, double omega, double hawkrider) {
+            this.alphaRotations = alpha;
+            this.omegaRotations = omega;
+            this.hawkriderRotations = hawkrider;
         }
 
-        public double rotations;
+        public double getRotations() {
+            switch (Constants.getRobot()) {
+                case ALPHABOT:
+                    return alphaRotations;
+                case OMEGABOT:
+                    return omegaRotations;
+                case HAWKRIDER:
+                    return hawkriderRotations;
+                default:
+                    return 0;
+            }
+        }
     }
 
     public static final ElevatorConstants DEFAULT =
@@ -40,6 +59,24 @@ public final class ElevatorConstants {
     public static final ElevatorConstants ALPHA =
         new ElevatorConstants(
             0,
+            14,
+            15,
+            50,
+            0.18,
+            0.00625,
+            2.6,
+            3.9,
+            0,
+            0.01,
+            3,
+            5,
+            0.005,
+            0.25,
+            Units.radiansToRotations(59));
+
+    public static final ElevatorConstants HAWKRIDER =
+        new ElevatorConstants(
+            0,
             20,
             21,
             22,
@@ -54,8 +91,6 @@ public final class ElevatorConstants {
             0.005,
             0.5,
             3);
-
-    public static final ElevatorConstants HAWKRIDER = DEFAULT;
 
     public final int LIMIT_SWITCH_ID;
     public final int LEFT_ID;
@@ -76,7 +111,7 @@ public final class ElevatorConstants {
     public final double TOLERANCE;
     public final double MANUAL_ELEVATOR_INCREMENT;
 
-    public final double MAX_ROTATIONS;
+    public final double MAX_HEIGHT;
 
     public ElevatorConstants(
         int limitSwitchId,
@@ -92,7 +127,7 @@ public final class ElevatorConstants {
         double maxVelocityPerSec,
         double maxAccelerationPerSecSquared,
         double tolerance,
-        double manualElev,
+        double manualElevatorIncrement,
         double maxRotations
     ) {
         LIMIT_SWITCH_ID = limitSwitchId;
@@ -108,7 +143,7 @@ public final class ElevatorConstants {
         MAX_VELOCITY_PER_SEC = new LoggedTunableNumber("Elevator/Max Velocity Per Sec", maxVelocityPerSec);
         MAX_ACCELERATION_PER_SEC_SQUARED = new LoggedTunableNumber("Elevator/Max Acceleration Per Sec Squared", maxAccelerationPerSecSquared);
         TOLERANCE = tolerance;
-        MANUAL_ELEVATOR_INCREMENT = manualElev;
-        MAX_ROTATIONS = maxRotations;
+        MANUAL_ELEVATOR_INCREMENT = manualElevatorIncrement;
+        MAX_HEIGHT = maxRotations;
     }
 }

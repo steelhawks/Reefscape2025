@@ -73,7 +73,7 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     }
 
     @Override
-    public void runOuttake(double percentageOutput) {
+    public void runIntake(double percentageOutput) {
         mIntakeMotor.set(percentageOutput);
     }
 

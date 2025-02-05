@@ -8,16 +8,13 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
+import org.steelhawks.Constants;
+import org.steelhawks.Constants.LEDConstants;
 
-import java.awt.*;
 import java.util.function.BooleanSupplier;
-
-import org.steelhawks.Constants.*;
 
 public class LED extends SubsystemBase {
 
-    private static final int LED_STRIP_LENGTH = 40;
-    private static final int LED_PORT = 0;
     private static final double RAPID_FLASH_TIMEOUT = .25;
 
     private final AddressableLED LEDStrip;
@@ -123,18 +120,26 @@ public class LED extends SubsystemBase {
         BACKWARD
     }
 
-    private static final LED INSTANCE = new LED(LED_PORT, LED_STRIP_LENGTH);
+    private static final LED INSTANCE = new LED();
 
     public static LED getInstance() {
         return INSTANCE;
     }
 
-    private LED(int port, int length) {
-        strip2Start = length / 2;
-        stripLength = length / 2;
+    private LED() {
+        LEDConstants constants;
 
-        LEDStrip = new AddressableLED(port);
-        LEDBuffer = new AddressableLEDBuffer(length);
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = LEDConstants.ALPHA;
+            case HAWKRIDER -> constants = LEDConstants.HAWKRIDER;
+            default -> constants = LEDConstants.OMEGA;
+        }
+
+        strip2Start = constants.LENGTH / 2;
+        stripLength = constants.LENGTH / 2;
+
+        LEDStrip = new AddressableLED(constants.PORT);
+        LEDBuffer = new AddressableLEDBuffer(constants.LENGTH);
 
         LEDStrip.setLength(LEDBuffer.getLength());
 

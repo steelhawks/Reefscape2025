@@ -5,6 +5,8 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
@@ -17,6 +19,9 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.steelhawks.commands.DriveCommands;
+import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
@@ -104,12 +109,30 @@ public class Robot extends LoggedRobot {
 
         // Check for valid swerve config
         var modules =
-            new SwerveModuleConstants[]{
-                TunerConstantsHawkRider.FrontLeft,
-                TunerConstantsHawkRider.FrontRight,
-                TunerConstantsHawkRider.BackLeft,
-                TunerConstantsHawkRider.BackRight
+            switch (Constants.getRobot()) {
+                case OMEGABOT, SIMBOT ->
+                    new SwerveModuleConstants[]{
+                        TunerConstants.FrontLeft,
+                        TunerConstants.FrontRight,
+                        TunerConstants.BackLeft,
+                        TunerConstants.BackRight
+                    };
+                case ALPHABOT ->
+                    new SwerveModuleConstants[]{
+                        TunerConstantsAlpha.FrontLeft,
+                        TunerConstantsAlpha.FrontRight,
+                        TunerConstantsAlpha.BackLeft,
+                        TunerConstantsAlpha.BackRight
+                    };
+                case HAWKRIDER ->
+                    new SwerveModuleConstants[]{
+                        TunerConstantsHawkRider.FrontLeft,
+                        TunerConstantsHawkRider.FrontRight,
+                        TunerConstantsHawkRider.BackLeft,
+                        TunerConstantsHawkRider.BackRight
+                    };
             };
+
         for (var constants : modules) {
             if (constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated
                 || constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated) {
@@ -137,7 +160,7 @@ public class Robot extends LoggedRobot {
         setState(RobotState.DISABLED);
 
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.resetSimulation();
+            robotContainer.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
         }
     }
 
@@ -157,7 +180,8 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
 //        autonomousCommand = Autos.getAutonCommand();
-        autonomousCommand = Autos.getTestAuton();
+//        autonomousCommand = Autos.getTestAuton();
+        autonomousCommand = DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve);
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
@@ -190,7 +214,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationInit() {
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.resetSimulation();
+            robotContainer.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
         }
     }
 

@@ -17,12 +17,12 @@ public class IntakeConstants {
 
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
-            0, 
+            16,
             
-            0,
-            20,
-            21,
-            22,
+            1,
+            17,
+            18,
+            50,
             0,
             0.15,
             2.6,
@@ -36,7 +36,25 @@ public class IntakeConstants {
             3);
 
     public static final IntakeConstants OMEGA = DEFAULT;
-    public static final IntakeConstants ALPHA = DEFAULT;
+    public static final IntakeConstants ALPHA =
+        new IntakeConstants(
+            16,
+
+            1,
+            17,
+            18,
+            50,
+            0,
+            0.15,
+            2.6,
+            3.9,
+            0,
+            0.01,
+            5.2,
+            8,
+            0.005,
+            0.5,
+            3);
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
 

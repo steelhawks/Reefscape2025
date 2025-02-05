@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 
 import static edu.wpi.first.units.Units.Volts;
 
@@ -42,8 +44,12 @@ public class Elevator extends SubsystemBase {
         mEnabled = false;
     }
 
-    public Elevator(ElevatorIO io, ElevatorConstants constants) {
-        this.constants = constants;
+    public Elevator(ElevatorIO io) {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = ElevatorConstants.ALPHA;
+            case HAWKRIDER -> constants = ElevatorConstants.HAWKRIDER;
+            default -> constants = ElevatorConstants.OMEGA;
+        }
 
         mController =
             new ProfiledPIDController(
@@ -130,6 +136,18 @@ public class Elevator extends SubsystemBase {
                     constants.KV.getAsDouble());
         }
 
+        // update tunable numbers
+        if (Constants.TUNING_MODE) {
+            constants.KS.hasChanged(hashCode());
+            constants.KG.hasChanged(hashCode());
+            constants.KV.hasChanged(hashCode());
+            constants.KP.hasChanged(hashCode());
+            constants.KI.hasChanged(hashCode());
+            constants.KD.hasChanged(hashCode());
+            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
+            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
+        }
+
         if (!mEnabled) return;
 
         double fb = mController.calculate(inputs.encoderPositionRotations);
@@ -158,18 +176,20 @@ public class Elevator extends SubsystemBase {
     ///////////////////////
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
-        return mSysId.quasistatic(dir);
+        return mSysId.quasistatic(dir)
+            .finallyDo(() -> io.stop());
     }
 
     public Command sysIdDynamic(SysIdRoutine.Direction dir) {
-        return mSysId.dynamic(dir);
+        return mSysId.dynamic(dir)
+            .finallyDo(() -> io.stop());
     }
 
     public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.rotations, 0, constants.MAX_ROTATIONS);
+                    MathUtil.clamp(state.getRotations(), 0, constants.MAX_HEIGHT);
                 inputs.setpoint = goal;
                 mController.setGoal(goal);
                 enable();
@@ -192,8 +212,53 @@ public class Elevator extends SubsystemBase {
                 Commands.run(
                     () -> io.runElevatorViaSpeed(-constants.MANUAL_ELEVATOR_INCREMENT), this))
         .until(() -> inputs.limitSwitchPressed)
-        .finallyDo(() -> io.stop())
+        .finallyDo(() -> {
+            io.stop();
+            if (Constants.getRobot() == RobotType.ALPHABOT) {
+                io.zeroMotorEncoders();
+            }
+        })
         .withName("Home Elevator");
+    }
+
+    private static final double kS = .18;
+    private static final double kG = 0.00625;
+    private static final double kV =
+        (3.6177734375000004 - 2.68291015625) / (4.0 - 3.0);
+
+    public Command applykS() {
+        return Commands.run(
+            () -> {
+                io.runElevator(kS);
+            }, this)
+            .finallyDo(() -> io.stop());
+    }
+
+    public Command applykG() {
+        return Commands.run(
+            () -> {
+                double volts = kS + kG;
+                io.runElevator(volts);
+            }, this)
+            .finallyDo(() -> io.stop());
+    }
+
+    public Command applykV() {
+        return Commands.run(
+            () -> {
+                double volts = kS + kG + kV;
+                io.runElevator(volts);
+            }, this)
+            .finallyDo(() -> io.stop());
+    }
+
+    public Command applyVolts(double volts) {
+        return Commands.run(
+            () -> {
+                Logger.recordOutput("Elevator/AppliedVolts", volts);
+                io.runElevator(volts);
+            }, this)
+            .finallyDo(() -> io.stop());
     }
 }
 

@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 
-import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
 
 public final class Constants {
 
@@ -19,7 +19,6 @@ public final class Constants {
     public static final boolean TUNING_MODE = false;
 
     public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
-    public static final String ROBOT_NAME = "ReefscapePreAlpha";
     public static final double SIM_UPDATE_LOOP = 0.020;
 
     public enum Mode {
@@ -29,14 +28,14 @@ public final class Constants {
     }
 
     public enum RobotType {
-        ALPHABOT,
         OMEGABOT,
+        ALPHABOT,
         HAWKRIDER,
         SIMBOT
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.ALPHABOT;
 
     /**
      * The robot type.
@@ -54,6 +53,14 @@ public final class Constants {
     private static boolean isCI() {
         return System.getenv("CI") != null;
     }
+
+    public static final String ROBOT_NAME =
+        switch (ROBOT) {
+            case OMEGABOT -> "Omega";
+            case ALPHABOT -> "Alpha";
+            case HAWKRIDER -> "Hawk Rider";
+            case SIMBOT -> "Simulation";
+        };
 
     public static Mode getMode() {
         return switch (ROBOT_TYPE) {
@@ -75,8 +82,7 @@ public final class Constants {
 
     public static CANBus getCANBus() {
         return switch (getRobot()) {
-            case OMEGABOT -> new CANBus();
-            case ALPHABOT, SIMBOT -> new CANBus("");
+            case OMEGABOT, ALPHABOT, SIMBOT -> new CANBus("");
             case HAWKRIDER -> new CANBus("canivore");
         };
     }
@@ -94,8 +100,8 @@ public final class Constants {
      */
     public static final class FieldConstants {
 
-        public static final Distance FIELD_LENGTH = Feet.of(57 + (6.0 / 12.0) + ((7.0 / 8.0) / 12.0));
-        public static final Distance FIELD_WIDTH = Feet.of(26 + (5.0 / 12.0));
+        public static final Distance FIELD_LENGTH = Inches.of(690.876);
+        public static final Distance FIELD_WIDTH = Inches.of(317);
 
         /*
          * To properly use the auto flip feature, the poses MUST be for the blue alliance.
@@ -135,6 +141,26 @@ public final class Constants {
      */
     public static final class Deadbands {
         public static final double DRIVE_DEADBAND = 0.3;
+    }
+
+    public static final class LEDConstants {
+
+        public static final LEDConstants DEFAULT =
+            new LEDConstants(0, 40);
+
+        public static final LEDConstants OMEGA = DEFAULT;
+        public static final LEDConstants ALPHA = DEFAULT;
+        public static final LEDConstants HAWKRIDER = DEFAULT;
+
+        public final int PORT;
+        public final int LENGTH;
+
+        private LEDConstants(
+            int port, int length
+        ) {
+            PORT = port;
+            LENGTH = length;
+        }
     }
 
     /**
