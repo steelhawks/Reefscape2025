@@ -40,4 +40,15 @@ public class HolonomicController {
             sample.vy + yController.calculate(robotPose.getY(), sample.y),
             sample.omega + omegaController.calculate(robotPose.getRotation().getRadians(), sample.heading));
     }
+
+    public static ChassisSpeeds calculate(Pose2d target) {
+        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
+
+        double xSpeed = xController.calculate(robotPose.getX(), target.getX());
+        double ySpeed = yController.calculate(robotPose.getY(), target.getY());
+        double omegaSpeed = omegaController.calculate(robotPose.getRotation().getRadians(), target.getRotation().getRadians());
+
+        return new ChassisSpeeds(xSpeed, ySpeed, omegaSpeed);
+    }
+
 }

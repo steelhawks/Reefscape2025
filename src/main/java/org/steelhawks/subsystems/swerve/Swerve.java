@@ -503,7 +503,7 @@ public class Swerve extends SubsystemBase {
      * Returns the measured chassis speeds of the robot.
      */
     @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-    private ChassisSpeeds getChassisSpeeds() {
+    public ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
