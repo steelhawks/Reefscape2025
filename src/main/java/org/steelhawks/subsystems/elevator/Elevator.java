@@ -47,6 +47,19 @@ public class Elevator extends SubsystemBase {
         mEnabled = false;
     }
 
+    private static final double kS = .18;
+    private static final double kG = 0.18625; // 0.00625
+
+    // change in Voltage over change in velocity
+    private static final Double[] kVAll = {
+        (4.0 - 3.0) / (3.6177734375000004 - 2.68291015625),
+//        (3.0 - 2.0) / (0.0 - 0.0),
+//        (1.0 - 0.5) / (0.0 - 0.0),
+    };
+
+    private static final double kV =
+        Arrays.stream(kVAll).mapToDouble(Double::doubleValue).average().orElse(0.0);
+
     public Elevator(ElevatorIO io) {
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = ElevatorConstants.ALPHA;
@@ -54,20 +67,31 @@ public class Elevator extends SubsystemBase {
             default -> constants = ElevatorConstants.OMEGA;
         }
 
+//        mController =
+//            new ProfiledPIDController(
+//                constants.KP.getAsDouble(),
+//                constants.KI.getAsDouble(),
+//                constants.KD.getAsDouble(),
+//                new TrapezoidProfile.Constraints(
+//                    constants.MAX_VELOCITY_PER_SEC.getAsDouble(),
+//                    constants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
         mController =
             new ProfiledPIDController(
-                constants.KP.getAsDouble(),
-                constants.KI.getAsDouble(),
-                constants.KD.getAsDouble(),
-                new TrapezoidProfile.Constraints(
-                    constants.MAX_VELOCITY_PER_SEC.getAsDouble(),
-                    constants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
+                1,
+                0,
+                0.001,
+                new TrapezoidProfile.Constraints(3, 4));
         mController.setTolerance(constants.TOLERANCE);
+//        mFeedforward =
+//            new ElevatorFeedforward(
+//                constants.KS.getAsDouble(),
+//                constants.KG.getAsDouble(),
+//                constants.KV.getAsDouble());
         mFeedforward =
             new ElevatorFeedforward(
-                constants.KS.getAsDouble(),
-                constants.KG.getAsDouble(),
-                constants.KV.getAsDouble());
+                kS,
+                kG,
+                kV);
 
         mSysId =
             new SysIdRoutine(
@@ -224,19 +248,6 @@ public class Elevator extends SubsystemBase {
         })
         .withName("Home Elevator");
     }
-
-    private static final double kS = .18;
-    private static final double kG = 0.18625; // 0.00625
-
-    // change in Voltage over change in velocity
-    private static final Double[] kVAll = {
-        (4.0 - 3.0) / (3.6177734375000004 - 2.68291015625),
-//        (3.0 - 2.0) / (0.0 - 0.0),
-//        (1.0 - 0.5) / (0.0 - 0.0),
-    };
-
-    private static final double kV =
-        Arrays.stream(kVAll).mapToDouble(Double::doubleValue).average().orElse(0.0);
 
     public Command applykS() {
         return Commands.run(

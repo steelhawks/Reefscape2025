@@ -318,6 +318,10 @@ public class RobotContainer {
         driver.povLeft().onTrue(
             s_Elevator.homeCommand());
 
+
+        driver.povRight().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+
         /* ------------- Coral Controls ------------- */
 //        driver.povRight().whileTrue(
 //            s_Intake.shootCoral());
