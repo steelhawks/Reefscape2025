@@ -230,7 +230,9 @@ public class Elevator extends SubsystemBase {
 
     // change in Voltage over change in velocity
     private static final Double[] kVAll = {
-        (4.0 - 3.0) / (3.6177734375000004 - 2.68291015625)
+        (4.0 - 3.0) / (3.6177734375000004 - 2.68291015625),
+//        (3.0 - 2.0) / (0.0 - 0.0),
+//        (1.0 - 0.5) / (0.0 - 0.0),
     };
 
     private static final double kV =
