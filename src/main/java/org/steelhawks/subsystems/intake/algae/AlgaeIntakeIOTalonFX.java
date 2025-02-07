@@ -145,7 +145,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 canCoderPosition,
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRads = canCoderPosition.getValueAsDouble();
+        inputs.encoderPositionRad = canCoderPosition.getValueAsDouble();
         inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;

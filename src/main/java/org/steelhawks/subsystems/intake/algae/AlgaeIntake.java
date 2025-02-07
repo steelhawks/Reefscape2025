@@ -177,7 +177,7 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runPivot(Math.cos(inputs.encoderPositionRads) * kG), this)
+            () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * kG), this)
             .finallyDo(() -> io.stopPivot());
     }
 

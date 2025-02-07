@@ -76,8 +76,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             new CANcoderConfiguration().withMagnetSensor(
                 new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
-        mCANcoder.setPosition(0);
-        zeroMotorEncoders();
+        zeroEncoders();
 
         leftPosition = mLeftMotor.getPosition();
         leftVelocity = mLeftMotor.getVelocity();
@@ -164,23 +163,19 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 canCoderPosition,
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
-        inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
+        inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
+        inputs.encoderVelocityRadPerSec = Units.rotationsToRadians(canCoderVelocity.getValueAsDouble());
 
         if (Constants.getRobot() == RobotType.ALPHABOT) {
             inputs.encoderConnected = inputs.leftConnected && inputs.rightConnected;
             inputs.magnetGood = inputs.encoderConnected;
-            inputs.encoderPositionRotations = (leftPos + rightPos) / 2.0;
-            inputs.encoderVelocityRotationsPerSec = (leftVelo + rightVelo) / 2.0;
+            inputs.encoderPositionRad = Units.rotationsToRadians((leftPos + rightPos) / 2.0);
+            inputs.encoderVelocityRadPerSec = Units.rotationsToRadians((leftVelo + rightVelo) / 2.0);
         }
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atTopLimit = inputs.encoderPositionRotations >= constants.MAX_HEIGHT;
-
-//        if (Constants.getRobot() == RobotType.ALPHABOT) {
-//            inputs.atTopLimit = (inputs.leftPositionRad + inputs.rightPositionRad) / 2.0 >= constants.MAX_HEIGHT;
-//        }
+        inputs.atTopLimit = inputs.encoderPositionRad >= constants.MAX_RADIANS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
@@ -210,7 +205,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
-    public void zeroMotorEncoders() {
+    public void zeroEncoders() {
+        if (Constants.getRobot() != RobotType.ALPHABOT) {
+            mCANcoder.setPosition(0);
+        }
         mLeftMotor.setPosition(0);
         mRightMotor.setPosition(0);
     }

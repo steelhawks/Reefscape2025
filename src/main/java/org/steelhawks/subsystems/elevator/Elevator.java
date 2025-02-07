@@ -1,6 +1,5 @@
 package org.steelhawks.subsystems.elevator;
 
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -40,7 +39,7 @@ public class Elevator extends SubsystemBase {
 
     public void enable() {
         mEnabled = true;
-        mController.reset(inputs.encoderPositionRotations);
+        mController.reset(inputs.encoderPositionRad);
     }
 
     public void disable() {
@@ -173,14 +172,13 @@ public class Elevator extends SubsystemBase {
             constants.KI.hasChanged(hashCode());
             constants.KD.hasChanged(hashCode());
             constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
-            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
+            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode());
         }
 
         if (!mEnabled) return;
 
-        double fb = mController.calculate(inputs.encoderPositionRotations);
-        double velocitySetpoint  = mController.getSetpoint().velocity;
-        double ff = mFeedforward.calculate(velocitySetpoint);
+        double fb = mController.calculate(inputs.encoderPositionRad);
+        double ff = mFeedforward.calculate(mController.getSetpoint().velocity);
         double volts = fb + ff;
 
         if ((inputs.atTopLimit && volts >= 0) || (inputs.limitSwitchPressed && volts <= 0)) {
@@ -217,18 +215,23 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.getRotations(), 0, constants.MAX_HEIGHT);
+                    MathUtil.clamp(state.getRadians(), 0, constants.MAX_RADIANS);
                 inputs.setpoint = goal;
                 mController.setGoal(goal);
                 enable();
-            }, this);
+            }, this)
+            .withName("Set Desired State");
     }
 
     public Command elevatorManual(double speed) {
         return Commands.runOnce(this::disable, this)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(speed), this))
+                    () -> {
+//                        double volts = (speed * 12) + kG;
+                        double percentOutput = ((speed * 12) + kG) / 12.0;
+                        io.runElevatorViaSpeed(MathUtil.clamp(percentOutput, -1, 1));
+                    }, this))
             .finallyDo(
                 () -> io.stop())
             .withName("Manual Elevator");
@@ -243,7 +246,7 @@ public class Elevator extends SubsystemBase {
         .finallyDo(() -> {
             io.stop();
             if (Constants.getRobot() == RobotType.ALPHABOT) {
-                io.zeroMotorEncoders();
+                io.zeroEncoders();
             }
         })
         .withName("Home Elevator");

@@ -24,7 +24,7 @@ public interface AlgaeIntakeIO {
 
         public boolean encoderConnected = false;
         public boolean magnetGood = false;
-        public double encoderPositionRads = 0;
+        public double encoderPositionRad = 0;
         public double encoderVelocityRadPerSec = 0;
 
         public boolean limitSwitchConnected = false;
