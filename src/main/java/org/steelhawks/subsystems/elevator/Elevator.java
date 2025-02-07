@@ -14,8 +14,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.Constants.RobotType;
+import org.steelhawks.OperatorLock;
+
 import java.util.Arrays;
+import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -24,8 +28,9 @@ public class Elevator extends SubsystemBase {
 
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final ElevatorConstants constants;
-    private boolean mEnabled = false;
+    private OperatorLock mOperatorLock;
     private final SysIdRoutine mSysId;
+    private boolean mEnabled = false;
     private final ElevatorIO io;
 
     private final ProfiledPIDController mController;
@@ -101,6 +106,8 @@ public class Elevator extends SubsystemBase {
                     (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
+
+        mOperatorLock = OperatorLock.LOCKED;
 
         leftMotorDisconnected =
             new Alert(
@@ -223,13 +230,38 @@ public class Elevator extends SubsystemBase {
             .withName("Set Desired State");
     }
 
+    public Command toggleManualControl(DoubleSupplier joystickAxis) {
+        return Commands.runOnce(
+            () -> {
+                Logger.recordOutput("Elevator/RequestedControllerElevatorSpeed", joystickAxis.getAsDouble());
+
+                if (mOperatorLock == OperatorLock.LOCKED) {
+                    disable();
+                    setDefaultCommand(
+                        elevatorManual(
+                            MathUtil.clamp(
+                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.ELEVATOR_DEADBAND),
+                                -constants.MANUAL_ELEVATOR_INCREMENT,
+                                constants.MANUAL_ELEVATOR_INCREMENT)));
+                    mOperatorLock = OperatorLock.UNLOCKED;
+                } else {
+                    enable();
+                    if (getDefaultCommand() != null) {
+                        getDefaultCommand().cancel();
+                        removeDefaultCommand();
+                    }
+                    mOperatorLock = OperatorLock.LOCKED;
+                }
+            }, this)
+            .withName("Toggle Manual Control");
+    }
+
     public Command elevatorManual(double speed) {
         return Commands.runOnce(this::disable, this)
             .andThen(
                 Commands.run(
                     () -> {
-//                        double volts = (speed * 12) + kG;
-                        double percentOutput = ((speed * 12) + kG) / 12.0;
+                        double percentOutput = ((speed * 12.0) + kG + kS) / 12.0;
                         io.runElevatorViaSpeed(MathUtil.clamp(percentOutput, -1, 1));
                     }, this))
             .finallyDo(

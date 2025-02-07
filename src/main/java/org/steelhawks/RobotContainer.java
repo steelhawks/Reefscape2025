@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -309,11 +310,12 @@ public class RobotContainer {
         }
 
         /* ------------- Elevator Controls ------------- */
-        driver.povUp().whileTrue(
-            s_Elevator.elevatorManual(.1));
 
-        driver.povDown().whileTrue(
-            s_Elevator.elevatorManual(-.1));
+//        driver.povUp().whileTrue(
+//            s_Elevator.elevatorManual(.1));
+//
+//        driver.povDown().whileTrue(
+//            s_Elevator.elevatorManual(-.1));
 
         driver.povLeft().onTrue(
             s_Elevator.homeCommand());
@@ -339,6 +341,11 @@ public class RobotContainer {
                     () -> altMode = !altMode));
 
         /* ------------- Elevator Controls ------------- */
+
+        operator.leftStick().onTrue(
+            s_Elevator.toggleManualControl(
+                () -> -operator.getLeftY()));
+
         operator.x().onTrue(
             s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
