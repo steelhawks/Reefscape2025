@@ -233,7 +233,7 @@ public class Elevator extends SubsystemBase {
     public Command toggleManualControl(DoubleSupplier joystickAxis) {
         return Commands.runOnce(
             () -> {
-                Logger.recordOutput("Elevator/RequestedControllerElevatorSpeed", joystickAxis.getAsDouble());
+                Logger.recordOutput("Elevator/RequestedElevatorSpeed", joystickAxis.getAsDouble());
 
                 if (mOperatorLock == OperatorLock.LOCKED) {
                     disable();
@@ -252,6 +252,8 @@ public class Elevator extends SubsystemBase {
                     }
                     mOperatorLock = OperatorLock.LOCKED;
                 }
+
+                Logger.recordOutput("Elevator/IsLocked", mOperatorLock == OperatorLock.LOCKED);
             }, this)
             .withName("Toggle Manual Control");
     }
@@ -262,6 +264,7 @@ public class Elevator extends SubsystemBase {
                 Commands.run(
                     () -> {
                         double percentOutput = ((speed * 12.0) + kG + kS) / 12.0;
+                        Logger.recordOutput("Elevator/ManualElevatorSpeed", percentOutput);
                         io.runElevatorViaSpeed(MathUtil.clamp(percentOutput, -1, 1));
                     }, this))
             .finallyDo(

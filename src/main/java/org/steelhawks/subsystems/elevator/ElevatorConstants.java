@@ -70,7 +70,7 @@ public final class ElevatorConstants {
             0.01,
             3,
             5,
-            0.005,
+            Units.rotationsToRadians(0.005),
             0.25,
             59);
 
@@ -88,7 +88,7 @@ public final class ElevatorConstants {
             0.01,
             5.2,
             8,
-            0.005,
+            Units.rotationsToRadians(.005),
             0.5,
             Units.rotationsToRadians(3));
 
