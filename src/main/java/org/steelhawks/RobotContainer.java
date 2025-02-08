@@ -300,6 +300,14 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode())));
 
+        // align robot front to reef, then move left until aligned with coral branch
+        driver.leftBumper().whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> new Rotation2d(0)).withDeadline()
+            .andThen(s_SensorAlign.alignLeft()));
+
         if (RobotBase.isReal()) {
             driver.b().onTrue(
                 s_Swerve.zeroHeading(
