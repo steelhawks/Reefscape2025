@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.commands.SensorAlign;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -44,6 +45,7 @@ public class RobotContainer {
     public static Vision s_Vision;
     public static Elevator s_Elevator;
     public static Intake s_Intake;
+    public static SensorAlign s_SensorAlign;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -190,42 +192,45 @@ public class RobotContainer {
                             new CoralIntakeIOSim());
                 }
             }
-
-            if (Constants.getMode() == Mode.REPLAY) {
-                s_Swerve =
-                    new Swerve(
-                        new GyroIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {});
-
-                switch (Constants.getRobot()) {
-                    case OMEGABOT, ALPHABOT -> {
-                        s_Vision =
-                            new Vision(
-                                s_Swerve::accept,
-                                new VisionIO() {});
-                        s_Intake =
-                            new Intake(
-                                new AlgaeIntakeIO() {},
-                                new CoralIntakeIO() {});
-                    }
-                    case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
-                        s_Vision =
-                            new Vision(
-                                s_Swerve::accept,
-                                new VisionIO() {},
-                                new VisionIO() {},
-                                new VisionIO() {});
-                    }
-                }
-
-                s_Elevator =
-                    new Elevator(
-                        new ElevatorIO() {});
-            }
         }
+
+        if (Constants.getMode() == Mode.REPLAY) {
+            s_Swerve =
+                new Swerve(
+                    new GyroIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {});
+
+            switch (Constants.getRobot()) {
+                case OMEGABOT, ALPHABOT -> {
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIO() {});
+                    s_Intake =
+                        new Intake(
+                            new AlgaeIntakeIO() {},
+                            new CoralIntakeIO() {});
+                }
+                case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIO() {},
+                            new VisionIO() {},
+                            new VisionIO() {});
+                }
+            }
+
+            s_Elevator =
+                new Elevator(
+                    new ElevatorIO() {});
+        }
+
+        s_SensorAlign =
+            new SensorAlign();
 
         if (Constants.TUNING_MODE) {
             new Alert("Tuning mode enabled", AlertType.kInfo).set(true);

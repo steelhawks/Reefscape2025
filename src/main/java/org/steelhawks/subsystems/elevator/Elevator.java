@@ -83,7 +83,7 @@ public class Elevator extends SubsystemBase {
             new ProfiledPIDController(
                 3.8, // 3.9
                 0,
-                0.125, // 0.125
+                0.126, // 0.125
                 new TrapezoidProfile.Constraints(10, 12));
         mController.setTolerance(constants.TOLERANCE);
 //        mFeedforward =
