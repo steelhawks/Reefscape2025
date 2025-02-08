@@ -192,11 +192,11 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopPivot());
     }
 
-    public Command setDesiredAlgaeIntakeState(IntakeConstants.AlgaeIntakeState state) {
+    public Command setDesiredAlgaeIntakeState(IntakeConstants.algaeIntakeState state) {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.rotations, 0, constants.ALGAE_MAX_ROTATIONS);
+                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
                     inputs.setpoint = goal;
                 mController.setGoal(goal);
                 enable();
