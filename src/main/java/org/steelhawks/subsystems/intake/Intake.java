@@ -16,8 +16,8 @@ public class Intake {
 
     private final IntakeConstants constants;
 
-    private final AlgaeIntake mAlgaeIntake;
-    private final CoralIntake mCoralIntake;
+    public final AlgaeIntake mAlgaeIntake;
+    public final CoralIntake mCoralIntake;
 
     public Intake(AlgaeIntakeIO algaeIO, CoralIntakeIO coralIO) {
         switch (Constants.getRobot()) {

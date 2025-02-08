@@ -3,6 +3,8 @@ package org.steelhawks;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -61,12 +63,57 @@ public final class Autos {
         return Commands.none();
     }
 
-    public static Command getTestAuton() {
-        return Commands.runOnce(
-            () ->
-                RobotContainer.s_Swerve.setPose(
-                    new Pose2d(8.272273, 1.914906, new Rotation2d())))
-            .andThen(
-                followTrajectory("olan"));
+    // public static Command getTestAuton() {
+    //     return Commands.runOnce(
+    //         () ->
+    //             RobotContainer.s_Swerve.setPose(
+    //                 new Pose2d(3.242988109588623, 4.184154510498047, new Rotation2d())))
+    //         .andThen(DriveCommands.followPath(getPath("L1 Reef to Upper Algae")))
+    //         .andThen(Commands.waitSeconds(1))
+    //         .andThen(DriveCommands.followPath(getPath("Upper Algae to L1 Reef")))
+    //         .andThen(Commands.waitSeconds(1))
+    //         .andThen(DriveCommands.followPath(getPath("L1 Reef to Center Algae")))
+    //         .andThen(Commands.waitSeconds(1))
+    //         .andThen(DriveCommands.followPath(getPath("Center Algae to L2 Reef")))
+    //         // .andThen(Commands.waitSeconds(1))
+    //         // .andThen(DriveCommands.followPath(getPath("L2 Reef")))
+    //         ;
+    // }
+
+    public static Command getPathPlannerAuton() {
+        return new PathPlannerAuto("Experimental Auto");
+    }
+
+    public static Command getFullPathPlannerAuto() {
+        return new PathPlannerAuto("Full Auto");
+    }
+
+    public static Command getChoreoPathPlannerAuto() {
+        return new PathPlannerAuto("Full Auto (Choreo)");
+    }
+
+    public static Command getShortChoreoPathPlannerAuto() {
+        return new PathPlannerAuto("Short Auto (Choreo)");
+    }
+
+
+    // public static Command getHeitmanAuton() {
+    //     return Commands.runOnce(
+    //         () ->
+    //             RobotContainer.s_Swerve.setPose(
+    //                 new Pose2d(3.242988109588623, 4.184154510498047, new Rotation2d())))
+    //         .andThen(
+    //             DriveCommands.followPath(getPath("olan"))
+    //         );    
+    //     }
+
+    public static PathPlannerPath getPath(String choreo) {
+        try {
+            return PathPlannerPath.fromChoreoTrajectory(choreo);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

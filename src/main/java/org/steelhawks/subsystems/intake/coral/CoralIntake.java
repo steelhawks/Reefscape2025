@@ -47,5 +47,12 @@ public class CoralIntake extends SubsystemBase {
     public void stop() {
         isIntaking = false;
         io.stop();
+    
+
+        if (!mEnabled) return;
     }
+
+    public void runCharacterization(double volts) {}
+
+    
 }
