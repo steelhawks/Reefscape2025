@@ -52,19 +52,6 @@ public class Elevator extends SubsystemBase {
         mEnabled = false;
     }
 
-    private static final double kS = .18;
-    private static final double kG = 0.18625; // 0.00625
-
-    // change in Voltage over change in velocity
-    private static final Double[] kVAll = {
-        (4.0 - 3.0) / (3.6177734375000004 - 2.68291015625),
-//        (3.0 - 2.0) / (0.0 - 0.0),
-//        (1.0 - 0.5) / (0.0 - 0.0),
-    };
-
-    private static final double kV =
-        Arrays.stream(kVAll).mapToDouble(Double::doubleValue).average().orElse(0.0);
-
     public Elevator(ElevatorIO io) {
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = ElevatorConstants.ALPHA;
@@ -256,7 +243,7 @@ public class Elevator extends SubsystemBase {
     public Command applykS() {
         return Commands.run(
             () -> {
-                io.runElevator(kS);
+                io.runElevator(constants.KS);
             }, this)
             .finallyDo(() -> io.stop());
     }
@@ -264,7 +251,7 @@ public class Elevator extends SubsystemBase {
     public Command applykG() {
         return Commands.run(
             () -> {
-                io.runElevator(kG);
+                io.runElevator(constants.KG);
             }, this)
             .finallyDo(() -> io.stop());
     }
@@ -272,7 +259,7 @@ public class Elevator extends SubsystemBase {
     public Command applykV(AngularVelocity desiredVelocity) {
         return Commands.run(
             () -> {
-                double volts = kG + (kV * desiredVelocity.in(RadiansPerSecond));
+                double volts = constants.KG + (constants.KV * desiredVelocity.in(RadiansPerSecond));
                 io.runElevator(volts);
             }, this)
             .finallyDo(() -> io.stop());
