@@ -4,6 +4,8 @@ import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
 import org.steelhawks.util.LoggedTunableNumber;
 
+import java.util.Arrays;
+
 public final class ElevatorConstants {
 
     public enum State {
@@ -63,13 +65,17 @@ public final class ElevatorConstants {
             15,
             50,
             0.18,
-            0.00625,
-            2.6,
-            3.9,
+            0.18625,
+            Arrays.stream(new double[]{
+                (4.0 - 3.0) / (3.6177734375000004 - 2.68291015625),
+//        (3.0 - 2.0) / (0.0 - 0.0),
+//        (1.0 - 0.5) / (0.0 - 0.0),
+            }).average().orElse(0.0),
+            3.8,
             0,
-            0.01,
-            3,
-            5,
+            0.126,
+            10,
+            12,
             Units.rotationsToRadians(0.005),
             0.25,
             59);
@@ -97,16 +103,16 @@ public final class ElevatorConstants {
     public final int RIGHT_ID;
     public final int CANCODER_ID;
 
-    public final LoggedTunableNumber KS;
-    public final LoggedTunableNumber KG;
-    public final LoggedTunableNumber KV;
+    public final double KS;
+    public final double KG;
+    public final double KV;
 
-    public final LoggedTunableNumber KP;
-    public final LoggedTunableNumber KI;
-    public final LoggedTunableNumber KD;
+    public final double KP;
+    public final double KI;
+    public final double KD;
 
-    public final LoggedTunableNumber MAX_VELOCITY_PER_SEC;
-    public final LoggedTunableNumber MAX_ACCELERATION_PER_SEC_SQUARED;
+    public final double MAX_VELOCITY_PER_SEC;
+    public final double MAX_ACCELERATION_PER_SEC_SQUARED;
 
     public final double TOLERANCE;
     public final double MANUAL_ELEVATOR_INCREMENT;
@@ -134,14 +140,14 @@ public final class ElevatorConstants {
         LEFT_ID = leftMotorId;
         RIGHT_ID = rightMotorId;
         CANCODER_ID = canCoderId;
-        KS = new LoggedTunableNumber("Elevator/KS", kS);
-        KG = new LoggedTunableNumber("Elevator/KG", kG);
-        KV = new LoggedTunableNumber("Elevator/KV", kV);
-        KP = new LoggedTunableNumber("Elevator/KP", kP);
-        KI = new LoggedTunableNumber("Elevator/KI", kI);
-        KD = new LoggedTunableNumber("Elevator/KD", kD);
-        MAX_VELOCITY_PER_SEC = new LoggedTunableNumber("Elevator/Max Velocity Per Sec", maxVelocityPerSec);
-        MAX_ACCELERATION_PER_SEC_SQUARED = new LoggedTunableNumber("Elevator/Max Acceleration Per Sec Squared", maxAccelerationPerSecSquared);
+        KS = kS;
+        KG = kG;
+        KV = kV;
+        KP = kP;
+        KI = kI;
+        KD = kD;
+        MAX_VELOCITY_PER_SEC = maxVelocityPerSec;
+        MAX_ACCELERATION_PER_SEC_SQUARED = maxAccelerationPerSecSquared;
         TOLERANCE = tolerance;
         MANUAL_ELEVATOR_INCREMENT = manualElevatorIncrement;
         MAX_RADIANS = maxRadians;

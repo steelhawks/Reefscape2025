@@ -7,6 +7,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,6 +46,7 @@ public class Elevator extends SubsystemBase {
     public void enable() {
         mEnabled = true;
         mController.reset(inputs.encoderPositionRad);
+        mController.setGoal(inputs.encoderPositionRad);
     }
 
     public void disable() {
@@ -71,31 +73,20 @@ public class Elevator extends SubsystemBase {
             default -> constants = ElevatorConstants.OMEGA;
         }
 
-//        mController =
-//            new ProfiledPIDController(
-//                constants.KP.getAsDouble(),
-//                constants.KI.getAsDouble(),
-//                constants.KD.getAsDouble(),
-//                new TrapezoidProfile.Constraints(
-//                    constants.MAX_VELOCITY_PER_SEC.getAsDouble(),
-//                    constants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
         mController =
             new ProfiledPIDController(
-                3.8, // 3.9
-                0,
-                0.126, // 0.125
-                new TrapezoidProfile.Constraints(10, 12));
+                constants.KP,
+                constants.KI,
+                constants.KD,
+                new TrapezoidProfile.Constraints(
+                    constants.MAX_VELOCITY_PER_SEC,
+                    constants.MAX_ACCELERATION_PER_SEC_SQUARED));
         mController.setTolerance(constants.TOLERANCE);
-//        mFeedforward =
-//            new ElevatorFeedforward(
-//                constants.KS.getAsDouble(),
-//                constants.KG.getAsDouble(),
-//                constants.KV.getAsDouble());
         mFeedforward =
             new ElevatorFeedforward(
-                kS,
-                kG,
-                kV);
+                constants.KS,
+                constants.KG,
+                constants.KV);
 
         mSysId =
             new SysIdRoutine(
@@ -144,48 +135,16 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-//        if (constants.KP.hasChanged(hashCode()) ||
-//            constants.KI.hasChanged(hashCode()) ||
-//            constants.KD.hasChanged(hashCode()) ||
-//            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
-//            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
-//        ) {
-//            disable();
-//            mController.setPID(
-//                constants.KP.getAsDouble(),
-//                constants.KI.getAsDouble(),
-//                constants.KD.getAsDouble());
-//
-//            enable();
-//        }
-
-//        if (constants.KS.hasChanged(hashCode()) ||
-//            constants.KG.hasChanged(hashCode()) ||
-//            constants.KV.hasChanged(hashCode())
-//        ) {
-//            mFeedforward =
-//                new ElevatorFeedforward(
-//                    constants.KS.getAsDouble(),
-//                    constants.KG.getAsDouble(),
-//                    constants.KV.getAsDouble());
-//        }
-//
-//        // update tunable numbers
-//        if (Constants.TUNING_MODE) {
-//            constants.KS.hasChanged(hashCode());
-//            constants.KG.hasChanged(hashCode());
-//            constants.KV.hasChanged(hashCode());
-//            constants.KP.hasChanged(hashCode());
-//            constants.KI.hasChanged(hashCode());
-//            constants.KD.hasChanged(hashCode());
-//            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
-//            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode());
-//        }
+        if (DriverStation.isDisabled()) {
+            disable();
+        }
 
         if (!mEnabled) return;
 
         double fb = mController.calculate(inputs.encoderPositionRad);
         double ff = mFeedforward.calculate(mController.getSetpoint().velocity);
+        Logger.recordOutput("Elevator/Feedback", fb);
+        Logger.recordOutput("Elevator/Feedforward", ff);
         double volts = fb + ff;
 
         if ((inputs.atTopLimit && volts >= 0) || (inputs.limitSwitchPressed && volts <= 0)) {
@@ -264,7 +223,15 @@ public class Elevator extends SubsystemBase {
                 Commands.run(
                     () -> {
                         Logger.recordOutput("Elevator/ManualElevatorSpeed", speed);
-                        io.runElevatorViaSpeed(MathUtil.clamp(speed.getAsDouble(), -1, 1));
+                        double appliedSpeed;
+
+                        appliedSpeed = MathUtil.clamp(speed.getAsDouble(), -1, 1);
+
+                        if (speed.getAsDouble() == 0.0) {
+                            appliedSpeed = constants.KG / 12.0;
+                        }
+
+                        io.runElevatorViaSpeed(appliedSpeed);
                     }, this))
             .finallyDo(
                 () -> io.stop())

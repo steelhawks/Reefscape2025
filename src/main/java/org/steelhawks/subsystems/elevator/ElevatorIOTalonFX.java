@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 
+import static org.steelhawks.util.PhoenixUtil.*;
+
 public class ElevatorIOTalonFX implements ElevatorIO {
 
     // 10:1 gear ratio
@@ -69,12 +71,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        mLeftMotor.getConfigurator().apply(leftConfig);
-        mRightMotor.getConfigurator().apply(rightConfig);
+        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(leftConfig));
+        tryUntilOk(5, () -> mRightMotor.getConfigurator().apply(rightConfig);
 
-        mCANcoder.getConfigurator().apply(
-            new CANcoderConfiguration().withMagnetSensor(
-                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
+        tryUntilOk(5,
+            () -> mCANcoder.getConfigurator().apply(
+                new CANcoderConfiguration().withMagnetSensor(
+                    new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive))));
 
         zeroEncoders();
 
@@ -207,10 +210,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     @Override
     public void zeroEncoders() {
         if (Constants.getRobot() != RobotType.ALPHABOT) {
-            mCANcoder.setPosition(0);
+            tryUntilOk(5, () -> mCANcoder.setPosition(0));
         }
-        mLeftMotor.setPosition(0);
-        mRightMotor.setPosition(0);
+        tryUntilOk(5, () -> mLeftMotor.setPosition(0));
+        tryUntilOk(5, () -> mRightMotor.setPosition(0));
     }
 
     @Override
