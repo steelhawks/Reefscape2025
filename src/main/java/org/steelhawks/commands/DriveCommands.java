@@ -92,22 +92,7 @@ public class DriveCommands {
      */
     public static Command joystickDriveAtAngle(
         DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
-
-        final AutonConstants constants;
-        switch (Constants.getRobot()) {
-            case OMEGABOT -> constants = AutonConstants.OMEGA;
-            case ALPHABOT -> constants = AutonConstants.ALPHA;
-            default -> constants = AutonConstants.HAWKRIDER;
-        }
-
-        ProfiledPIDController alignController =
-            new ProfiledPIDController(
-                constants.AUTO_ALIGN_KP,
-                constants.AUTO_ALIGN_KI,
-                constants.AUTO_ALIGN_KD,
-                new TrapezoidProfile.Constraints(
-                    constants.ANGLE_MAX_VELOCITY, constants.ANGLE_MAX_ACCELERATION));
-        alignController.enableContinuousInput(-Math.PI, Math.PI);
+        ProfiledPIDController alignController = s_Swerve.getAlign();
 
         return Commands.run(
             () -> {

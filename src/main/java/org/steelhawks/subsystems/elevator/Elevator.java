@@ -136,6 +136,7 @@ public class Elevator extends SubsystemBase {
         canCoderMagnetBad.set(!inputs.magnetGood);
 
         if (DriverStation.isDisabled()) {
+            mController.setGoal(inputs.encoderPositionRad);
             disable();
         }
 

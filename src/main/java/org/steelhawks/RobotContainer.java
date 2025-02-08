@@ -305,7 +305,8 @@ public class RobotContainer {
             DriveCommands.joystickDriveAtAngle(
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
-                () -> new Rotation2d(0)).withDeadline()
+                () -> new Rotation2d(0))
+            .until(s_Swerve.alignAtGoal())
             .andThen(s_SensorAlign.alignLeft()));
 
         if (RobotBase.isReal()) {
@@ -321,24 +322,9 @@ public class RobotContainer {
                         mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
         }
 
-        /* ------------- Elevator Controls ------------- */
-
-//        driver.povUp().whileTrue(
-//            s_Elevator.elevatorManual(.1));
-//
-//        driver.povDown().whileTrue(
-//            s_Elevator.elevatorManual(-.1));
-
-        driver.povLeft().onTrue(
-            s_Elevator.homeCommand());
-
 
         driver.povRight().onTrue(
             s_Elevator.setDesiredState(ElevatorConstants.State.L1));
-
-        /* ------------- Coral Controls ------------- */
-//        driver.povRight().whileTrue(
-//            s_Intake.shootCoral());
 
         /* ------------- Elevator SYSID ------------- */
 //        driver.povRight().whileTrue(

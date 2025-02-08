@@ -72,7 +72,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(leftConfig));
-        tryUntilOk(5, () -> mRightMotor.getConfigurator().apply(rightConfig);
+        tryUntilOk(5, () -> mRightMotor.getConfigurator().apply(rightConfig));
 
         tryUntilOk(5,
             () -> mCANcoder.getConfigurator().apply(
