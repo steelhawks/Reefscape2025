@@ -81,10 +81,10 @@ public class Elevator extends SubsystemBase {
 //                    constants.MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
         mController =
             new ProfiledPIDController(
-                1,
+                3.8, // 3.9
                 0,
-                0.001,
-                new TrapezoidProfile.Constraints(3, 4));
+                0.125, // 0.125
+                new TrapezoidProfile.Constraints(10, 12));
         mController.setTolerance(constants.TOLERANCE);
 //        mFeedforward =
 //            new ElevatorFeedforward(
@@ -144,43 +144,43 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-        if (constants.KP.hasChanged(hashCode()) ||
-            constants.KI.hasChanged(hashCode()) ||
-            constants.KD.hasChanged(hashCode()) ||
-            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
-            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
-        ) {
-            disable();
-            mController.setPID(
-                constants.KP.getAsDouble(),
-                constants.KI.getAsDouble(),
-                constants.KD.getAsDouble());
+//        if (constants.KP.hasChanged(hashCode()) ||
+//            constants.KI.hasChanged(hashCode()) ||
+//            constants.KD.hasChanged(hashCode()) ||
+//            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
+//            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
+//        ) {
+//            disable();
+//            mController.setPID(
+//                constants.KP.getAsDouble(),
+//                constants.KI.getAsDouble(),
+//                constants.KD.getAsDouble());
+//
+//            enable();
+//        }
 
-            enable();
-        }
-
-        if (constants.KS.hasChanged(hashCode()) ||
-            constants.KG.hasChanged(hashCode()) ||
-            constants.KV.hasChanged(hashCode())
-        ) {
-            mFeedforward =
-                new ElevatorFeedforward(
-                    constants.KS.getAsDouble(),
-                    constants.KG.getAsDouble(),
-                    constants.KV.getAsDouble());
-        }
-
-        // update tunable numbers
-        if (Constants.TUNING_MODE) {
-            constants.KS.hasChanged(hashCode());
-            constants.KG.hasChanged(hashCode());
-            constants.KV.hasChanged(hashCode());
-            constants.KP.hasChanged(hashCode());
-            constants.KI.hasChanged(hashCode());
-            constants.KD.hasChanged(hashCode());
-            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
-            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode());
-        }
+//        if (constants.KS.hasChanged(hashCode()) ||
+//            constants.KG.hasChanged(hashCode()) ||
+//            constants.KV.hasChanged(hashCode())
+//        ) {
+//            mFeedforward =
+//                new ElevatorFeedforward(
+//                    constants.KS.getAsDouble(),
+//                    constants.KG.getAsDouble(),
+//                    constants.KV.getAsDouble());
+//        }
+//
+//        // update tunable numbers
+//        if (Constants.TUNING_MODE) {
+//            constants.KS.hasChanged(hashCode());
+//            constants.KG.hasChanged(hashCode());
+//            constants.KV.hasChanged(hashCode());
+//            constants.KP.hasChanged(hashCode());
+//            constants.KI.hasChanged(hashCode());
+//            constants.KD.hasChanged(hashCode());
+//            constants.MAX_VELOCITY_PER_SEC.hasChanged(hashCode());
+//            constants.MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode());
+//        }
 
         if (!mEnabled) return;
 
@@ -239,17 +239,17 @@ public class Elevator extends SubsystemBase {
                     disable();
                     setDefaultCommand(
                         elevatorManual(
-                            MathUtil.clamp(
+                            () -> MathUtil.clamp(
                                 MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.ELEVATOR_DEADBAND),
                                 -constants.MANUAL_ELEVATOR_INCREMENT,
                                 constants.MANUAL_ELEVATOR_INCREMENT)));
                     mOperatorLock = OperatorLock.UNLOCKED;
                 } else {
-                    enable();
                     if (getDefaultCommand() != null) {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
+                    homeCommand().schedule();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
 
@@ -258,14 +258,13 @@ public class Elevator extends SubsystemBase {
             .withName("Toggle Manual Control");
     }
 
-    public Command elevatorManual(double speed) {
+    public Command elevatorManual(DoubleSupplier speed) {
         return Commands.runOnce(this::disable, this)
             .andThen(
                 Commands.run(
                     () -> {
-                        double percentOutput = ((speed * 12.0) + kG + kS) / 12.0;
-                        Logger.recordOutput("Elevator/ManualElevatorSpeed", percentOutput);
-                        io.runElevatorViaSpeed(MathUtil.clamp(percentOutput, -1, 1));
+                        Logger.recordOutput("Elevator/ManualElevatorSpeed", speed);
+                        io.runElevatorViaSpeed(MathUtil.clamp(speed.getAsDouble(), -1, 1));
                     }, this))
             .finallyDo(
                 () -> io.stop())
