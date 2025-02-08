@@ -4,12 +4,17 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.ParentDevice;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.RobotContainer;
@@ -73,12 +78,25 @@ public class SensorAlign extends VirtualSubsystem {
 
         leftDisconnected.set(!leftConnected);
         rightDisconnected.set(!rightConnected);
+
+        s_Swerve.runVelocity(new ChassisSpeeds(
+            mLeftController.calculate(
+                mLeftDist.getValueAsDouble()),
+            0,
+            0
+        ));
     }
 
     public Command alignLeft() {
-        return Commands.run(
+        return Commands.runOnce(
             () -> {
-//                mLeftController.setSetpoint();
+                double goal = DIST_TO_REEF;
+                mLeftController.setSetpoint(goal);
             }, s_Swerve);
     }
+
+    public Trigger atGoal() {
+        return new Trigger(mLeftController::atSetpoint);
+    }
+
 }
