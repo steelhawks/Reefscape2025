@@ -192,7 +192,7 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopPivot());
     }
 
-    public Command setDesiredAlgaeIntakeState(IntakeConstants.algaeIntakeState state) {
+    public Command setDesiredAlgaeIntakeState(IntakeConstants.AlgaeIntakeState state) {
         return Commands.runOnce(
             () -> {
                 double goal =

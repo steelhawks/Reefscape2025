@@ -5,7 +5,7 @@ import org.steelhawks.util.LoggedTunableNumber;
 
 public class IntakeConstants {
 
-    public enum algaeIntakeState {
+    public enum AlgaeIntakeState {
         HOME(0.0, 0.0, 3.0),
         INTAKE(0.0, 0.0, 2.0);
 
@@ -13,7 +13,7 @@ public class IntakeConstants {
         private final double omegaRadians;
         private final double hawkriderRadians;
 
-        algaeIntakeState(double alpha, double omega, double hawkrider) {
+        AlgaeIntakeState(double alpha, double omega, double hawkrider) {
             this.alphaRadians = alpha;
             this.omegaRadians = omega;
             this.hawkriderRadians = hawkrider;
