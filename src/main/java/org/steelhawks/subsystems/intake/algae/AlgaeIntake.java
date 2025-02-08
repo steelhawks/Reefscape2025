@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.intake.algae;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -13,6 +14,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.Logger;
+import org.steelhawks.RobotContainer;
+import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -185,5 +190,16 @@ public class AlgaeIntake extends SubsystemBase {
         return Commands.run(
             () -> io.runPivot(kS + kG + (kV * desiredVelocity.in(RadiansPerSecond))))
             .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command setDesiredAlgaeIntakeState(IntakeConstants.AlgaeIntakeState state) {
+        return Commands.runOnce(
+            () -> {
+                double goal =
+                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
+                    inputs.setpoint = goal;
+                mController.setGoal(goal);
+                enable();
+            }, this);
     }
 }

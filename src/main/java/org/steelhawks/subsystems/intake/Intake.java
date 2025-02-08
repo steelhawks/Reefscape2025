@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.steelhawks.Constants;
-import org.steelhawks.subsystems.intake.IntakeConstants.State;
+import org.steelhawks.subsystems.intake.IntakeConstants.AlgaeIntakeState;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntake;
@@ -16,8 +16,8 @@ public class Intake {
 
     private final IntakeConstants constants;
 
-    private final AlgaeIntake mAlgaeIntake;
-    private final CoralIntake mCoralIntake;
+    public final AlgaeIntake mAlgaeIntake;
+    public final CoralIntake mCoralIntake;
 
     public Intake(AlgaeIntakeIO algaeIO, CoralIntakeIO coralIO) {
         switch (Constants.getRobot()) {
@@ -50,7 +50,7 @@ public class Intake {
         return mAlgaeIntake.sysIdDynamic(dir);
     }
 
-    public Command setDesiredState(State state) {
+    public Command setDesiredState(IntakeConstants.AlgaeIntakeState state) {
         return Commands.runOnce(
             () -> {
                 double goal =

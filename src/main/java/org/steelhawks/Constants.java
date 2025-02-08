@@ -204,8 +204,8 @@ public final class Constants {
             8);
 
         public static final AutonConstants HAWKRIDER = new AutonConstants(
-            5,
-            0.0,
+            10,
+            5.0,
             0.0,
             5,
             0.0,
