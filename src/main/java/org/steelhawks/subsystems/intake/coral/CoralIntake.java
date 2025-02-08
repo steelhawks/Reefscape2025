@@ -44,6 +44,7 @@ public class CoralIntake extends SubsystemBase {
     public void runOuttake() {
         io.runIntake(-.5);
     }
+
     public void stop() {
         isIntaking = false;
         io.stop();

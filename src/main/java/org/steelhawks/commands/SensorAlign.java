@@ -34,6 +34,8 @@ public class SensorAlign extends VirtualSubsystem {
     private static final int LEFT_ID = 19;
     private static final int RIGHT_ID = 20;
 
+    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
+
     private final CANrange mLeftCANrange;
     private final CANrange mRightCANrange;
     private final PIDController mLeftController;

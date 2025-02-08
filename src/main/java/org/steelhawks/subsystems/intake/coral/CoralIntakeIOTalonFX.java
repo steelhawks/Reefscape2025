@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import static org.steelhawks.util.PhoenixUtil.*;
 
 public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     
@@ -34,10 +35,9 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         
         var motorConfig = new TalonFXConfiguration();
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-        mIntakeMotor.getConfigurator().apply(motorConfig);
+        tryUntilOk(5, () -> mIntakeMotor.getConfigurator().apply(motorConfig));
 
         position = mIntakeMotor.getPosition();
         velocity = mIntakeMotor.getVelocity();
