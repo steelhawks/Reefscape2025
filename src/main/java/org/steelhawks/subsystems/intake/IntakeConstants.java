@@ -36,6 +36,7 @@ public class IntakeConstants {
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
             16,
+            .1,
             
             1,
             17,
@@ -57,6 +58,7 @@ public class IntakeConstants {
     public static final IntakeConstants ALPHA =
         new IntakeConstants(
             16,
+            .3,
 
             1,
             17,
@@ -79,6 +81,7 @@ public class IntakeConstants {
 
     // -------------------- CORAL --------------------
     public final int CORAL_INTAKE_MOTOR_ID;
+    public final double CORAL_INTAKE_SPEED;
 
 
     // -------------------- ALGAE --------------------
@@ -107,6 +110,7 @@ public class IntakeConstants {
 
     public IntakeConstants(
         int coral_intakeMotorId,
+        double coral_intakeSpeed,
 
         int algae_limitSwitchId,
         int algae_intakeMotorId,
@@ -125,6 +129,7 @@ public class IntakeConstants {
         double algae_maxRadians
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
+        CORAL_INTAKE_SPEED = coral_intakeSpeed;
 
         ALGAE_LIMIT_SWITCH_ID = algae_limitSwitchId;
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;

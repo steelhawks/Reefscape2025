@@ -31,6 +31,8 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 public class RobotContainer {
 
     public static final boolean useVision = false;
@@ -322,13 +324,9 @@ public class RobotContainer {
                         mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
         }
 
-
-        driver.povRight().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
-
         /* ------------- Elevator SYSID ------------- */
 //        driver.povRight().whileTrue(
-//            s_Elevator.applyVolts(4));
+//            s_Elevator.applykV(RadiansPerSecond.of(2)));
     }
 
     private void configureOperator() {

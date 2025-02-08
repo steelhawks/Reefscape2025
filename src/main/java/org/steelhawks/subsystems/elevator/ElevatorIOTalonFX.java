@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
+import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 
@@ -186,7 +187,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void runElevator(double volts) {
-        if ((atTopLimit && volts >= 0) || (atBottomLimit && volts <= 0)) {
+        boolean stopElevator = (atTopLimit && volts > 0) || (atBottomLimit && volts < 0);
+        Logger.recordOutput("Elevator/StopElevator", stopElevator);
+        if (stopElevator) {
             stop();
             return;
         }

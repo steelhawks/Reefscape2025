@@ -38,11 +38,11 @@ public class CoralIntake extends SubsystemBase {
 
     public void runIntake() {
         isIntaking = true;
-        io.runIntake(.5);
+        io.runIntake(constants.CORAL_INTAKE_SPEED);
     }
 
     public void runOuttake() {
-        io.runIntake(-.5);
+        io.runIntake(-constants.CORAL_INTAKE_SPEED);
     }
 
     public void stop() {

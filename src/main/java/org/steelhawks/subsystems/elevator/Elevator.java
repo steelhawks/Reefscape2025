@@ -46,7 +46,6 @@ public class Elevator extends SubsystemBase {
     public void enable() {
         mEnabled = true;
         mController.reset(inputs.encoderPositionRad);
-        mController.setGoal(inputs.encoderPositionRad);
     }
 
     public void disable() {
@@ -128,6 +127,7 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
+        Logger.recordOutput("Elevator/Enabled", mEnabled);
 
         leftMotorDisconnected.set(!inputs.leftConnected);
         rightMotorDisconnected.set(!inputs.rightConnected);
@@ -137,7 +137,6 @@ public class Elevator extends SubsystemBase {
 
         if (DriverStation.isDisabled()) {
             mController.setGoal(inputs.encoderPositionRad);
-            disable();
         }
 
         if (!mEnabled) return;
@@ -273,7 +272,7 @@ public class Elevator extends SubsystemBase {
     public Command applykV(AngularVelocity desiredVelocity) {
         return Commands.run(
             () -> {
-                double volts = kS + kG + (kV * desiredVelocity.in(RadiansPerSecond));
+                double volts = kG + (kV * desiredVelocity.in(RadiansPerSecond));
                 io.runElevator(volts);
             }, this)
             .finallyDo(() -> io.stop());
