@@ -61,8 +61,8 @@ public class IntakeConstants {
             .3,
 
             1,
-            17,
             18,
+            17,
             50,
             0,
             0.15,
@@ -92,16 +92,16 @@ public class IntakeConstants {
 
     public final int ALGAE_CANCODER_ID;
 
-    public final LoggedTunableNumber ALGAE_KS;
-    public final LoggedTunableNumber ALGAE_KG;
-    public final LoggedTunableNumber ALGAE_KV;
+    public final double ALGAE_KS;
+    public final double ALGAE_KG;
+    public final double ALGAE_KV;
 
-    public final LoggedTunableNumber ALGAE_KP;
-    public final LoggedTunableNumber ALGAE_KI;
-    public final LoggedTunableNumber ALGAE_KD;
+    public final double ALGAE_KP;
+    public final double ALGAE_KI;
+    public final double ALGAE_KD;
 
-    public final LoggedTunableNumber ALGAE_MAX_VELOCITY_PER_SEC;
-    public final LoggedTunableNumber ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED;
+    public final double ALGAE_MAX_VELOCITY_PER_SEC;
+    public final double ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED;
 
     public final double ALGAE_TOLERANCE;
     public final double ALGAE_MANUAL_PIVOT_INCREMENT;
@@ -135,14 +135,14 @@ public class IntakeConstants {
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;
         ALGAE_PIVOT_MOTOR_ID = algae_pivotMotorId;
         ALGAE_CANCODER_ID = algae_canCoderId;
-        ALGAE_KS = new LoggedTunableNumber("Algae Intake/KS", algae_kS);
-        ALGAE_KG = new LoggedTunableNumber("Algae Intake/KG", algae_kG);
-        ALGAE_KV = new LoggedTunableNumber("Algae Intake/KV", algae_kV);
-        ALGAE_KP = new LoggedTunableNumber("Algae Intake/KP", algae_kP);
-        ALGAE_KI = new LoggedTunableNumber("Algae Intake/KI", algae_kI);
-        ALGAE_KD = new LoggedTunableNumber("Algae Intake/KD", algae_kD);
-        ALGAE_MAX_VELOCITY_PER_SEC = new LoggedTunableNumber("Algae Intake/Max Velocity Per Sec", algae_maxVelocityPerSec);
-        ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED = new LoggedTunableNumber("Algae Intake/Max Acceleration Per Sec Squared", algae_maxAccelerationPerSecSquared);
+        ALGAE_KS = algae_kS;
+        ALGAE_KG = algae_kG;
+        ALGAE_KV = algae_kV;
+        ALGAE_KP = algae_kP;
+        ALGAE_KI = algae_kI;
+        ALGAE_KD = algae_kD;
+        ALGAE_MAX_VELOCITY_PER_SEC = algae_maxVelocityPerSec;
+        ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED = algae_maxAccelerationPerSecSquared;
         ALGAE_TOLERANCE = algae_tolerance;
         ALGAE_MANUAL_PIVOT_INCREMENT = algae_manualPivotIncrement;
         ALGAE_MAX_RADIANS = algae_maxRadians;

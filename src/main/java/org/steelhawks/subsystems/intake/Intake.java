@@ -52,16 +52,23 @@ public class Intake {
 
     public Command setDesiredState(IntakeConstants.AlgaeIntakeState state) {
         return Commands.runOnce(
-            () -> {
-                double goal =
-                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
-                mAlgaeIntake.setDesiredState(goal);
-                mAlgaeIntake.enable();
-            }, mAlgaeIntake);
+            () -> mAlgaeIntake.setDesiredState(state), mAlgaeIntake);
     }
 
     public Command homeAlgae() {
         return mAlgaeIntake.homeCommand();
+    }
+
+    public Command pivotManual(boolean isUp) {
+        return mAlgaeIntake.runPivotManual(isUp);
+    }
+
+    public Command intakeAlgae() {
+        return mAlgaeIntake.intake();
+    }
+
+    public Command shootAlgae() {
+        return mAlgaeIntake.outtake();
     }
 
     public Command shootCoral() {

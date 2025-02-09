@@ -89,14 +89,14 @@ public final class ElevatorConstants {
             0,
             0.15,
             2.6,
-            3.9,
+            3.5,
             0,
-            0.01,
+            0.15,
             5.2,
             8,
             Units.rotationsToRadians(.005),
             0.5,
-            Units.rotationsToRadians(3));
+            18.5);
 
     public final int LIMIT_SWITCH_ID;
     public final int LEFT_ID;

@@ -7,19 +7,18 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.OperatorLock;
 
-import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -45,11 +44,12 @@ public class Elevator extends SubsystemBase {
 
     public void enable() {
         mEnabled = true;
-        mController.reset(inputs.encoderPositionRad);
+        mController.reset(getPosition());
     }
 
     public void disable() {
         mEnabled = false;
+        runElevator(0, new TrapezoidProfile.State());
     }
 
     public Elevator(ElevatorIO io) {
@@ -107,7 +107,8 @@ public class Elevator extends SubsystemBase {
                 "Elevator CANcoder Magnet Bad", AlertType.kError);
 
         this.io = io;
-        enable();
+//        enable();
+        disable();
     }
 
     @Override
@@ -122,14 +123,30 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-        if (DriverStation.isDisabled()) {
-            mController.setGoal(inputs.encoderPositionRad);
+//        if (DriverStation.isDisabled()) {
+//            mController.setGoal(inputs.encoderPositionRad);
+//        }
+
+//        double fb = mController.calculate(inputs.encoderPositionRad);
+//        double ff = mFeedforward.calculate(mController.getSetpoint().velocity);
+//        double volts = fb + ff;
+//
+//        if (!mEnabled) return;
+//
+//        if ((inputs.atTopLimit && volts >= 0) || (inputs.limitSwitchPressed && volts <= 0)) {
+//            io.stop();
+//            return;
+//        }
+//
+//        io.runElevator(volts);
+//
+        if (mEnabled) {
+            runElevator(mController.calculate(getPosition()), mController.getSetpoint());
         }
+    }
 
-        if (!mEnabled) return;
-
-        double fb = mController.calculate(inputs.encoderPositionRad);
-        double ff = mFeedforward.calculate(mController.getSetpoint().velocity);
+    private void runElevator(double fb, TrapezoidProfile.State setpoint) {
+        double ff = mFeedforward.calculate(setpoint.velocity);
         Logger.recordOutput("Elevator/Feedback", fb);
         Logger.recordOutput("Elevator/Feedforward", ff);
         double volts = fb + ff;
@@ -140,6 +157,11 @@ public class Elevator extends SubsystemBase {
         }
 
         io.runElevator(volts);
+    }
+
+    @AutoLogOutput(key = "Elevator/Position")
+    public double getPosition() {
+        return inputs.encoderPositionRad;
     }
 
     public Trigger atGoal() {
@@ -242,17 +264,13 @@ public class Elevator extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> {
-                io.runElevator(constants.KS);
-            }, this)
+            () -> io.runElevator(constants.KS), this)
             .finallyDo(() -> io.stop());
     }
 
     public Command applykG() {
         return Commands.run(
-            () -> {
-                io.runElevator(constants.KG);
-            }, this)
+            () -> io.runElevator(constants.KG), this)
             .finallyDo(() -> io.stop());
     }
 

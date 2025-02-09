@@ -92,8 +92,8 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.DriveMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
-        tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
+        driveTalon.getConfigurator().apply(driveConfig);
+        driveTalon.setPosition(0.0);
 
         // Configure turn motor
         var turnConfig = new TalonFXConfiguration();
@@ -117,7 +117,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.SteerMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
+        turnTalon.getConfigurator().apply(turnConfig);
 
         // Configure CANCoder
         CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
