@@ -340,16 +340,19 @@ public class RobotContainer {
                 () -> -operator.getLeftY()));
 
         operator.x().whileTrue(
-            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            s_Elevator.applykS());
 
-        operator.y().whileTrue(
-            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        operator.a().whileTrue(
-            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-
-        operator.b().whileTrue(
-            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//        operator.x().whileTrue(
+//            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//
+//        operator.y().whileTrue(
+//            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//
+//        operator.a().whileTrue(
+//            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//
+//        operator.b().whileTrue(
+//            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
 //        operator.x().onTrue(
 //            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
@@ -380,5 +383,11 @@ public class RobotContainer {
         // shoot algae
         operator.rightTrigger().whileTrue(
             s_Intake.shootAlgae());
+
+        operator.povUp().whileTrue(
+            s_Intake.pivotManualAlgae(false));
+
+        operator.povDown().whileTrue(
+            s_Intake.pivotManualAlgae(true));
     }
 }
