@@ -151,13 +151,14 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command intake() {
         return Commands.run(
-            () -> io.runIntake(.1), this)
+            () -> io.runIntake(-.4), this)
             .finallyDo(() -> io.stopIntake());
+        // return Commands.print("RUNNING ALGAE INTAKE COMMAND!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 
     public Command outtake() {
         return Commands.run(
-            () -> io.runIntake(-.1), this)
+            () -> io.runIntake(.4), this)
             .finallyDo(() -> io.stopIntake());
     }
 
@@ -173,7 +174,7 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command runPivotManual(boolean isUp) {
         return Commands.run(
-            () -> io.runPivotManual(isUp ? .1 : -.1))
+            () -> io.runPivotManual(isUp ? -.1   : .1))
             .finallyDo(() -> io.stopPivot());
     }
 

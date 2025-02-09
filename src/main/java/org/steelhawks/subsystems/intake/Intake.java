@@ -59,7 +59,7 @@ public class Intake {
         return mAlgaeIntake.homeCommand();
     }
 
-    public Command pivotManual(boolean isUp) {
+    public Command pivotManualAlgae(boolean isUp) {
         return mAlgaeIntake.runPivotManual(isUp);
     }
 
