@@ -156,7 +156,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhoton(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0),
+                            // new VisionIOPhoton(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0),
                             new VisionIOLimelight(VisionConstants.CAMERA1NAME, () -> s_Swerve.getRotation()),
                             new VisionIOLimelight(VisionConstants.CAMERA2NAME, () -> s_Swerve.getRotation()));
                     s_Elevator =
@@ -349,7 +349,7 @@ public class RobotContainer {
             s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
         operator.b().whileTrue(
-            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
 //        operator.x().onTrue(
 //            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
