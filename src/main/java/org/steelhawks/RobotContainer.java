@@ -31,8 +31,6 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 public class RobotContainer {
 
     public static final boolean useVision = false;
