@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -21,9 +22,9 @@ import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
-import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
+import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
@@ -139,8 +140,8 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Intake = 
                         new Intake(
-                            new AlgaeIntakeIO() {},
-                            new CoralIntakeIOTalonFX(IntakeConstants.ALPHA));
+                            new AlgaeIntakeIOTalonFX(),
+                            new CoralIntakeIOTalonFX());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -248,8 +249,6 @@ public class RobotContainer {
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
 
-//        driver.leftTrigger().onTrue(
-//            DriveCommands.driveToPosition(FieldConstants.PROCESSOR, interruptPathfinding));
     }
 
     private void configureDefaultCommands() {}
@@ -340,17 +339,29 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        operator.x().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+        operator.x().whileTrue(
+            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-        operator.y().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+        operator.y().whileTrue(
+            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-        operator.a().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+        operator.a().whileTrue(
+            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
-        operator.b().onTrue(
-            s_Elevator.homeCommand());
+        operator.b().whileTrue(
+            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+//        operator.x().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+//
+//        operator.y().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+//
+//        operator.a().onTrue(
+//            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+//
+//        operator.b().onTrue(
+//            s_Elevator.homeCommand());
 
         /* ------------- Intake Controls ------------- */
 
@@ -363,13 +374,11 @@ public class RobotContainer {
             s_Intake.shootCoral());
 
         // intake algae
-//        operator.rightBumper().whileTrue(
-//            s_Intake.
-//        )
+        operator.rightBumper().whileTrue(
+            s_Intake.intakeAlgae());
 
         // shoot algae
-//        operator.rightTrigger().whileTrue(
-//            s_Intake.
-//        )
+        operator.rightTrigger().whileTrue(
+            s_Intake.shootAlgae());
     }
 }

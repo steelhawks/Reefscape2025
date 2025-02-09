@@ -1,6 +1,7 @@
 package org.steelhawks.subsystems.intake.algae;
 
 import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -49,8 +50,13 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     private final StatusSignal<Angle> canCoderPosition;
     private final StatusSignal<AngularVelocity> canCoderVelocity;
 
-    public AlgaeIntakeIOTalonFX(IntakeConstants constants) {
-        this.constants = constants;
+    public AlgaeIntakeIOTalonFX() {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = IntakeConstants.ALPHA;
+            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
+            default -> constants = IntakeConstants.OMEGA;
+        }
+
         mIntakeMotor = new TalonFX(constants.ALGAE_INTAKE_MOTOR_ID, Constants.getCANBus());
         mPivotMotor = new TalonFX(constants.ALGAE_PIVOT_MOTOR_ID, Constants.getCANBus());
         mCANcoder = new CANcoder(constants.ALGAE_CANCODER_ID, Constants.getCANBus());
@@ -110,7 +116,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         ParentDevice.optimizeBusUtilizationForAll(mIntakeMotor, mPivotMotor, mCANcoder);
     }
 
-    
+    boolean hitLimit;
+
     @Override
     public void updateInputs(AlgaeIntakeIOInputs inputs) {
         inputs.intakeConnected =
@@ -150,11 +157,35 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
+
+        if (Constants.getRobot() == RobotType.ALPHABOT) {
+            inputs.encoderConnected = inputs.pivotConnected;
+            inputs.magnetGood = inputs.pivotConnected;
+            inputs.encoderPositionRad = inputs.pivotPositionRad;
+            inputs.encoderVelocityRadPerSec = inputs.pivotVelocityRadPerSec;
+        }
+
+        hitLimit = inputs.limitSwitchPressed;
     }
 
     @Override
     public void runPivot(double volts) {
+        if (hitLimit) {
+            stopPivot();
+            return;
+        }
+
         mPivotMotor.setVoltage(volts);
+    }
+
+    @Override
+    public void runPivotManual(double speed) {
+        if (hitLimit) {
+            stopPivot();
+            return;
+        }
+
+        mPivotMotor.set(speed);
     }
 
     @Override

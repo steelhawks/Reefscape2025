@@ -7,6 +7,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -41,7 +42,7 @@ public class AlgaeIntake extends SubsystemBase {
     private final Alert canCoderMagnetBad;
 
     public void enable() {
-        mController.reset(inputs.pivotPositionRad);
+        mController.reset(inputs.encoderPositionRad);
         mEnabled = true;
     }
 
@@ -81,20 +82,24 @@ public class AlgaeIntake extends SubsystemBase {
 
         mController =
             new ProfiledPIDController(
-                constants.ALGAE_KP.getAsDouble(),
-                constants.ALGAE_KI.getAsDouble(),
-                constants.ALGAE_KD.getAsDouble(),
+                constants.ALGAE_KP,
+                constants.ALGAE_KI,
+                constants.ALGAE_KD,
                 new TrapezoidProfile.Constraints(
-                    constants.ALGAE_MAX_VELOCITY_PER_SEC.getAsDouble(),
-                    constants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.getAsDouble()));
+                    constants.ALGAE_MAX_VELOCITY_PER_SEC,
+                    constants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED));
 
         mController.setTolerance(constants.ALGAE_TOLERANCE);
 
+        mController.setGoal(inputs.encoderPositionRad);
+
         mFeedforward =
             new ArmFeedforward(
-                constants.ALGAE_KS.getAsDouble(),
-                constants.ALGAE_KG.getAsDouble(),
-                constants.ALGAE_KV.getAsDouble());
+                constants.ALGAE_KS,
+                constants.ALGAE_KG,
+                constants.ALGAE_KV);
+
+        disable();
     }
 
     @Override
@@ -108,30 +113,9 @@ public class AlgaeIntake extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-        if (constants.ALGAE_KP.hasChanged(hashCode()) ||
-            constants.ALGAE_KI.hasChanged(hashCode()) ||
-            constants.ALGAE_KD.hasChanged(hashCode()) ||
-            constants.ALGAE_MAX_VELOCITY_PER_SEC.hasChanged(hashCode()) ||
-            constants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED.hasChanged(hashCode())
-        ) {
-            disable();
-            mController.setPID(
-                constants.ALGAE_KP.getAsDouble(),
-                constants.ALGAE_KI.getAsDouble(),
-                constants.ALGAE_KD.getAsDouble());
-
-            enable();
-        }
-
-        if (constants.ALGAE_KS.hasChanged(hashCode()) ||
-            constants.ALGAE_KG.hasChanged(hashCode()) ||
-            constants.ALGAE_KV.hasChanged(hashCode())
-        ) {
-            mFeedforward = new ArmFeedforward(
-                constants.ALGAE_KS.getAsDouble(),
-                constants.ALGAE_KG.getAsDouble(),
-                constants.ALGAE_KV.getAsDouble());
-        }
+//        if (DriverStation.isDisabled()) {
+//            mController.setGoal(inputs.encoderPositionRad);
+//        }
 
         if (!mEnabled) return;
 
@@ -158,16 +142,23 @@ public class AlgaeIntake extends SubsystemBase {
         return mAlgaeSysId.dynamic(dir);
     }
 
-    public void setDesiredState(double goal) {
-        inputs.setpoint = goal;
-        mController.setGoal(goal);
-    }
-
     public Command homeCommand() {
         return Commands.run(
-            () -> io.runPivot(.2 * 12), this) // 0.2 speed
+            () -> io.runPivotManual(.05), this)
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command intake() {
+        return Commands.run(
+            () -> io.runIntake(.1), this)
+            .finallyDo(() -> io.stopIntake());
+    }
+
+    public Command outtake() {
+        return Commands.run(
+            () -> io.runIntake(-.1), this)
+            .finallyDo(() -> io.stopIntake());
     }
 
     private static final double kS = 0;
@@ -177,6 +168,12 @@ public class AlgaeIntake extends SubsystemBase {
     public Command applykS() {
         return Commands.run(
             () -> io.runPivot(kS), this)
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command runPivotManual(boolean isUp) {
+        return Commands.run(
+            () -> io.runPivotManual(isUp ? .1 : -.1))
             .finallyDo(() -> io.stopPivot());
     }
 
@@ -192,14 +189,11 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopPivot());
     }
 
-    public Command setDesiredAlgaeIntakeState(IntakeConstants.AlgaeIntakeState state) {
-        return Commands.runOnce(
-            () -> {
-                double goal =
-                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
-                    inputs.setpoint = goal;
-                mController.setGoal(goal);
-                enable();
-            }, this);
+    public void setDesiredState(IntakeConstants.AlgaeIntakeState state) {
+        double goal =
+            MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
+            inputs.setpoint = goal;
+        mController.setGoal(goal);
+        enable();
     }
 }

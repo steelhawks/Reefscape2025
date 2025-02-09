@@ -72,13 +72,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(leftConfig));
-        tryUntilOk(5, () -> mRightMotor.getConfigurator().apply(rightConfig));
+        mLeftMotor.getConfigurator().apply(leftConfig);
+        mRightMotor.getConfigurator().apply(rightConfig);
 
-        tryUntilOk(5,
-            () -> mCANcoder.getConfigurator().apply(
+        mCANcoder.getConfigurator().apply(
                 new CANcoderConfiguration().withMagnetSensor(
-                    new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive))));
+                    new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
         zeroEncoders();
 
@@ -213,10 +212,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     @Override
     public void zeroEncoders() {
         if (Constants.getRobot() != RobotType.ALPHABOT) {
-            tryUntilOk(5, () -> mCANcoder.setPosition(0));
+            mCANcoder.setPosition(0);
         }
-        tryUntilOk(5, () -> mLeftMotor.setPosition(0));
-        tryUntilOk(5, () -> mRightMotor.setPosition(0));
+        mLeftMotor.setPosition(0);
+        mRightMotor.setPosition(0);
     }
 
     @Override

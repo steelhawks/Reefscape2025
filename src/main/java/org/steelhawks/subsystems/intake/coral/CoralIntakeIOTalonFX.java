@@ -30,14 +30,19 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     private final StatusSignal<Current> current;
     private final StatusSignal<Temperature> temp;
 
-    public CoralIntakeIOTalonFX(IntakeConstants constants) {
-        this.constants = constants;
+    public CoralIntakeIOTalonFX() {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = IntakeConstants.ALPHA;
+            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
+            default -> constants = IntakeConstants.OMEGA;
+        }
+
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         
         var motorConfig = new TalonFXConfiguration();
         motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        tryUntilOk(5, () -> mIntakeMotor.getConfigurator().apply(motorConfig));
+        mIntakeMotor.getConfigurator().apply(motorConfig);
 
         position = mIntakeMotor.getPosition();
         velocity = mIntakeMotor.getVelocity();
