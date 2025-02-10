@@ -123,23 +123,10 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-//        if (DriverStation.isDisabled()) {
-//            mController.setGoal(inputs.encoderPositionRad);
-//        }
+        if (getCurrentCommand() != null) {
+            Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
+        }
 
-//        double fb = mController.calculate(inputs.encoderPositionRad);
-//        double ff = mFeedforward.calculate(mController.getSetpoint().velocity);
-//        double volts = fb + ff;
-//
-//        if (!mEnabled) return;
-//
-//        if ((inputs.atTopLimit && volts >= 0) || (inputs.limitSwitchPressed && volts <= 0)) {
-//            io.stop();
-//            return;
-//        }
-//
-//        io.runElevator(volts);
-//
         if (mEnabled) {
             runElevator(mController.calculate(getPosition()), mController.getSetpoint());
         }

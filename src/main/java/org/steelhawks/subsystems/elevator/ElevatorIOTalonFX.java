@@ -76,8 +76,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         mRightMotor.getConfigurator().apply(rightConfig);
 
         mCANcoder.getConfigurator().apply(
-                new CANcoderConfiguration().withMagnetSensor(
-                    new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
+            new CANcoderConfiguration().withMagnetSensor(
+                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
         zeroEncoders();
 
