@@ -74,7 +74,7 @@ public class AlgaeIntake extends SubsystemBase {
             new SysIdRoutine(
                 new SysIdRoutine.Config(
                     null,
-                    null,
+                    Volts.of(2), // lower dynamic sysid test to 2 volts instead of 7 which slams into elevator
                     null,
                     (state) -> Logger.recordOutput("Intake/Algae/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(

@@ -179,7 +179,7 @@ public class Elevator extends SubsystemBase {
                 double goal =
                     MathUtil.clamp(state.getRadians(), 0, constants.MAX_RADIANS);
                 inputs.setpoint = goal;
-                mController.setGoal(goal);
+                mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
             }, this)
             .withName("Set Desired State");
