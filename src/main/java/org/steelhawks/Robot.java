@@ -180,8 +180,8 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
 //        autonomousCommand = Autos.getAutonCommand();
-//        autonomousCommand = Autos.getTestAuton();
-        autonomousCommand = DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve);
+       autonomousCommand = Autos.getTestAuton();
+        // autonomousCommand = DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve);
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();

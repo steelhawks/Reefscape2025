@@ -63,22 +63,22 @@ public final class Autos {
         return Commands.none();
     }
 
-    // public static Command getTestAuton() {
-    //     return Commands.runOnce(
-    //         () ->
-    //             RobotContainer.s_Swerve.setPose(
-    //                 new Pose2d(3.242988109588623, 4.184154510498047, new Rotation2d())))
-    //         .andThen(DriveCommands.followPath(getPath("L1 Reef to Upper Algae")))
-    //         .andThen(Commands.waitSeconds(1))
-    //         .andThen(DriveCommands.followPath(getPath("Upper Algae to L1 Reef")))
-    //         .andThen(Commands.waitSeconds(1))
-    //         .andThen(DriveCommands.followPath(getPath("L1 Reef to Center Algae")))
-    //         .andThen(Commands.waitSeconds(1))
-    //         .andThen(DriveCommands.followPath(getPath("Center Algae to L2 Reef")))
-    //         // .andThen(Commands.waitSeconds(1))
-    //         // .andThen(DriveCommands.followPath(getPath("L2 Reef")))
-    //         ;
-    // }
+    public static Command getTestAuton() {
+        return Commands.runOnce(
+            () ->
+                RobotContainer.s_Swerve.setPose(
+                    new Pose2d(3.242988109588623, 4.184154510498047, new Rotation2d())))
+            .andThen(DriveCommands.followPath(getPath("L1 Reef to Upper Algae")))
+            .andThen(Commands.waitSeconds(1))
+            .andThen(DriveCommands.followPath(getPath("Upper Algae to L2 Reef")))
+            .andThen(Commands.waitSeconds(1))
+            .andThen(DriveCommands.followPath(getPath("L1 Reef to Center Algae")))
+            .andThen(Commands.waitSeconds(1))
+            .andThen(DriveCommands.followPath(getPath("Center Algae to L2 Reef")))
+            // .andThen(Commands.waitSeconds(1))
+            // .andThen(DriveCommands.followPath(getPath("L2 Reef")))
+            ;
+    }
 
     public static Command getPathPlannerAuton() {
         return new PathPlannerAuto("Experimental Auto");
