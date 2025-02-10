@@ -63,6 +63,15 @@ public class Intake {
         return mAlgaeIntake.runPivotManual(isUp);
     }
 
+    public Command pivotManualAlgaeUp() {
+        return mAlgaeIntake.runPivotManualUp();
+    }
+
+    public Command pivotManualAlgaeDown() {
+        return mAlgaeIntake.runPivotManualDown();
+    }
+
+
     public Command intakeAlgae() {
         return mAlgaeIntake.intake();
     }

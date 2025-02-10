@@ -159,6 +159,18 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         inputs.limitSwitchPressed = !mLimitSwitch.get();
 
         if (Constants.getRobot() == RobotType.ALPHABOT) {
+            // TODO: ACCOUNT FOR GEAR RATIO IN ALGAE INTAKE
+
+            // if (Constants.getRobot() == RobotType.ALPHABOT) {
+            //     leftPos *= ELEVATOR_GEAR_RATIO;
+            //     rightPos *= ELEVATOR_GEAR_RATIO;
+            //     leftVelo *= ELEVATOR_GEAR_RATIO;
+            //     rightVelo *= ELEVATOR_GEAR_RATIO;
+            // }
+    
+
+
+
             inputs.encoderConnected = inputs.pivotConnected;
             inputs.magnetGood = inputs.pivotConnected;
             inputs.encoderPositionRad = inputs.pivotPositionRad;
@@ -180,7 +192,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     @Override
     public void runPivotManual(double speed) {
-        if (hitLimit) {
+        if (hitLimit && speed > 0) {
             stopPivot();
             return;
         }

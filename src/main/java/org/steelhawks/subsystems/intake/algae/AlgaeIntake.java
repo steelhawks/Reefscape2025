@@ -162,9 +162,9 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopIntake());
     }
 
-    private static final double kS = 0;
-    private static final double kG = 0;
-    private static final double kV = 0;
+    private static final double kS = 0.37;
+    private static final double kG = 0.4;
+    private static final double kV = 0.5;
 
     public Command applykS() {
         return Commands.run(
@@ -178,15 +178,36 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopPivot());
     }
 
+    public Command runPivotManualUp() {
+        return Commands.run(
+            () -> io.runPivotManual(.1))
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command runPivotManualDown() {
+        return Commands.run(
+            () -> io.runPivotManual(-.1))
+            .finallyDo(() -> io.stopPivot());
+    }
+
+
     public Command applykG() {
         return Commands.run(
             () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * kG), this)
             .finallyDo(() -> io.stopPivot());
     }
 
-    public Command applykV(AngularVelocity desiredVelocity) {
+    public Command applykV() {
         return Commands.run(
-            () -> io.runPivot(kS + kG + (kV * desiredVelocity.in(RadiansPerSecond))))
+            () -> io.runPivot(kS + (Math.cos(inputs.encoderPositionRad) * kG) + kV))
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command applyVolts(double volts) {
+        return Commands.run(
+            () -> {
+                io.runPivot(volts);
+            }, this)
             .finallyDo(() -> io.stopPivot());
     }
 

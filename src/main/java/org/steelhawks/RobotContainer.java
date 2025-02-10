@@ -1,12 +1,17 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -339,8 +344,8 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        operator.x().whileTrue(
-            s_Elevator.applykS());
+        // operator.x().whileTrue(
+        //     s_Elevator.applykS());
 
 //        operator.x().whileTrue(
 //            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -366,6 +371,18 @@ public class RobotContainer {
 //        operator.b().onTrue(
 //            s_Elevator.homeCommand());
 
+        operator.x().whileTrue(
+            s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kForward));
+
+        operator.y().whileTrue(
+            s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kReverse));
+
+        operator.a().whileTrue(
+            s_Intake.mAlgaeIntake.sysIdDynamic(Direction.kForward));
+
+        operator.b().whileTrue(
+            s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kReverse));
+
         /* ------------- Intake Controls ------------- */
 
         // coral intake
@@ -385,9 +402,18 @@ public class RobotContainer {
             s_Intake.shootAlgae());
 
         operator.povUp().whileTrue(
-            s_Intake.pivotManualAlgae(false));
+            s_Intake.pivotManualAlgaeUp());
 
         operator.povDown().whileTrue(
-            s_Intake.pivotManualAlgae(true));
+            s_Intake.pivotManualAlgaeDown());
+        
+        operator.povLeft().whileTrue(
+            s_Intake.mAlgaeIntake.applykS());
+        
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.applyVolts(4));
+
+        operator.povRight().whileTrue(
+            s_Intake.mAlgaeIntake.applykG());
     }
 }
