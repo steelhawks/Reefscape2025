@@ -14,13 +14,19 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import kotlin.jvm.internal.DoubleSpreadBuilder;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants.Deadbands;
+import org.steelhawks.OperatorLock;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
+
+import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -33,6 +39,7 @@ public class AlgaeIntake extends SubsystemBase {
     private final SysIdRoutine mAlgaeSysId;
     private boolean mEnabled = false;
     private final AlgaeIntakeIO io;
+    private OperatorLock mOperatorLock;
 
     private final ProfiledPIDController mController;
     private ArmFeedforward mFeedforward;
@@ -45,10 +52,13 @@ public class AlgaeIntake extends SubsystemBase {
 
     public void enable() {
         mController.reset(inputs.encoderPositionRad);
+        mOperatorLock = OperatorLock.LOCKED;
         mEnabled = true;
     }
 
     public void disable() {
+        runPivot(0, new TrapezoidProfile.State());
+        mOperatorLock = OperatorLock.UNLOCKED;
         mEnabled = false;
     }
 
@@ -92,7 +102,7 @@ public class AlgaeIntake extends SubsystemBase {
                     constants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED));
 
         mController.setTolerance(constants.ALGAE_TOLERANCE);
-
+        mController.enableContinuousInput(0, 2 * Math.PI);
         mController.setGoal(inputs.encoderPositionRad);
 
         // mFeedforward =
@@ -125,20 +135,26 @@ public class AlgaeIntake extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-//        if (DriverStation.isDisabled()) {
-//            mController.setGoal(inputs.encoderPositionRad);
-//        }
+        if (getCurrentCommand() != null) {
+            Logger.recordOutput("Algae/CurrentCommand", getCurrentCommand().getName());
+        }
 
-        if (!mEnabled) return;
+        if (mEnabled) {
+            runPivot(mController.calculate(getPosition()), mController.getSetpoint());
+        }
+    }
 
-        // double pid =  mController.calculate(inputs.pivotPositionRad);
-        // TrapezoidProfile.State setpoint = mController.getSetpoint();
-        // double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
+    @AutoLogOutput(key = "Algae/AdjustedPosition")
+    private double getPosition() {
+        return inputs.encoderPositionRad;
+    }
 
-        // io.runPivot(pid + ff);
+    private void runPivot(double fb, TrapezoidProfile.State setpoint) {
+        double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
+        Logger.recordOutput("Algae/Feedback", fb);
+        Logger.recordOutput("Algae/Feedforward", ff);
 
-        double ff = mFeedforward.calculate(0, 0);
-        io.runPivot(ff);
+        io.runPivot(fb + ff);
     }
 
     public Trigger atGoal() {
@@ -157,6 +173,47 @@ public class AlgaeIntake extends SubsystemBase {
         return mAlgaeSysId.dynamic(dir);
     }
 
+    public Command toggleManualControl(DoubleSupplier joystickAxis) {
+        return Commands.runOnce(
+            () -> {
+                if (mOperatorLock == OperatorLock.LOCKED) {
+                    disable();
+                    setDefaultCommand(
+                        pivotManual(
+                            () -> MathUtil.clamp(
+                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.PIVOT_DEADBAND),
+                                -constants.ALGAE_MANUAL_PIVOT_INCREMENT,
+                                constants.ALGAE_MANUAL_PIVOT_INCREMENT)));
+                } else {
+                    if (getDefaultCommand() != null) {
+                        getDefaultCommand().cancel();
+                        removeDefaultCommand();
+                    }
+                    homeCommand().schedule();
+                }
+
+                Logger.recordOutput("Algae/IsLocked", mOperatorLock == OperatorLock.LOCKED);
+            }, this)
+            .withName("Toggle Manual Control");
+    }
+
+    public Command pivotManual(DoubleSupplier speed) {
+        return Commands.runOnce(this::disable)
+            .andThen(
+                Commands.run(
+                    () -> {
+                        double appliedSpeed = speed.getAsDouble();
+                        Logger.recordOutput("Algae/ManualPivotSpeed", appliedSpeed);
+
+                        if (appliedSpeed == 0.0) {
+                            appliedSpeed = (Math.cos(getPosition()) * constants.ALGAE_KG) / 12.0; // convert to percentoutput
+                        }
+
+                        appliedSpeed -= Deadbands.PIVOT_DEADBAND;
+                        io.runPivotManual(appliedSpeed);
+                    }, this));
+    }
+
     public Command homeCommand() {
         return Commands.run(
             () -> io.runPivotManual(.05), this)
@@ -172,7 +229,6 @@ public class AlgaeIntake extends SubsystemBase {
         return Commands.run(
             () -> io.runIntake(-.4), this)
             .finallyDo(() -> io.stopIntake());
-        // return Commands.print("RUNNING ALGAE INTAKE COMMAND!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 
     public Command outtake() {

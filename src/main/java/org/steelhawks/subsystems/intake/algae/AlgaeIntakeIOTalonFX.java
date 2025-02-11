@@ -80,7 +80,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         var pivotConfig = new TalonFXConfiguration();
         pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        // pivotConfig.Feedback.SensorToMechanismRatio = 10; // 10:1 gear ratio
+        // pivotConfig.Feedback.SensorToMechanismRatio = 25.14; // 25.14:1 gear ratio
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         mIntakeMotor.getConfigurator().apply(intakeConfig);
