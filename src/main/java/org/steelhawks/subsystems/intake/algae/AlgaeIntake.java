@@ -95,11 +95,17 @@ public class AlgaeIntake extends SubsystemBase {
 
         mController.setGoal(inputs.encoderPositionRad);
 
+        // mFeedforward =
+        //     new ArmFeedforward(
+        //         constants.ALGAE_KS,
+        //         constants.ALGAE_KG,
+        //         constants.ALGAE_KV);
+
         mFeedforward =
             new ArmFeedforward(
-                constants.ALGAE_KS,
-                constants.ALGAE_KG,
-                constants.ALGAE_KV);
+                0,
+                0.32,
+                0);
 
         disable();
     }
@@ -125,11 +131,14 @@ public class AlgaeIntake extends SubsystemBase {
 
         if (!mEnabled) return;
 
-        double pid =  mController.calculate(inputs.pivotPositionRad);
-        TrapezoidProfile.State setpoint = mController.getSetpoint();
-        double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
+        // double pid =  mController.calculate(inputs.pivotPositionRad);
+        // TrapezoidProfile.State setpoint = mController.getSetpoint();
+        // double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
 
-        io.runPivot(pid + ff);
+        // io.runPivot(pid + ff);
+
+        double ff = mFeedforward.calculate(0, 0);
+        io.runPivot(ff);
     }
 
     public Trigger atGoal() {
@@ -173,7 +182,7 @@ public class AlgaeIntake extends SubsystemBase {
     }
 
     private static final double kS = 0.3;
-    private static final double kG = 0.6;
+    private static final double kG = 0.38;
     private static final double kV = 0.5;
 
     public Command applykS() {
@@ -201,10 +210,15 @@ public class AlgaeIntake extends SubsystemBase {
     }
 
 
+    // public Command applykG() {
+    //     return Commands.run(
+    //         () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * kG), this)
+    //         .finallyDo(() -> io.stopPivot());
+    // }
+
     public Command applykG() {
-        return Commands.run(
-            () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * kG), this)
-            .finallyDo(() -> io.stopPivot());
+        return Commands.runOnce(
+            () -> enable(), this);
     }
 
     public Command applykV() {

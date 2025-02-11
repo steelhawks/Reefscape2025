@@ -28,7 +28,14 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     private final double ALGAE_INTAKE_GEAR_RATIO = 1.0 / 10.0;
-    private final double ALGAE_PIVOT_GEAR_RATIO = 1.0 / 10.0;
+
+    private final double ALGAE_PIVOT_GEAR_RATIO = 1.0 / 25.14;
+
+    // Horizontal: -45.61
+    // Vertical: -6.06
+
+    // Horizoontal: -1.88
+    // Vertical: - 0.39
 
     private final IntakeConstants constants;
 
@@ -201,11 +208,13 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     @Override
     public void zeroEncoders() {
-        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(4.6 / ALGAE_PIVOT_GEAR_RATIO)));
-        
+        // tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(4.6 / ALGAE_PIVOT_GEAR_RATIO)));
+        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(2.08 / ALGAE_PIVOT_GEAR_RATIO)));
         // -4.6835
         // -4.42
         // -4.6
+
+        // -15.563
     }
 
     @Override
