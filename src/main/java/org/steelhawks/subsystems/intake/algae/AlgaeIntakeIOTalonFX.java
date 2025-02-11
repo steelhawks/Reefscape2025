@@ -1,5 +1,7 @@
 package org.steelhawks.subsystems.intake.algae;
 
+import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
+
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
@@ -25,6 +27,8 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
+    private final double ALGAE_INTAKE_GEAR_RATIO = 1.0 / 10.0;
+    private final double ALGAE_PIVOT_GEAR_RATIO = 1.0 / 10.0;
 
     private final IntakeConstants constants;
 
@@ -69,6 +73,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         var pivotConfig = new TalonFXConfiguration();
         pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        // pivotConfig.Feedback.SensorToMechanismRatio = 10; // 10:1 gear ratio
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         mIntakeMotor.getConfigurator().apply(intakeConfig);
@@ -123,6 +128,19 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     @Override
     public void updateInputs(AlgaeIntakeIOInputs inputs) {
+        double intakePos = intakePosition.getValueAsDouble();
+        double pivotPos = pivotPosition.getValueAsDouble();
+
+        double intakeVelo = intakeVelocity.getValueAsDouble();
+        double pivotVelo = pivotVelocity.getValueAsDouble();
+
+        if (Constants.getRobot() == RobotType.ALPHABOT) {
+            intakePos *= ALGAE_INTAKE_GEAR_RATIO;
+            pivotPos *= ALGAE_PIVOT_GEAR_RATIO;
+            intakeVelo *= ALGAE_INTAKE_GEAR_RATIO;
+            pivotVelo *= ALGAE_PIVOT_GEAR_RATIO;
+        }
+        
         inputs.intakeConnected =
             BaseStatusSignal.refreshAll(
                 intakePosition,
@@ -130,8 +148,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 intakeVoltage,
                 intakeCurrent,
                 intakeTemp).isOK();
-        inputs.intakePositionRad = Units.rotationsToRadians(intakePosition.getValueAsDouble());
-        inputs.intakeVelocityRadPerSec = Units.rotationsToRadians(intakeVelocity.getValueAsDouble());
+        inputs.intakePositionRad = Units.rotationsToRadians(intakePos);
+        inputs.intakeVelocityRadPerSec = Units.rotationsToRadians(intakeVelo);
         inputs.intakeAppliedVolts = intakeVoltage.getValueAsDouble();
         inputs.intakeCurrentAmps = intakeCurrent.getValueAsDouble();
         inputs.intakeTempCelsius = intakeTemp.getValueAsDouble();
@@ -143,8 +161,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 pivotVoltage,
                 pivotCurrent,
                 pivotTemp).isOK();
-        inputs.pivotPositionRad = Units.rotationsToRadians(pivotPosition.getValueAsDouble());
-        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelocity.getValueAsDouble());
+        inputs.pivotPositionRad = Units.rotationsToRadians(pivotPos);
+        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelo);
         inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
         inputs.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
         inputs.pivotTempCelsius = pivotTemp.getValueAsDouble();
@@ -163,18 +181,6 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         inputs.limitSwitchPressed = !mLimitSwitch.get();
 
         if (Constants.getRobot() == RobotType.ALPHABOT) {
-            // TODO: ACCOUNT FOR GEAR RATIO IN ALGAE INTAKE
-
-            // if (Constants.getRobot() == RobotType.ALPHABOT) {
-            //     leftPos *= ELEVATOR_GEAR_RATIO;
-            //     rightPos *= ELEVATOR_GEAR_RATIO;
-            //     leftVelo *= ELEVATOR_GEAR_RATIO;
-            //     rightVelo *= ELEVATOR_GEAR_RATIO;
-            // }
-    
-
-
-
             inputs.encoderConnected = inputs.pivotConnected;
             inputs.magnetGood = inputs.pivotConnected;
             inputs.encoderPositionRad = inputs.pivotPositionRad;
@@ -190,8 +196,16 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
             stopPivot();
             return;
         }
-
         mPivotMotor.setVoltage(volts);
+    }
+
+    @Override
+    public void zeroEncoders() {
+        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(4.6 / ALGAE_PIVOT_GEAR_RATIO)));
+        
+        // -4.6835
+        // -4.42
+        // -4.6
     }
 
     @Override
