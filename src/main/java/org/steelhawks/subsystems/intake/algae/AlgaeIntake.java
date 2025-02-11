@@ -52,16 +52,11 @@ public class AlgaeIntake extends SubsystemBase {
 
     public void enable() {
         mController.reset(inputs.encoderPositionRad);
-        mOperatorLock = OperatorLock.LOCKED;
         mEnabled = true;
     }
 
     public void disable() {
         runPivot(0, new TrapezoidProfile.State());
-<<<<<<< HEAD
-=======
-        mOperatorLock = OperatorLock.UNLOCKED;
->>>>>>> eb03e782263eb9597f51129c47a558d86f54b7e7
         mEnabled = false;
     }
 
@@ -187,20 +182,14 @@ public class AlgaeIntake extends SubsystemBase {
                                 MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.PIVOT_DEADBAND),
                                 -constants.ALGAE_MANUAL_PIVOT_INCREMENT,
                                 constants.ALGAE_MANUAL_PIVOT_INCREMENT)));
-<<<<<<< HEAD
                     mOperatorLock = OperatorLock.UNLOCKED;
-=======
->>>>>>> eb03e782263eb9597f51129c47a558d86f54b7e7
                 } else {
                     if (getDefaultCommand() != null) {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
                     homeCommand().schedule();
-<<<<<<< HEAD
                     mOperatorLock = OperatorLock.LOCKED;
-=======
->>>>>>> eb03e782263eb9597f51129c47a558d86f54b7e7
                 }
 
                 Logger.recordOutput("Algae/IsLocked", mOperatorLock == OperatorLock.LOCKED);
