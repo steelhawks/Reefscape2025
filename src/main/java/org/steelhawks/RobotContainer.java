@@ -361,5 +361,19 @@ public class RobotContainer {
         // shoot algae
         operator.rightTrigger().whileTrue(
             s_Intake.shootAlgae());
+
+
+
+        operator.povUp().whileTrue(
+            s_Intake.pivotManualAlgaeUp());
+
+        operator.povDown().whileTrue(
+            s_Intake.pivotManualAlgaeDown());
+
+        operator.povLeft().whileTrue(
+            s_Intake.mAlgaeIntake.applykS());
+
+        operator.povRight().whileTrue(
+            s_Intake.mAlgaeIntake.applykG());
     }
 }
