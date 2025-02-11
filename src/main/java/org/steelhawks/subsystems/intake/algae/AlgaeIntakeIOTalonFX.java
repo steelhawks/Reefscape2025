@@ -48,6 +48,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     private final StatusSignal<Boolean> magnetFault;
     private final StatusSignal<Angle> canCoderPosition;
+    private final StatusSignal<Angle> canCoderAbsolutePosition;
     private final StatusSignal<AngularVelocity> canCoderVelocity;
 
     public AlgaeIntakeIOTalonFX() {
@@ -93,6 +94,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         magnetFault = mCANcoder.getFault_BadMagnet();
         canCoderPosition = mCANcoder.getPosition();
+        canCoderAbsolutePosition = mCANcoder.getAbsolutePosition();
         canCoderVelocity = mCANcoder.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -111,6 +113,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
             magnetFault,
             canCoderPosition,
+            canCoderAbsolutePosition,
             canCoderVelocity);
 
         ParentDevice.optimizeBusUtilizationForAll(mIntakeMotor, mPivotMotor, mCANcoder);
@@ -153,6 +156,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
         inputs.encoderPositionRad = canCoderPosition.getValueAsDouble();
+        inputs.encoderAbsolutePositionRad = canCoderAbsolutePosition.getValueAsDouble();
         inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
