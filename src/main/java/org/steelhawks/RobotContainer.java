@@ -371,17 +371,17 @@ public class RobotContainer {
 //        operator.b().onTrue(
 //            s_Elevator.homeCommand());
 
-        operator.x().whileTrue(
-            s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kForward));
+        // operator.x().whileTrue(
+        //     s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kForward));
 
-        operator.y().whileTrue(
-            s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kReverse));
+        // operator.y().whileTrue(
+        //     s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kReverse));
 
-        operator.a().whileTrue(
-            s_Intake.mAlgaeIntake.sysIdDynamic(Direction.kForward));
+        // operator.a().whileTrue(
+        //     s_Intake.mAlgaeIntake.sysIdDynamic(Direction.kForward));
 
-        operator.b().whileTrue(
-            s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kReverse));
+        // operator.b().whileTrue(
+        //     s_Intake.mAlgaeIntake.sysIdDynamic(Direction.kReverse));
 
         /* ------------- Intake Controls ------------- */
 
@@ -415,5 +415,9 @@ public class RobotContainer {
 
         operator.povRight().whileTrue(
             s_Intake.mAlgaeIntake.applykG());
+
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.homeCommand());
+        // s_Intake.mAlgaeIntake.homeCommand().schedule();
     }
 }

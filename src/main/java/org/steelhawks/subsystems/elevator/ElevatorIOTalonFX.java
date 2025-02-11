@@ -20,6 +20,8 @@ import org.steelhawks.Constants.RobotType;
 
 import static org.steelhawks.util.PhoenixUtil.*;
 
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+
 public class ElevatorIOTalonFX implements ElevatorIO {
 
     // 10:1 gear ratio
@@ -193,8 +195,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             return;
         }
 
-        mLeftMotor.setVoltage(volts);
-        mRightMotor.setVoltage(volts);
+        return;
+
+        // mLeftMotor.setVoltage(volts);
+        // mRightMotor.setVoltage(volts);
     }
 
     @Override
@@ -205,8 +209,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             return;
         }
 
-        mLeftMotor.set(speed);
-        mRightMotor.set(speed);
+        return;
+
+        // mLeftMotor.set(speed);
+        // mRightMotor.set(speed);
     }
 
     @Override

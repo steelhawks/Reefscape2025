@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,6 +23,7 @@ import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 public class AlgaeIntake extends SubsystemBase {
@@ -73,8 +75,8 @@ public class AlgaeIntake extends SubsystemBase {
         mAlgaeSysId =
             new SysIdRoutine(
                 new SysIdRoutine.Config(
-                    null,
-                    Volts.of(2), // lower dynamic sysid test to 2 volts instead of 7 which slams into elevator
+                    Volts.of(.25).per(Second),
+                    Volts.of(.5), // lower dynamic sysid test to 2 volts instead of 7 which slams into elevator
                     null,
                     (state) -> Logger.recordOutput("Intake/Algae/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
@@ -106,6 +108,10 @@ public class AlgaeIntake extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeIntake", inputs);
+
+        if (inputs.limitSwitchPressed) {
+            io.zeroEncoders();
+        }
 
         intakeMotorDisconnected.set(!inputs.intakeConnected);
         pivotMotorDisconnected.set(!inputs.pivotConnected);
@@ -146,7 +152,11 @@ public class AlgaeIntake extends SubsystemBase {
         return Commands.run(
             () -> io.runPivotManual(.05), this)
             .until(() -> inputs.limitSwitchPressed)
+            // .andThen(() -> io.zeroEncoders())
             .finallyDo(() -> io.stopPivot());
+
+            // -5.3192
+            // -5.2
     }
 
     public Command intake() {
@@ -162,8 +172,8 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopIntake());
     }
 
-    private static final double kS = 0.37;
-    private static final double kG = 0.4;
+    private static final double kS = 0.3;
+    private static final double kG = 0.6;
     private static final double kV = 0.5;
 
     public Command applykS() {
