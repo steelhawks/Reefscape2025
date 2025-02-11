@@ -42,6 +42,7 @@ public class IntakeConstants {
             17,
             18,
             50,
+            1,
             0,
             0.15,
             2.6,
@@ -64,6 +65,7 @@ public class IntakeConstants {
             18,
             17,
             50,
+            25.17,
             0.37,
             0.4,
             2.6,
@@ -92,6 +94,8 @@ public class IntakeConstants {
 
     public final int ALGAE_CANCODER_ID;
 
+    public final double ALGAE_GEAR_RATIO;
+
     public final double ALGAE_KS;
     public final double ALGAE_KG;
     public final double ALGAE_KV;
@@ -116,6 +120,7 @@ public class IntakeConstants {
         int algae_intakeMotorId,
         int algae_pivotMotorId,
         int algae_canCoderId,
+        double algae_gearRatio,
         double algae_kS,
         double algae_kG,
         double algae_kV,
@@ -135,6 +140,7 @@ public class IntakeConstants {
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;
         ALGAE_PIVOT_MOTOR_ID = algae_pivotMotorId;
         ALGAE_CANCODER_ID = algae_canCoderId;
+        ALGAE_GEAR_RATIO = algae_gearRatio;
         ALGAE_KS = algae_kS;
         ALGAE_KG = algae_kG;
         ALGAE_KV = algae_kV;
