@@ -195,10 +195,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             return;
         }
 
-        return;
-
-        // mLeftMotor.setVoltage(volts);
-        // mRightMotor.setVoltage(volts);
+         mLeftMotor.setVoltage(volts);
+         mRightMotor.setVoltage(volts);
     }
 
     @Override
@@ -209,10 +207,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             return;
         }
 
-        return;
-
-        // mLeftMotor.set(speed);
-        // mRightMotor.set(speed);
+         mLeftMotor.set(speed);
+         mRightMotor.set(speed);
     }
 
     @Override
