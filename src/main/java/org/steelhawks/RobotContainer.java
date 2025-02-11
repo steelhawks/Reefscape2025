@@ -325,10 +325,6 @@ public class RobotContainer {
                     new Pose2d(
                         mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
         }
-
-        /* ------------- Elevator SYSID ------------- */
-//        driver.povRight().whileTrue(
-//            s_Elevator.applykV(RadiansPerSecond.of(2)));
     }
 
     private void configureOperator() {
@@ -344,46 +340,11 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        // operator.x().whileTrue(
-        //     s_Elevator.applykS());
-
-//        operator.x().whileTrue(
-//            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//
-//        operator.y().whileTrue(
-//            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//
-//        operator.a().whileTrue(
-//            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-//
-//        operator.b().whileTrue(
-//            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-//        operator.x().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
-//
-//        operator.y().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
-//
-//        operator.a().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
-//
-//        operator.b().onTrue(
-//            s_Elevator.homeCommand());
-
-        // operator.x().whileTrue(
-        //     s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kForward));
-
-        // operator.y().whileTrue(
-        //     s_Intake.mAlgaeIntake.sysIdQuasistatic(Direction.kReverse));
-
-        // operator.a().whileTrue(
-        //     s_Intake.mAlgaeIntake.sysIdDynamic(Direction.kForward));
-
-        // operator.b().whileTrue(
-        //     s_Intake.mAlgaeIntake.sysIdDynamic(Direction.kReverse));
-
         /* ------------- Intake Controls ------------- */
+
+        operator.rightStick().onTrue(
+            s_Intake.mAlgaeIntake.toggleManualControl(
+                () -> -operator.getRightY()));
 
         // coral intake
         operator.leftBumper().whileTrue(
@@ -400,24 +361,5 @@ public class RobotContainer {
         // shoot algae
         operator.rightTrigger().whileTrue(
             s_Intake.shootAlgae());
-
-        operator.povUp().whileTrue(
-            s_Intake.pivotManualAlgaeUp());
-
-        operator.povDown().whileTrue(
-            s_Intake.pivotManualAlgaeDown());
-        
-        operator.povLeft().whileTrue(
-            s_Intake.mAlgaeIntake.applykS());
-        
-        // operator.povLeft().whileTrue(
-        //     s_Intake.mAlgaeIntake.applyVolts(4));
-
-        operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.applykG());
-
-        // operator.povLeft().whileTrue(
-        //     s_Intake.mAlgaeIntake.homeCommand());
-        // s_Intake.mAlgaeIntake.homeCommand().schedule();
     }
 }
