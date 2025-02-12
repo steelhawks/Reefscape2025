@@ -5,6 +5,8 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
@@ -14,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.Reefstate;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.VirtualSubsystem;
 
@@ -79,15 +82,19 @@ public class SensorAlign extends VirtualSubsystem {
         rightDisconnected.set(!rightConnected);
     }
 
-    // public Command alignParallelToReefCommand() {
+    public Command alignParallelToReefCommand() {
+        Pose2d closestReefSectionPose = Reefstate.getClosestReefSectionPose();
+        Rotation2d reefRotation = closestReefSectionPose.getRotation();
 
-    // }
+        return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> reefRotation);
+}
 
 
     public Command alignToLeftCoralCommand() {
         return Commands.run(
             () -> {
-//                mLeftController.setSetpoint();
+               mLeftController.setSetpoint(TARGET_DISTANCE);
+               
             }, s_Swerve);
     }
 }
