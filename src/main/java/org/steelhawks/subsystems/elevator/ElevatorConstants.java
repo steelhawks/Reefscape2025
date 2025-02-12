@@ -2,17 +2,16 @@ package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
-import org.steelhawks.util.LoggedTunableNumber;
 
 import java.util.Arrays;
 
 public final class ElevatorConstants {
 
     public enum State {
-        L4(58.36965635791532, 0.0, Units.rotationsToRadians(3.0)),
-        L3(32.22141984761668, 0.0, Units.rotationsToRadians(2.0)),
-        L2(16.452864338546235, 0.0, Units.rotationsToRadians(1.0)),
-        L1(Units.rotationsToRadians(0.5), 0.0, Units.rotationsToRadians(0.5));
+        L4(59.60359050369053, 0.0, Units.rotationsToRadians(3.0)),
+        L3(35.3237425930366, 0.0, Units.rotationsToRadians(2.0)),
+        L2(19.376478322177476, 0.0, Units.rotationsToRadians(1.0)),
+        L1(10.178269323778807, 0.0, Units.rotationsToRadians(0.5));
 
         private final double alphaRadians;
         private final double omegaRadians;
@@ -67,18 +66,16 @@ public final class ElevatorConstants {
             0.18,
             0.18625,
             Arrays.stream(new double[]{
-                (4.0 - 3.0) / (22.587560305458492 - 16.613011932801495),
-                (3.0 - 2.0) / (16.613011932801495 - 10.530471312677351),
-                (2.0 - 1.0) / (10.530471312677351 - 4.851674435924706),
+                (2.0 - 1) / (10.593671321138238 - 4.652870525814727),
             }).average().orElse(0.0),
-            3.8,
+            2.6,
             0,
-            0.126,
-            12,
-            14,
+            0.01, // 0.126
+            40,
+            50,
             Units.rotationsToRadians(0.005),
-            0.25,
-            60);
+            0.55, // 0.55
+            60); // 60
 
     public static final ElevatorConstants HAWKRIDER =
         new ElevatorConstants(

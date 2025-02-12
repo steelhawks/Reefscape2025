@@ -1,12 +1,17 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -156,7 +161,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhoton(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0),
+                            // new VisionIOPhoton(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0),
                             new VisionIOLimelight(VisionConstants.CAMERA1NAME, () -> s_Swerve.getRotation()),
                             new VisionIOLimelight(VisionConstants.CAMERA2NAME, () -> s_Swerve.getRotation()));
                     s_Elevator =
@@ -299,15 +304,6 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode())));
 
-        // align robot front to reef, then move left until aligned with coral branch
-        driver.leftBumper().whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> new Rotation2d(0))
-            .until(s_Swerve.alignAtGoal())
-            .andThen(s_SensorAlign.alignLeft()));
-
         if (RobotBase.isReal()) {
             driver.b().onTrue(
                 s_Swerve.zeroHeading(
@@ -320,10 +316,6 @@ public class RobotContainer {
                     new Pose2d(
                         mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
         }
-
-        /* ------------- Elevator SYSID ------------- */
-//        driver.povRight().whileTrue(
-//            s_Elevator.applykV(RadiansPerSecond.of(2)));
     }
 
     private void configureOperator() {
@@ -339,42 +331,37 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        operator.x().whileTrue(
-            s_Elevator.applykS());
-
 //        operator.x().whileTrue(
-//            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//
-//        operator.y().whileTrue(
-//            s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//
-//        operator.a().whileTrue(
-//            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-//
-//        operator.b().whileTrue(
-//            s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//            s_Elevator.applyVolts(1));
 
-//        operator.x().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
-//
-//        operator.y().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
-//
-//        operator.a().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
-//
-//        operator.b().onTrue(
-//            s_Elevator.homeCommand());
+        // L1
+        operator.leftBumper().whileTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+
+        operator.x().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+
+        operator.y().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+
+        operator.a().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+
+        operator.b().onTrue(
+            s_Elevator.homeCommand());
 
         /* ------------- Intake Controls ------------- */
 
-        // coral intake
-        operator.leftBumper().whileTrue(
-            s_Intake.intakeCoral());
+        operator.rightStick().onTrue(
+            s_Intake.mAlgaeIntake.toggleManualControl(
+                () -> -operator.getRightY()));
 
         // coral shoot
         operator.leftTrigger().whileTrue(
-            s_Intake.shootCoral());
+            Commands.either(
+                s_Intake.shootCoralSlow(),
+                s_Intake.shootCoral(),
+                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() && s_Elevator.isEnabled()));
 
         // intake algae
         operator.rightBumper().whileTrue(
@@ -385,9 +372,15 @@ public class RobotContainer {
             s_Intake.shootAlgae());
 
         operator.povUp().whileTrue(
-            s_Intake.pivotManualAlgae(false));
+            s_Intake.pivotManualAlgaeUp());
 
         operator.povDown().whileTrue(
-            s_Intake.pivotManualAlgae(true));
+            s_Intake.pivotManualAlgaeDown());
+
+        operator.povLeft().whileTrue(
+            s_Intake.mAlgaeIntake.applykS());
+
+        operator.povRight().whileTrue(
+            s_Intake.mAlgaeIntake.applykG());
     }
 }

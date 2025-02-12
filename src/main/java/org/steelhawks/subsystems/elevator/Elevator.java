@@ -7,6 +7,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -50,6 +51,10 @@ public class Elevator extends SubsystemBase {
     public void disable() {
         mEnabled = false;
         runElevator(0, new TrapezoidProfile.State());
+    }
+
+    public boolean isEnabled() {
+        return mEnabled;
     }
 
     public Elevator(ElevatorIO io) {
@@ -123,23 +128,17 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-//        if (DriverStation.isDisabled()) {
-//            mController.setGoal(inputs.encoderPositionRad);
-//        }
+        // stop adding up pid error while disabled
+        if (DriverStation.isDisabled()) {
+            mController.reset(getPosition());
+        }
 
-//        double fb = mController.calculate(inputs.encoderPositionRad);
-//        double ff = mFeedforward.calculate(mController.getSetpoint().velocity);
-//        double volts = fb + ff;
-//
-//        if (!mEnabled) return;
-//
-//        if ((inputs.atTopLimit && volts >= 0) || (inputs.limitSwitchPressed && volts <= 0)) {
-//            io.stop();
-//            return;
-//        }
-//
-//        io.runElevator(volts);
-//
+        if (getCurrentCommand() != null) {
+            Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
+        }
+
+        Logger.recordOutput("Elevator/ATL1", atThisGoal(ElevatorConstants.State.L1));
+
         if (mEnabled) {
             runElevator(mController.calculate(getPosition()), mController.getSetpoint());
         }
@@ -159,13 +158,18 @@ public class Elevator extends SubsystemBase {
         io.runElevator(volts);
     }
 
-    @AutoLogOutput(key = "Elevator/Position")
+    @AutoLogOutput(key = "Elevator/AdjustedPosition")
     public double getPosition() {
         return inputs.encoderPositionRad;
     }
 
     public Trigger atGoal() {
         return new Trigger(mController::atGoal);
+    }
+
+    public Trigger atThisGoal(ElevatorConstants.State state) {
+        return new Trigger(
+            () -> Math.abs(getPosition() - state.getRadians()) <= constants.TOLERANCE);
     }
 
     public Trigger atLimit() {
@@ -192,10 +196,14 @@ public class Elevator extends SubsystemBase {
                 double goal =
                     MathUtil.clamp(state.getRadians(), 0, constants.MAX_RADIANS);
                 inputs.setpoint = goal;
-                mController.setGoal(goal);
+                mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
             }, this)
             .withName("Set Desired State");
+    }
+
+    public double getDesiredState() {
+        return inputs.setpoint;
     }
 
     public Command toggleManualControl(DoubleSupplier joystickAxis) {
@@ -231,15 +239,13 @@ public class Elevator extends SubsystemBase {
             .andThen(
                 Commands.run(
                     () -> {
-                        Logger.recordOutput("Elevator/ManualElevatorSpeed", speed);
-                        double appliedSpeed;
-
-                        appliedSpeed = MathUtil.clamp(speed.getAsDouble(), -1, 1);
+                        double appliedSpeed = MathUtil.clamp(speed.getAsDouble(), -1, 1);
 
                         if (speed.getAsDouble() == 0.0) {
                             appliedSpeed = constants.KG / 12.0;
                         }
 
+                        Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
                         io.runElevatorViaSpeed(appliedSpeed);
                     }, this))
             .finallyDo(

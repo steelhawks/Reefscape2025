@@ -2,9 +2,7 @@ package org.steelhawks.subsystems.elevator;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,6 +17,8 @@ import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 
 import static org.steelhawks.util.PhoenixUtil.*;
+
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -64,20 +64,32 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());
         mLimitSwitch = new DigitalInput(constants.LIMIT_SWITCH_ID);
 
-        var leftConfig = new TalonFXConfiguration();
-        leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var leftConfig =
+            new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs()
+                    .withSensorToMechanismRatio(10))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+//        leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+//        leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        var rightConfig = new TalonFXConfiguration();
-        rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var rightConfig =
+            new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs()
+                    .withSensorToMechanismRatio(10))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+//        rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+//        rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         mLeftMotor.getConfigurator().apply(leftConfig);
         mRightMotor.getConfigurator().apply(rightConfig);
 
         mCANcoder.getConfigurator().apply(
-                new CANcoderConfiguration().withMagnetSensor(
-                    new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
+            new CANcoderConfiguration().withMagnetSensor(
+                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
         zeroEncoders();
 
@@ -127,12 +139,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         double leftVelo = leftVelocity.getValueAsDouble();
         double rightVelo = rightVelocity.getValueAsDouble();
 
-        if (Constants.getRobot() == RobotType.ALPHABOT) {
-            leftPos *= ELEVATOR_GEAR_RATIO;
-            rightPos *= ELEVATOR_GEAR_RATIO;
-            leftVelo *= ELEVATOR_GEAR_RATIO;
-            rightVelo *= ELEVATOR_GEAR_RATIO;
-        }
+//        if (Constants.getRobot() == RobotType.ALPHABOT) {
+//            leftPos *= ELEVATOR_GEAR_RATIO;
+//            rightPos *= ELEVATOR_GEAR_RATIO;
+//            leftVelo *= ELEVATOR_GEAR_RATIO;
+//            rightVelo *= ELEVATOR_GEAR_RATIO;
+//        }
 
         inputs.leftConnected =
             BaseStatusSignal.refreshAll(
@@ -193,8 +205,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             return;
         }
 
-        mLeftMotor.setVoltage(volts);
-        mRightMotor.setVoltage(volts);
+         mLeftMotor.setVoltage(volts);
+         mRightMotor.setVoltage(volts);
     }
 
     @Override
@@ -205,8 +217,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             return;
         }
 
-        mLeftMotor.set(speed);
-        mRightMotor.set(speed);
+         mLeftMotor.set(speed);
+         mRightMotor.set(speed);
     }
 
     @Override
