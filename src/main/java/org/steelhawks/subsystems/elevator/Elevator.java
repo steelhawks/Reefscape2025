@@ -151,7 +151,7 @@ public class Elevator extends SubsystemBase {
         io.runElevator(volts);
     }
 
-    @AutoLogOutput(key = "Elevator/Position")
+    @AutoLogOutput(key = "Elevator/AdjustedPosition")
     public double getPosition() {
         return inputs.encoderPositionRad;
     }

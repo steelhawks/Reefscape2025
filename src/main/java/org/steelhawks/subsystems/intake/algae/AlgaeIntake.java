@@ -148,11 +148,13 @@ public class AlgaeIntake extends SubsystemBase {
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
-        double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
+        // double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
+        double ff = mFeedforward.calculate(0, 0);
         Logger.recordOutput("Algae/Feedback", fb);
         Logger.recordOutput("Algae/Feedforward", ff);
 
-        io.runPivot(fb + ff);
+        // io.runPivot(fb + ff);
+        io.runPivot(ff);
     }
 
     public Trigger atGoal() {
@@ -237,8 +239,8 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopIntake());
     }
 
-    private static final double kS = 0.3;
-    private static final double kG = 0.38;
+    private static final double kS = 0.345;
+    private static final double kG = 0.425;
     private static final double kV = 0.5;
 
     public Command applykS() {
@@ -266,16 +268,16 @@ public class AlgaeIntake extends SubsystemBase {
     }
 
 
-    // public Command applykG() {
-    //     return Commands.run(
-    //         () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * kG), this)
-    //         .finallyDo(() -> io.stopPivot());
-    // }
-
     public Command applykG() {
-        return Commands.runOnce(
-            () -> enable(), this);
+        return Commands.run(
+            () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * kG), this)
+            .finallyDo(() -> io.stopPivot());
     }
+
+    // public Command applykG() {
+    //     return Commands.runOnce(
+    //         () -> enable(), this);
+    // }
 
     public Command applykV() {
         return Commands.run(
