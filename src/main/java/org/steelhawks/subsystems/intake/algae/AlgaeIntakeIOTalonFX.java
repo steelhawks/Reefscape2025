@@ -9,7 +9,9 @@ import org.steelhawks.subsystems.intake.IntakeConstants;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -27,9 +29,9 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
-    private final double ALGAE_INTAKE_GEAR_RATIO = 1.0 / 10.0;
+    // private final double ALGAE_INTAKE_GEAR_RATIO = 1.0 / 10.0;
 
-    private final double ALGAE_PIVOT_GEAR_RATIO = 1.0 / 26.05272823;
+    // private final double ALGAE_PIVOT_GEAR_RATIO = 1.0 / 26.05272823;
     // 26.05272823
     // (pi / 2) / (50.32990965052789 - 9.406370191314751))
 
@@ -76,15 +78,28 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         mCANcoder = new CANcoder(constants.ALGAE_CANCODER_ID, Constants.getCANBus());
         mLimitSwitch = new DigitalInput(constants.ALGAE_LIMIT_SWITCH_ID);
 
-        var intakeConfig = new TalonFXConfiguration();
-        intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var intakeConfig = new TalonFXConfiguration()
+        .withFeedback(new FeedbackConfigs()
+            .withSensorToMechanismRatio(constants.ALGAE_INTAKE_GEAR_RATIO))
+        .withMotorOutput(new MotorOutputConfigs()
+            .withInverted(InvertedValue.Clockwise_Positive)
+            .withNeutralMode(NeutralModeValue.Brake));
 
-        var pivotConfig = new TalonFXConfiguration();
-        pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        // intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        // intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        var pivotConfig = new TalonFXConfiguration()
+            .withFeedback(new FeedbackConfigs()
+                .withSensorToMechanismRatio(constants.ALGAE_PIVOT_GEAR_RATIO))
+            .withMotorOutput(new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake));
+
+
+        // pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         // pivotConfig.Feedback.SensorToMechanismRatio = 25.14; // 25.14:1 gear ratio
 //        pivotConfig.Feedback.SensorToMechanismRatio = constants.ALGAE_GEAR_RATIO;
-        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        // pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         mIntakeMotor.getConfigurator().apply(intakeConfig);
         mPivotMotor.getConfigurator().apply(pivotConfig);
@@ -144,12 +159,12 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         double intakeVelo = intakeVelocity.getValueAsDouble();
         double pivotVelo = pivotVelocity.getValueAsDouble();
 
-        if (Constants.getRobot() == RobotType.ALPHABOT) {
-            intakePos *= ALGAE_INTAKE_GEAR_RATIO;
-            pivotPos *= ALGAE_PIVOT_GEAR_RATIO;
-            intakeVelo *= ALGAE_INTAKE_GEAR_RATIO;
-            pivotVelo *= ALGAE_PIVOT_GEAR_RATIO;
-        }
+        // if (Constants.getRobot() == RobotType.ALPHABOT) {
+        //     intakePos *= ALGAE_INTAKE_GEAR_RATIO;
+        //     pivotPos *= ALGAE_PIVOT_GEAR_RATIO;
+        //     intakeVelo *= ALGAE_INTAKE_GEAR_RATIO;
+        //     pivotVelo *= ALGAE_PIVOT_GEAR_RATIO;
+        // }
         
         inputs.intakeConnected =
             BaseStatusSignal.refreshAll(
@@ -216,7 +231,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
         // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
-        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(1.777936017374823 / ALGAE_PIVOT_GEAR_RATIO)));
+        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(1.777936017374823)));
 
 
         // 1.9469211932214827
