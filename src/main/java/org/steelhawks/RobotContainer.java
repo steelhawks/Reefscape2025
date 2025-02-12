@@ -361,7 +361,7 @@ public class RobotContainer {
             Commands.either(
                 s_Intake.shootCoralSlow(),
                 s_Intake.shootCoral(),
-                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()));
+                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() && s_Elevator.isEnabled()));
 
         // intake algae
         operator.rightBumper().whileTrue(

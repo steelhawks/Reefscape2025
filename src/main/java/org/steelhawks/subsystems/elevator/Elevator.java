@@ -53,6 +53,10 @@ public class Elevator extends SubsystemBase {
         runElevator(0, new TrapezoidProfile.State());
     }
 
+    public boolean isEnabled() {
+        return mEnabled;
+    }
+
     public Elevator(ElevatorIO io) {
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = ElevatorConstants.ALPHA;
@@ -124,7 +128,8 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-        if (DriverStation.isDisabled()) { // keep to stop adding up pid error while disabled
+        // stop adding up pid error while disabled
+        if (DriverStation.isDisabled()) {
             mController.reset(getPosition());
         }
 
@@ -234,9 +239,7 @@ public class Elevator extends SubsystemBase {
             .andThen(
                 Commands.run(
                     () -> {
-                        double appliedSpeed;
-
-                        appliedSpeed = MathUtil.clamp(speed.getAsDouble(), -1, 1);
+                        double appliedSpeed = MathUtil.clamp(speed.getAsDouble(), -1, 1);
 
                         if (speed.getAsDouble() == 0.0) {
                             appliedSpeed = constants.KG / 12.0;
