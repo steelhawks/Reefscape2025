@@ -340,6 +340,21 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
+//        operator.x().whileTrue(
+//            s_Elevator.applyVolts(1));
+
+        operator.x().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+
+        operator.y().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+
+        operator.a().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+
+        operator.b().onTrue(
+            s_Elevator.homeCommand());
+
         /* ------------- Intake Controls ------------- */
 
         operator.rightStick().onTrue(
@@ -348,7 +363,7 @@ public class RobotContainer {
 
         // coral intake
         operator.leftBumper().whileTrue(
-            s_Intake.intakeCoral());
+            s_Intake.shootCoralSlow());
 
         // coral shoot
         operator.leftTrigger().whileTrue(

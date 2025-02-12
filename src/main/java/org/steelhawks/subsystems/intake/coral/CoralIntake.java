@@ -36,13 +36,14 @@ public class CoralIntake extends SubsystemBase {
         Logger.processInputs("CoralIntake", inputs);
     }
 
-    public void runIntake() {
+    public void shootCoral() {
         isIntaking = true;
-        io.runIntake(constants.CORAL_INTAKE_SPEED);
+        io.runIntake(constants.CORAL_SHOOT_SPEED);
     }
 
-    public void runOuttake() {
-        io.runIntake(-constants.CORAL_INTAKE_SPEED);
+    public void shootSlowCoral() {
+        isIntaking = true;
+        io.runIntake(constants.CORAL_SECONDARY_SHOOT_SPEED);
     }
 
     public void stop() {

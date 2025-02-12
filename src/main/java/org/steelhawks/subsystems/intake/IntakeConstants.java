@@ -1,7 +1,6 @@
 package org.steelhawks.subsystems.intake;
 
 import org.steelhawks.Constants;
-import org.steelhawks.util.LoggedTunableNumber;
 
 public class IntakeConstants {
 
@@ -37,6 +36,7 @@ public class IntakeConstants {
         new IntakeConstants(
             16,
             .1,
+            .135,
             
             1,
             17,
@@ -53,13 +53,14 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            3);
+            2 * Math.PI);
 
     public static final IntakeConstants OMEGA = DEFAULT;
     public static final IntakeConstants ALPHA =
         new IntakeConstants(
             16,
             .3,
+            .135,
 
             1,
             18,
@@ -83,7 +84,8 @@ public class IntakeConstants {
 
     // -------------------- CORAL --------------------
     public final int CORAL_INTAKE_MOTOR_ID;
-    public final double CORAL_INTAKE_SPEED;
+    public final double CORAL_SHOOT_SPEED;
+    public final double CORAL_SECONDARY_SHOOT_SPEED;
 
 
     // -------------------- ALGAE --------------------
@@ -114,7 +116,8 @@ public class IntakeConstants {
 
     public IntakeConstants(
         int coral_intakeMotorId,
-        double coral_intakeSpeed,
+        double coral_shootSpeed,
+        double coral_secondaryShootSpeed,
 
         int algae_limitSwitchId,
         int algae_intakeMotorId,
@@ -134,7 +137,8 @@ public class IntakeConstants {
         double algae_maxRadians
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
-        CORAL_INTAKE_SPEED = coral_intakeSpeed;
+        CORAL_SHOOT_SPEED = coral_shootSpeed;
+        CORAL_SECONDARY_SHOOT_SPEED = coral_secondaryShootSpeed;
 
         ALGAE_LIMIT_SWITCH_ID = algae_limitSwitchId;
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;

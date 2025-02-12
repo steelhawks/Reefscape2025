@@ -2,9 +2,7 @@ package org.steelhawks.subsystems.elevator;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -66,13 +64,25 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());
         mLimitSwitch = new DigitalInput(constants.LIMIT_SWITCH_ID);
 
-        var leftConfig = new TalonFXConfiguration();
-        leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var leftConfig =
+            new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs()
+                    .withSensorToMechanismRatio(10))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+//        leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+//        leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        var rightConfig = new TalonFXConfiguration();
-        rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var rightConfig =
+            new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs()
+                    .withSensorToMechanismRatio(10))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+//        rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+//        rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         mLeftMotor.getConfigurator().apply(leftConfig);
         mRightMotor.getConfigurator().apply(rightConfig);

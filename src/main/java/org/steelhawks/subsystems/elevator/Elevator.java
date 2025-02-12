@@ -7,6 +7,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -122,6 +123,10 @@ public class Elevator extends SubsystemBase {
         canCoderDisconnected.set(!inputs.encoderConnected);
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
+
+        if (DriverStation.isDisabled()) { // keep to stop adding up pid error while disabled
+            mController.reset(getPosition());
+        }
 
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());

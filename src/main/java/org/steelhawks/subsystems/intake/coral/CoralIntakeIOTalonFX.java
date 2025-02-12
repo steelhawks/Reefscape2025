@@ -40,7 +40,7 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         
         var motorConfig = new TalonFXConfiguration();
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         mIntakeMotor.getConfigurator().apply(motorConfig);
 

@@ -198,7 +198,7 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         }
 
-        RobotContainer.s_Intake.mAlgaeIntake.homeCommand().schedule();
+//        RobotContainer.s_Intake.mAlgaeIntake.homeCommand().schedule();
     }
 
     @Override
