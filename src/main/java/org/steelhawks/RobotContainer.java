@@ -304,15 +304,6 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode())));
 
-        // align robot front to reef, then move left until aligned with coral branch
-        driver.leftBumper().whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> new Rotation2d(0))
-            .until(s_Swerve.alignAtGoal())
-            .andThen(s_SensorAlign.alignLeft()));
-
         if (RobotBase.isReal()) {
             driver.b().onTrue(
                 s_Swerve.zeroHeading(
@@ -343,14 +334,18 @@ public class RobotContainer {
 //        operator.x().whileTrue(
 //            s_Elevator.applyVolts(1));
 
-        operator.x().onTrue(
+        // L1
+        operator.leftBumper().whileTrue(
             s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
-        operator.y().onTrue(
+        operator.x().onTrue(
             s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
-        operator.a().onTrue(
+        operator.y().onTrue(
             s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+
+        operator.a().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
         operator.b().onTrue(
             s_Elevator.homeCommand());
@@ -361,13 +356,12 @@ public class RobotContainer {
             s_Intake.mAlgaeIntake.toggleManualControl(
                 () -> -operator.getRightY()));
 
-        // coral intake
-        operator.leftBumper().whileTrue(
-            s_Intake.shootCoralSlow());
-
         // coral shoot
         operator.leftTrigger().whileTrue(
-            s_Intake.shootCoral());
+            Commands.either(
+                s_Intake.shootCoralSlow(),
+                s_Intake.shootCoral(),
+                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()));
 
         // intake algae
         operator.rightBumper().whileTrue(
@@ -376,8 +370,6 @@ public class RobotContainer {
         // shoot algae
         operator.rightTrigger().whileTrue(
             s_Intake.shootAlgae());
-
-
 
         operator.povUp().whileTrue(
             s_Intake.pivotManualAlgaeUp());

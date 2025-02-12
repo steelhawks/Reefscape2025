@@ -132,6 +132,8 @@ public class Elevator extends SubsystemBase {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
         }
 
+        Logger.recordOutput("Elevator/ATL1", atThisGoal(ElevatorConstants.State.L1));
+
         if (mEnabled) {
             runElevator(mController.calculate(getPosition()), mController.getSetpoint());
         }
@@ -158,6 +160,11 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atGoal() {
         return new Trigger(mController::atGoal);
+    }
+
+    public Trigger atThisGoal(ElevatorConstants.State state) {
+        return new Trigger(
+            () -> Math.abs(getPosition() - state.getRadians()) <= constants.TOLERANCE);
     }
 
     public Trigger atLimit() {
@@ -188,6 +195,10 @@ public class Elevator extends SubsystemBase {
                 enable();
             }, this)
             .withName("Set Desired State");
+    }
+
+    public double getDesiredState() {
+        return inputs.setpoint;
     }
 
     public Command toggleManualControl(DoubleSupplier joystickAxis) {

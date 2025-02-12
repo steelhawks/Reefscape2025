@@ -5,6 +5,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -22,14 +23,15 @@ public class SensorAlign extends VirtualSubsystem {
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
     private static final double TOLERANCE = 0.005;
-    private static final double DIST_TO_REEF = 0.1;
     private static final double KP = 0;
     private static final double KI = 0;
     private static final double KD = 0;
     private static final int LEFT_ID = 19;
     private static final int RIGHT_ID = 20;
 
-    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
+//    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
+    private static final double TARGET_DISTANCE = Units.inchesToMeters(2.0);
+    private static final double ALIGN_THRESHOLD = Units.inchesToMeters(5);
 
     private final CANrange mLeftCANrange;
     private final CANrange mRightCANrange;
