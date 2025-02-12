@@ -35,6 +35,7 @@ public class IntakeConstants {
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
             16,
+            1,
             .1,
             .135,
             
@@ -42,6 +43,7 @@ public class IntakeConstants {
             17,
             18,
             50,
+            1,
             1,
             0,
             0.15,
@@ -59,6 +61,7 @@ public class IntakeConstants {
     public static final IntakeConstants ALPHA =
         new IntakeConstants(
             16,
+            1,
             .3,
             .135,
 
@@ -66,6 +69,7 @@ public class IntakeConstants {
             18,
             17,
             50,
+            10,
             25.17,
             0.37,
             0.4,
@@ -84,19 +88,21 @@ public class IntakeConstants {
 
     // -------------------- CORAL --------------------
     public final int CORAL_INTAKE_MOTOR_ID;
+
+    public final double CORAL_INTAKE_GEAR_RATIO;
+
     public final double CORAL_SHOOT_SPEED;
     public final double CORAL_SECONDARY_SHOOT_SPEED;
 
 
     // -------------------- ALGAE --------------------
     public final int ALGAE_LIMIT_SWITCH_ID;
-
     public final int ALGAE_INTAKE_MOTOR_ID;
     public final int ALGAE_PIVOT_MOTOR_ID;
-
     public final int ALGAE_CANCODER_ID;
 
-    public final double ALGAE_GEAR_RATIO;
+    public final double ALGAE_INTAKE_GEAR_RATIO;
+    public final double ALGAE_PIVOT_GEAR_RATIO;
 
     public final double ALGAE_KS;
     public final double ALGAE_KG;
@@ -116,6 +122,7 @@ public class IntakeConstants {
 
     public IntakeConstants(
         int coral_intakeMotorId,
+        double coral_intakeGearRatio,
         double coral_shootSpeed,
         double coral_secondaryShootSpeed,
 
@@ -123,7 +130,8 @@ public class IntakeConstants {
         int algae_intakeMotorId,
         int algae_pivotMotorId,
         int algae_canCoderId,
-        double algae_gearRatio,
+        double algae_intakeGearRatio,
+        double algae_pivotGearRatio,
         double algae_kS,
         double algae_kG,
         double algae_kV,
@@ -137,6 +145,7 @@ public class IntakeConstants {
         double algae_maxRadians
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
+        CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
         CORAL_SHOOT_SPEED = coral_shootSpeed;
         CORAL_SECONDARY_SHOOT_SPEED = coral_secondaryShootSpeed;
 
@@ -144,7 +153,8 @@ public class IntakeConstants {
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;
         ALGAE_PIVOT_MOTOR_ID = algae_pivotMotorId;
         ALGAE_CANCODER_ID = algae_canCoderId;
-        ALGAE_GEAR_RATIO = algae_gearRatio;
+        ALGAE_INTAKE_GEAR_RATIO = algae_intakeGearRatio;
+        ALGAE_PIVOT_GEAR_RATIO = algae_pivotGearRatio;
         ALGAE_KS = algae_kS;
         ALGAE_KG = algae_kG;
         ALGAE_KV = algae_kV;

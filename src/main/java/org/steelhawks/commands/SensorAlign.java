@@ -79,7 +79,12 @@ public class SensorAlign extends VirtualSubsystem {
         rightDisconnected.set(!rightConnected);
     }
 
-    public Command alignLeft() {
+    // public Command alignParallelToReefCommand() {
+
+    // }
+
+
+    public Command alignToLeftCoralCommand() {
         return Commands.run(
             () -> {
 //                mLeftController.setSetpoint();
