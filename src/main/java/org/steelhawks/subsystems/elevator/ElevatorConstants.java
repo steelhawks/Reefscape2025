@@ -11,7 +11,8 @@ public final class ElevatorConstants {
         L4(59.60359050369053, 0.0, Units.rotationsToRadians(3.0)),
         L3(35.3237425930366, 0.0, Units.rotationsToRadians(2.0)),
         L2(19.376478322177476, 0.0, Units.rotationsToRadians(1.0)),
-        L1(10.178269323778807, 0.0, Units.rotationsToRadians(0.5));
+        L1(10.178269323778807, 0.0, Units.rotationsToRadians(0.5)),
+        HOME(0, 0, 0);
 
         private final double alphaRadians;
         private final double omegaRadians;

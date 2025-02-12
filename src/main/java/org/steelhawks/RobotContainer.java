@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import java.lang.Thread.State;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -347,8 +349,10 @@ public class RobotContainer {
         operator.a().onTrue(
             s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
+        // operator.b().onTrue(
+        //     s_Elevator.homeCommand());
         operator.b().onTrue(
-            s_Elevator.homeCommand());
+            s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
 
         /* ------------- Intake Controls ------------- */
 
