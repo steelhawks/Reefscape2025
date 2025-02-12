@@ -71,8 +71,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.Clockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
-//        leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-//        leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         var rightConfig =
             new TalonFXConfiguration()
@@ -81,8 +79,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
-//        rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-//        rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         mLeftMotor.getConfigurator().apply(leftConfig);
         mRightMotor.getConfigurator().apply(rightConfig);
