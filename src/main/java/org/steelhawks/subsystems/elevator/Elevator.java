@@ -223,7 +223,6 @@ public class Elevator extends SubsystemBase {
             .andThen(
                 Commands.run(
                     () -> {
-                        Logger.recordOutput("Elevator/ManualElevatorSpeed", speed);
                         double appliedSpeed;
 
                         appliedSpeed = MathUtil.clamp(speed.getAsDouble(), -1, 1);
@@ -232,6 +231,7 @@ public class Elevator extends SubsystemBase {
                             appliedSpeed = constants.KG / 12.0;
                         }
 
+                        Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
                         io.runElevatorViaSpeed(appliedSpeed);
                     }, this))
             .finallyDo(
