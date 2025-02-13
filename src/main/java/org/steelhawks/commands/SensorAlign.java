@@ -52,6 +52,8 @@ public class SensorAlign extends VirtualSubsystem {
     private static final double LEFT_ALIGN_THRESHOLD = Units.inchesToMeters(5);
     private static final double RIGHT_ALIGN_THRESHOLD = Units.inchesToMeters(8);
 
+    // left encoder measured distance when aligned to the left coral branch on the reef: 0.375 m
+    // right encoder measured distance when aligned to the left coral branch on the reef: 0.365 m
     private final CANrange mLeftCANrange;
     private final CANrange mRightCANrange;
 
@@ -111,11 +113,10 @@ public class SensorAlign extends VirtualSubsystem {
         rightDisconnected.set(!rightConnected);
     }
 
-    public Command alignParallelToReefCommand() {
+    public Command alignParallelToNearestReefCommand() {
         Pose2d closestReefSectionPose = Reefstate.getClosestReefSectionPose();
-        Rotation2d reefRotation = closestReefSectionPose.getRotation();
 
-        return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> reefRotation);
+        return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> closestReefSectionPose.getRotation());
     }
 
     public Command forwardUntil() {
@@ -134,6 +135,11 @@ public class SensorAlign extends VirtualSubsystem {
                             : s_Swerve.getRotation()));
             }, s_Swerve)
             .until(() -> mDebouncer.calculate(mDistanceController.atSetpoint()));
+    }
+    
+    public Command alignParallelToReefCommand(Pose2d reefPose) {
+        Rotation2d reefRotation = reefPose.getRotation();
+        return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> new Rotation2d(reefRotation.getRadians() + Math.PI));
     }
 
     public Command alignLeft() {

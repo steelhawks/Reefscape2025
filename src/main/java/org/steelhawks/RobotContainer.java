@@ -285,11 +285,15 @@ public class RobotContainer {
 //        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
 
         // align robot front to processor
+        // driver.rightBumper().whileTrue(
+        //     DriveCommands.joystickDriveAtAngle(
+        //         () -> -driver.getLeftY(),
+        //         () -> -driver.getLeftX(),
+        //         () -> new Rotation2d(-Math.PI / 2)));
+
         driver.rightBumper().whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> new Rotation2d(-Math.PI / 2)));
+            s_SensorAlign.alignParallelToReefCommand(Constants.FieldConstants.LEFT_SECTION));
+
 
         driver.leftTrigger().whileTrue(
             s_SensorAlign.forwardUntil());
