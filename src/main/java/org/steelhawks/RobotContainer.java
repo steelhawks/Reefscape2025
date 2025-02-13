@@ -291,7 +291,7 @@ public class RobotContainer {
         //         () -> new Rotation2d(-Math.PI / 2)));
 
         driver.rightBumper().whileTrue(
-            s_SensorAlign.alignParallelToReefCommand(Constants.FieldConstants.LEFT_SECTION));
+            s_SensorAlign.alignParallelToReefCommand(FieldConstants.LEFT_SECTION));
 
 
         driver.leftTrigger().whileTrue(
