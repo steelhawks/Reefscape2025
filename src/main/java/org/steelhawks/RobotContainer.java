@@ -1,19 +1,11 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
-import java.lang.Thread.State;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -298,6 +290,9 @@ public class RobotContainer {
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> new Rotation2d(-Math.PI / 2)));
+
+        driver.leftTrigger().whileTrue(
+            s_SensorAlign.forwardUntil());
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(

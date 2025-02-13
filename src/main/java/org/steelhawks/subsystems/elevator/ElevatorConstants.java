@@ -44,6 +44,7 @@ public final class ElevatorConstants {
             20,
             21,
             22,
+            1,
             0,
             0.15,
             2.6,
@@ -64,6 +65,7 @@ public final class ElevatorConstants {
             14,
             15,
             50,
+            10,
             0.18,
             0.18625,
             Arrays.stream(new double[]{
@@ -84,6 +86,7 @@ public final class ElevatorConstants {
             20,
             21,
             22,
+            1,
             0,
             0.15,
             2.6,
@@ -100,6 +103,8 @@ public final class ElevatorConstants {
     public final int LEFT_ID;
     public final int RIGHT_ID;
     public final int CANCODER_ID;
+
+    public final double GEAR_RATIO;
 
     public final double KS;
     public final double KG;
@@ -122,6 +127,7 @@ public final class ElevatorConstants {
         int leftMotorId,
         int rightMotorId,
         int canCoderId,
+        double gearRatio,
         double kS,
         double kG,
         double kV,
@@ -138,6 +144,7 @@ public final class ElevatorConstants {
         LEFT_ID = leftMotorId;
         RIGHT_ID = rightMotorId;
         CANCODER_ID = canCoderId;
+        GEAR_RATIO = gearRatio;
         KS = kS;
         KG = kG;
         KV = kV;

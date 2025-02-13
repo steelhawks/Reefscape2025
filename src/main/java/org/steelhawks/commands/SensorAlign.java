@@ -5,8 +5,11 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
@@ -18,6 +21,7 @@ import org.steelhawks.Constants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.Reefstate;
 import org.steelhawks.subsystems.swerve.Swerve;
+import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
 
 
@@ -25,20 +29,36 @@ public class SensorAlign extends VirtualSubsystem {
 
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
-    private static final double TOLERANCE = 0.005;
-    private static final double KP = 0;
-    private static final double KI = 0;
-    private static final double KD = 0;
+    private static final double LEFT_TOLERANCE = 0.005;
+    private static final double LEFT_KP = 0;
+    private static final double LEFT_KI = 0;
+    private static final double LEFT_KD = 0;
+
+    private static final double RIGHT_TOLERANCE = 0.005;
+    private static final double RIGHT_KP = 0;
+    private static final double RIGHT_KI = 0;
+    private static final double RIGHT_KD = 0;
+
+    private static final double DIST_TOLERANCE = 0.005;
+    private static final double DIST_KP = 0;
+    private static final double DIST_KI = 0;
+    private static final double DIST_KD = 0;
+
     private static final int LEFT_ID = 19;
     private static final int RIGHT_ID = 20;
 
 //    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
     private static final double TARGET_DISTANCE = Units.inchesToMeters(2.0);
-    private static final double ALIGN_THRESHOLD = Units.inchesToMeters(5);
+    private static final double LEFT_ALIGN_THRESHOLD = Units.inchesToMeters(5);
+    private static final double RIGHT_ALIGN_THRESHOLD = Units.inchesToMeters(8);
 
     private final CANrange mLeftCANrange;
     private final CANrange mRightCANrange;
+
     private final PIDController mLeftController;
+    private final PIDController mRightController;
+    private final PIDController mDistanceController;
+    private final Debouncer mDebouncer;
 
     private final Alert leftDisconnected;
     private final Alert rightDisconnected;
@@ -49,8 +69,17 @@ public class SensorAlign extends VirtualSubsystem {
     public SensorAlign() {
         mLeftCANrange = new CANrange(LEFT_ID, Constants.getCANBus());
         mRightCANrange = new CANrange(RIGHT_ID, Constants.getCANBus());
-        mLeftController = new PIDController(KP, KI, KD);
-        mLeftController.setTolerance(TOLERANCE);
+
+        mLeftController = new PIDController(LEFT_KP, LEFT_KI, LEFT_KD);
+        mLeftController.setTolerance(LEFT_TOLERANCE);
+
+        mRightController = new PIDController(RIGHT_KP, RIGHT_KI, RIGHT_KD);
+        mRightController.setTolerance(RIGHT_TOLERANCE);
+
+        mDistanceController = new PIDController(DIST_KP, DIST_KI, DIST_KD);
+        mDistanceController.setTolerance(DIST_TOLERANCE);
+
+        mDebouncer = new Debouncer(.5, DebounceType.kBoth);
 
         leftDisconnected = new Alert(
             "Left CANrange is disconnected", AlertType.kError);
@@ -87,14 +116,59 @@ public class SensorAlign extends VirtualSubsystem {
         Rotation2d reefRotation = closestReefSectionPose.getRotation();
 
         return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> reefRotation);
-}
+    }
 
-
-    public Command alignToLeftCoralCommand() {
+    public Command forwardUntil() {
         return Commands.run(
             () -> {
-               mLeftController.setSetpoint(TARGET_DISTANCE);
-               
-            }, s_Swerve);
+                ChassisSpeeds speeds =
+                    new ChassisSpeeds(
+                        mDistanceController.calculate(mLeftDist.getValueAsDouble(), TARGET_DISTANCE),
+                        0.0,
+                        0.0);
+                s_Swerve.runVelocity(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        speeds,
+                        AllianceFlip.shouldFlip()
+                            ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                            : s_Swerve.getRotation()));
+            }, s_Swerve)
+            .until(() -> mDebouncer.calculate(mDistanceController.atSetpoint()));
+    }
+
+    public Command alignLeft() {
+        return Commands.run(
+            () -> {
+                ChassisSpeeds speeds =
+                    new ChassisSpeeds(
+                        0.0,
+                        mLeftController.calculate(mLeftDist.getValueAsDouble(), LEFT_ALIGN_THRESHOLD),
+                        0.0);
+                s_Swerve.runVelocity(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                    speeds,
+                    AllianceFlip.shouldFlip()
+                        ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                        : s_Swerve.getRotation()));
+            }, s_Swerve)
+            .until(() -> mDebouncer.calculate(mLeftController.atSetpoint()));
+    }
+
+    public Command alignRight() {
+        return Commands.run(
+            () -> {
+                ChassisSpeeds speeds =
+                    new ChassisSpeeds(
+                        0.0,
+                        mRightController.calculate(mRightDist.getValueAsDouble(), RIGHT_ALIGN_THRESHOLD),
+                        0.0);
+                s_Swerve.runVelocity(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        speeds,
+                        AllianceFlip.shouldFlip()
+                            ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                            : s_Swerve.getRotation()));
+            }, s_Swerve)
+            .until(() -> mDebouncer.calculate(mRightController.atSetpoint()));
     }
 }

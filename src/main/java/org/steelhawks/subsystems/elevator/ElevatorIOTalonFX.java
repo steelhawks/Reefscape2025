@@ -16,14 +16,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 
-import static org.steelhawks.util.PhoenixUtil.*;
-
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
-
 public class ElevatorIOTalonFX implements ElevatorIO {
-
-    // 10:1 gear ratio
-    private static final double ELEVATOR_GEAR_RATIO = 1.0 / 10.0;
 
     private final ElevatorConstants constants;
 
@@ -67,7 +60,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         var leftConfig =
             new TalonFXConfiguration()
                 .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(10))
+                    .withSensorToMechanismRatio(constants.GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.Clockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
@@ -75,7 +68,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         var rightConfig =
             new TalonFXConfiguration()
                 .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(10))
+                    .withSensorToMechanismRatio(constants.GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
