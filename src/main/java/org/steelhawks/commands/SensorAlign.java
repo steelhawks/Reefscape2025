@@ -136,7 +136,7 @@ public class SensorAlign extends VirtualSubsystem {
             }, s_Swerve)
             .until(() -> mDebouncer.calculate(mDistanceController.atSetpoint()));
     }
-    
+
     public Command alignParallelToReefCommand(Pose2d reefPose) {
         Rotation2d reefRotation = reefPose.getRotation();
         return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> new Rotation2d(reefRotation.getRadians() + Math.PI));

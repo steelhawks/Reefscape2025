@@ -133,7 +133,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIO() {});
+                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -155,9 +155,8 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            // new VisionIOPhoton(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0),
-                            new VisionIOLimelight(VisionConstants.CAMERA1NAME, () -> s_Swerve.getRotation()),
-                            new VisionIOLimelight(VisionConstants.CAMERA2NAME, () -> s_Swerve.getRotation()));
+                            new VisionIOLimelight(VisionConstants.cameraNames()[1], () -> s_Swerve.getRotation()),
+                            new VisionIOLimelight(VisionConstants.cameraNames()[2], () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -181,7 +180,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhotonSim(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0,
+                            new VisionIOPhotonSim(VisionConstants.cameraNames()[0], VisionConstants.robotToCamera()[0],
                                 mDriveSimulation::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
