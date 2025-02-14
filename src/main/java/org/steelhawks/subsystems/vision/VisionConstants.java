@@ -17,7 +17,7 @@ public class VisionConstants {
         return switch (Constants.getRobot()) {
             case ALPHABOT ->
                 new String[] {
-                    "Arducam_OV2311_USB_Camera",
+//                    "Arducam_OV2311_USB_Camera",
                     "limelight-coral"
                 };
             case HAWKRIDER ->

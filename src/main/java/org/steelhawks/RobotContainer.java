@@ -166,9 +166,12 @@ public class RobotContainer {
                             new CoralIntakeIO() {});
                 }
                 case SIMBOT -> {
-                    mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3,
-                        new Rotation2d()));
+                    mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
+                        new Pose2d(3, 3, new Rotation2d()));
                     SimulatedArena.getInstance().addDriveTrainSimulation(mDriveSimulation);
+
+                    Logger.recordOutput("Pose/CoralStationTop", FieldConstants.CORAL_STATION_TOP);
+                    Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.CORAL_STATION_BOTTOM);
 
                     s_Swerve =
                         new Swerve(
@@ -281,21 +284,11 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-//        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
-
-        // align robot front to processor
-        // driver.rightBumper().whileTrue(
-        //     DriveCommands.joystickDriveAtAngle(
-        //         () -> -driver.getLeftY(),
-        //         () -> -driver.getLeftX(),
-        //         () -> new Rotation2d(-Math.PI / 2)));
-
-        driver.rightBumper().whileTrue(
-            s_SensorAlign.alignParallelToReefCommand(FieldConstants.LEFT_SECTION));
-
-
         driver.leftTrigger().whileTrue(
-            s_SensorAlign.forwardUntil());
+            s_SensorAlign.forwardUntil(new Rotation2d()));
+
+        driver.leftBumper().whileTrue(
+            s_SensorAlign.alignLeft(new Rotation2d()));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(

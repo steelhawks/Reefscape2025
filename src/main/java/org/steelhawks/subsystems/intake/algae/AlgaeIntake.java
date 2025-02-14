@@ -127,6 +127,10 @@ public class AlgaeIntake extends SubsystemBase {
             io.zeroEncoders();
         }
 
+        if (DriverStation.isDisabled()) {
+            mController.reset(getPosition());
+        }
+
         intakeMotorDisconnected.set(!inputs.intakeConnected);
         pivotMotorDisconnected.set(!inputs.pivotConnected);
         canCoderDisconnected.set(!inputs.encoderConnected);

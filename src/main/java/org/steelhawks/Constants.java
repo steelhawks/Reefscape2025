@@ -129,6 +129,14 @@ public final class Constants {
 
         public static final Pose2d PROCESSOR =
             new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2));
+
+        public static final Pose2d CORAL_STATION_BOTTOM =
+            new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI));
+        // y: 0.955011
+        // .94rad, -.94rad
+
+        public static final Pose2d CORAL_STATION_TOP =
+            new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI));
     }
 
     /**

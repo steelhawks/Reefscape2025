@@ -19,7 +19,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.Reefstate;
+import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
@@ -29,8 +30,8 @@ public class SensorAlign extends VirtualSubsystem {
 
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
-    private static final double LEFT_TOLERANCE = 0.005;
-    private static final double LEFT_KP = 0;
+    private static final double LEFT_TOLERANCE = 0.001;
+    private static final double LEFT_KP = 0.8;
     private static final double LEFT_KI = 0;
     private static final double LEFT_KD = 0;
 
@@ -39,8 +40,8 @@ public class SensorAlign extends VirtualSubsystem {
     private static final double RIGHT_KI = 0;
     private static final double RIGHT_KD = 0;
 
-    private static final double DIST_TOLERANCE = 0.005;
-    private static final double DIST_KP = 0;
+    private static final double DIST_TOLERANCE = Units.inchesToMeters(0.005); // 0.00013 meters
+    private static final double DIST_KP = 0.9;
     private static final double DIST_KI = 0;
     private static final double DIST_KD = 0;
 
@@ -48,8 +49,8 @@ public class SensorAlign extends VirtualSubsystem {
     private static final int RIGHT_ID = 20;
 
 //    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
-    private static final double TARGET_DISTANCE = Units.inchesToMeters(2.0);
-    private static final double LEFT_ALIGN_THRESHOLD = Units.inchesToMeters(5);
+    private static final double TARGET_DISTANCE = Units.inchesToMeters(3.0); // 0.051 meters
+    private static final double LEFT_ALIGN_THRESHOLD = 0.39;
     private static final double RIGHT_ALIGN_THRESHOLD = Units.inchesToMeters(8);
 
     // left encoder measured distance when aligned to the left coral branch on the reef: 0.375 m
@@ -113,20 +114,18 @@ public class SensorAlign extends VirtualSubsystem {
         rightDisconnected.set(!rightConnected);
     }
 
-    public Command alignParallelToNearestReefCommand() {
-        Pose2d closestReefSectionPose = Reefstate.getClosestReefSectionPose();
-
-        return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> closestReefSectionPose.getRotation());
-    }
-
-    public Command forwardUntil() {
+    public Command forwardUntil(Rotation2d angle) {
         return Commands.run(
             () -> {
+                double output = mDistanceController.calculate(mLeftDist.getValueAsDouble(), TARGET_DISTANCE);
+                double alignOutput = s_Swerve.getAlign().calculate(s_Swerve.getRotation().getRadians(), angle.getRadians());
+                Logger.recordOutput("Align/Feedback", output);
+                Logger.recordOutput("Align/AngleFeedback", alignOutput);
                 ChassisSpeeds speeds =
                     new ChassisSpeeds(
-                        mDistanceController.calculate(mLeftDist.getValueAsDouble(), TARGET_DISTANCE),
+                        -output,
                         0.0,
-                        0.0);
+                        alignOutput);
                 s_Swerve.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         speeds,
@@ -134,22 +133,22 @@ public class SensorAlign extends VirtualSubsystem {
                             ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
                             : s_Swerve.getRotation()));
             }, s_Swerve)
-            .until(() -> mDebouncer.calculate(mDistanceController.atSetpoint()));
+            .until(() -> mDebouncer.calculate(mDistanceController.atSetpoint()))
+            .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
-    public Command alignParallelToReefCommand(Pose2d reefPose) {
-        Rotation2d reefRotation = reefPose.getRotation();
-        return DriveCommands.joystickDriveAtAngle(() -> 0, () -> 0, () -> new Rotation2d(reefRotation.getRadians() + Math.PI));
-    }
-
-    public Command alignLeft() {
+    public Command alignLeft(Rotation2d angle) {
         return Commands.run(
             () -> {
+                double alignOutput = s_Swerve.getAlign().calculate(s_Swerve.getRotation().getRadians(), angle.getRadians());
+                double output = mLeftController.calculate(mLeftDist.getValueAsDouble(), LEFT_ALIGN_THRESHOLD);
+                Logger.recordOutput("Align/AngleFeedback", alignOutput);
+                Logger.recordOutput("Align/LeftFeedback", output);
                 ChassisSpeeds speeds =
                     new ChassisSpeeds(
                         0.0,
-                        mLeftController.calculate(mLeftDist.getValueAsDouble(), LEFT_ALIGN_THRESHOLD),
-                        0.0);
+                        output,
+                        alignOutput);
                 s_Swerve.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                     speeds,
@@ -157,16 +156,21 @@ public class SensorAlign extends VirtualSubsystem {
                         ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
                         : s_Swerve.getRotation()));
             }, s_Swerve)
-            .until(() -> mDebouncer.calculate(mLeftController.atSetpoint()));
+            .until(() -> mDebouncer.calculate(mLeftController.atSetpoint()))
+            .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
-    public Command alignRight() {
+    public Command alignRight(Rotation2d angle) {
         return Commands.run(
             () -> {
+                double alignOutput = s_Swerve.getAlign().calculate(s_Swerve.getRotation().getRadians(), angle.getRadians());
+                double output = mRightController.calculate(mRightDist.getValueAsDouble());
+                Logger.recordOutput("Align/AngleFeedback", alignOutput);
+                Logger.recordOutput("Align/RightFeedback", output);
                 ChassisSpeeds speeds =
                     new ChassisSpeeds(
                         0.0,
-                        mRightController.calculate(mRightDist.getValueAsDouble(), RIGHT_ALIGN_THRESHOLD),
+                        -output,
                         0.0);
                 s_Swerve.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -175,6 +179,7 @@ public class SensorAlign extends VirtualSubsystem {
                             ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
                             : s_Swerve.getRotation()));
             }, s_Swerve)
-            .until(() -> mDebouncer.calculate(mRightController.atSetpoint()));
+            .until(() -> mDebouncer.calculate(mRightController.atSetpoint()))
+            .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 }

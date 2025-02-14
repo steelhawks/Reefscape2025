@@ -74,8 +74,8 @@ public final class ElevatorConstants {
             2.6,
             0,
             0.01, // 0.126
-            40,
-            50,
+            100,
+            110,
             Units.rotationsToRadians(0.005),
             0.55, // 0.55
             60); // 60

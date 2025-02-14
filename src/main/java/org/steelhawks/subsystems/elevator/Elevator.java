@@ -195,7 +195,7 @@ public class Elevator extends SubsystemBase {
             () -> {
                 double goal =
                     MathUtil.clamp(state.getRadians(), 0, constants.MAX_RADIANS);
-                inputs.setpoint = goal;
+                inputs.goal = goal;
                 mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
             }, this)
@@ -203,7 +203,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getDesiredState() {
-        return inputs.setpoint;
+        return inputs.goal;
     }
 
     public Command toggleManualControl(DoubleSupplier joystickAxis) {

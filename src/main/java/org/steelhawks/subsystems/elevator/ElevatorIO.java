@@ -6,7 +6,7 @@ public interface ElevatorIO {
 
     @AutoLog
     class ElevatorIOInputs {
-        public double setpoint = 0;
+        public double goal = 0;
 
         public boolean leftConnected = false;
         public double leftPositionRad = 0;
