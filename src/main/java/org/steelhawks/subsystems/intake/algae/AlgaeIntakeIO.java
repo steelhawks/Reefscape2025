@@ -24,12 +24,12 @@ public interface AlgaeIntakeIO {
 
         public boolean encoderConnected = false;
         public boolean magnetGood = false;
-        public double encoderPositionRotations = 0;
-        public double encoderVelocityRotationsPerSec = 0;
+        public double encoderPositionRad = 0;
+        public double encoderAbsolutePositionRad = 0;
+        public double encoderVelocityRadPerSec = 0;
 
         public boolean limitSwitchConnected = false;
         public boolean limitSwitchPressed = false;
-        public boolean atBottomLimit = false;
     }
 
     /**
@@ -41,6 +41,10 @@ public interface AlgaeIntakeIO {
      * Runs the pivot at a given voltage.
      */
     default void runPivot(double volts) {}
+
+    default void runPivotManual(double speed) {}
+
+    default void zeroEncoders() {}
 
     /**
      * Stops the pivot

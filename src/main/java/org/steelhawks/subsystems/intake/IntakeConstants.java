@@ -1,28 +1,50 @@
 package org.steelhawks.subsystems.intake;
 
-import org.steelhawks.util.LoggedTunableNumber;
+import org.steelhawks.Constants;
 
 public class IntakeConstants {
-    
-    public enum AlgaeIntakeState {
-        HOME(2),                    // Vertical
-        INTAKE(1);                  
 
-        AlgaeIntakeState(double rotations) {
-            this.rotations = rotations;
+    public enum AlgaeIntakeState {
+        HOME(0.0, 0.0, 3.0),
+        INTAKE(0.0, 0.0, 2.0);
+
+        private final double alphaRadians;
+        private final double omegaRadians;
+        private final double hawkriderRadians;
+
+        AlgaeIntakeState(double alpha, double omega, double hawkrider) {
+            this.alphaRadians = alpha;
+            this.omegaRadians = omega;
+            this.hawkriderRadians = hawkrider;
         }
 
-        public double rotations;
+        public double getRadians() {
+            switch (Constants.getRobot()) {
+                case ALPHABOT:
+                    return alphaRadians;
+                case OMEGABOT:
+                    return omegaRadians;
+                case HAWKRIDER:
+                    return hawkriderRadians;
+                default:
+                    return 0;
+            }
+        }
     }
 
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
             16,
+            1,
+            .1,
+            .135,
             
             1,
             17,
             18,
             50,
+            1,
+            1,
             0,
             0.15,
             2.6,
@@ -33,19 +55,24 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            3);
+            2 * Math.PI);
 
     public static final IntakeConstants OMEGA = DEFAULT;
     public static final IntakeConstants ALPHA =
         new IntakeConstants(
             16,
+            1,
+            .3,
+            .135,
 
             1,
-            17,
             18,
+            17,
             50,
-            0,
-            0.15,
+            10,
+            25.17,
+            0.37,
+            0.4,
             2.6,
             3.9,
             0,
@@ -55,44 +82,56 @@ public class IntakeConstants {
             0.005,
             0.5,
             3);
+
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
 
-    // ----------------------- CORAL -----------------------
+    // -------------------- CORAL --------------------
     public final int CORAL_INTAKE_MOTOR_ID;
 
+    public final double CORAL_INTAKE_GEAR_RATIO;
 
-    // ----------------------- ALGAE -----------------------
+    public final double CORAL_SHOOT_SPEED;
+    public final double CORAL_SECONDARY_SHOOT_SPEED;
+
+
+    // -------------------- ALGAE --------------------
     public final int ALGAE_LIMIT_SWITCH_ID;
-
     public final int ALGAE_INTAKE_MOTOR_ID;
     public final int ALGAE_PIVOT_MOTOR_ID;
-
     public final int ALGAE_CANCODER_ID;
 
-    public final LoggedTunableNumber ALGAE_KS;
-    public final LoggedTunableNumber ALGAE_KG;
-    public final LoggedTunableNumber ALGAE_KV;
+    public final double ALGAE_INTAKE_GEAR_RATIO;
+    public final double ALGAE_PIVOT_GEAR_RATIO;
 
-    public final LoggedTunableNumber ALGAE_KP;
-    public final LoggedTunableNumber ALGAE_KI;
-    public final LoggedTunableNumber ALGAE_KD;
+    public final double ALGAE_KS;
+    public final double ALGAE_KG;
+    public final double ALGAE_KV;
 
-    public final LoggedTunableNumber ALGAE_MAX_VELOCITY_PER_SEC;
-    public final LoggedTunableNumber ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED;
+    public final double ALGAE_KP;
+    public final double ALGAE_KI;
+    public final double ALGAE_KD;
+
+    public final double ALGAE_MAX_VELOCITY_PER_SEC;
+    public final double ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED;
 
     public final double ALGAE_TOLERANCE;
     public final double ALGAE_MANUAL_PIVOT_INCREMENT;
 
-    public final double ALGAE_MAX_ROTATIONS;
+    public final double ALGAE_MAX_RADIANS;
 
     public IntakeConstants(
         int coral_intakeMotorId,
+        double coral_intakeGearRatio,
+        double coral_shootSpeed,
+        double coral_secondaryShootSpeed,
 
         int algae_limitSwitchId,
         int algae_intakeMotorId,
         int algae_pivotMotorId,
         int algae_canCoderId,
+        double algae_intakeGearRatio,
+        double algae_pivotGearRatio,
         double algae_kS,
         double algae_kG,
         double algae_kV,
@@ -103,24 +142,29 @@ public class IntakeConstants {
         double algae_maxAccelerationPerSecSquared,
         double algae_tolerance,
         double algae_manualPivotIncrement,
-        double algae_maxRotations
+        double algae_maxRadians
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
+        CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
+        CORAL_SHOOT_SPEED = coral_shootSpeed;
+        CORAL_SECONDARY_SHOOT_SPEED = coral_secondaryShootSpeed;
 
         ALGAE_LIMIT_SWITCH_ID = algae_limitSwitchId;
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;
         ALGAE_PIVOT_MOTOR_ID = algae_pivotMotorId;
         ALGAE_CANCODER_ID = algae_canCoderId;
-        ALGAE_KS = new LoggedTunableNumber("Algae Intake/KS", algae_kS);
-        ALGAE_KG = new LoggedTunableNumber("Algae Intake/KG", algae_kG);
-        ALGAE_KV = new LoggedTunableNumber("Algae Intake/KV", algae_kV);
-        ALGAE_KP = new LoggedTunableNumber("Algae Intake/KP", algae_kP);
-        ALGAE_KI = new LoggedTunableNumber("Algae Intake/KI", algae_kI);
-        ALGAE_KD = new LoggedTunableNumber("Algae Intake/KD", algae_kD);
-        ALGAE_MAX_VELOCITY_PER_SEC = new LoggedTunableNumber("Algae Intake/Max Velocity Per Sec", algae_maxVelocityPerSec);
-        ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED = new LoggedTunableNumber("Algae Intake/Max Acceleration Per Sec Squared", algae_maxAccelerationPerSecSquared);
+        ALGAE_INTAKE_GEAR_RATIO = algae_intakeGearRatio;
+        ALGAE_PIVOT_GEAR_RATIO = algae_pivotGearRatio;
+        ALGAE_KS = algae_kS;
+        ALGAE_KG = algae_kG;
+        ALGAE_KV = algae_kV;
+        ALGAE_KP = algae_kP;
+        ALGAE_KI = algae_kI;
+        ALGAE_KD = algae_kD;
+        ALGAE_MAX_VELOCITY_PER_SEC = algae_maxVelocityPerSec;
+        ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED = algae_maxAccelerationPerSecSquared;
         ALGAE_TOLERANCE = algae_tolerance;
         ALGAE_MANUAL_PIVOT_INCREMENT = algae_manualPivotIncrement;
-        ALGAE_MAX_ROTATIONS = algae_maxRotations;
+        ALGAE_MAX_RADIANS = algae_maxRadians;
     }  
 }

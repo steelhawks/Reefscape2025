@@ -2,6 +2,7 @@ package org.steelhawks.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
+import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -10,7 +11,10 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,6 +26,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -50,6 +55,7 @@ import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.util.AllianceFlip;
+import org.steelhawks.util.HolonomicController;
 import org.steelhawks.util.LocalADStarAK;
 
 public class Swerve extends SubsystemBase {
@@ -93,6 +99,9 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDrivePoseEstimator mPoseEstimator =
         new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+
+    private final ProfiledPIDController mAlignController;
+    private final Debouncer mAlignDebouncer;
 
     static {
         switch (Constants.getRobot()) {
@@ -324,6 +333,27 @@ public class Swerve extends SubsystemBase {
                     (state) -> Logger.recordOutput("Swerve/AngularSysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> runAngularCharacterization(voltage.in(Volts)), null, this));
+
+        mAlignController =
+            new ProfiledPIDController(
+                constants.AUTO_ALIGN_KP,
+                constants.AUTO_ALIGN_KI,
+                constants.AUTO_ALIGN_KD,
+                new TrapezoidProfile.Constraints(
+                    constants.ANGLE_MAX_VELOCITY,
+                    constants.ANGLE_MAX_ACCELERATION));
+        mAlignController.enableContinuousInput(-Math.PI, Math.PI);
+
+        mAlignDebouncer = new Debouncer(1, DebounceType.kRising);
+    }
+
+    public ProfiledPIDController getAlign() {
+        return mAlignController;
+    }
+
+    public Trigger alignAtGoal() {
+        return new Trigger(
+            () -> mAlignDebouncer.calculate(mAlignController.atGoal()));
     }
 
     @Override
@@ -382,6 +412,10 @@ public class Swerve extends SubsystemBase {
         }
 
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
+    }
+
+    public void followChoreoTrajectory(SwerveSample sample) {
+        runVelocity(HolonomicController.calculate(sample));
     }
 
     /**
@@ -497,7 +531,7 @@ public class Swerve extends SubsystemBase {
      * Returns the measured chassis speeds of the robot.
      */
     @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-    private ChassisSpeeds getChassisSpeeds() {
+    public ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 

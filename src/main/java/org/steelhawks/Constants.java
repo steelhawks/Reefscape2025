@@ -129,6 +129,14 @@ public final class Constants {
 
         public static final Pose2d PROCESSOR =
             new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2));
+
+        public static final Pose2d CORAL_STATION_BOTTOM =
+            new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI));
+        // y: 0.955011
+        // .94rad, -.94rad
+
+        public static final Pose2d CORAL_STATION_TOP =
+            new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI));
     }
 
     /**
@@ -141,6 +149,8 @@ public final class Constants {
      */
     public static final class Deadbands {
         public static final double DRIVE_DEADBAND = 0.3;
+        public static final double ELEVATOR_DEADBAND = 0.05;
+        public static final double PIVOT_DEADBAND = 0.1;
     }
 
     public static final class LEDConstants {
@@ -203,8 +213,8 @@ public final class Constants {
             8);
 
         public static final AutonConstants HAWKRIDER = new AutonConstants(
-            5,
-            0.0,
+            10,
+            5.0,
             0.0,
             5,
             0.0,

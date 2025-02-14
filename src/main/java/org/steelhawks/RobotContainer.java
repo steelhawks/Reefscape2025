@@ -6,10 +6,10 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.commands.SensorAlign;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -19,11 +19,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.align.Align;
+import org.steelhawks.subsystems.align.AlignIO;
+import org.steelhawks.subsystems.align.AlignIOCANrange;
+import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
-import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
+import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
@@ -45,6 +49,7 @@ public class RobotContainer {
     public static Vision s_Vision;
     public static Elevator s_Elevator;
     public static Intake s_Intake;
+    public static Align s_Align;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -118,6 +123,9 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIO() {},
                             new CoralIntakeIO() {});
+                    s_Align =
+                        new Align(
+                            new AlignIOCANrange());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -132,14 +140,17 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIO() {});
+                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
                     s_Intake = 
                         new Intake(
-                            new AlgaeIntakeIO() {},
-                            new CoralIntakeIOTalonFX(IntakeConstants.ALPHA));
+                            new AlgaeIntakeIOTalonFX(),
+                            new CoralIntakeIOTalonFX());
+                    s_Align =
+                        new Align(
+                            new AlignIOCANrange());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -154,9 +165,8 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhoton(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0),
-                            new VisionIOLimelight(VisionConstants.CAMERA1NAME, () -> s_Swerve.getRotation()),
-                            new VisionIOLimelight(VisionConstants.CAMERA2NAME, () -> s_Swerve.getRotation()));
+                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()),
+                            new VisionIOLimelight(VisionConstants.cameraNames()[1], () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -164,11 +174,17 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIO() {},
                             new CoralIntakeIO() {});
+                    s_Align =
+                        new Align(
+                            new AlignIO() {});
                 }
                 case SIMBOT -> {
-                    mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG, new Pose2d(3, 3,
-                        new Rotation2d()));
+                    mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
+                        new Pose2d(3, 3, new Rotation2d()));
                     SimulatedArena.getInstance().addDriveTrainSimulation(mDriveSimulation);
+
+                    Logger.recordOutput("Pose/CoralStationTop", FieldConstants.CORAL_STATION_TOP);
+                    Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.CORAL_STATION_BOTTOM);
 
                     s_Swerve =
                         new Swerve(
@@ -180,7 +196,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhotonSim(VisionConstants.CAMERA0NAME, VisionConstants.ROBOT_TO_CAMERA0,
+                            new VisionIOPhotonSim(VisionConstants.cameraNames()[0], VisionConstants.robotToCamera()[0],
                                 mDriveSimulation::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
@@ -189,49 +205,49 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIOSim(),
                             new CoralIntakeIOSim());
+                    s_Align =
+                        new Align(
+                            new AlignIOSim());
+                }
+            }
+        }
+
+        if (Constants.getMode() == Mode.REPLAY) {
+            s_Swerve =
+                new Swerve(
+                    new GyroIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {});
+
+            switch (Constants.getRobot()) {
+                case OMEGABOT, ALPHABOT -> {
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIO() {});
+                    s_Intake =
+                        new Intake(
+                            new AlgaeIntakeIO() {},
+                            new CoralIntakeIO() {});
+                    s_Align =
+                        new Align(
+                            new AlignIO() {});
+                }
+                case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIO() {},
+                            new VisionIO() {},
+                            new VisionIO() {});
                 }
             }
 
-            if (Constants.getMode() == Mode.REPLAY) {
-                s_Swerve =
-                    new Swerve(
-                        new GyroIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {});
-
-                switch (Constants.getRobot()) {
-                    case OMEGABOT, ALPHABOT -> {
-                        s_Vision =
-                            new Vision(
-                                s_Swerve::accept,
-                                new VisionIO() {});
-                        s_Intake =
-                            new Intake(
-                                new AlgaeIntakeIO() {},
-                                new CoralIntakeIO() {});
-                    }
-                    case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
-                        s_Vision =
-                            new Vision(
-                                s_Swerve::accept,
-                                new VisionIO() {},
-                                new VisionIO() {},
-                                new VisionIO() {});
-                    }
-                    default -> { // assume everything else has one
-                        s_Vision =
-                            new Vision(
-                                s_Swerve::accept,
-                                new VisionIO() {});
-                    }
-                }
-
-                s_Elevator =
-                    new Elevator(
-                        new ElevatorIO() {});
-            }
+            s_Elevator =
+                new Elevator(
+                    new ElevatorIO() {});
         }
 
         if (Constants.TUNING_MODE) {
@@ -250,8 +266,6 @@ public class RobotContainer {
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
 
-//        driver.leftTrigger().onTrue(
-//            DriveCommands.driveToPosition(FieldConstants.PROCESSOR, interruptPathfinding));
     }
 
     private void configureDefaultCommands() {}
@@ -272,6 +286,10 @@ public class RobotContainer {
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
             .whileFalse(
                 s_LED.setColorCommand(LEDColor.WHITE));
+
+        s_Intake.algaeAtLimit()
+            .onTrue(
+                s_LED.flashCommand(LEDColor.BLUE, 0.1, 1));
     }
 
     private void configureDriver() {
@@ -282,14 +300,11 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-//        driver.x().onTrue(Commands.runOnce(s_Swerve::stopWithX, s_Swerve));
+        driver.leftTrigger().whileTrue(
+            s_Align.forwardUntil(new Rotation2d()));
 
-        // align robot front to processor
-        driver.rightBumper().whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> new Rotation2d(-Math.PI / 2)));
+        driver.leftBumper().whileTrue(
+            s_Align.alignLeft(new Rotation2d()));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
@@ -310,24 +325,6 @@ public class RobotContainer {
                     new Pose2d(
                         mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
         }
-
-        /* ------------- Elevator Controls ------------- */
-        driver.povUp().whileTrue(
-            s_Elevator.elevatorManual(.1));
-
-        driver.povDown().whileTrue(
-            s_Elevator.elevatorManual(-.1));
-
-        driver.povLeft().onTrue(
-            s_Elevator.homeCommand());
-
-        /* ------------- Coral Controls ------------- */
-//        driver.povRight().whileTrue(
-//            s_Intake.shootCoral());
-
-        /* ------------- Elevator SYSID ------------- */
-        driver.povRight().whileTrue(
-            s_Elevator.applyVolts(4));
     }
 
     private void configureOperator() {
@@ -338,30 +335,63 @@ public class RobotContainer {
                     () -> altMode = !altMode));
 
         /* ------------- Elevator Controls ------------- */
-//        operator.x().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
-//
-//        operator.y().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
-//
-//        operator.a().onTrue(
-//            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
-//
-//        operator.b().onTrue(
-//            s_Elevator.homeCommand());
 
-        /* ------------- SysId Controls ------------- */
-        operator.x()
-            .whileTrue(
-                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        operator.y()
-            .onTrue(
-                s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        operator.a()
-            .onTrue(
-                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        operator.b()
-            .onTrue(
-                s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        operator.leftStick().onTrue(
+            s_Elevator.toggleManualControl(
+                () -> -operator.getLeftY()));
+
+//        operator.x().whileTrue(
+//            s_Elevator.applyVolts(1));
+
+        // L1
+        operator.leftBumper().whileTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+
+        operator.x().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+
+        operator.y().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+
+        operator.a().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+
+        // operator.b().onTrue(
+        //     s_Elevator.homeCommand());
+        operator.b().onTrue(
+            s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+
+        /* ------------- Intake Controls ------------- */
+
+        operator.rightStick().onTrue(
+            s_Intake.mAlgaeIntake.toggleManualControl(
+                () -> -operator.getRightY()));
+
+        // coral shoot
+        operator.leftTrigger().whileTrue(
+            Commands.either(
+                s_Intake.shootCoralSlow(),
+                s_Intake.shootCoral(),
+                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() && s_Elevator.isEnabled()));
+
+        // intake algae
+        operator.rightBumper().whileTrue(
+            s_Intake.intakeAlgae());
+
+        // shoot algae
+        operator.rightTrigger().whileTrue(
+            s_Intake.shootAlgae());
+
+        operator.povUp().whileTrue(
+            s_Intake.pivotManualAlgaeUp());
+
+        operator.povDown().whileTrue(
+            s_Intake.pivotManualAlgaeDown());
+
+        operator.povLeft().whileTrue(
+            s_Intake.mAlgaeIntake.applykS());
+
+        operator.povRight().whileTrue(
+            s_Intake.mAlgaeIntake.applykG());
     }
 }

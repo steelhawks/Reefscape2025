@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import static org.steelhawks.util.PhoenixUtil.*;
 
 public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     
@@ -29,14 +30,18 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     private final StatusSignal<Current> current;
     private final StatusSignal<Temperature> temp;
 
-    public CoralIntakeIOTalonFX(IntakeConstants constants) {
-        this.constants = constants;
+    public CoralIntakeIOTalonFX() {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = IntakeConstants.ALPHA;
+            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
+            default -> constants = IntakeConstants.OMEGA;
+        }
+
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         
         var motorConfig = new TalonFXConfiguration();
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
         mIntakeMotor.getConfigurator().apply(motorConfig);
 
         position = mIntakeMotor.getPosition();

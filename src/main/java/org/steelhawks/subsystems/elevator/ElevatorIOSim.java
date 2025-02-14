@@ -80,9 +80,9 @@ public class ElevatorIOSim implements ElevatorIO {
 
         inputs.encoderConnected = true;
         inputs.magnetGood = true;
-        inputs.encoderPositionRotations =
+        inputs.encoderPositionRad =
             Conversions.metersToRotations(mEncoderSim.getDistance(), SPROCKET_RAD);
-        inputs.encoderVelocityRotationsPerSec =
+        inputs.encoderVelocityRadPerSec =
             Conversions.metersToRotations(mEncoderSim.getRate(), SPROCKET_RAD);
 
         inputs.limitSwitchConnected = true;

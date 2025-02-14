@@ -5,6 +5,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import org.steelhawks.Constants;
 
 public class VisionConstants {
     // AprilTag layout
@@ -12,16 +13,49 @@ public class VisionConstants {
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     // Camera names, must match names configured on coprocessor
-    public static String CAMERA0NAME = "Arducam_OV2311_USB_Camera";
-    public static String CAMERA1NAME = "limelight-shooter";
-    public static String CAMERA2NAME = "limelight";
+    public static String[] cameraNames() {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT ->
+                new String[] {
+//                    "Arducam_OV2311_USB_Camera",
+                    "limelight-coral"
+                };
+            case HAWKRIDER ->
+                new String[] {
+                    "limelight-shooter",
+                    "limelight"
+                };
+            default ->
+                new String[] {
+                    ""
+                };
+        };
+    }
 
     // Robot to camera transforms
     // (Not used by Limelight, configure in web UI instead)
 
-    public static Transform3d ROBOT_TO_CAMERA0 =
-        new Transform3d(
-            Units.inchesToMeters(-7.5), 0.0, 0.2, new Rotation3d(0.0, 0.35, 0.79));
+    public static Transform3d[] robotToCamera() {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT ->
+                new Transform3d[] {
+                    new Transform3d()
+                };
+            case HAWKRIDER ->
+                new Transform3d[] {
+                    new Transform3d(
+                        Units.inchesToMeters(-7.5), 0.0, 0.2, new Rotation3d(0.0, 0.35, 0.79))
+                };
+            default ->
+                new Transform3d[] {
+                    new Transform3d()
+                };
+        };
+    }
+
+//    public static Transform3d ROBOT_TO_CAMERA0 =
+//        new Transform3d(
+//            Units.inchesToMeters(-7.5), 0.0, 0.2, new Rotation3d(0.0, 0.35, 0.79));
 // -7.5
     // Limelight offsets used for Vision Simulation
     public static Transform3d ROBOT_TO_CAMERA1 =
@@ -41,10 +75,23 @@ public class VisionConstants {
     // Standard deviation multipliers for each camera
     // (Adjust to trust some cameras more than others)
     public static double[] CAMERA_STD_DEV_FACTORS =
-        new double[] {
-            3.0, // Camera 0
-            1.2, // Camera 1
-            1.3 // Camera 2
+        switch (Constants.getRobot()) {
+            case ALPHABOT ->
+                new double[] {
+                    3.0, // Camera 0
+                };
+            case HAWKRIDER ->
+                new double[] {
+                    1.2, // Camera 0
+                    1.3 // Camera 1
+                };
+            default ->
+                new double[] {
+                    3.0, // Camera 0
+                    1.2, // Camera 1
+                    1.3, // Camera 2
+                    1.0 // Camera 3
+                };
         };
 
     // Multipliers to apply for MegaTag 2 observations

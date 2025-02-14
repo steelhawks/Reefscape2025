@@ -2,34 +2,36 @@ package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
-import org.steelhawks.util.LoggedTunableNumber;
+
+import java.util.Arrays;
 
 public final class ElevatorConstants {
 
     public enum State {
-        L4(0.0, 0.0, 3.0),
-        L3(0.0, 0.0, 2.0),
-        L2(0.0, 0.0, 1.0),
-        L1(0.0, 0.0, 0.5);
+        L4(59.60359050369053, 0.0, Units.rotationsToRadians(3.0)),
+        L3(35.3237425930366, 0.0, Units.rotationsToRadians(2.0)),
+        L2(19.376478322177476, 0.0, Units.rotationsToRadians(1.0)),
+        L1(10.178269323778807, 0.0, Units.rotationsToRadians(0.5)),
+        HOME(0, 0, 0);
 
-        private final double alphaRotations;
-        private final double omegaRotations;
-        private final double hawkriderRotations;
+        private final double alphaRadians;
+        private final double omegaRadians;
+        private final double hawkriderRadians;
 
         State(double alpha, double omega, double hawkrider) {
-            this.alphaRotations = alpha;
-            this.omegaRotations = omega;
-            this.hawkriderRotations = hawkrider;
+            this.alphaRadians = alpha;
+            this.omegaRadians = omega;
+            this.hawkriderRadians = hawkrider;
         }
 
-        public double getRotations() {
+        public double getRadians() {
             switch (Constants.getRobot()) {
                 case ALPHABOT:
-                    return alphaRotations;
+                    return alphaRadians;
                 case OMEGABOT:
-                    return omegaRotations;
+                    return omegaRadians;
                 case HAWKRIDER:
-                    return hawkriderRotations;
+                    return hawkriderRadians;
                 default:
                     return 0;
             }
@@ -42,6 +44,7 @@ public final class ElevatorConstants {
             20,
             21,
             22,
+            1,
             0,
             0.15,
             2.6,
@@ -52,7 +55,7 @@ public final class ElevatorConstants {
             8,
             0.005,
             0.5,
-            3);
+            Units.rotationsToRadians(3));
 
     public static final ElevatorConstants OMEGA = DEFAULT;
 
@@ -62,17 +65,20 @@ public final class ElevatorConstants {
             14,
             15,
             50,
+            10,
             0.18,
-            0.00625,
+            0.18625,
+            Arrays.stream(new double[]{
+                (2.0 - 1) / (10.593671321138238 - 4.652870525814727),
+            }).average().orElse(0.0),
             2.6,
-            3.9,
             0,
-            0.01,
-            3,
-            5,
-            0.005,
-            0.25,
-            Units.radiansToRotations(59));
+            0.01, // 0.126
+            100,
+            110,
+            Units.rotationsToRadians(0.005),
+            0.55, // 0.55
+            60); // 60
 
     public static final ElevatorConstants HAWKRIDER =
         new ElevatorConstants(
@@ -80,44 +86,48 @@ public final class ElevatorConstants {
             20,
             21,
             22,
+            1,
             0,
             0.15,
             2.6,
-            3.9,
+            3.5,
             0,
-            0.01,
+            0.15,
             5.2,
             8,
-            0.005,
+            Units.rotationsToRadians(.005),
             0.5,
-            3);
+            18.5);
 
     public final int LIMIT_SWITCH_ID;
     public final int LEFT_ID;
     public final int RIGHT_ID;
     public final int CANCODER_ID;
 
-    public final LoggedTunableNumber KS;
-    public final LoggedTunableNumber KG;
-    public final LoggedTunableNumber KV;
+    public final double GEAR_RATIO;
 
-    public final LoggedTunableNumber KP;
-    public final LoggedTunableNumber KI;
-    public final LoggedTunableNumber KD;
+    public final double KS;
+    public final double KG;
+    public final double KV;
 
-    public final LoggedTunableNumber MAX_VELOCITY_PER_SEC;
-    public final LoggedTunableNumber MAX_ACCELERATION_PER_SEC_SQUARED;
+    public final double KP;
+    public final double KI;
+    public final double KD;
+
+    public final double MAX_VELOCITY_PER_SEC;
+    public final double MAX_ACCELERATION_PER_SEC_SQUARED;
 
     public final double TOLERANCE;
     public final double MANUAL_ELEVATOR_INCREMENT;
 
-    public final double MAX_HEIGHT;
+    public final double MAX_RADIANS;
 
     public ElevatorConstants(
         int limitSwitchId,
         int leftMotorId,
         int rightMotorId,
         int canCoderId,
+        double gearRatio,
         double kS,
         double kG,
         double kV,
@@ -128,22 +138,23 @@ public final class ElevatorConstants {
         double maxAccelerationPerSecSquared,
         double tolerance,
         double manualElevatorIncrement,
-        double maxRotations
+        double maxRadians
     ) {
         LIMIT_SWITCH_ID = limitSwitchId;
         LEFT_ID = leftMotorId;
         RIGHT_ID = rightMotorId;
         CANCODER_ID = canCoderId;
-        KS = new LoggedTunableNumber("Elevator/KS", kS);
-        KG = new LoggedTunableNumber("Elevator/KG", kG);
-        KV = new LoggedTunableNumber("Elevator/KV", kV);
-        KP = new LoggedTunableNumber("Elevator/KP", kP);
-        KI = new LoggedTunableNumber("Elevator/KI", kI);
-        KD = new LoggedTunableNumber("Elevator/KD", kD);
-        MAX_VELOCITY_PER_SEC = new LoggedTunableNumber("Elevator/Max Velocity Per Sec", maxVelocityPerSec);
-        MAX_ACCELERATION_PER_SEC_SQUARED = new LoggedTunableNumber("Elevator/Max Acceleration Per Sec Squared", maxAccelerationPerSecSquared);
+        GEAR_RATIO = gearRatio;
+        KS = kS;
+        KG = kG;
+        KV = kV;
+        KP = kP;
+        KI = kI;
+        KD = kD;
+        MAX_VELOCITY_PER_SEC = maxVelocityPerSec;
+        MAX_ACCELERATION_PER_SEC_SQUARED = maxAccelerationPerSecSquared;
         TOLERANCE = tolerance;
         MANUAL_ELEVATOR_INCREMENT = manualElevatorIncrement;
-        MAX_HEIGHT = maxRotations;
+        MAX_RADIANS = maxRadians;
     }
 }

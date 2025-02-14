@@ -20,16 +20,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import org.steelhawks.Constants;
-
 import java.util.Queue;
 
-/**
- * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
- * CANcoder. Configured using a set of module constants from Phoenix.
- *
- * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
- */
+
 public class ModuleIOTalonFX implements ModuleIO {
+
     private final SwerveModuleConstants<
         TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
         constants;
@@ -97,8 +92,8 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.DriveMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
-        tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
+        driveTalon.getConfigurator().apply(driveConfig);
+        driveTalon.setPosition(0.0);
 
         // Configure turn motor
         var turnConfig = new TalonFXConfiguration();
@@ -122,7 +117,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.SteerMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
+        turnTalon.getConfigurator().apply(turnConfig);
 
         // Configure CANCoder
         CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;

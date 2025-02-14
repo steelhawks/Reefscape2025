@@ -6,7 +6,7 @@ public interface ElevatorIO {
 
     @AutoLog
     class ElevatorIOInputs {
-        public double setpoint = 0;
+        public double goal = 0;
 
         public boolean leftConnected = false;
         public double leftPositionRad = 0;
@@ -24,8 +24,8 @@ public interface ElevatorIO {
 
         public boolean encoderConnected = false;
         public boolean magnetGood = false;
-        public double encoderPositionRotations = 0;
-        public double encoderVelocityRotationsPerSec = 0;
+        public double encoderPositionRad = 0;
+        public double encoderVelocityRadPerSec = 0;
 
         public boolean limitSwitchConnected = false;
         public boolean limitSwitchPressed = false;
@@ -50,7 +50,7 @@ public interface ElevatorIO {
     /**
      * Zeros the position of the motor encoders.
      */
-    default void zeroMotorEncoders() {}
+    default void zeroEncoders() {}
 
     /**
      * Stops the elevator.

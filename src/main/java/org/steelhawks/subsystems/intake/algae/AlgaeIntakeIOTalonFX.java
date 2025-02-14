@@ -1,14 +1,17 @@
 package org.steelhawks.subsystems.intake.algae;
 
+import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
+
 import org.steelhawks.Constants;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
-import org.steelhawks.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
+import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -24,9 +27,19 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
+    // private final double ALGAE_INTAKE_GEAR_RATIO = 1.0 / 10.0;
+
+    // private final double ALGAE_PIVOT_GEAR_RATIO = 1.0 / 26.05272823;
+    // 26.05272823
+    // (pi / 2) / (50.32990965052789 - 9.406370191314751))
+
+    // Horizontal: -45.61
+    // Vertical: -6.06
+
+    // Horizoontal: -1.88
+    // Vertical: - 0.39
 
     private final IntakeConstants constants;
 
@@ -50,25 +63,43 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     private final StatusSignal<Boolean> magnetFault;
     private final StatusSignal<Angle> canCoderPosition;
+    private final StatusSignal<Angle> canCoderAbsolutePosition;
     private final StatusSignal<AngularVelocity> canCoderVelocity;
 
-    private boolean atTopLimit = false;
-    private boolean atBottomLimit = false;
+    public AlgaeIntakeIOTalonFX() {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> constants = IntakeConstants.ALPHA;
+            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
+            default -> constants = IntakeConstants.OMEGA;
+        }
 
-    public AlgaeIntakeIOTalonFX(IntakeConstants constants) {
-        this.constants = constants;
         mIntakeMotor = new TalonFX(constants.ALGAE_INTAKE_MOTOR_ID, Constants.getCANBus());
         mPivotMotor = new TalonFX(constants.ALGAE_PIVOT_MOTOR_ID, Constants.getCANBus());
         mCANcoder = new CANcoder(constants.ALGAE_CANCODER_ID, Constants.getCANBus());
         mLimitSwitch = new DigitalInput(constants.ALGAE_LIMIT_SWITCH_ID);
 
-        var intakeConfig = new TalonFXConfiguration();
-        intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var intakeConfig = new TalonFXConfiguration()
+        .withFeedback(new FeedbackConfigs()
+            .withSensorToMechanismRatio(constants.ALGAE_INTAKE_GEAR_RATIO))
+        .withMotorOutput(new MotorOutputConfigs()
+            .withInverted(InvertedValue.Clockwise_Positive)
+            .withNeutralMode(NeutralModeValue.Brake));
 
-        var pivotConfig = new TalonFXConfiguration();
-        pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        // intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        // intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        var pivotConfig = new TalonFXConfiguration()
+            .withFeedback(new FeedbackConfigs()
+                .withSensorToMechanismRatio(constants.ALGAE_PIVOT_GEAR_RATIO))
+            .withMotorOutput(new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake));
+
+
+        // pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        // pivotConfig.Feedback.SensorToMechanismRatio = 25.14; // 25.14:1 gear ratio
+//        pivotConfig.Feedback.SensorToMechanismRatio = constants.ALGAE_GEAR_RATIO;
+        // pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         mIntakeMotor.getConfigurator().apply(intakeConfig);
         mPivotMotor.getConfigurator().apply(pivotConfig);
@@ -93,6 +124,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         magnetFault = mCANcoder.getFault_BadMagnet();
         canCoderPosition = mCANcoder.getPosition();
+        canCoderAbsolutePosition = mCANcoder.getAbsolutePosition();
         canCoderVelocity = mCANcoder.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -111,14 +143,29 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
             magnetFault,
             canCoderPosition,
+            canCoderAbsolutePosition,
             canCoderVelocity);
 
         ParentDevice.optimizeBusUtilizationForAll(mIntakeMotor, mPivotMotor, mCANcoder);
     }
 
-    
+    boolean hitLimit;
+
     @Override
     public void updateInputs(AlgaeIntakeIOInputs inputs) {
+        double intakePos = intakePosition.getValueAsDouble();
+        double pivotPos = pivotPosition.getValueAsDouble();
+
+        double intakeVelo = intakeVelocity.getValueAsDouble();
+        double pivotVelo = pivotVelocity.getValueAsDouble();
+
+        // if (Constants.getRobot() == RobotType.ALPHABOT) {
+        //     intakePos *= ALGAE_INTAKE_GEAR_RATIO;
+        //     pivotPos *= ALGAE_PIVOT_GEAR_RATIO;
+        //     intakeVelo *= ALGAE_INTAKE_GEAR_RATIO;
+        //     pivotVelo *= ALGAE_PIVOT_GEAR_RATIO;
+        // }
+        
         inputs.intakeConnected =
             BaseStatusSignal.refreshAll(
                 intakePosition,
@@ -126,8 +173,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 intakeVoltage,
                 intakeCurrent,
                 intakeTemp).isOK();
-        inputs.intakePositionRad = Units.rotationsToRadians(intakePosition.getValueAsDouble());
-        inputs.intakeVelocityRadPerSec = Units.rotationsToRadians(intakeVelocity.getValueAsDouble());
+        inputs.intakePositionRad = Units.rotationsToRadians(intakePos);
+        inputs.intakeVelocityRadPerSec = Units.rotationsToRadians(intakeVelo);
         inputs.intakeAppliedVolts = intakeVoltage.getValueAsDouble();
         inputs.intakeCurrentAmps = intakeCurrent.getValueAsDouble();
         inputs.intakeTempCelsius = intakeTemp.getValueAsDouble();
@@ -139,8 +186,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 pivotVoltage,
                 pivotCurrent,
                 pivotTemp).isOK();
-        inputs.pivotPositionRad = Units.rotationsToRadians(pivotPosition.getValueAsDouble());
-        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelocity.getValueAsDouble());
+        inputs.pivotPositionRad = Units.rotationsToRadians(pivotPos);
+        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelo);
         inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
         inputs.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
         inputs.pivotTempCelsius = pivotTemp.getValueAsDouble();
@@ -151,20 +198,58 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 canCoderPosition,
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRotations = canCoderPosition.getValueAsDouble();
-        inputs.encoderVelocityRotationsPerSec = canCoderVelocity.getValueAsDouble();
+        inputs.encoderPositionRad = canCoderPosition.getValueAsDouble();
+        inputs.encoderAbsolutePositionRad = canCoderAbsolutePosition.getValueAsDouble();
+        inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atBottomLimit = inputs.encoderPositionRotations >= constants.ALGAE_MAX_ROTATIONS;
 
-        atTopLimit = inputs.atBottomLimit;
-        atBottomLimit = inputs.limitSwitchPressed;
+        if (Constants.getRobot() == RobotType.ALPHABOT) {
+            inputs.encoderConnected = inputs.pivotConnected;
+            inputs.magnetGood = inputs.pivotConnected;
+            inputs.encoderPositionRad = inputs.pivotPositionRad;
+            inputs.encoderVelocityRadPerSec = inputs.pivotVelocityRadPerSec;
+        }
+
+        hitLimit = inputs.limitSwitchPressed;
     }
 
     @Override
     public void runPivot(double volts) {
+        if (hitLimit) {
+            stopPivot();
+            return;
+        }
         mPivotMotor.setVoltage(volts);
+    }
+
+    @Override
+    public void zeroEncoders() {
+        // tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(4.6 / ALGAE_PIVOT_GEAR_RATIO)));
+
+
+        // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
+        // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
+        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(1.777936017374823)));
+
+
+        // 1.9469211932214827
+        // -4.6835
+        // -4.42
+        // -4.6
+
+        // -15.563
+    }
+
+    @Override
+    public void runPivotManual(double speed) {
+        if (hitLimit && speed > 0) {
+            stopPivot();
+            return;
+        }
+
+        mPivotMotor.set(speed);
     }
 
     @Override

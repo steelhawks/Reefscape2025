@@ -11,6 +11,14 @@ public class Conversions {
     }
 
     /**
+     * @param angle angle in radians
+     * @return returns a continuous angle from 0-2pi to an angle that is -pi to pi
+     */
+    private double convert360To180(double angle) {
+        return (angle + Math.PI) % (2 * Math.PI) - Math.PI;
+    }
+
+    /**
      * @param wheelRPS      Wheel Velocity: (in Rotations per Second)
      * @param circumference Wheel Circumference: (in Meters)
      * @return Wheel Velocity: (in Meters per Second)

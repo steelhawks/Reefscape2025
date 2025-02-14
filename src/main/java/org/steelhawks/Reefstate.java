@@ -110,4 +110,30 @@ public class Reefstate {
 
         return closestSection;
     }
+
+    public static Pose2d getClosestReefSectionPose() {
+
+        Pose2d[] allPoses = {
+            Constants.FieldConstants.LEFT_SECTION,
+            Constants.FieldConstants.TOP_LEFT_SECTION,
+            Constants.FieldConstants.BOTTOM_LEFT_SECTION,
+            Constants.FieldConstants.RIGHT_SECTION,
+            Constants.FieldConstants.TOP_RIGHT_SECTION,
+            Constants.FieldConstants.BOTTOM_RIGHT_SECTION
+        };
+
+        double minDist = Double.MAX_VALUE;
+        Pose2d closestSectionPose2d = new Pose2d();
+
+        for (Pose2d pose : allPoses) {
+            Pose2d validatedPose = AllianceFlip.validate(pose);
+            double dist = RobotContainer.s_Swerve.getPose().getTranslation().getDistance(validatedPose.getTranslation());
+            if (dist < minDist) {
+                minDist = dist;
+                closestSectionPose2d = validatedPose;
+            }
+        }
+
+        return closestSectionPose2d;
+    }
 }
