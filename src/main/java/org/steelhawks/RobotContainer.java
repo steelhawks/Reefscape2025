@@ -19,6 +19,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.align.Align;
+import org.steelhawks.subsystems.align.AlignIO;
+import org.steelhawks.subsystems.align.AlignIOCANrange;
+import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
@@ -45,7 +49,7 @@ public class RobotContainer {
     public static Vision s_Vision;
     public static Elevator s_Elevator;
     public static Intake s_Intake;
-    public static SensorAlign s_SensorAlign;
+    public static Align s_Align;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -119,6 +123,9 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIO() {},
                             new CoralIntakeIO() {});
+                    s_Align =
+                        new Align(
+                            new AlignIOCANrange());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -141,6 +148,9 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIOTalonFX(),
                             new CoralIntakeIOTalonFX());
+                    s_Align =
+                        new Align(
+                            new AlignIOCANrange());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -155,8 +165,8 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOLimelight(VisionConstants.cameraNames()[1], () -> s_Swerve.getRotation()),
-                            new VisionIOLimelight(VisionConstants.cameraNames()[2], () -> s_Swerve.getRotation()));
+                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()),
+                            new VisionIOLimelight(VisionConstants.cameraNames()[1], () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -164,6 +174,9 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIO() {},
                             new CoralIntakeIO() {});
+                    s_Align =
+                        new Align(
+                            new AlignIO() {});
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
@@ -192,6 +205,9 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIOSim(),
                             new CoralIntakeIOSim());
+                    s_Align =
+                        new Align(
+                            new AlignIOSim());
                 }
             }
         }
@@ -215,6 +231,9 @@ public class RobotContainer {
                         new Intake(
                             new AlgaeIntakeIO() {},
                             new CoralIntakeIO() {});
+                    s_Align =
+                        new Align(
+                            new AlignIO() {});
                 }
                 case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
@@ -230,9 +249,6 @@ public class RobotContainer {
                 new Elevator(
                     new ElevatorIO() {});
         }
-
-        s_SensorAlign =
-            new SensorAlign();
 
         if (Constants.TUNING_MODE) {
             new Alert("Tuning mode enabled", AlertType.kInfo).set(true);
@@ -285,10 +301,10 @@ public class RobotContainer {
                 () -> -driver.getRightX()));
 
         driver.leftTrigger().whileTrue(
-            s_SensorAlign.forwardUntil(new Rotation2d()));
+            s_Align.forwardUntil(new Rotation2d()));
 
         driver.leftBumper().whileTrue(
-            s_SensorAlign.alignLeft(new Rotation2d()));
+            s_Align.alignLeft(new Rotation2d()));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
