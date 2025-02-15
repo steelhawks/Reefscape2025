@@ -24,6 +24,7 @@ import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.climb.ClimbIO;
+import org.steelhawks.subsystems.climb.ClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
@@ -159,7 +160,7 @@ public class RobotContainer {
                             new AlignIOCANrange());
                     s_Climb = 
                         new Climb(
-                            new ClimbIO() {});
+                            new ClimbIOTalonFX());
     
                 }
                 case HAWKRIDER -> {
@@ -415,11 +416,18 @@ public class RobotContainer {
         // operator.povDown().whileTrue(
         //     s_Intake.pivotManualAlgaeDown());
 
-        operator.povUp().whileTrue(
-            s_Climb.runClimbViaSpeed(0.2));
+        operator.povUp().onTrue(
+            s_Climb.climbCommand());
 
-        operator.povDown().whileTrue(
-            s_Climb.runClimbViaSpeed(-0.2));
+        operator.povDown().onTrue(
+            s_Climb.homeCommand());
+
+        // operator.povUp().onTrue(
+        //     s_Climb.runClimbViaSpeed(0.2));
+
+        // operator.povDown().onTrue(
+        //     s_Climb.runClimbViaSpeed(-0.2));
+    
 
         operator.povLeft().whileTrue(
             s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));

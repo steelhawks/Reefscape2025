@@ -70,9 +70,18 @@ public class Climb extends SubsystemBase {
     }
 
     public Command climbCommand() {
-        return Commands.run(
-            () -> applyVolts(2.0))
-            .withDeadline(new WaitCommand(0.5));
+        return runClimbViaSpeed(-0.2)
+            .withDeadline(new WaitCommand(0.15));
+    }
+
+    public Command homeCommand() {
+        return runClimbViaSpeed(0.2)
+            .withDeadline(new WaitCommand(0.15));
+    }
+
+    public Command homeCommandWithCurrent() {
+        return runClimbViaSpeed(0.2)
+            .until(() -> inputs.climbCurrentAmps > 2);
     }
 
     public Command runClimbViaSpeed(double speed) {
@@ -81,6 +90,7 @@ public class Climb extends SubsystemBase {
                 io.runClimbViaSpeed(speed);
             }, this)
             .finallyDo(() -> io.stop());
+        // return Commands.print("THIS COMMAND IS RUNNING");
     }
 
     public Command applyVolts(double volts) {
