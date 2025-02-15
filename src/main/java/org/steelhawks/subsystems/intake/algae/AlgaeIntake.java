@@ -233,13 +233,13 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command intake() {
         return Commands.run(
-            () -> io.runIntake(-.4), this)
+            () -> io.runIntake(-.6), this)
             .finallyDo(() -> io.stopIntake());
     }
 
     public Command outtake() {
         return Commands.run(
-            () -> io.runIntake(.4), this)
+            () -> io.runIntake(.6), this)
             .finallyDo(() -> io.stopIntake());
     }
 
