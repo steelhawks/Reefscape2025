@@ -5,9 +5,11 @@ import org.steelhawks.Constants;
 public class IntakeConstants {
 
     public enum AlgaeIntakeState {
-        HOME(0.0, 0.0, 3.0),
-        INTAKE(0.0, 0.0, 2.0);
-
+        // Keep in mind that all angle measurements listed below are in RADIANS!
+        HOME(1.777936017374823, 0.0, 3.0),
+        INTAKE(0.20, 0.0, 2.0),
+        OUTTAKE((Math.PI / 1.777936017374823), 0.0, 0.0);
+        
         private final double alphaRadians;
         private final double omegaRadians;
         private final double hawkriderRadians;
@@ -71,12 +73,15 @@ public class IntakeConstants {
             50,
             10,
             25.17,
-            0.37,
+            0.3525,
             0.4,
-            2.6,
-            3.9,
+            0.71428571428571428571428571428571,
+            // 3.9,
+            // 0,
+            // 0.01,
+            0.05,
             0,
-            0.01,
+            0,
             5.2,
             8,
             0.005,

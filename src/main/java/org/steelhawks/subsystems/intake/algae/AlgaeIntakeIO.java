@@ -6,7 +6,7 @@ public interface AlgaeIntakeIO {
 
     @AutoLog
     class AlgaeIntakeIOInputs {
-        public double setpoint = 0;
+        public double goal = 0;
 
         public boolean intakeConnected = false;
         public double intakePositionRad = 0;

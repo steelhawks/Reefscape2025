@@ -5,6 +5,7 @@ import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
+import org.steelhawks.subsystems.intake.IntakeConstants.AlgaeIntakeState;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -187,7 +188,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 pivotCurrent,
                 pivotTemp).isOK();
         inputs.pivotPositionRad = Units.rotationsToRadians(pivotPos);
-        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelo);
+        // inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelo);
+        inputs.pivotVelocityRadPerSec = Math.floor(Units.rotationsToRadians(pivotVelo) * 100) / 100;
         inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
         inputs.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
         inputs.pivotTempCelsius = pivotTemp.getValueAsDouble();
@@ -231,7 +233,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
         // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
-        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(1.777936017374823)));
+        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(AlgaeIntakeState.HOME.getRadians())));
 
 
         // 1.9469211932214827

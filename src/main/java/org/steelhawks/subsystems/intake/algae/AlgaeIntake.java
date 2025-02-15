@@ -4,8 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,21 +12,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import kotlin.jvm.internal.DoubleSpreadBuilder;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
-import org.steelhawks.RobotContainer;
-import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
-
 import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -111,11 +101,14 @@ public class AlgaeIntake extends SubsystemBase {
 
         mFeedforward =
             new ArmFeedforward(
-                0,
-                0.32,
-                0);
+                constants.ALGAE_KS,
+                constants.ALGAE_KG,
+                constants.ALGAE_KV);
+                // 0.3525,
+                // 0.4,
+                // 0);
 
-        disable();
+        enable();
     }
 
     @Override
@@ -143,6 +136,7 @@ public class AlgaeIntake extends SubsystemBase {
 
         if (mEnabled) {
             runPivot(mController.calculate(getPosition()), mController.getSetpoint());
+            // runPivot(0, mController.getSetpoint());
         }
     }
 
@@ -152,12 +146,11 @@ public class AlgaeIntake extends SubsystemBase {
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
-        // double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
-        double ff = mFeedforward.calculate(0, 0);
+        double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
         Logger.recordOutput("Algae/Feedback", fb);
         Logger.recordOutput("Algae/Feedforward", ff);
 
-        // io.runPivot(fb + ff);
+        io.runPivot(fb + ff);
 //        io.runPivot(ff);
     }
 
@@ -231,6 +224,17 @@ public class AlgaeIntake extends SubsystemBase {
             // -5.2
     }
 
+    // public Command pivotToIntakePositionCommand() {
+    //     return Commands.run(
+    //         () -> {
+    //             mController.setGoal(AlgaeIntakeState.INTAKE.getRadians());
+    //             double output = mController.calculate(inputs.encoderPositionRad, mController.getSetpoint());
+    //             Logger.recordOutput("Align/PivotToIntakeFeedback", output);
+    //             applyVolts(output)
+    //                 .until(() -> mDebouncer.calculate(mController.atSetpoint()))
+    //                 .finallyDo(() -> LED)
+    //     }
+
     public Command intake() {
         return Commands.run(
             () -> io.runIntake(-.4), this)
@@ -243,13 +247,13 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopIntake());
     }
 
-    private static final double kS = 0.345;
-    private static final double kG = 0.425;
-    private static final double kV = 0.5;
+    // private static final double kS = 0.3525;
+    // private static final double kG = 0.4;
+    // private static final double kV = 0.2 * (1.0 / 1.15) * (1.0 / 1.1) * (1.0 / 1.4);
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runPivot(kS), this)
+            () -> io.runPivot(constants.ALGAE_KS), this)
             .finallyDo(() -> io.stopPivot());
     }
 
@@ -274,7 +278,7 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * kG), this)
+            () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
 
@@ -285,7 +289,7 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivot(kS + (Math.cos(inputs.encoderPositionRad) * kG) + kV))
+            () -> io.runPivot(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
             .finallyDo(() -> io.stopPivot());
     }
 
@@ -297,11 +301,15 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopPivot());
     }
 
-    public void setDesiredState(IntakeConstants.AlgaeIntakeState state) {
-        double goal =
-            MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
-            inputs.setpoint = goal;
-        mController.setGoal(goal);
-        enable();
+    public Command setDesiredState(IntakeConstants.AlgaeIntakeState state) {
+        return Commands.runOnce(
+            () -> {
+                double goal =
+                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
+                inputs.goal = goal;
+                // mController.setGoal(goal);
+                mController.setGoal(new TrapezoidProfile.State(goal, 0));
+                enable();
+            }, this);
     }
 }
