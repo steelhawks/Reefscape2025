@@ -91,22 +91,13 @@ public class AlgaeIntake extends SubsystemBase {
 
         mController.setTolerance(constants.ALGAE_TOLERANCE);
         mController.enableContinuousInput(0, 2 * Math.PI);
-        mController.setGoal(inputs.encoderPositionRad);
-
-        // mFeedforward =
-        //     new ArmFeedforward(
-        //         constants.ALGAE_KS,
-        //         constants.ALGAE_KG,
-        //         constants.ALGAE_KV);
+        // mController.setGoal(inputs.encoderPositionRad);
 
         mFeedforward =
             new ArmFeedforward(
                 constants.ALGAE_KS,
                 constants.ALGAE_KG,
                 constants.ALGAE_KV);
-                // 0.3525,
-                // 0.4,
-                // 0);
 
         enable();
     }
@@ -151,7 +142,6 @@ public class AlgaeIntake extends SubsystemBase {
         Logger.recordOutput("Algae/Feedforward", ff);
 
         io.runPivot(fb + ff);
-//        io.runPivot(ff);
     }
 
     public Trigger atGoal() {
@@ -217,23 +207,8 @@ public class AlgaeIntake extends SubsystemBase {
         return Commands.run(
             () -> io.runPivotManual(.05), this)
             .until(() -> inputs.limitSwitchPressed)
-            // .andThen(() -> io.zeroEncoders())
             .finallyDo(() -> io.stopPivot());
-
-            // -5.3192
-            // -5.2
     }
-
-    // public Command pivotToIntakePositionCommand() {
-    //     return Commands.run(
-    //         () -> {
-    //             mController.setGoal(AlgaeIntakeState.INTAKE.getRadians());
-    //             double output = mController.calculate(inputs.encoderPositionRad, mController.getSetpoint());
-    //             Logger.recordOutput("Align/PivotToIntakeFeedback", output);
-    //             applyVolts(output)
-    //                 .until(() -> mDebouncer.calculate(mController.atSetpoint()))
-    //                 .finallyDo(() -> LED)
-    //     }
 
     public Command intake() {
         return Commands.run(
@@ -281,12 +256,7 @@ public class AlgaeIntake extends SubsystemBase {
             () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
-
-    // public Command applykG() {
-    //     return Commands.runOnce(
-    //         () -> enable(), this);
-    // }
-
+    
     public Command applykV() {
         return Commands.run(
             () -> io.runPivot(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
