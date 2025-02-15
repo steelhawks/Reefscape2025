@@ -106,14 +106,7 @@ public class AlgaeIntake extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeIntake", inputs);
-
-        if (inputs.limitSwitchPressed) {
-            io.zeroEncoders();
-        }
-
-        if (DriverStation.isDisabled()) {
-            mController.reset(getPosition());
-        }
+        Logger.recordOutput("AlgaeIntake/Enabled", mEnabled);
 
         intakeMotorDisconnected.set(!inputs.intakeConnected);
         pivotMotorDisconnected.set(!inputs.pivotConnected);
@@ -121,14 +114,24 @@ public class AlgaeIntake extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
+        // stop adding up pid error while disabled
+        if (DriverStation.isDisabled()) {
+            mController.reset(getPosition());
+        }
+
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Algae/CurrentCommand", getCurrentCommand().getName());
+        }
+
+        if (inputs.limitSwitchPressed) {
+            io.zeroEncoders();
         }
 
         if (mEnabled) {
             runPivot(mController.calculate(getPosition()), mController.getSetpoint());
             // runPivot(0, mController.getSetpoint());
         }
+    
     }
 
     @AutoLogOutput(key = "Algae/AdjustedPosition")
@@ -256,7 +259,7 @@ public class AlgaeIntake extends SubsystemBase {
             () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
-    
+
     public Command applykV() {
         return Commands.run(
             () -> io.runPivot(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
