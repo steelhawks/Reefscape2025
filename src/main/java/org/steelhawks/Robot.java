@@ -198,7 +198,8 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         }
 
-//        RobotContainer.s_Intake.mAlgaeIntake.homeCommand().schedule();
+        // RobotContainer.s_Intake.mAlgaeIntake.homeCommand().schedule();
+        RobotContainer.s_Swerve.toggleMultiplier().schedule();
         RobotContainer.s_Climb.homeCommandWithCurrent().schedule();
     }
 

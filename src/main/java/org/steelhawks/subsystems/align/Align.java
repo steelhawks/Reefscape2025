@@ -44,6 +44,8 @@ public class Align extends VirtualSubsystem {
     private static final double DIST_KI = 0;
     private static final double DIST_KD = 0;
 
+    private static final double DIST_SPEED_MULTIPLIER = .2; // was .5
+
     //    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
     private static final double TARGET_DISTANCE = Units.inchesToMeters(3.0); // 0.051 meters
     private static final double LEFT_ALIGN_THRESHOLD = 0.39;
@@ -139,7 +141,7 @@ public class Align extends VirtualSubsystem {
 
                 ChassisSpeeds speeds =
                     new ChassisSpeeds(
-                        -output * s_Swerve.getMaxLinearSpeedMetersPerSec() * .5,
+                        -output * s_Swerve.getMaxLinearSpeedMetersPerSec() * DIST_SPEED_MULTIPLIER,
                         0.0,
                         alignOutput);
                 s_Swerve.runVelocity(

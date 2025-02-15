@@ -128,7 +128,8 @@ public class AlgaeIntake extends SubsystemBase {
         }
 
         if (mEnabled) {
-            runPivot(mController.calculate(getPosition()), mController.getSetpoint());
+            // runPivot(mController.calculate(getPosition()), mController.getSetpoint());
+            runPivot(0, mController.getSetpoint());
         }
     }
 

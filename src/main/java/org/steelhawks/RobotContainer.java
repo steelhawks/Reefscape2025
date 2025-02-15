@@ -334,12 +334,12 @@ public class RobotContainer {
         driver.leftBumper().whileTrue(
             s_Align.alignLeft(new Rotation2d()));
 
-        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
-            .alongWith(
-                Commands.either(
-                    s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
-                    s_LED.flashCommand(LEDColor.RED, 0.2, 2),
-                    () -> s_Swerve.isSlowMode())));
+        // driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
+        //     .alongWith(
+        //         Commands.either(
+        //             s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
+        //             s_LED.flashCommand(LEDColor.RED, 0.2, 2),
+        //             () -> s_Swerve.isSlowMode())));
 
         if (RobotBase.isReal()) {
             driver.b().onTrue(
@@ -397,10 +397,12 @@ public class RobotContainer {
 
         // coral shoot
         operator.leftTrigger().whileTrue(
-            Commands.either(
-                s_Intake.shootCoralSlow(),
-                s_Intake.shootCoral(),
-                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() && s_Elevator.isEnabled()));
+            s_Intake.shootCoral()
+        );
+            // Commands.either(
+            //     s_Intake.shootCoralSlow(),
+            //     s_Intake.shootCoral(),
+            //     () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() && s_Elevator.isEnabled()));
 
         // intake algae
         operator.rightBumper().whileTrue(
@@ -410,17 +412,17 @@ public class RobotContainer {
         operator.rightTrigger().whileTrue(
             s_Intake.shootAlgae());
 
-        // operator.povUp().whileTrue(
-        //     s_Intake.pivotManualAlgaeUp());
+        operator.povUp().whileTrue(
+            s_Intake.pivotManualAlgaeUp());
 
-        // operator.povDown().whileTrue(
-        //     s_Intake.pivotManualAlgaeDown());
+        operator.povDown().whileTrue(
+            s_Intake.pivotManualAlgaeDown());
 
-        operator.povUp().onTrue(
-            s_Climb.climbCommandWithCurrent());
+        // operator.povUp().onTrue(
+        //     s_Climb.climbCommandWithCurrent());
 
-        operator.povDown().onTrue(
-            s_Climb.homeCommandWithCurrent());
+        // operator.povDown().onTrue(
+        //     s_Climb.homeCommandWithCurrent());
 
         // operator.povUp().onTrue(
         //     s_Climb.runClimbViaSpeed(0.2));
@@ -428,9 +430,8 @@ public class RobotContainer {
         // operator.povDown().onTrue(
         //     s_Climb.runClimbViaSpeed(-0.2));
     
-
-        operator.povLeft().whileTrue(
-            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
         operator.povRight().whileTrue(
             s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
