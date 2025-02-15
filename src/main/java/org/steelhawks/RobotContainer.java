@@ -417,10 +417,10 @@ public class RobotContainer {
         //     s_Intake.pivotManualAlgaeDown());
 
         operator.povUp().onTrue(
-            s_Climb.climbCommand());
+            s_Climb.climbCommandWithCurrent());
 
         operator.povDown().onTrue(
-            s_Climb.homeCommand());
+            s_Climb.homeCommandWithCurrent());
 
         // operator.povUp().onTrue(
         //     s_Climb.runClimbViaSpeed(0.2));

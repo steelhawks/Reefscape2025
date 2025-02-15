@@ -79,9 +79,14 @@ public class Climb extends SubsystemBase {
             .withDeadline(new WaitCommand(0.15));
     }
 
+    public Command climbCommandWithCurrent() {
+        return runClimbViaSpeed(-0.2)
+            .until(() -> inputs.climbCurrentAmps > 40);
+    }
+
     public Command homeCommandWithCurrent() {
         return runClimbViaSpeed(0.2)
-            .until(() -> inputs.climbCurrentAmps > 2);
+            .until(() -> inputs.climbCurrentAmps > 40);
     }
 
     public Command runClimbViaSpeed(double speed) {
