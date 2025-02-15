@@ -156,8 +156,8 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstantsAlpha.BackLeft.LocationX, TunerConstantsAlpha.BackLeft.LocationY),
                             Math.hypot(TunerConstantsAlpha.BackRight.LocationX, TunerConstantsAlpha.BackRight.LocationY)));
-                ROBOT_MASS_KG = Units.lbsToKilograms(138 + (6.0 / 16.0));
-                ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(30), 2));
+                ROBOT_MASS_KG = Units.lbsToKilograms(124.8);
+                ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
                 WHEEL_COF = COTS.WHEELS.DEFAULT_NEOPRENE_TREAD.cof;
                 PP_CONFIG =
                     new RobotConfig(
