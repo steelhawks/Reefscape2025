@@ -25,6 +25,21 @@ import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
@@ -389,9 +404,16 @@ public class RobotContainer {
             s_Intake.pivotManualAlgaeDown());
 
         operator.povLeft().whileTrue(
-            s_Intake.mAlgaeIntake.applykS());
+            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
+        
+
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.applykV());
 
         operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.applykG());
+            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+
+        // operator.povRight().whileTrue(
+        //     s_Intake.mAlgaeIntake.applykG());
     }
 }
