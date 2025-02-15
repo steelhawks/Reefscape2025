@@ -98,9 +98,6 @@ public class AlgaeIntake extends SubsystemBase {
                 constants.ALGAE_KS,
                 constants.ALGAE_KG,
                 constants.ALGAE_KV);
-                // 0.3525,
-                // 0.4,
-                // 0);
 
         enable();
     }
@@ -109,14 +106,7 @@ public class AlgaeIntake extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeIntake", inputs);
-
-        if (inputs.limitSwitchPressed) {
-            io.zeroEncoders();
-        }
-
-        if (DriverStation.isDisabled()) {
-            mController.reset(getPosition());
-        }
+        Logger.recordOutput("AlgaeIntake/Enabled", mEnabled);
 
         intakeMotorDisconnected.set(!inputs.intakeConnected);
         pivotMotorDisconnected.set(!inputs.pivotConnected);
@@ -124,8 +114,17 @@ public class AlgaeIntake extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
+        // stop adding up pid error while disabled
+        if (DriverStation.isDisabled()) {
+            mController.reset(getPosition());
+        }
+
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Algae/CurrentCommand", getCurrentCommand().getName());
+        }
+
+        if (inputs.limitSwitchPressed) {
+            io.zeroEncoders();
         }
 
         if (mEnabled) {
@@ -210,9 +209,6 @@ public class AlgaeIntake extends SubsystemBase {
             () -> io.runPivotManual(.1), this)
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> io.stopPivot());
-
-            // -5.3192
-            // -5.2
     }
 
     public Command intake() {
@@ -261,11 +257,6 @@ public class AlgaeIntake extends SubsystemBase {
             () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
-
-    // public Command applykG() {
-    //     return Commands.runOnce(
-    //         () -> enable(), this);
-    // }
 
     public Command applykV() {
         return Commands.run(
