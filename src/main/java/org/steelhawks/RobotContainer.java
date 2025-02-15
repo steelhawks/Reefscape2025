@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.commands.SensorAlign;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -25,20 +24,6 @@ import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
@@ -52,7 +37,7 @@ import org.steelhawks.util.AllianceFlip;
 
 public class RobotContainer {
 
-    public static final boolean useVision = false;
+    public static final boolean useVision = true;
 
     private SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
@@ -276,6 +261,8 @@ public class RobotContainer {
         configureTriggers();
         configureOperator();
         configureDriver();
+
+        s_Intake.homeAlgae().schedule();;
     }
 
     private void configurePathfindingCommands() {
