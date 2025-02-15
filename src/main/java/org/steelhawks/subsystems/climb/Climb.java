@@ -3,6 +3,8 @@ package org.steelhawks.subsystems.climb;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -33,6 +35,8 @@ public class Climb extends SubsystemBase {
     private final Alert motorDisconnected;
 
     private boolean mEnabled = false;
+
+    private final Debouncer mDebouncer = new Debouncer(0.005, DebounceType.kBoth);
 
     public Climb(ClimbIO io) {
         this.io = io;
@@ -81,12 +85,12 @@ public class Climb extends SubsystemBase {
 
     public Command climbCommandWithCurrent() {
         return runClimbViaSpeed(-0.2)
-            .until(() -> inputs.climbCurrentAmps > 40);
+            .until(() -> mDebouncer.calculate(inputs.climbCurrentAmps > 40));
     }
 
     public Command homeCommandWithCurrent() {
         return runClimbViaSpeed(0.2)
-            .until(() -> inputs.climbCurrentAmps > 40);
+            .until(() -> mDebouncer.calculate(inputs.climbCurrentAmps > 40));
     }
 
     public Command runClimbViaSpeed(double speed) {
