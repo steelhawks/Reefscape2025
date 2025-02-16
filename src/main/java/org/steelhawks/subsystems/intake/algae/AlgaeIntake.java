@@ -78,7 +78,7 @@ public class AlgaeIntake extends SubsystemBase {
                     null,
                     (state) -> Logger.recordOutput("Intake/Algae/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
-                    (voltage) -> io.runPivot(voltage.in(Volts)), null, this));
+                    (voltage) -> io.runPivotWithVoltage(voltage.in(Volts)), null, this));
 
         mController =
             new ProfiledPIDController(
@@ -94,12 +94,17 @@ public class AlgaeIntake extends SubsystemBase {
         mController.setGoal(inputs.encoderPositionRad);
 
         mFeedforward =
+            // new ArmFeedforward(
+            //     constants.ALGAE_KS,
+            //     constants.ALGAE_KG,
+            //     constants.ALGAE_KV);
             new ArmFeedforward(
-                constants.ALGAE_KS,
-                constants.ALGAE_KG,
-                constants.ALGAE_KV);
+                0,
+                0,
+                0);
+    
 
-        enable();
+        disable();
     }
 
     @Override
@@ -123,9 +128,9 @@ public class AlgaeIntake extends SubsystemBase {
             Logger.recordOutput("Algae/CurrentCommand", getCurrentCommand().getName());
         }
 
-        if (inputs.limitSwitchPressed) {
-            io.zeroEncoders();
-        }
+        // if (inputs.limitSwitchPressed) {
+        //     io.zeroEncoders();
+        // }
 
         if (mEnabled) {
             // runPivot(mController.calculate(getPosition()), mController.getSetpoint());
@@ -143,7 +148,7 @@ public class AlgaeIntake extends SubsystemBase {
         Logger.recordOutput("Algae/Feedback", fb);
         Logger.recordOutput("Algae/Feedforward", ff);
 
-        io.runPivot(fb + ff);
+        io.runPivotWithVoltage(fb + ff);
     }
 
     public Trigger atGoal() {
@@ -179,7 +184,7 @@ public class AlgaeIntake extends SubsystemBase {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
-                    homeCommand().schedule();
+                    // homeCommand().schedule();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
 
@@ -201,16 +206,16 @@ public class AlgaeIntake extends SubsystemBase {
                             appliedSpeed = (Math.cos(getPosition()) * constants.ALGAE_KG) / 12.0;
                         }
 
-                        io.runPivotManual(appliedSpeed);
+                        io.runPivotWithSpeed(appliedSpeed);
                     }, this));
     }
 
-    public Command homeCommand() {
-        return Commands.run(
-            () -> io.runPivotManual(.1), this)
-            .until(() -> inputs.limitSwitchPressed)
-            .finallyDo(() -> io.stopPivot());
-    }
+    // public Command homeCommand() {
+    //     return Commands.run(
+    //         () -> io.runPivotWithSpeed(.1), this)
+    //         .until(() -> inputs.limitSwitchPressed)
+    //         .finallyDo(() -> io.stopPivot());
+    // }
 
     public Command intake() {
         return Commands.run(
@@ -230,45 +235,45 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runPivot(constants.ALGAE_KS), this)
+            () -> io.runPivotWithVoltage(constants.ALGAE_KS), this)
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command runPivotManual(boolean isUp) {
         return Commands.run(
-            () -> io.runPivotManual(isUp ? -.1   : .1))
+            () -> io.runPivotWithSpeed(isUp ? -.1   : .1))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command runPivotManualUp() {
         return Commands.run(
-            () -> io.runPivotManual(.1))
+            () -> io.runPivotWithSpeed(.1))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command runPivotManualDown() {
         return Commands.run(
-            () -> io.runPivotManual(-.1))
+            () -> io.runPivotWithSpeed(-.1))
             .finallyDo(() -> io.stopPivot());
     }
 
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
+            () -> io.runPivotWithVoltage(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivot(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
+            () -> io.runPivotWithVoltage(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applyVolts(double volts) {
         return Commands.run(
             () -> {
-                io.runPivot(volts);
+                io.runPivotWithVoltage(volts);
             }, this)
             .finallyDo(() -> io.stopPivot());
     }
@@ -284,4 +289,8 @@ public class AlgaeIntake extends SubsystemBase {
                 enable();
             }, this);
     }
+
+    // public Command zeroEncoders() {
+    //     return Commands.run(() -> io.zeroEncoders());
+    // }
 }

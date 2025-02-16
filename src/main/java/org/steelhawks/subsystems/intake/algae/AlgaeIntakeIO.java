@@ -40,9 +40,9 @@ public interface AlgaeIntakeIO {
     /**
      * Runs the pivot at a given voltage.
      */
-    default void runPivot(double volts) {}
+    default void runPivotWithVoltage(double volts) {}
 
-    default void runPivotManual(double speed) {}
+    default void runPivotWithSpeed(double speed) {}
 
     /**
      * Stops the pivot

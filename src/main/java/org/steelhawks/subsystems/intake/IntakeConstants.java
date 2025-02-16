@@ -5,10 +5,20 @@ import org.steelhawks.Constants;
 public class IntakeConstants {
 
     public enum AlgaeIntakeState {
-        // Keep in mind that all angle measurements listed below are in RADIANS!
-        HOME(1.777936017374823, 0.0, 3.0),
-        INTAKE(0.20, 0.0, 2.0),
-        OUTTAKE((Math.PI / 1.777936017374823), 0.0, 0.0);
+        // Keep in mind that the following angle measurements listed below are in RADIANS!
+        // These are old values that we found with the motor encoder
+        // HOME(1.777936017374823, 0.0, 3.0),
+        // INTAKE(0.20, 0.0, 2.0),
+        // OUTTAKE((Math.PI / 1.777936017374823), 0.0, 0.0);
+        
+        // The following are NEW values we found with the CANCoder
+        HOME(1.4680196140065587, 0.0, 3.0),
+
+        // PERFECTLY HORIZONTAL: -2.778039206860896 (absolute position)
+        // PERFECTLY VERTICAL: -2.778039206860896
+
+        INTAKE(0.0, 0.0, 2.0),
+        OUTTAKE((0.0), 0.0, 0.0);
         
         private final double alphaRadians;
         private final double omegaRadians;
@@ -47,6 +57,8 @@ public class IntakeConstants {
             50,
             1,
             1,
+            1,
+
             0,
             0.15,
             2.6,
@@ -70,9 +82,11 @@ public class IntakeConstants {
             1,
             18,
             17,
-            50,
+            22,
             10,
             25.17,
+            1,
+
             0.3525,
             0.38,
             0.71428571428571428571428571428571,
@@ -108,6 +122,7 @@ public class IntakeConstants {
 
     public final double ALGAE_INTAKE_GEAR_RATIO;
     public final double ALGAE_PIVOT_GEAR_RATIO;
+    public final double ALGAE_CANCODER_GEAR_RATIO;
 
     public final double ALGAE_KS;
     public final double ALGAE_KG;
@@ -137,6 +152,7 @@ public class IntakeConstants {
         int algae_canCoderId,
         double algae_intakeGearRatio,
         double algae_pivotGearRatio,
+        double algae_cancoderGearRatio,
         double algae_kS,
         double algae_kG,
         double algae_kV,
@@ -160,6 +176,7 @@ public class IntakeConstants {
         ALGAE_CANCODER_ID = algae_canCoderId;
         ALGAE_INTAKE_GEAR_RATIO = algae_intakeGearRatio;
         ALGAE_PIVOT_GEAR_RATIO = algae_pivotGearRatio;
+        ALGAE_CANCODER_GEAR_RATIO = algae_cancoderGearRatio;
         ALGAE_KS = algae_kS;
         ALGAE_KG = algae_kG;
         ALGAE_KV = algae_kV;

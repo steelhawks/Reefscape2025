@@ -97,11 +97,11 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         mIntakeMotor.getConfigurator().apply(intakeConfig);
         mPivotMotor.getConfigurator().apply(pivotConfig);
 
-        mCANcoder.getConfigurator().apply(
-            new CANcoderConfiguration().withMagnetSensor(
-                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
+        // mCANcoder.getConfigurator().apply(
+        //     new CANcoderConfiguration().withMagnetSensor(
+        //         new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
-        zeroEncoders();
+        // -2.495
 
         intakePosition = mIntakeMotor.getPosition();
         intakeVelocity = mIntakeMotor.getVelocity();
@@ -184,24 +184,21 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
             BaseStatusSignal.refreshAll(
                 magnetFault,
                 canCoderPosition,
+                canCoderAbsolutePosition,
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRad = canCoderPosition.getValueAsDouble();
-        inputs.encoderAbsolutePositionRad = canCoderAbsolutePosition.getValueAsDouble();
-        inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
+
+        inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble()) * constants.ALGAE_CANCODER_GEAR_RATIO;
+        inputs.encoderAbsolutePositionRad = Units.rotationsToRadians(canCoderAbsolutePosition.getValueAsDouble()) * constants.ALGAE_CANCODER_GEAR_RATIO ;
+        //-2.778039206860896
+        inputs.encoderVelocityRadPerSec = Units.rotationsToRadians(canCoderVelocity.getValueAsDouble()) * constants.ALGAE_CANCODER_GEAR_RATIO;
+
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
 
-        if (Constants.getRobot() == RobotType.ALPHABOT) {
-            inputs.encoderConnected = inputs.pivotConnected;
-            inputs.magnetGood = inputs.pivotConnected;
-            inputs.encoderPositionRad = inputs.pivotPositionRad;
-            inputs.encoderVelocityRadPerSec = inputs.pivotVelocityRadPerSec;
-        }
-
         hitLimitSwitch = inputs.limitSwitchPressed;
-        atUpperLimit = inputs.pivotPositionRad >= constants.ALGAE_MAX_RADIANS;
+        atUpperLimit = inputs.encoderPositionRad >= constants.ALGAE_MAX_RADIANS;
     }
 
     // @Override
@@ -221,15 +218,12 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     @Override
     public void zeroEncoders() {
-        if (Constants.getRobot() != RobotType.ALPHABOT) {
-            mCANcoder.setPosition(0);
-        }
+        mCANcoder.setPosition(Units.radiansToRotations(0));
         mPivotMotor.setPosition(0);
-        // mIntakeMotor.setPosition(0);
     }
 
     @Override
-    public void runPivot(double volts) {
+    public void runPivotWithVoltage(double volts) {
         boolean stopPivot = ((hitLimitSwitch || atUpperLimit) && volts > 0);
         Logger.recordOutput("Intake/StopAlgaePivot", stopPivot);
         if (stopPivot) {
@@ -240,13 +234,13 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     }
 
     @Override
-    public void runPivotManual(double speed) {
-        boolean stopPivot = ((hitLimitSwitch || atUpperLimit) && speed > 0);        
+    public void runPivotWithSpeed(double speed) {
+        boolean stopPivot = ((hitLimitSwitch || atUpperLimit) && speed > 0);    
+        Logger.recordOutput("Intake/StopAlgaePivot", stopPivot);    
         if (stopPivot && speed > 0) {
             stopPivot();
             return;
         }
-
         mPivotMotor.set(speed);
     }
 

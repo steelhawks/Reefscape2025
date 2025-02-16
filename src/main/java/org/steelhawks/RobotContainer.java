@@ -393,7 +393,7 @@ public class RobotContainer {
 
         operator.rightStick().onTrue(
             s_Intake.mAlgaeIntake.toggleManualControl(
-                () -> -operator.getRightY()));
+                () -> -operator.getRightY() * 0.2));
 
         // coral shoot
         operator.leftTrigger().whileTrue(
@@ -433,7 +433,14 @@ public class RobotContainer {
         // operator.povLeft().whileTrue(
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
-        operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+        // operator.povRight().whileTrue(
+        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+
+        // operator.povUp().whileTrue(s_Intake.mAlgaeIntake.applykS());
+        operator.povRight().whileTrue(s_Intake.mAlgaeIntake.applykG());
+        // operator.povDown().whileTrue(s_Intake.mAlgaeIntake.applykV());
+
+        
+        // operator.povLeft().onTrue(s_Intake.mAlgaeIntake.zeroEncoders());
     }
 }
