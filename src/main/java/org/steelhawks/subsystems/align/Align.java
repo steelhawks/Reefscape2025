@@ -11,6 +11,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,7 +36,7 @@ public class Align extends VirtualSubsystem {
     private static final double LEFT_KD = 0;
 
     private static final double RIGHT_TOLERANCE = 0.005;
-    private static final double RIGHT_KP = 0;
+    private static final double RIGHT_KP = 0.1;
     private static final double RIGHT_KI = 0;
     private static final double RIGHT_KD = 0;
 
@@ -45,11 +46,13 @@ public class Align extends VirtualSubsystem {
     private static final double DIST_KD = 0;
 
     private static final double DIST_SPEED_MULTIPLIER = .2; // was .5
+    private static final double LEFT_SPEED_MULTIPLIER = .3;
+    private static final double RIGHT_SPEED_MULTIPLIER = .3;
 
     //    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
     private static final double TARGET_DISTANCE = Units.inchesToMeters(3.0); // 0.051 meters
     private static final double LEFT_ALIGN_THRESHOLD = 0.39;
-    private static final double RIGHT_ALIGN_THRESHOLD = Units.inchesToMeters(8);
+    private static final double RIGHT_ALIGN_THRESHOLD = 0.34500000000000003;
 
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
     private final AlignIOInputsAutoLogged inputs = new AlignIOInputsAutoLogged();
@@ -165,7 +168,7 @@ public class Align extends VirtualSubsystem {
                 ChassisSpeeds speeds =
                     new ChassisSpeeds(
                         0.0,
-                        output,
+                        output * s_Swerve.getMaxLinearSpeedMetersPerSec() * LEFT_SPEED_MULTIPLIER,
                         alignOutput);
                 s_Swerve.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -188,7 +191,7 @@ public class Align extends VirtualSubsystem {
                 ChassisSpeeds speeds =
                     new ChassisSpeeds(
                         0.0,
-                        -output,
+                        output * s_Swerve.getMaxLinearSpeedMetersPerSec() * RIGHT_SPEED_MULTIPLIER,
                         0.0);
                 s_Swerve.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(

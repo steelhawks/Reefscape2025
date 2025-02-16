@@ -334,12 +334,15 @@ public class RobotContainer {
         driver.leftBumper().whileTrue(
             s_Align.alignLeft(new Rotation2d()));
 
-        // driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
-        //     .alongWith(
-        //         Commands.either(
-        //             s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
-        //             s_LED.flashCommand(LEDColor.RED, 0.2, 2),
-        //             () -> s_Swerve.isSlowMode())));
+        driver.rightBumper().whileTrue(
+            s_Align.alignRight(new Rotation2d()));
+
+        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
+            .alongWith(
+                Commands.either(
+                    s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
+                    s_LED.flashCommand(LEDColor.RED, 0.2, 2),
+                    () -> s_Swerve.isSlowMode())));
 
         if (RobotBase.isReal()) {
             driver.b().onTrue(
