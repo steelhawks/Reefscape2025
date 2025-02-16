@@ -2,6 +2,7 @@ package org.steelhawks.subsystems.intake.algae;
 
 import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
 
+import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
@@ -100,7 +101,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
             new CANcoderConfiguration().withMagnetSensor(
                 new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
 
-        mCANcoder.setPosition(0);
+        zeroEncoders();
 
         intakePosition = mIntakeMotor.getPosition();
         intakeVelocity = mIntakeMotor.getVelocity();
@@ -141,7 +142,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         ParentDevice.optimizeBusUtilizationForAll(mIntakeMotor, mPivotMotor, mCANcoder);
     }
 
-    boolean hitLimit;
+    boolean hitLimitSwitch;
+    boolean atUpperLimit;
 
     @Override
     public void updateInputs(AlgaeIntakeIOInputs inputs) {
@@ -198,12 +200,39 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
             inputs.encoderVelocityRadPerSec = inputs.pivotVelocityRadPerSec;
         }
 
-        hitLimit = inputs.limitSwitchPressed;
+        hitLimitSwitch = inputs.limitSwitchPressed;
+        atUpperLimit = inputs.pivotPositionRad >= constants.ALGAE_MAX_RADIANS;
+    }
+
+    // @Override
+    // public void zeroEncoders() {
+    //     // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
+    //     // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
+    //     tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(AlgaeIntakeState.HOME.getRadians())));
+
+
+    //     // 1.9469211932214827
+    //     // -4.6835
+    //     // -4.42
+    //     // -4.6
+
+    //     // -15.563
+    // }
+
+    @Override
+    public void zeroEncoders() {
+        if (Constants.getRobot() != RobotType.ALPHABOT) {
+            mCANcoder.setPosition(0);
+        }
+        mPivotMotor.setPosition(0);
+        // mIntakeMotor.setPosition(0);
     }
 
     @Override
     public void runPivot(double volts) {
-        if (hitLimit) {
+        boolean stopPivot = ((hitLimitSwitch || atUpperLimit) && volts > 0);
+        Logger.recordOutput("Intake/StopAlgaePivot", stopPivot);
+        if (stopPivot) {
             stopPivot();
             return;
         }
@@ -211,23 +240,9 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     }
 
     @Override
-    public void zeroEncoders() {
-        // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
-        // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
-        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(AlgaeIntakeState.HOME.getRadians())));
-
-
-        // 1.9469211932214827
-        // -4.6835
-        // -4.42
-        // -4.6
-
-        // -15.563
-    }
-
-    @Override
     public void runPivotManual(double speed) {
-        if (hitLimit && speed > 0) {
+        boolean stopPivot = ((hitLimitSwitch || atUpperLimit) && speed > 0);        
+        if (stopPivot && speed > 0) {
             stopPivot();
             return;
         }
