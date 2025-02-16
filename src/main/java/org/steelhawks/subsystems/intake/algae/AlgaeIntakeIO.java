@@ -44,8 +44,6 @@ public interface AlgaeIntakeIO {
 
     default void runPivotManual(double speed) {}
 
-    default void zeroEncoders() {}
-
     /**
      * Stops the pivot
      */
@@ -60,4 +58,9 @@ public interface AlgaeIntakeIO {
      * Stops the intake
      */
     default void stopIntake() {}
+
+    /**
+     * Zeros the position of the motor encoders.
+     */
+    default void zeroEncoders() {}
 }
