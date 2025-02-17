@@ -25,6 +25,8 @@ public interface CoralIntakeIO {
      */
     default void runIntake(double percentageOutput) {}
 
+    default void runReverse(double percentageOutput) {}
+
     /**
      * Stops the elevator.
      */

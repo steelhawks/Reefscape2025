@@ -405,6 +405,9 @@ public class RobotContainer {
         operator.leftTrigger().whileTrue(
             s_Intake.shootCoral()
         );
+
+        operator.povLeft().whileTrue(
+            s_Intake.reverseCoral());
             // Commands.either(
             //     s_Intake.shootCoralSlow(),
             //     s_Intake.shootCoral(),
@@ -439,6 +442,8 @@ public class RobotContainer {
         // operator.povLeft().whileTrue(
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
+        
+        
         operator.povRight().whileTrue(
             s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
     }

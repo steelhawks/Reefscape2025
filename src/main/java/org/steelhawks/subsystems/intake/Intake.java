@@ -94,6 +94,14 @@ public class Intake {
             .finallyDo(() -> mCoralIntake.stop());
     }
 
+    public Command reverseCoral() {
+        return Commands.run(
+            () -> mCoralIntake.reverseCoral(), mCoralIntake)
+            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2))
+            .finallyDo(() -> mCoralIntake.stop());
+    }
+
+
 //    public Command intakeCoral() {
 //        return Commands.run(
 //            () -> mCoralIntake.runIntake(), mCoralIntake)
