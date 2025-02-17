@@ -202,27 +202,20 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     }
 
     @Override
+    public void zeroEncoders() {
+        // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
+        // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
+        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(AlgaeIntakeState.HOME.getRadians())));
+    }
+
+    @Override
     public void runPivotWithVoltage(double volts) {
         if (hitLimit) {
             stopPivot();
             return;
         }
+        
         mPivotMotor.setVoltage(volts);
-    }
-
-    @Override
-    public void zeroEncoders() {
-        // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
-        // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
-        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(AlgaeIntakeState.HOME.getRadians())));
-
-
-        // 1.9469211932214827
-        // -4.6835
-        // -4.42
-        // -4.6
-
-        // -15.563
     }
 
     @Override
