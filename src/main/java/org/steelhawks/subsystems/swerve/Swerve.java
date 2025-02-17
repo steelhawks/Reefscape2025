@@ -61,7 +61,7 @@ import org.steelhawks.util.LocalADStarAK;
 public class Swerve extends SubsystemBase {
 
     private static final double SLOW_SPEED_MULTIPLIER = 0.3;
-    private static double SPEED_MULTIPLIER = 1;
+    private static double SPEED_MULTIPLIER = SLOW_SPEED_MULTIPLIER;
     private boolean isPathfinding = false;
 
     public static final double ODOMETRY_FREQUENCY =

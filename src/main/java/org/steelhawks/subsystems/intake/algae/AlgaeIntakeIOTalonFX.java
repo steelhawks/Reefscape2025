@@ -80,11 +80,11 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         mLimitSwitch = new DigitalInput(constants.ALGAE_LIMIT_SWITCH_ID);
 
         var intakeConfig = new TalonFXConfiguration()
-        .withFeedback(new FeedbackConfigs()
-            .withSensorToMechanismRatio(constants.ALGAE_INTAKE_GEAR_RATIO))
-        .withMotorOutput(new MotorOutputConfigs()
-            .withInverted(InvertedValue.Clockwise_Positive)
-            .withNeutralMode(NeutralModeValue.Brake));
+            .withFeedback(new FeedbackConfigs()
+                .withSensorToMechanismRatio(constants.ALGAE_INTAKE_GEAR_RATIO))
+            .withMotorOutput(new MotorOutputConfigs()
+                .withInverted(InvertedValue.Clockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake));
 
         var pivotConfig = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs()
