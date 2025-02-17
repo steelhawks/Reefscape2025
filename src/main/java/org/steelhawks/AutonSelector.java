@@ -258,8 +258,8 @@ public class AutonSelector extends VirtualSubsystem {
    
     public Command getAutonCommand() {
         return new SequentialCommandGroup(
-            firstPath.runPath(),
-            secondPath.runPath()
+            firstPath.runPath,
+            secondPath.runPath
         );
     }
 }
