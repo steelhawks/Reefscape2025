@@ -59,9 +59,9 @@ public final class Autos {
         return routine;
     }
 
-    public static Command getAutonCommand() {
-        return Commands.none();
-    }
+    //public static Command getAutonCommand() {
+    //    return Commands.none();
+    //}
 
     // public static Command getTestAuton() {
     //     return Commands.runOnce(

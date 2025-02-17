@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -160,7 +162,11 @@ public class Robot extends LoggedRobot {
         setState(RobotState.DISABLED);
 
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
+            robotContainer.resetSimulation(
+                new Pose2d(
+                    3, 
+                    3, 
+                    new Rotation2d()));
         }
     }
 
@@ -181,7 +187,9 @@ public class Robot extends LoggedRobot {
         setState(RobotState.AUTON);
 //        autonomousCommand = Autos.getAutonCommand();
 //        autonomousCommand = Autos.getTestAuton();
-        autonomousCommand = DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve);
+        autonomousCommand = 
+            //DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve)
+            RobotContainer.s_AutonSelector.getAutonCommand();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();

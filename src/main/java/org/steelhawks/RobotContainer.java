@@ -39,7 +39,7 @@ public class RobotContainer {
 
     public static final boolean useVision = false;
 
-    private SwerveDriveSimulation mDriveSimulation;
+    public static SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
     private final Trigger isAltMode;
     private boolean altMode = false;
@@ -50,6 +50,8 @@ public class RobotContainer {
     public static Elevator s_Elevator;
     public static Intake s_Intake;
     public static Align s_Align;
+
+    public static AutonSelector s_AutonSelector;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -208,6 +210,8 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIOSim());
+                    s_AutonSelector =
+                        new AutonSelector("Auton Selector");
                 }
             }
         }
