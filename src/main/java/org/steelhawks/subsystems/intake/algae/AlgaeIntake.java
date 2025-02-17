@@ -29,7 +29,7 @@ public class AlgaeIntake extends SubsystemBase {
     private final SysIdRoutine mAlgaeSysId;
     private boolean mEnabled = false;
     private final AlgaeIntakeIO io;
-    private OperatorLock mOperatorLock;
+    private OperatorLock mOperatorLock = OperatorLock.LOCKED;
 
     private final ProfiledPIDController mController;
     private ArmFeedforward mFeedforward;
@@ -143,7 +143,7 @@ public class AlgaeIntake extends SubsystemBase {
         Logger.recordOutput("Algae/Feedback", fb);
         Logger.recordOutput("Algae/Feedforward", ff);
 
-//        io.runPivot(fb + ff);
+        io.runPivotWithVoltage(fb + ff);
     }
 
     public Trigger atGoal() {
@@ -170,7 +170,8 @@ public class AlgaeIntake extends SubsystemBase {
                     setDefaultCommand(
                         pivotManual(
                             () -> MathUtil.clamp(
-                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.PIVOT_DEADBAND),
+                                    MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.PIVOT_DEADBAND)
+                                    * constants.ALGAE_SPEED_MULTIPLIER,
                                 -constants.ALGAE_MANUAL_PIVOT_INCREMENT,
                                 constants.ALGAE_MANUAL_PIVOT_INCREMENT)));
                     mOperatorLock = OperatorLock.UNLOCKED;
@@ -179,6 +180,7 @@ public class AlgaeIntake extends SubsystemBase {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
+                    enable();
                     homeCommand().schedule();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
@@ -207,7 +209,7 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command homeCommand() {
         return Commands.run(
-            () -> io.runPivotWithSpeed(.1), this)
+            () -> io.runPivotWithSpeed(.075), this)
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> io.stopPivot());
     }

@@ -6,9 +6,13 @@ public class IntakeConstants {
 
     public enum AlgaeIntakeState {
         // Keep in mind that all angle measurements listed below are in RADIANS!
-        HOME(1.777936017374823, 0.0, 3.0),
+        HOME(1.599829949 + 0.2945243112740431, 0.0, 3.0), // HOME was previously 1.777936017374823
         INTAKE(0.20, 0.0, 2.0),
         OUTTAKE((Math.PI / 1.777936017374823), 0.0, 0.0);
+
+        // Algae Intake Arm's Lexan Component is Perfectly Horizontal: -0.2715145994557585
+        // Algae Intake Arm's Lexan Component is Perfectly Vertical: 1.4741555371581012
+
         
         private final double alphaRadians;
         private final double omegaRadians;
@@ -53,6 +57,7 @@ public class IntakeConstants {
             3.9,
             0,
             0.01,
+            0.1,
             5.2,
             8,
             0.005,
@@ -72,9 +77,9 @@ public class IntakeConstants {
             17,
             50,
             10,
-            25.17,
+            22.64857645, // 25.17
             0.3525,
-            0.38,
+            0.37,
             0.71428571428571428571428571428571,
             // 3.9,
             // 0,
@@ -82,6 +87,7 @@ public class IntakeConstants {
             0.05,
             0,
             0,
+            0.1,
             5.2,
             8,
             0.005,
@@ -117,6 +123,7 @@ public class IntakeConstants {
     public final double ALGAE_KI;
     public final double ALGAE_KD;
 
+    public final double ALGAE_SPEED_MULTIPLIER;
     public final double ALGAE_MAX_VELOCITY_PER_SEC;
     public final double ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED;
 
@@ -143,6 +150,7 @@ public class IntakeConstants {
         double algae_kP,
         double algae_kI,
         double algae_kD,
+        double algae_speedMultiplier,
         double algae_maxVelocityPerSec,
         double algae_maxAccelerationPerSecSquared,
         double algae_tolerance,
@@ -166,6 +174,7 @@ public class IntakeConstants {
         ALGAE_KP = algae_kP;
         ALGAE_KI = algae_kI;
         ALGAE_KD = algae_kD;
+        ALGAE_SPEED_MULTIPLIER = algae_speedMultiplier;
         ALGAE_MAX_VELOCITY_PER_SEC = algae_maxVelocityPerSec;
         ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED = algae_maxAccelerationPerSecSquared;
         ALGAE_TOLERANCE = algae_tolerance;

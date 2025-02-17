@@ -210,7 +210,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     @Override
     public void runPivotWithVoltage(double volts) {
-        if (hitLimit) {
+        if (hitLimit && volts > 0) {
             stopPivot();
             return;
         }
@@ -220,7 +220,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     @Override
     public void runPivotWithSpeed(double speed) {
-        if (hitLimit) {
+        if (hitLimit && speed > 0) {
             stopPivot();
             return;
         }
