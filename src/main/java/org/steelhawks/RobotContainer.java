@@ -3,7 +3,6 @@ package org.steelhawks;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.ironmaple.simulation.SimulatedArena;
@@ -344,18 +343,22 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode())));
 
-        if (RobotBase.isReal()) {
-            driver.b().onTrue(
-                s_Swerve.zeroHeading(
-                    new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
-        }
+        driver.b().onTrue(
+            s_Swerve.zeroHeading(
+                new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
 
-        if (Constants.getMode() == Mode.SIM) {
-            driver.b().onTrue(
-                s_Swerve.zeroHeading(
-                    new Pose2d(
-                        mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
-        }
+//        if (RobotBase.isReal()) {
+//            driver.b().onTrue(
+//                s_Swerve.zeroHeading(
+//                    new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
+//        }
+//
+//        if (Constants.getMode() == Mode.SIM) {
+//            driver.b().onTrue(
+//                s_Swerve.zeroHeading(
+//                    new Pose2d(
+//                        mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
+//        }
     }
 
     private void configureOperator() {

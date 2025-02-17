@@ -143,7 +143,7 @@ public class AlgaeIntake extends SubsystemBase {
         Logger.recordOutput("Algae/Feedback", fb);
         Logger.recordOutput("Algae/Feedforward", ff);
 
-        io.runPivot(fb + ff);
+//        io.runPivot(fb + ff);
     }
 
     public Trigger atGoal() {

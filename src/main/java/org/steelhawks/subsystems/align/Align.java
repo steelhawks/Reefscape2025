@@ -84,7 +84,7 @@ public class Align extends VirtualSubsystem {
         leftDisconnected = new Alert(
             "Left CANrange is disconnected", Alert.AlertType.kError);
         rightDisconnected = new Alert(
-            "Left CANrange is disconnected", Alert.AlertType.kError);
+            "Right CANrange is disconnected", Alert.AlertType.kError);
     }
 
     @Override
