@@ -78,7 +78,7 @@ public class AlgaeIntake extends SubsystemBase {
                     null,
                     (state) -> Logger.recordOutput("Intake/Algae/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
-                    (voltage) -> io.runPivot(voltage.in(Volts)), null, this));
+                    (voltage) -> io.runPivotWithVoltage(voltage.in(Volts)), null, this));
 
         mController =
             new ProfiledPIDController(
@@ -201,13 +201,13 @@ public class AlgaeIntake extends SubsystemBase {
                             appliedSpeed = (Math.cos(getPosition()) * constants.ALGAE_KG) / 12.0;
                         }
 
-                        io.runPivotManual(appliedSpeed);
+                        io.runPivotWithSpeed(appliedSpeed);
                     }, this));
     }
 
     public Command homeCommand() {
         return Commands.run(
-            () -> io.runPivotManual(.1), this)
+            () -> io.runPivotWithSpeed(.1), this)
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> io.stopPivot());
     }
@@ -230,45 +230,45 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runPivot(constants.ALGAE_KS), this)
+            () -> io.runPivotWithVoltage(constants.ALGAE_KS), this)
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command runPivotManual(boolean isUp) {
         return Commands.run(
-            () -> io.runPivotManual(isUp ? -.1   : .1))
+            () -> io.runPivotWithSpeed(isUp ? -.1   : .1))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command runPivotManualUp() {
         return Commands.run(
-            () -> io.runPivotManual(.1))
+            () -> io.runPivotWithSpeed(.1))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command runPivotManualDown() {
         return Commands.run(
-            () -> io.runPivotManual(-.1))
+            () -> io.runPivotWithSpeed(-.1))
             .finallyDo(() -> io.stopPivot());
     }
 
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runPivot(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
+            () -> io.runPivotWithVoltage(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivot(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
+            () -> io.runPivotWithVoltage(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applyVolts(double volts) {
         return Commands.run(
             () -> {
-                io.runPivot(volts);
+                io.runPivotWithVoltage(volts);
             }, this)
             .finallyDo(() -> io.stopPivot());
     }

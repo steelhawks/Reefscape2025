@@ -172,8 +172,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
                 pivotCurrent,
                 pivotTemp).isOK();
         inputs.pivotPositionRad = Units.rotationsToRadians(pivotPos);
-        // inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelo);
-        inputs.pivotVelocityRadPerSec = Math.floor(Units.rotationsToRadians(pivotVelo) * 100) / 100;
+        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelo);
         inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
         inputs.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
         inputs.pivotTempCelsius = pivotTemp.getValueAsDouble();
@@ -195,6 +194,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
             inputs.encoderConnected = inputs.pivotConnected;
             inputs.magnetGood = inputs.pivotConnected;
             inputs.encoderPositionRad = inputs.pivotPositionRad;
+            inputs.encoderAbsolutePositionRad = inputs.pivotPositionRad;
             inputs.encoderVelocityRadPerSec = inputs.pivotVelocityRadPerSec;
         }
 
@@ -202,7 +202,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     }
 
     @Override
-    public void runPivot(double volts) {
+    public void runPivotWithVoltage(double volts) {
         if (hitLimit) {
             stopPivot();
             return;
@@ -226,7 +226,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     }
 
     @Override
-    public void runPivotManual(double speed) {
+    public void runPivotWithSpeed(double speed) {
         if (hitLimit && speed > 0) {
             stopPivot();
             return;
