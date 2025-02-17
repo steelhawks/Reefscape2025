@@ -220,7 +220,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
     @Override
     public void runPivotWithSpeed(double speed) {
-        if (hitLimit && speed > 0) {
+        if (hitLimit) {
             stopPivot();
             return;
         }
