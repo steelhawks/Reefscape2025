@@ -179,6 +179,8 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_AutonSelector =
+                            new AutonSelector("Auton Selector");
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
