@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.intake.schlong;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
@@ -12,7 +13,9 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -29,11 +32,9 @@ public class Schlong extends SubsystemBase {
     private final ProfiledPIDController mController;
     private ArmFeedforward mFeedforward;
 
-    private final Alert leftMotorDisconnected;
-    private final Alert rightMotorDisconnected;
-    private final Alert canCoderDisconnected;
+    private final Alert pivotMotorDisconnected;
+    private final Alert spinMotorDisconnected;
     private final Alert limitSwitchDisconnected;
-    private final Alert canCoderMagnetBad;
 
     public void enable() {
         mEnabled = true;
@@ -81,6 +82,76 @@ public class Schlong extends SubsystemBase {
         pivotMotorDisconnected = 
             new Alert(
                 "Schlong Pivot Motor Disconnected", AlertType.kError);
+        
+        spinMotorDisconnected =
+            new Alert(
+                "Right Elevator Motor Disconnected", AlertType.kError);
 
+        limitSwitchDisconnected =
+            new Alert(
+                "Elevator Limit Switch Disconnected", AlertType.kError);
+
+        this.io = io;
+
+        disable();
     }
+
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Schlong", inputs);
+        Logger.recordOutput("Schlong/Enabled", mEnabled);
+
+        pivotMotorDisconnected.set(!inputs.pivotConnected);
+        spinMotorDisconnected.set(!inputs.spinConnected);
+        limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
+
+        // stop adding up pid error while disabled
+        if (DriverStation.isDisabled()) {
+            mController.reset(getPivotPosition());
+        }
+
+        if (getCurrentCommand() != null) {
+            Logger.recordOutput("Schlong/CurrentCommand", getCurrentCommand().getName());
+        }
+
+        if (mEnabled) {
+            runElevator(mController.calculate(getPivotPosition()), mController.getSetpoint());
+        }
+    }
+
+    private void runPivot(double fb, TrapezoidProfile.State setpoint) {
+        double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
+        Logger.recordOutput("Schlong/Feedback", fb);
+        Logger.recordOutput("Schlong/Feedforward", ff);
+        double volts = fb + ff;
+
+        if ((inputs.limitSwitchPressed && volts <= 0)) {
+            io.stopPivot();
+            return;
+        }
+
+        io.runPivotWithVoltage(volts);
+    }
+
+    @AutoLogOutput(key = "Schlong/AdjustedPosition")
+    public double getPosition() {
+        return inputs.encoderPositionRad;
+    }
+
+    public Trigger atGoal() {
+        return new Trigger(mController::atGoal);
+    }
+
+    public Trigger atThisGoal(ElevatorConstants.State state) {
+        return new Trigger(
+            () -> Math.abs(getPosition() - state.getRadians()) <= constants.TOLERANCE);
+    }
+
+    public Trigger atLimit() {
+        return new Trigger(() -> inputs.atTopLimit || inputs.limitSwitchPressed);
+    }
+
+
+
 }

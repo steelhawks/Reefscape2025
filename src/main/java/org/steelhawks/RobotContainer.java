@@ -448,18 +448,18 @@ public class RobotContainer {
         // operator.povDown().onTrue(
         //     s_Climb.homeCommandWithCurrent());
 
-        // operator.povUp().onTrue(
-        //     s_Climb.runClimbViaSpeed(0.2));
+        operator.povLeft().onTrue(
+            s_Climb.climbCommandWithCurrent());
 
-        // operator.povDown().onTrue(
-        //     s_Climb.runClimbViaSpeed(-0.2));
+        operator.povRight().onTrue(
+            s_Climb.homeCommandWithCurrent());
     
         // operator.povLeft().whileTrue(
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
         
         
-        operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+        // operator.povRight().whileTrue(
+        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
     }
 }
