@@ -15,8 +15,15 @@ public class AutonSelector extends VirtualSubsystem {
 
     public enum StartEndPosition {
         DEFAULT_POSITION(3, 3, 0),
-        TOP_BARGE(7.595973491668701, 6.282351970672607, Math.PI/2),
+        TOP_BARGE(7.5922346115112305 , 5.699800968170166, 0),
         BOTTOM_BARGE(7.5922346115112305, 0.8101935982704163, 0),
+        BC1(7.58, 7.2524, Math.PI),
+        BC2(7.58, 6.17105, Math.PI),
+        BC3(7.58, 5.0812, Math.PI),
+        RC1(7.58, 3, Math.PI),
+        RC2(7.58, 1.9068, Math.PI),
+        RC3(7.58, 0.8137, Math.PI),
+
         TR1(4.996654987335205, 5.210732460021973, -2.104503908968165),
         TR2(5.246277332305908, 5.067183494567871, -2.077894603639225),
         BR2(5.285816192626953, 2.9848170280456543, 2.1057516944297037),
@@ -26,6 +33,7 @@ public class AutonSelector extends VirtualSubsystem {
         L2(3.2166290283203125, 3.854666233062744, 0),
         TL1(3.6922378540039062, 5.034092903137207, -1.0074801927044883),
         TL2(4.018342018127441, 5.224320411682129, -1.0714497541309838),
+
         UPPER_ALGAE(1.7405211925506592, 5.857955455780029, 3.141592653589793),
         CENTER_ALGAE(1.7537007331848145, 3.999641180038452, 3.141592653589793),
         LOWER_ALGAE(1.5560076236724854, 2.1808652877807617, 3.141592653589793),
@@ -153,8 +161,12 @@ public class AutonSelector extends VirtualSubsystem {
             new LoggedDashboardChooser<>(key + "/StartPosition?");
     
         startingPositionChooser.addDefaultOption("No position", StartEndPosition.DEFAULT_POSITION);
-        startingPositionChooser.addOption("Top Barge", StartEndPosition.TOP_BARGE);
-        startingPositionChooser.addOption("Bottom Barge", StartEndPosition.BOTTOM_BARGE);
+        startingPositionChooser.addOption("BC1", StartEndPosition.BC1);
+        startingPositionChooser.addOption("BC2", StartEndPosition.BC2);
+        startingPositionChooser.addOption("BC3", StartEndPosition.BC3);
+        startingPositionChooser.addOption("RC1", StartEndPosition.RC1);
+        startingPositionChooser.addOption("RC2", StartEndPosition.RC2);
+        startingPositionChooser.addOption("RC3", StartEndPosition.RC3);
 
         pathChooser1 =
             new LoggedDashboardChooser<>(key + "/Path 1?");
@@ -163,7 +175,6 @@ public class AutonSelector extends VirtualSubsystem {
         pathChooser2 = 
             new LoggedDashboardChooser<>(key + "/Path 2");
         pathChooser2.addDefaultOption("No Second Path", ChoreoPaths.DEFAULT_PATH);
-
     }
    
     public Command getAutonCommand() {
