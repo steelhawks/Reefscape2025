@@ -62,7 +62,14 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            2 * Math.PI);
+            2 * Math.PI,
+            
+            23,
+            24,
+            3,
+            
+            1,
+            1);
 
     public static final IntakeConstants OMEGA = DEFAULT;
     public static final IntakeConstants ALPHA =
@@ -92,7 +99,14 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            3);
+            3,
+            
+            23, 
+            24,
+            3,
+            
+            1,
+            1);
 
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
@@ -132,6 +146,13 @@ public class IntakeConstants {
 
     public final double ALGAE_MAX_RADIANS;
 
+    public final int SCHLONG_SPIN_MOTOR_ID;
+    public final int SCHLONG_PIVOT_MOTOR_ID;
+    public final int SCHLONG_LIMIT_SWITCH_ID;
+
+    public final double SCHLONG_SPIN_GEAR_RATIO;
+    public final double SCHLONG_PIVOT_GEAR_RATIO;
+
     public IntakeConstants(
         int coral_intakeMotorId,
         double coral_intakeGearRatio,
@@ -155,7 +176,14 @@ public class IntakeConstants {
         double algae_maxAccelerationPerSecSquared,
         double algae_tolerance,
         double algae_manualPivotIncrement,
-        double algae_maxRadians
+        double algae_maxRadians,
+
+        int schlong_spinMotorId,
+        int schlong_pivotMotorId,
+        int schlong_limitSwitchId,
+
+        double schlong_spinGearRatio,
+        double schlong_pivotGearRatio
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
         CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
@@ -180,5 +208,12 @@ public class IntakeConstants {
         ALGAE_TOLERANCE = algae_tolerance;
         ALGAE_MANUAL_PIVOT_INCREMENT = algae_manualPivotIncrement;
         ALGAE_MAX_RADIANS = algae_maxRadians;
+
+        SCHLONG_SPIN_MOTOR_ID = schlong_spinMotorId;
+        SCHLONG_PIVOT_MOTOR_ID = schlong_pivotMotorId;
+        SCHLONG_LIMIT_SWITCH_ID = schlong_limitSwitchId;
+
+        SCHLONG_SPIN_GEAR_RATIO = schlong_spinGearRatio;
+        SCHLONG_PIVOT_GEAR_RATIO = schlong_pivotGearRatio;
     }  
 }
