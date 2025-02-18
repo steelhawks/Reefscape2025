@@ -15,8 +15,6 @@ public class AutonSelector extends VirtualSubsystem {
 
     public enum StartEndPosition {
         DEFAULT_POSITION(3, 3, 0),
-        TOP_BARGE(7.5922346115112305 , 5.699800968170166, 0),
-        BOTTOM_BARGE(7.5922346115112305, 0.8101935982704163, 0),
         BC1(7.58, 7.2524, Math.PI),
         BC2(7.58, 6.17105, Math.PI),
         BC3(7.58, 5.0812, Math.PI),
@@ -26,6 +24,10 @@ public class AutonSelector extends VirtualSubsystem {
 
         TR1(4.996654987335205, 5.210732460021973, -2.104503908968165),
         TR2(5.246277332305908, 5.067183494567871, -2.077894603639225),
+
+        R1(5.772211074829102, 4.18642520904541, Math.PI),
+        R2(5.773259162902832, 3.875631093978882, Math.PI),
+        
         BR2(5.285816192626953, 2.9848170280456543, 2.1057516944297037),
         BL1(3.7042717933654785, 2.9979965686798096, 1.0303766669061616),
         BL2(3.9942214488983154, 2.8398420810699463, 1.0303766669061616),
@@ -84,31 +86,48 @@ public class AutonSelector extends VirtualSubsystem {
             
     public enum ChoreoPaths {
         DEFAULT_PATH("No Auto", StartEndPosition.DEFAULT_POSITION, StartEndPosition.DEFAULT_POSITION),
-        TOP_BARGE_TO_TR2("Upper Barge to TR2 Reef", StartEndPosition.TOP_BARGE, StartEndPosition.TR2),
-        BOTTOM_BARGE_TO_BL1("Lower Barge to BL1 Reef", StartEndPosition.BOTTOM_BARGE, StartEndPosition.BL1),
-        BOTTOM_BARGE_TO_BR2("Lower Barge to BR2 Reef", StartEndPosition.BOTTOM_BARGE, StartEndPosition.BR2),
-        BOTTOM_BARGE_TO_L2("Lower Barge to L2 Reef", StartEndPosition.BOTTOM_BARGE, StartEndPosition.L2),
+
+        BC1_TO_TR1("BC1 to TR1", StartEndPosition.BC1, StartEndPosition.TR1),
+        BC2_TO_TR2("BC2 to TR2", StartEndPosition.BC2, StartEndPosition.TR2),
+        BC3_TO_R1("BC3 to R1", StartEndPosition.BC3, StartEndPosition.R1),
+
+        RC1_TO_R2("RC1 to R2", StartEndPosition.RC1, StartEndPosition.R2),
+        RC2_TO_BR2("RC2 to BR2", StartEndPosition.RC2, StartEndPosition.BR2),
+        RC3_TO_BL1("RC3 to BL1", StartEndPosition.RC3, StartEndPosition.BL1),
+        RC3_TO_BL2("RC3 to BL2", StartEndPosition.RC3, StartEndPosition.BL2),
+        RC3_TO_L2("RC3 to L2", StartEndPosition.RC3, StartEndPosition.L2),
+
         TR1_TO_UPPER_SOURCE("TR1 Reef to Upper Source", StartEndPosition.TR1, StartEndPosition.UPPER_SOURCE),
         TR2_TO_BR2("TR2 Reef to BR2 Reef", StartEndPosition.TR2, StartEndPosition.BR2),
         TR2_TO_UPPER_ALGE("TR2 Reef to Upper Algae", StartEndPosition.TR2, StartEndPosition.UPPER_ALGAE),
         TR2_TO_UPPER_SOURCE("TR2 Reef to Upper Source", StartEndPosition.TR2, StartEndPosition.UPPER_SOURCE),
+
         BR2_TO_TR2("BR2 Reef to TR2 Reef", StartEndPosition.BR2, StartEndPosition.TR2),
+
         L1_TO_CENTER_ALGAE("L1 Reef to Center Algae", StartEndPosition.L1, StartEndPosition.CENTER_ALGAE),
         L1_TO_UPPER_ALGAE("L1 Reef to Upper Algae", StartEndPosition.L1, StartEndPosition.UPPER_ALGAE),
+
         L2_TO_CENTER_ALGAE("L2 Reef to Center Algae", StartEndPosition.L2, StartEndPosition.CENTER_ALGAE),
         L2_TO_LOWER_ALGAE("L2 Reef to Lower Algae", StartEndPosition.L2, StartEndPosition.LOWER_ALGAE),
         L2_TO_UPPER_ALGAE("L2 Reef to Upper Algae", StartEndPosition.L2, StartEndPosition.UPPER_ALGAE),
+
         TL1_TO_UPPER_ALGAE("TL1 Reef to Upper Algae", StartEndPosition.TL1, StartEndPosition.UPPER_ALGAE),
         TL1_TO_UPPER_SOURCE("TL1 Reef to Upper Source", StartEndPosition.TL1, StartEndPosition.UPPER_SOURCE),
+
         TL2_TO_UPPER_SOURCE("TL2 Reef to Upper Source", StartEndPosition.TL2, StartEndPosition.UPPER_SOURCE),
+
         UPPER_ALGAE_TO_L2("Upper Algae to L2 Reef", StartEndPosition.UPPER_ALGAE, StartEndPosition.L2),
+
         CENTER_ALGAE_TO_L2("Center Algae to L2 Reef", StartEndPosition.CENTER_ALGAE, StartEndPosition.L2),
         CENTER_ALGAE_TO_TL1("Center Algae to TL1 Reef", StartEndPosition.CENTER_ALGAE, StartEndPosition.TL1),
+
         LOWER_ALGAE_TO_L1("Lower Algae to L1 Reef", StartEndPosition.LOWER_ALGAE, StartEndPosition.L1),
         LOWER_ALGAE_TO_L2("Lower Algae to L2 Reef", StartEndPosition.LOWER_ALGAE, StartEndPosition.L2),
+
         UPPER_SOURCE_TO_TL1("Upper Source to TL1 Reef", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL1),
         UPPER_SOURCE_TO_TL2("Upper Source to TL2 Reef", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL2),
         UPPER_SOURCE_TO_TR1("Upper Source to TR1 Reef", StartEndPosition.UPPER_SOURCE, StartEndPosition.TR1),
+        
         LOWER_SOURCE_TO_BL1("Lower Source to BL1 Reef", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL1),
         LOWER_SOURCE_TO_BL2("Lower Source to BL2 Reef", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL2);
 
