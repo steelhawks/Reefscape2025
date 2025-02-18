@@ -36,6 +36,7 @@ import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
+import org.steelhawks.util.DashboardTrigger;
 
 public class RobotContainer {
 
@@ -282,8 +283,6 @@ public class RobotContainer {
         configureTriggers();
         configureOperator();
         configureDriver();
-
-        s_Intake.homeAlgae().schedule();;
     }
 
     private void configurePathfindingCommands() {
@@ -378,22 +377,32 @@ public class RobotContainer {
 //            s_Elevator.applyVolts(1));
 
         // L1
-        operator.leftBumper().whileTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+        operator.leftBumper()
+            .or(new DashboardTrigger("l1"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
-        operator.x().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+        operator.x()
+            .or(new DashboardTrigger("l2"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
-        operator.y().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+        operator.y()
+            .or(new DashboardTrigger("l3"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
-        operator.a().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+        operator.a()
+            .or(new DashboardTrigger("l4"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
         // operator.b().onTrue(
         //     s_Elevator.homeCommand());
-        operator.b().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+        operator.b()
+            .or(new DashboardTrigger("elevatorHome"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
 
         /* ------------- Intake Controls ------------- */
 
@@ -406,14 +415,18 @@ public class RobotContainer {
         //     s_Intake.shootCoral()
         // );
         
-        operator.leftTrigger().whileTrue(
-            Commands.either(
-                s_Intake.shootCoralSlow(),
-                s_Intake.shootCoral(),
-                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() && s_Elevator.isEnabled()));
+        operator.leftTrigger()
+            .or(new DashboardTrigger("scoreCoral"))
+            .whileTrue(
+                Commands.either(
+                    s_Intake.shootCoralSlow(),
+                    s_Intake.shootCoral(),
+                    () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() && s_Elevator.isEnabled()));
 
-        operator.povLeft().whileTrue(
-            s_Intake.reverseCoral());
+        operator.povLeft()
+            .or(new DashboardTrigger("intakeCoral"))
+            .whileTrue(
+                s_Intake.reverseCoral());
 
         // intake algae
         operator.rightBumper().whileTrue(
