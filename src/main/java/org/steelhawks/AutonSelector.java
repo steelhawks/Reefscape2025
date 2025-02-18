@@ -128,16 +128,10 @@ public class AutonSelector extends VirtualSubsystem {
     private record AutoRoutine( 
         String name, Command runPath, Position endingPosition) {}
 
-    private static AutoRoutine firstPath;
-    private static AutoRoutine secondPath;
+    private static ChoreoPaths firstPath;
+    private static ChoreoPaths secondPath;
 
-    private static final AutoRoutine DEFAULT_ROUTINE =
-        new AutoRoutine(
-            "Nothing auto", 
-            Commands.print("No auto selected"),
-            null);
-
-    private AutoRoutine pathMaker(ChoreoPaths currentPath) {
+    private AutoRoutine autoRoutineMaker(ChoreoPaths currentPath) {
 
         return new AutoRoutine(
             currentPath.name,
@@ -153,17 +147,27 @@ public class AutonSelector extends VirtualSubsystem {
                         currentPath.startingPosition.x,
                         currentPath.startingPosition.y,
                         new Rotation2d(currentPath.startingPosition.rotRadians)));
-                })
+                }
+            )
             .andThen(
-                DriveCommands.followPath(Autos.getPath(currentPath.name))),
+                () -> {
+                    if (currentPath.name != "No Auto") {
+                        DriveCommands.followPath(Autos.getPath(currentPath.name));
+                    } else {
+                        Commands.none();
+                    }
+                }
+            ),
+
             currentPath.endingPosition
         );
     } 
 
-    private static AutoRoutine previousFirstPath = DEFAULT_ROUTINE;
+    private static ChoreoPaths previousFirstPath = ChoreoPaths.DEFAULT_PATH;
             
     public enum ChoreoPaths {
 
+        DEFAULT_PATH("No Auto", DEFAULT_POSITION, DEFAULT_POSITION),
         TOP_BARGE_TO_TR2("Upper Barge to TR2 Reef", TOP_BARGE, TR2),
         BOTTOM_BARGE_TO_BL1("Lower Barge to BL1 Reef", BOTTOM_BARGE, BL1),
         BOTTOM_BARGE_TO_BR2("Lower Barge to BR2 Reef", BOTTOM_BARGE, BR2),
@@ -201,11 +205,10 @@ public class AutonSelector extends VirtualSubsystem {
             this.startingPosition = startingPosition;
             this.endingPosition = endingPosition;
         }
-
-        public static int NumofPaths = ChoreoPaths.values().length;
     
     }
 
+    public static int numOfPaths = ChoreoPaths.values().length;
     public static final ChoreoPaths[] paths = ChoreoPaths.values();
         
     @Override
@@ -216,26 +219,26 @@ public class AutonSelector extends VirtualSubsystem {
         
         if (currentStartingPose != previousStartingPose) {
             previousStartingPose = currentStartingPose;
-            for (int i = 0; i < ChoreoPaths.NumofPaths; i++) {
+            for (int i = 0; i < numOfPaths; i++) {
                 if (paths[i].startingPosition == currentStartingPose) {
-                    pathChooser1.addOption(paths[i].name, pathMaker(paths[i]));
+                    pathChooser1.addOption(paths[i].name, paths[i]);
                 }
             }
         }
 
         if (firstPath != previousFirstPath) {
             previousFirstPath = firstPath;
-            for (int i = 0; i < ChoreoPaths.NumofPaths; i++) {
+            for (int i = 0; i < numOfPaths; i++) {
                 if (paths[i].startingPosition == firstPath.endingPosition) {
-                    pathChooser2.addOption(paths[i].name, pathMaker(paths[i]));
+                    pathChooser2.addOption(paths[i].name, paths[i]);
                 }
             }
         }
     }
 
     private final LoggedDashboardChooser<Position> startingPositionChooser;
-    private final LoggedDashboardChooser<AutoRoutine> pathChooser1;
-    private final LoggedDashboardChooser<AutoRoutine> pathChooser2;
+    private final LoggedDashboardChooser<ChoreoPaths> pathChooser1;
+    private final LoggedDashboardChooser<ChoreoPaths> pathChooser2;
     
     public AutonSelector(String key) {
 
@@ -248,18 +251,18 @@ public class AutonSelector extends VirtualSubsystem {
 
         pathChooser1 =
             new LoggedDashboardChooser<>(key + "/Path 1?");
-        pathChooser1.addDefaultOption("No Auto", DEFAULT_ROUTINE);
+        pathChooser1.addDefaultOption("No Auto", ChoreoPaths.DEFAULT_PATH);
 
         pathChooser2 = 
             new LoggedDashboardChooser<>(key + "/Path 2");
-        pathChooser2.addOption("No Second Path", DEFAULT_ROUTINE);
+        pathChooser2.addDefaultOption("No Second Path", ChoreoPaths.DEFAULT_PATH);
 
     }
    
     public Command getAutonCommand() {
         return new SequentialCommandGroup(
-            firstPath.runPath,
-            secondPath.runPath
+            autoRoutineMaker(firstPath).runPath,
+            autoRoutineMaker(secondPath).runPath
         );
     }
 }
