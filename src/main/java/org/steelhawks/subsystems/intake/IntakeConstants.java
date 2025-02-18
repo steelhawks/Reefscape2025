@@ -2,6 +2,8 @@ package org.steelhawks.subsystems.intake;
 
 import org.steelhawks.Constants;
 
+import edu.wpi.first.math.util.Units;
+
 public class IntakeConstants {
 
     public enum AlgaeIntakeState {
@@ -69,7 +71,20 @@ public class IntakeConstants {
             3,
             
             1,
-            1);
+            1,
+            
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            5.2,
+            8,
+            Units.rotationsToRadians(0.005),
+            0.5,
+            Math.PI);
 
     public static final IntakeConstants OMEGA = DEFAULT;
     public static final IntakeConstants ALPHA =
@@ -106,7 +121,21 @@ public class IntakeConstants {
             3,
             
             1,
-            1);
+            1,
+            
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+
+            1,
+            5.2,
+            8,
+            Units.rotationsToRadians(0.005),
+            0.5,
+            Math.PI);
 
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
@@ -153,6 +182,22 @@ public class IntakeConstants {
     public final double SCHLONG_SPIN_GEAR_RATIO;
     public final double SCHLONG_PIVOT_GEAR_RATIO;
 
+    public final double SCHLONG_KS;
+    public final double SCHLONG_KG;
+    public final double SCHLONG_KV;
+
+    public final double SCHLONG_KP;
+    public final double SCHLONG_KI;
+    public final double SCHLONG_KD;
+
+    public final double SCHLONG_SPEED_MULTIPLIER;
+    public final double SCHLONG_MAX_VELOCITY_PER_SEC;
+    public final double SCHLONG_MAX_ACCELERATION_PER_SEC_SQUARED;
+    public final double SCHLONG_TOLERANCE;
+    public final double SCHLONG_MANUAL_PIVOT_INCREMENT;
+    public final double SCHLONG_MAX_RADIANS;
+
+
     public IntakeConstants(
         int coral_intakeMotorId,
         double coral_intakeGearRatio,
@@ -183,7 +228,21 @@ public class IntakeConstants {
         int schlong_limitSwitchId,
 
         double schlong_spinGearRatio,
-        double schlong_pivotGearRatio
+        double schlong_pivotGearRatio,
+
+        double schlong_kS,
+        double schlong_kG,
+        double schlong_kV,
+        double schlong_kP,
+        double schlong_kI,
+        double schlong_kD,
+        double schlong_speedMultiplier,
+        double schlong_maxVelocityPerSec,
+        double schlong_maxAccelerationPerSecSquared,
+        double schlong_tolerance,
+        double schlong_manualPivotIncrement,
+        double schlong_maxRadians
+
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
         CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
@@ -215,5 +274,18 @@ public class IntakeConstants {
 
         SCHLONG_SPIN_GEAR_RATIO = schlong_spinGearRatio;
         SCHLONG_PIVOT_GEAR_RATIO = schlong_pivotGearRatio;
+
+        SCHLONG_KS = schlong_kS;
+        SCHLONG_KG = schlong_kG;
+        SCHLONG_KV = schlong_kV;
+        SCHLONG_KP = schlong_kP;
+        SCHLONG_KI = schlong_kI;
+        SCHLONG_KD = schlong_kD;
+        SCHLONG_SPEED_MULTIPLIER = schlong_speedMultiplier;
+        SCHLONG_MAX_VELOCITY_PER_SEC = schlong_maxVelocityPerSec;
+        SCHLONG_MAX_ACCELERATION_PER_SEC_SQUARED = schlong_maxAccelerationPerSecSquared;
+        SCHLONG_TOLERANCE = schlong_tolerance;
+        SCHLONG_MANUAL_PIVOT_INCREMENT = schlong_manualPivotIncrement;
+        SCHLONG_MAX_RADIANS = schlong_maxRadians;
     }  
 }

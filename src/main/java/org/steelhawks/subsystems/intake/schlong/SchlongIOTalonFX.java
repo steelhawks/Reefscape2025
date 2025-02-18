@@ -76,6 +76,8 @@ public class SchlongIOTalonFX implements SchlongIO {
         mSpinMotor.getConfigurator().apply(spinConfig);
         mPivotMotor.getConfigurator().apply(pivotConfig);
 
+        zeroEncoders();
+
         spinPosition = mSpinMotor.getPosition();
         spinVelocity = mSpinMotor.getVelocity();
         spinVoltage = mSpinMotor.getSupplyVoltage();
@@ -176,6 +178,6 @@ public class SchlongIOTalonFX implements SchlongIO {
 
     @Override
     public void zeroEncoders() {
-        mPivotMotor.setPosition(- Math.PI / 2);
+        mPivotMotor.setPosition(Units.radiansToRotations(- Math.PI / 2));
     }
 }
