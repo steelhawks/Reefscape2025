@@ -33,6 +33,9 @@ import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
+import org.steelhawks.subsystems.intake.schlong.Schlong;
+import org.steelhawks.subsystems.intake.schlong.SchlongIO;
+import org.steelhawks.subsystems.intake.schlong.SchlongIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -54,6 +57,7 @@ public class RobotContainer {
     public static Intake s_Intake;
     public static Align s_Align;
     public static Climb s_Climb;
+    public static Schlong s_Schlong;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -133,6 +137,9 @@ public class RobotContainer {
                     s_Climb = 
                         new Climb(
                             new ClimbIO() {});
+                    s_Schlong = 
+                        new Schlong(
+                            new SchlongIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -161,6 +168,8 @@ public class RobotContainer {
                     s_Climb = 
                         new Climb(
                             new ClimbIOTalonFX());
+                    s_Schlong = new Schlong(
+                        new SchlongIOTalonFX());
     
                 }
                 case HAWKRIDER -> {
@@ -191,7 +200,9 @@ public class RobotContainer {
                     s_Climb = 
                         new Climb(
                             new ClimbIO() {});
-    
+                    s_Schlong = 
+                        new Schlong(
+                            new SchlongIO() {});
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
@@ -226,7 +237,9 @@ public class RobotContainer {
                     s_Climb = 
                         new Climb(
                             new ClimbIO() {});
-    
+                    s_Schlong = 
+                        new Schlong(
+                            new SchlongIO() {});
                 }
             }
         }
@@ -256,8 +269,11 @@ public class RobotContainer {
                     s_Climb = 
                         new Climb(
                             new ClimbIO() {});
-    
+                    s_Schlong = 
+                        new Schlong(   
+                            new SchlongIO() {});
                 }
+
                 case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
                         new Vision(
@@ -267,6 +283,7 @@ public class RobotContainer {
                             new VisionIO() {});
                 }
             }
+            
             s_Elevator =
                 new Elevator(
                     new ElevatorIO() {});
@@ -448,16 +465,21 @@ public class RobotContainer {
         // operator.povDown().onTrue(
         //     s_Climb.homeCommandWithCurrent());
 
-        operator.povLeft().onTrue(
-            s_Climb.climbCommandWithCurrent());
+        // operator.povLeft().onTrue(
+        //     s_Climb.climbCommandWithCurrent());
 
-        operator.povRight().onTrue(
-            s_Climb.homeCommandWithCurrent());
+        // operator.povRight().onTrue(
+        //     s_Climb.homeCommandWithCurrent());
     
         // operator.povLeft().whileTrue(
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
-        
+        operator.povLeft().whileTrue(
+            s_Schlong.applyPivotSpeed(0.4));
+
+        operator.povRight().whileTrue(
+            s_Schlong.applySpinSpeed(0.4)
+        );
         
         // operator.povRight().whileTrue(
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));

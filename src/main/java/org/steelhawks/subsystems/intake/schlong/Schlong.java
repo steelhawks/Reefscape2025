@@ -7,6 +7,7 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.elevator.ElevatorIO;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -14,6 +15,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -116,7 +119,7 @@ public class Schlong extends SubsystemBase {
         }
 
         if (mEnabled) {
-            runElevator(mController.calculate(getPivotPosition()), mController.getSetpoint());
+            runPivot(mController.calculate(getPivotPosition()), mController.getSetpoint());
         }
     }
 
@@ -135,23 +138,99 @@ public class Schlong extends SubsystemBase {
     }
 
     @AutoLogOutput(key = "Schlong/AdjustedPosition")
-    public double getPosition() {
-        return inputs.encoderPositionRad;
+    public double getPivotPosition() {
+        return inputs.pivotPositionRad;
     }
 
     public Trigger atGoal() {
         return new Trigger(mController::atGoal);
     }
 
-    public Trigger atThisGoal(ElevatorConstants.State state) {
+    public Trigger atThisGoal(IntakeConstants.SchlongState state) {
         return new Trigger(
-            () -> Math.abs(getPosition() - state.getRadians()) <= constants.TOLERANCE);
+            () -> Math.abs(getPivotPosition() - state.getRadians()) <= constants.SCHLONG_TOLERANCE);
     }
 
     public Trigger atLimit() {
-        return new Trigger(() -> inputs.atTopLimit || inputs.limitSwitchPressed);
+        return new Trigger(() -> inputs.limitSwitchPressed);
     }
 
 
+    ///////////////////////
+    /* COMMAND FACTORIES */
+    ///////////////////////
 
+    public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return mSysId.quasistatic(dir)
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction dir) {
+        return mSysId.dynamic(dir)
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command setDesiredState(IntakeConstants.SchlongState state) {
+        return Commands.runOnce(
+            () -> {
+                double goal =
+                    MathUtil.clamp(state.getRadians(), 0, constants.SCHLONG_MAX_RADIANS);
+                inputs.goal = goal;
+                mController.setGoal(new TrapezoidProfile.State(goal, 0));
+                enable();
+            }, this)
+            .withName("Set Desired State");
+    }
+
+    public Command applyPivotSpeed(double speed) {
+        return Commands.run(() -> {
+            io.runPivotWithSpeed(speed);
+        }, this)
+        .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command applyPivotVolts(double volts) {
+        return Commands.run(
+            () -> io.runPivotWithVoltage(volts))
+            .finallyDo(()-> io.stopPivot());
+    }
+
+    public Command applySpinSpeed(double speed) {
+        return Commands.run(
+            () -> {
+                io.runSpinWithSpeed(- speed);
+            }, this)
+            .finallyDo(() -> io.stopSpin());
+    }
+
+    public Command applySpinVolts(double speed) {
+        return Commands.run(
+            () -> {
+                io.runSpinWithVoltage(speed);
+            }, this)
+            .finallyDo(() -> io.stopSpin());
+    }
+
+    public double getDesiredState() {
+        return inputs.goal;
+    }
+
+    public Command applykS() {
+        return Commands.run(
+            () -> io.runPivotWithVoltage(constants.SCHLONG_KS))
+            .finallyDo(() -> io.stopPivot());
+    }
+
+    public Command applykG() {
+        return Commands.run(
+            () -> io.runPivotWithVoltage(constants.SCHLONG_KG * Math.cos(getPivotPosition())), this)
+            .finallyDo(() -> io.stopPivot());
+    }
+    
+    public Command applykV() {
+        return Commands.run(
+            () -> io.runPivotWithVoltage(
+                constants.SCHLONG_KS + constants.SCHLONG_KG * Math.cos(getPivotPosition()) + constants.SCHLONG_KV))
+                .finallyDo(() -> io.stopPivot());
+    }
 }

@@ -6,6 +6,8 @@ public interface SchlongIO {
 
     @AutoLog
     class SchlongIOInputs {
+        public double goal = 0;
+
         public boolean spinConnected = false;
         public double spinPositionRad = 0;
         public double spinVelocityRadPerSec = 0;

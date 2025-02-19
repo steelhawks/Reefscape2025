@@ -62,7 +62,7 @@ public class SchlongIOTalonFX implements SchlongIO {
             .withFeedback(new FeedbackConfigs()
                 .withSensorToMechanismRatio(constants.SCHLONG_SPIN_GEAR_RATIO))
             .withMotorOutput(new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake));
 
         

@@ -40,6 +40,35 @@ public class IntakeConstants {
         }
     }
 
+    public enum SchlongState {
+        // Keep in mind that all angle measurements listed below are in RADIANS!
+        HOME(- Math.PI / 2, 0.0, 3.0), 
+        ERECT(0, 0, 0);
+        
+        private final double alphaRadians;
+        private final double omegaRadians;
+        private final double hawkriderRadians;
+
+        SchlongState(double alpha, double omega, double hawkrider) {
+            this.alphaRadians = alpha;
+            this.omegaRadians = omega;
+            this.hawkriderRadians = hawkrider;
+        }
+
+        public double getRadians() {
+            switch (Constants.getRobot()) {
+                case ALPHABOT:
+                    return alphaRadians;
+                case OMEGABOT:
+                    return omegaRadians;
+                case HAWKRIDER:
+                    return hawkriderRadians;
+                default:
+                    return 0;
+            }
+        }
+    }
+
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
             16,
@@ -117,7 +146,7 @@ public class IntakeConstants {
             3,
             
             23, 
-            24,
+            33,
             3,
             
             1,
