@@ -34,8 +34,6 @@ public final class Autos {
             true,
             s_Swerve);
 
-    private static final Alert noAutosSelectedAlert = new Alert("No auton selected", AlertType.kError);
-
     private static Command followTrajectory(String choreo) {
         try {
             PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(choreo);
@@ -59,27 +57,6 @@ public final class Autos {
         return routine;
     }
 
-    //public static Command getAutonCommand() {
-    //    return Commands.none();
-    //}
-
-    // public static Command getTestAuton() {
-    //     return Commands.runOnce(
-    //         () ->
-    //             RobotContainer.s_Swerve.setPose(
-    //                 new Pose2d(3.242988109588623, 4.184154510498047, new Rotation2d())))
-    //         .andThen(DriveCommands.followPath(getPath("L1 Reef to Upper Algae")))
-    //         .andThen(Commands.waitSeconds(1))
-    //         .andThen(DriveCommands.followPath(getPath("Upper Algae to L1 Reef")))
-    //         .andThen(Commands.waitSeconds(1))
-    //         .andThen(DriveCommands.followPath(getPath("L1 Reef to Center Algae")))
-    //         .andThen(Commands.waitSeconds(1))
-    //         .andThen(DriveCommands.followPath(getPath("Center Algae to L2 Reef")))
-    //         // .andThen(Commands.waitSeconds(1))
-    //         // .andThen(DriveCommands.followPath(getPath("L2 Reef")))
-    //         ;
-    // }
-
     public static Command getPathPlannerAuton() {
         return new PathPlannerAuto("Experimental Auto");
     }
@@ -95,17 +72,6 @@ public final class Autos {
     public static Command getShortChoreoPathPlannerAuto() {
         return new PathPlannerAuto("Short Auto (Choreo)");
     }
-
-
-    // public static Command getHeitmanAuton() {
-    //     return Commands.runOnce(
-    //         () ->
-    //             RobotContainer.s_Swerve.setPose(
-    //                 new Pose2d(3.242988109588623, 4.184154510498047, new Rotation2d())))
-    //         .andThen(
-    //             DriveCommands.followPath(getPath("olan"))
-    //         );    
-    //     }
 
     public static PathPlannerPath getPath(String choreo) {
         try {
