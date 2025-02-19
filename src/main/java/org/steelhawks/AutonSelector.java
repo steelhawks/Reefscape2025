@@ -5,13 +5,24 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.steelhawks.Constants.Mode;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.util.VirtualSubsystem;
+import java.util.Objects;
 
 public class AutonSelector extends VirtualSubsystem {
-    private static StartEndPosition currentStartingPose;
+    private static StartEndPosition previousStartingPose = StartEndPosition.DEFAULT_POSITION;
+
+    private record AutoRoutine(
+        String name, Command runPath, StartEndPosition endingPosition) {}
+
+    private static ChoreoPaths firstPath;
+    private static ChoreoPaths secondPath;
+
+    private final LoggedDashboardChooser<StartEndPosition> startingPositionChooser;
+    private final LoggedDashboardChooser<ChoreoPaths> pathChooser1;
+    private final LoggedDashboardChooser<ChoreoPaths> pathChooser2;
 
     public enum StartEndPosition {
         DEFAULT_POSITION(3, 3, 0),
@@ -42,9 +53,9 @@ public class AutonSelector extends VirtualSubsystem {
         UPPER_SOURCE(1.252878189086914, 7.215447902679443, 2.2206668954618283),
         LOWER_SOURCE(1.252878189086914, 0.79, -2.203236031876737);
 
-        public double x;
-        public double y;
-        public double rotRadians;
+        public final double x;
+        public final double y;
+        public final double rotRadians;
 
         StartEndPosition(double x, double y, double rotRadians) {
             this.x = x;
@@ -53,29 +64,21 @@ public class AutonSelector extends VirtualSubsystem {
         }
     }
 
-    private static StartEndPosition previousStartingPose = StartEndPosition.DEFAULT_POSITION;
-
-    private record AutoRoutine( 
-        String name, Command runPath, StartEndPosition endingPosition) {}
-
-    private static ChoreoPaths firstPath;
-    private static ChoreoPaths secondPath;
-
     private AutoRoutine autoRoutineMaker(ChoreoPaths currentPath) {
         Command autoCommand = Commands.none();
-        if (currentPath.name != "No Auto") {
+        if (!Objects.equals(currentPath.name, "No Auto")) {
             autoCommand = Commands.runOnce(() -> {
-                RobotContainer.s_Swerve.setPose(new Pose2d(
+                RobotContainer.s_Swerve.setPose(
+                    new Pose2d(
                         currentPath.startingPosition.x,
                         currentPath.startingPosition.y,
-                        new Rotation2d(currentPath.startingPosition.rotRadians)
-                ));
-                if (Constants.getMode() == Constants.Mode.SIM) {
-                    RobotContainer.mDriveSimulation.setSimulationWorldPose(new Pose2d(
+                        new Rotation2d(currentPath.startingPosition.rotRadians)));
+                if (Constants.getMode() == Mode.SIM) {
+                    RobotContainer.mDriveSimulation.setSimulationWorldPose(
+                        new Pose2d(
                             currentPath.startingPosition.x,
                             currentPath.startingPosition.y,
-                            new Rotation2d(currentPath.startingPosition.rotRadians)
-                    ));
+                            new Rotation2d(currentPath.startingPosition.rotRadians)));
                 }
             }).andThen(DriveCommands.followPath(Autos.getPath(currentPath.name)));
         }
@@ -83,7 +86,8 @@ public class AutonSelector extends VirtualSubsystem {
     } 
 
     private static ChoreoPaths previousFirstPath = ChoreoPaths.DEFAULT_PATH;
-            
+
+    @SuppressWarnings("unused")
     public enum ChoreoPaths {
         DEFAULT_PATH("No Auto", StartEndPosition.DEFAULT_POSITION, StartEndPosition.DEFAULT_POSITION),
 
@@ -98,7 +102,7 @@ public class AutonSelector extends VirtualSubsystem {
         RC3_TO_L2("RC3 to L2", StartEndPosition.RC3, StartEndPosition.L2),
 
         TR1_TO_UPPER_SOURCE("TR1 to Upper Source", StartEndPosition.TR1, StartEndPosition.UPPER_SOURCE),
-        TR2_TO_UPPER_ALGE("TR2 to Upper Algae", StartEndPosition.TR2, StartEndPosition.UPPER_ALGAE),
+        TR2_TO_UPPER_ALGAE("TR2 to Upper Algae", StartEndPosition.TR2, StartEndPosition.UPPER_ALGAE),
         TR2_TO_UPPER_SOURCE("TR2 to Upper Source", StartEndPosition.TR2, StartEndPosition.UPPER_SOURCE),
 
         BR2_TO_TR2("BR2 to TR2", StartEndPosition.BR2, StartEndPosition.TR2),
@@ -130,9 +134,9 @@ public class AutonSelector extends VirtualSubsystem {
         LOWER_SOURCE_TO_BL1("Lower Source to BL1", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL1),
         LOWER_SOURCE_TO_BL2("Lower Source to BL2", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL2);
 
-        public String name;
-        public StartEndPosition startingPosition;
-        public StartEndPosition endingPosition;
+        public final String name;
+        public final StartEndPosition startingPosition;
+        public final StartEndPosition endingPosition;
 
         ChoreoPaths(String name, StartEndPosition startingPosition, StartEndPosition endingPosition) {
             this.name = name;
@@ -146,7 +150,7 @@ public class AutonSelector extends VirtualSubsystem {
         
     @Override
     public void periodic() {
-        currentStartingPose = startingPositionChooser.get();
+        StartEndPosition currentStartingPose = startingPositionChooser.get();
         firstPath = pathChooser1.get();
         secondPath = pathChooser2.get();
         
@@ -168,13 +172,8 @@ public class AutonSelector extends VirtualSubsystem {
             }
         }
     }
-
-    private final LoggedDashboardChooser<StartEndPosition> startingPositionChooser;
-    private final LoggedDashboardChooser<ChoreoPaths> pathChooser1;
-    private final LoggedDashboardChooser<ChoreoPaths> pathChooser2;
     
     public AutonSelector(String key) {
-
         startingPositionChooser =
             new LoggedDashboardChooser<>(key + "/StartPosition?");
     

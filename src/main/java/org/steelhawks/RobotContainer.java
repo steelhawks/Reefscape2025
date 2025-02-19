@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.commands.SensorAlign;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -45,13 +44,12 @@ public class RobotContainer {
     private boolean altMode = false;
 
     private final LED s_LED = LED.getInstance();
+    public static AutonSelector s_Selector;
     public static Swerve s_Swerve;
     public static Vision s_Vision;
     public static Elevator s_Elevator;
     public static Intake s_Intake;
     public static Align s_Align;
-
-    public static AutonSelector s_AutonSelector;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -179,8 +177,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
-                    s_AutonSelector =
-                            new AutonSelector("Auton Selector");
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
@@ -212,8 +208,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIOSim());
-                    s_AutonSelector =
-                        new AutonSelector("Auton Selector");
                 }
             }
         }
@@ -256,9 +250,10 @@ public class RobotContainer {
                     new ElevatorIO() {});
         }
 
-        if (Constants.TUNING_MODE) {
-            new Alert("Tuning mode enabled", AlertType.kInfo).set(true);
-        }
+        s_Selector =
+            new AutonSelector("Auton Selector");
+
+        new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
 
         configurePathfindingCommands();
         configureDefaultCommands();

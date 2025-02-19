@@ -13,15 +13,12 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -185,11 +182,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-//        autonomousCommand = Autos.getAutonCommand();
-//        autonomousCommand = Autos.getTestAuton();
-        autonomousCommand = 
-            //DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve)
-            RobotContainer.s_AutonSelector.getAutonCommand();
+        autonomousCommand =
+            RobotContainer.s_Selector.getAutonCommand();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
@@ -205,8 +199,6 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-
-//        RobotContainer.s_Intake.mAlgaeIntake.homeCommand().schedule();
     }
 
     @Override
