@@ -3,11 +3,14 @@ package org.steelhawks;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Robot.RobotState;
+import org.steelhawks.commands.VibrateController;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -37,6 +40,7 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.DashboardTrigger;
+import org.steelhawks.util.DoublePressTrigger;
 
 public class RobotContainer {
 
@@ -44,8 +48,11 @@ public class RobotContainer {
 
     private SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
-    private final Trigger isAltMode;
-    private boolean altMode = false;
+    private final Trigger isShallowEndgame;
+    private final Trigger notifyAtEndgame;
+    private final Trigger isDeepEndgame;
+    private boolean shallowClimbMode = false;
+    private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
@@ -102,7 +109,10 @@ public class RobotContainer {
                 Math.abs(driver.getLeftY()) > Deadbands.DRIVE_DEADBAND ||
                 Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
                 Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
-        isAltMode = new Trigger(() -> altMode);
+        isShallowEndgame = new Trigger(() -> shallowClimbMode);
+        isDeepEndgame = new Trigger(() -> deepClimbMode);
+        notifyAtEndgame = new Trigger(() ->
+            Robot.getState() == RobotState.TELEOP && DriverStation.getMatchTime() <= Constants.ENDGAME_PERIOD);
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -226,7 +236,6 @@ public class RobotContainer {
                     s_Climb = 
                         new Climb(
                             new ClimbIO() {});
-    
                 }
             }
         }
@@ -276,10 +285,11 @@ public class RobotContainer {
             new Alert("Tuning mode enabled", AlertType.kInfo).set(true);
         }
 
+        configureShallowClimbEndgame();
         configurePathfindingCommands();
+        configureDeepClimbEndgame();
         configureDefaultCommands();
         configureTestBindings();
-        configureAltBindings();
         configureTriggers();
         configureOperator();
         configureDriver();
@@ -292,16 +302,19 @@ public class RobotContainer {
 
     private void configureDefaultCommands() {}
     private void configureTestBindings() {}
-    private void configureAltBindings() {}
+
+    private void configureShallowClimbEndgame() {
+
+    }
+
+    private void configureDeepClimbEndgame() {
+
+    }
 
     private void configureTriggers() {
         s_Swerve.isPathfinding()
             .whileTrue(
                 s_LED.fadeCommand(LEDColor.PURPLE));
-
-        isAltMode
-            .whileTrue(
-                s_LED.bounceWaveCommand(LEDColor.PURPLE));
 
         s_Elevator.atLimit()
             .onTrue(
@@ -316,6 +329,22 @@ public class RobotContainer {
         s_Climb.atOuterLimit()
             .onTrue(
                 s_LED.flashCommand(LEDColor.HOT_PINK, 0.1, 1));
+
+        isShallowEndgame
+            .onTrue(
+                Commands.runOnce(() ->
+                    s_LED.setDefaultLighting(
+                        s_LED.rainbowFlashCommand())));
+
+        isDeepEndgame
+            .onTrue(
+                Commands.runOnce(() ->
+                    s_LED.setDefaultLighting(
+                        s_LED.fadeCommand(LEDColor.BLUE))));
+
+        notifyAtEndgame
+            .whileTrue(
+                new VibrateController(1.0, 5.0, driver, operator));
     }
 
     private void configureDriver() {
@@ -361,11 +390,24 @@ public class RobotContainer {
     }
 
     private void configureOperator() {
-        operator.start()
-            .and(operator.back())
-            .onTrue(
+//        operator.start()
+//            .and(operator.back())
+//            .onTrue(
+//                Commands.runOnce(
+//                    () -> altMode = !altMode));
+
+        /* ------------- End Game Toggles ------------- */
+        /* ------------- TEST THIS!!!!! ------------- */
+
+        new DoublePressTrigger(operator.start())
+            .onDoubleTap(
                 Commands.runOnce(
-                    () -> altMode = !altMode));
+                    () -> shallowClimbMode = !shallowClimbMode));
+
+        new DoublePressTrigger(operator.back())
+            .onDoubleTap(
+                Commands.runOnce(
+                    () -> deepClimbMode = !deepClimbMode));
 
         /* ------------- Elevator Controls ------------- */
 
