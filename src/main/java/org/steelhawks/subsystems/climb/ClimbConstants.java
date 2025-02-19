@@ -40,7 +40,10 @@ public final class ClimbConstants {
             8,
             0.005,
             0.5,
-            Units.rotationsToRadians(3));
+            Units.rotationsToRadians(3),
+            60,
+            61,
+            62);
 
     public static final ClimbConstants OMEGA = DEFAULT;
 
@@ -51,34 +54,48 @@ public final class ClimbConstants {
             8,
             0.005,
             0.5,
-            Units.rotationsToRadians(3));
+            Units.rotationsToRadians(3),
+            35,
+            34,
+            22);
 
     public static final ClimbConstants HAWKRIDER = DEFAULT;
 
-    public final int MOTOR_ID;
+    public final int SHALLOW_MOTOR_ID;
 
-    public final double GEAR_RATIO;
+    public final double SHALLOW_GEAR_RATIO;
 
-    public final double MAX_VELOCITY_PER_SEC;
-    public final double MAX_ACCELERATION_PER_SEC_SQUARED;
+    public final double SHALLOW_MAX_VELOCITY_PER_SEC;
+    public final double SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED;
 
-    public final double TOLERANCE;
+    public final double SHALLOW_TOLERANCE;
 
-    public final double MAX_RADIANS;
+    public final double SHALLOW_MAX_RADIANS;
+
+    public final int DEEP_TOP_MOTOR_ID;
+    public final int DEEP_BOTTOM_MOTOR_ID;
+    public final int DEEP_CANCODER_ID;
 
     public ClimbConstants(
-        int motorId,
-        double gearRatio,
-        double maxVelocityPerSec,
-        double maxAccelerationPerSecSquared,
-        double tolerance,
-        double maxRadians
+        int shallow_motorId,
+        double shallow_gearRatio,
+        double shallow_maxVelocityPerSec,
+        double shallow_maxAccelerationPerSecSquared,
+        double shallow_tolerance,
+        double shallow_maxRadians,
+        int deep_topMotorId,
+        int deep_bottomMotorId,
+        int deep_cancoderId
     ) {
-        MOTOR_ID = motorId;
-        GEAR_RATIO = gearRatio;
-        MAX_VELOCITY_PER_SEC = maxVelocityPerSec;
-        MAX_ACCELERATION_PER_SEC_SQUARED = maxAccelerationPerSecSquared;
-        TOLERANCE = tolerance;
-        MAX_RADIANS = maxRadians;
+        SHALLOW_MOTOR_ID = shallow_motorId;
+        SHALLOW_GEAR_RATIO = shallow_gearRatio;
+        SHALLOW_MAX_VELOCITY_PER_SEC = shallow_maxVelocityPerSec;
+        SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED = shallow_maxAccelerationPerSecSquared;
+        SHALLOW_TOLERANCE = shallow_tolerance;
+        SHALLOW_MAX_RADIANS = shallow_maxRadians;
+
+        DEEP_TOP_MOTOR_ID = deep_topMotorId;
+        DEEP_BOTTOM_MOTOR_ID = deep_bottomMotorId;
+        DEEP_CANCODER_ID = deep_cancoderId;
     }
 }

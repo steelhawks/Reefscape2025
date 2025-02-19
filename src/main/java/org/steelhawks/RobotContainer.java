@@ -23,8 +23,10 @@ import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.climb.Climb;
-import org.steelhawks.subsystems.climb.ClimbIO;
-import org.steelhawks.subsystems.climb.ClimbIOTalonFX;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIO775Pro;
+import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
+import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
@@ -137,7 +139,8 @@ public class RobotContainer {
                             new AlignIOCANrange());
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -165,8 +168,9 @@ public class RobotContainer {
                             new AlignIOCANrange());
                     s_Climb =
                         new Climb(
-                            new ClimbIOTalonFX());
-
+                            new ShallowClimbIOTalonFX(),
+                            new DeepClimbIO775Pro());
+    
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -195,8 +199,9 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
-
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
+    
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.CORAL_STATION_TOP);
@@ -226,7 +231,8 @@ public class RobotContainer {
                             new AlignIOSim());
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
                 }
             }
         }
@@ -255,8 +261,8 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
-
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
                 }
                 case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
@@ -437,10 +443,10 @@ public class RobotContainer {
                     s_Intake.shootCoral(),
                     () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() && s_Elevator.isEnabled()));
 
-        operator.povLeft()
-            .or(new DashboardTrigger("intakeCoral"))
-            .whileTrue(
-                s_Intake.reverseCoral());
+//        operator.povLeft()
+//            .or(new DashboardTrigger("intakeCoral"))
+//            .whileTrue(
+//                s_Intake.reverseCoral());
 
         // intake algae
         operator.rightBumper().whileTrue(
@@ -460,10 +466,21 @@ public class RobotContainer {
             s_Climb.climbCommandWithCurrent()
             .andThen(s_Climb.applyVolts(-2)));
 
-        operator.povDown().onTrue(
-            s_Climb.homeCommandWithCurrent());
+        // operator.povDown().onTrue(
+        //     s_Climb.runClimbViaSpeed(-0.2));
+    
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
+
+        operator.povLeft().whileTrue(
+            s_Climb.runDeepClimb(1));
 
         operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+            s_Climb.runDeepClimb(-1));
+
+
+        
+//        operator.povRight().whileTrue(
+//            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
     }
 }
