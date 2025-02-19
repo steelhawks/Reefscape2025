@@ -1,25 +1,21 @@
-package org.steelhawks.subsystems.climb;
+package org.steelhawks.subsystems.climb.shallow;
 
 import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
-import edu.wpi.first.wpilibj.DigitalInput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
-import org.steelhawks.Constants.RobotType;
-import org.steelhawks.subsystems.intake.IntakeConstants.AlgaeIntakeState;
+import org.steelhawks.subsystems.climb.ClimbConstants;
 
-public class ClimbIOTalonFX implements ClimbIO {
+public class ShallowClimbIOTalonFX implements ShallowClimbIO {
 
     private final ClimbConstants constants;
 
@@ -34,19 +30,19 @@ public class ClimbIOTalonFX implements ClimbIO {
     private boolean atOutsideLimit = false;
     private boolean atInsideLimit = false;
 
-    public ClimbIOTalonFX() {
+    public ShallowClimbIOTalonFX() {
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = ClimbConstants.ALPHA;
             case HAWKRIDER -> constants = ClimbConstants.HAWKRIDER;
             default -> constants = ClimbConstants.OMEGA;
         }
 
-        mClimbMotor = new TalonFX(constants.MOTOR_ID, Constants.getCANBus());
+        mClimbMotor = new TalonFX(constants.SHALLOW_MOTOR_ID, Constants.getCANBus());
 
         var config =
             new TalonFXConfiguration()
                 .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(constants.GEAR_RATIO))
+                    .withSensorToMechanismRatio(constants.SHALLOW_GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.Clockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
@@ -73,7 +69,7 @@ public class ClimbIOTalonFX implements ClimbIO {
     }
 
     @Override
-    public void updateInputs(ClimbIOInputs inputs) {
+    public void updateInputs(ShallowClimbIOInputs inputs) {
         double climbPos = climbPosition.getValueAsDouble();
         double climbVelo = climbVelocity.getValueAsDouble();
 

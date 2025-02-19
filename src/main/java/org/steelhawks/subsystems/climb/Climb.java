@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.climb;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
@@ -11,12 +12,20 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
+import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
+import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOInputsAutoLogged;
+
+import java.util.function.DoubleSupplier;
 
 public class Climb extends SubsystemBase {
 
-    private final ClimbIOInputsAutoLogged inputs = new ClimbIOInputsAutoLogged();
+    private final ShallowClimbIOInputsAutoLogged shallowInputs = new ShallowClimbIOInputsAutoLogged();
+    private final DeepClimbIOInputsAutoLogged deepInputs = new DeepClimbIOInputsAutoLogged();
     private final ClimbConstants constants;
-    private final ClimbIO io;
+    private final ShallowClimbIO shallowIO;
+    private final DeepClimbIO deepIO;
 
     private final Alert motorDisconnected;
 
@@ -24,8 +33,9 @@ public class Climb extends SubsystemBase {
 
     private final Debouncer mDebouncer = new Debouncer(0.005, DebounceType.kBoth);
 
-    public Climb(ClimbIO io) {
-        this.io = io;
+    public Climb(ShallowClimbIO shallowIO, DeepClimbIO deepIO) {
+        this.shallowIO = shallowIO;
+        this.deepIO = deepIO;
 
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = ClimbConstants.ALPHA;
@@ -39,11 +49,13 @@ public class Climb extends SubsystemBase {
 
     @Override
     public void periodic() {
-        io.updateInputs(inputs);
-        Logger.processInputs("Climb", inputs);
-        Logger.recordOutput("Climb/Enabled", mEnabled);
+        shallowIO.updateInputs(shallowInputs);
+        deepIO.updateInputs(deepInputs);
+        Logger.processInputs("ShallowClimb", shallowInputs);
+        Logger.recordOutput("ShallowClimb/Enabled", mEnabled);
+        Logger.processInputs("DeepClimb", deepInputs);
 
-        motorDisconnected.set(!inputs.motorConnected);
+        motorDisconnected.set(!shallowInputs.motorConnected);
 
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Climb/CurrentCommand", getCurrentCommand().getName());
@@ -55,8 +67,10 @@ public class Climb extends SubsystemBase {
     //     return inputs.encoderPositionRad;
     // }
 
+    /* ------------- Shallow Climb Commands ------------- */
+
     public Trigger atOuterLimit() {
-        return new Trigger(() -> inputs.atOutsideLimit);
+        return new Trigger(() -> shallowInputs.atOutsideLimit);
     }
 
     public Command climbCommand() {
@@ -71,28 +85,35 @@ public class Climb extends SubsystemBase {
 
     public Command climbCommandWithCurrent() {
         return runClimbViaSpeed(-0.2)
-            .until(() -> mDebouncer.calculate(inputs.climbCurrentAmps > 40));
+            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > 40));
     }
 
     public Command homeCommandWithCurrent() {
         return runClimbViaSpeed(0.2)
-            .until(() -> mDebouncer.calculate(inputs.climbCurrentAmps > 40));
+            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > 40));
     }
 
     public Command runClimbViaSpeed(double speed) {
         return Commands.run(
             () -> {
-                io.runClimbViaSpeed(speed);
+                shallowIO.runClimbViaSpeed(speed);
             }, this)
-            .finallyDo(() -> io.stop());
-        // return Commands.print("THIS COMMAND IS RUNNING");
+            .finallyDo(() -> shallowIO.stop());
     }
 
     public Command applyVolts(double volts) {
         return Commands.run(
             () -> {
-                io.runClimb(volts);
+                shallowIO.runClimb(volts);
             }, this)
-            .finallyDo(() -> io.stop());
+            .finallyDo(() -> shallowIO.stop());
+    }
+
+    /* ------------- Deep Climb Commands ------------- */
+
+    public Command runDeepClimb(double speed) {
+        return Commands.run(
+            () -> deepIO.runClimbViaSpeed(speed))
+        .finallyDo(() -> deepIO.stop());
     }
 }
