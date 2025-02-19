@@ -112,7 +112,6 @@ public class Elevator extends SubsystemBase {
                 "Elevator CANcoder Magnet Bad", AlertType.kError);
 
         this.io = io;
-//        enable();
         disable();
     }
 
@@ -174,6 +173,10 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atLimit() {
         return new Trigger(() -> inputs.atTopLimit || inputs.limitSwitchPressed);
+    }
+
+    public Trigger atHome() {
+        return new Trigger(() -> inputs.limitSwitchPressed);
     }
 
     ///////////////////////
