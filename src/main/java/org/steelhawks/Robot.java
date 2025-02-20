@@ -19,7 +19,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -162,7 +161,11 @@ public class Robot extends LoggedRobot {
         setState(RobotState.DISABLED);
 
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
+            robotContainer.resetSimulation(
+                new Pose2d(
+                    3,
+                    3,
+                    new Rotation2d()));
         }
     }
 
@@ -181,9 +184,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-//        autonomousCommand = Autos.getAutonCommand();
-//        autonomousCommand = Autos.getTestAuton();
-        autonomousCommand = DriveCommands.feedforwardCharacterization(RobotContainer.s_Swerve);
+        autonomousCommand =
+            RobotContainer.s_Selector.getAutonCommand();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
@@ -202,7 +204,7 @@ public class Robot extends LoggedRobot {
 
         // RobotContainer.s_Intake.mAlgaeIntake.homeCommand().schedule();
         // RobotContainer.s_Swerve.toggleMultiplier().schedule();
-        RobotContainer.s_Climb.homeCommandWithCurrent().schedule();
+//        RobotContainer.s_Climb.homeCommandWithCurrent().schedule();
     }
 
     @Override

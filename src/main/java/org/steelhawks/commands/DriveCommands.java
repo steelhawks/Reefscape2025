@@ -176,7 +176,7 @@ public class DriveCommands {
     }
 
 
-    private static PathPlannerPath fromChoreo(String trajectoryName) {
+    public static PathPlannerPath fromChoreo(String trajectoryName) {
         try {
             return PathPlannerPath.fromChoreoTrajectory(trajectoryName);
         } catch (IOException e) {
