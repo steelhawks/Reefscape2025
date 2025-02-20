@@ -45,8 +45,6 @@ public class SchlongIOTalonFX implements SchlongIO {
     private final StatusSignal<Current> pivotCurrent;
     private final StatusSignal<Temperature> pivotTemp;
 
-    private boolean hitLimitSwitch = false;
-
     public SchlongIOTalonFX() {
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = IntakeConstants.ALPHA;

@@ -88,11 +88,11 @@ public class Schlong extends SubsystemBase {
         
         spinMotorDisconnected =
             new Alert(
-                "Right Elevator Motor Disconnected", AlertType.kError);
+                "Schlong Spin Motor Disconnected", AlertType.kError);
 
         limitSwitchDisconnected =
             new Alert(
-                "Elevator Limit Switch Disconnected", AlertType.kError);
+                "Schlong Limit Switch Disconnected", AlertType.kError);
 
         this.io = io;
 
@@ -179,7 +179,7 @@ public class Schlong extends SubsystemBase {
                 mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
             }, this)
-            .withName("Set Desired State");
+            .withName("Set Desired Schlong State");
     }
 
     public Command applyPivotSpeed(double speed) {
