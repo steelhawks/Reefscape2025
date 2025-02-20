@@ -402,12 +402,18 @@ public class RobotContainer {
         new DoublePressTrigger(operator.start())
             .onDoubleTap(
                 Commands.runOnce(
-                    () -> shallowClimbMode = !shallowClimbMode));
+                    () -> {
+                        deepClimbMode = false;
+                        shallowClimbMode = !shallowClimbMode;
+                    }));
 
         new DoublePressTrigger(operator.back())
             .onDoubleTap(
                 Commands.runOnce(
-                    () -> deepClimbMode = !deepClimbMode));
+                    () -> {
+                        shallowClimbMode = false;
+                        deepClimbMode = !deepClimbMode;
+                    }));
 
         /* ------------- Elevator Controls ------------- */
 
