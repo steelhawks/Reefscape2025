@@ -348,7 +348,7 @@ public class LED extends SubsystemBase {
             setColorCommand(LEDColor.BLUE).withTimeout(RAPID_FLASH_TIMEOUT),
             setColorCommand(LEDColor.GREEN).withTimeout(RAPID_FLASH_TIMEOUT),
             setColorCommand(LEDColor.RED).withTimeout(RAPID_FLASH_TIMEOUT),
-            setColorCommand(LEDColor.PURPLE).withTimeout(RAPID_FLASH_TIMEOUT));
+            setColorCommand(LEDColor.PURPLE).withTimeout(RAPID_FLASH_TIMEOUT)).repeatedly();
     }
 
     /**

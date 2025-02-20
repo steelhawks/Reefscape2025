@@ -6,7 +6,7 @@ public interface AlgaeIntakeIO {
 
     @AutoLog
     class AlgaeIntakeIOInputs {
-        public double setpoint = 0;
+        public double goal = 0;
 
         public boolean intakeConnected = false;
         public double intakePositionRad = 0;
@@ -40,9 +40,9 @@ public interface AlgaeIntakeIO {
     /**
      * Runs the pivot at a given voltage.
      */
-    default void runPivot(double volts) {}
+    default void runPivotWithVoltage(double volts) {}
 
-    default void runPivotManual(double speed) {}
+    default void runPivotWithSpeed(double speed) {}
 
     default void zeroEncoders() {}
 

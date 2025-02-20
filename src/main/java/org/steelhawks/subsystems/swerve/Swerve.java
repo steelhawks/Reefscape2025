@@ -60,8 +60,8 @@ import org.steelhawks.util.LocalADStarAK;
 
 public class Swerve extends SubsystemBase {
 
-    private static final double SLOW_SPEED_MULTIPLIER = 0.2;
-    private static double SPEED_MULTIPLIER = 1;
+    private static final double SLOW_SPEED_MULTIPLIER = 0.3;
+    private static double SPEED_MULTIPLIER = SLOW_SPEED_MULTIPLIER;
     private boolean isPathfinding = false;
 
     public static final double ODOMETRY_FREQUENCY =
@@ -156,8 +156,8 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstantsAlpha.BackLeft.LocationX, TunerConstantsAlpha.BackLeft.LocationY),
                             Math.hypot(TunerConstantsAlpha.BackRight.LocationX, TunerConstantsAlpha.BackRight.LocationY)));
-                ROBOT_MASS_KG = Units.lbsToKilograms(138 + (6.0 / 16.0));
-                ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(30), 2));
+                ROBOT_MASS_KG = Units.lbsToKilograms(124.8);
+                ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
                 WHEEL_COF = COTS.WHEELS.DEFAULT_NEOPRENE_TREAD.cof;
                 PP_CONFIG =
                     new RobotConfig(
@@ -606,7 +606,7 @@ public class Swerve extends SubsystemBase {
         Pose2d closestPose = null;
 
         for (Pose2d reefPose : reefPoses) {
-            Pose2d validated = AllianceFlip.validate(reefPose);
+            Pose2d validated = AllianceFlip.apply(reefPose);
             double distance = getPose().getTranslation().getDistance(validated.getTranslation());
 
             if (distance < closestDistance) {

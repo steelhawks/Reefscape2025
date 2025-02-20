@@ -8,10 +8,10 @@ import java.util.Arrays;
 public final class ElevatorConstants {
 
     public enum State {
-        L4(59.60359050369053, 0.0, Units.rotationsToRadians(3.0)),
+        L4(59.905784718904, 0.0, Units.rotationsToRadians(3.0)),
         L3(35.3237425930366, 0.0, Units.rotationsToRadians(2.0)),
         L2(19.376478322177476, 0.0, Units.rotationsToRadians(1.0)),
-        L1(10.178269323778807, 0.0, Units.rotationsToRadians(0.5)),
+        L1(11.3936423020206, 0.0, Units.rotationsToRadians(0.5)),
         HOME(0, 0, 0);
 
         private final double alphaRadians;
@@ -77,22 +77,22 @@ public final class ElevatorConstants {
             100,
             110,
             Units.rotationsToRadians(0.005),
-            0.55, // 0.55
+            0.65, // 0.55
             60); // 60
 
     public static final ElevatorConstants HAWKRIDER =
-        new ElevatorConstants(
+            new ElevatorConstants(
             0,
             20,
             21,
             22,
             1,
-            0,
             0.15,
-            2.6,
-            3.5,
+            0.09,
+            0.6,
+            9.1,
             0,
-            0.15,
+            0.002,
             5.2,
             8,
             Units.rotationsToRadians(.005),

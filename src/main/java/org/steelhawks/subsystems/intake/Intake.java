@@ -1,7 +1,5 @@
 package org.steelhawks.subsystems.intake;
 
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrain;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -9,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
-import org.steelhawks.subsystems.intake.IntakeConstants.AlgaeIntakeState;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntake;
@@ -96,6 +93,14 @@ public class Intake {
             .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
+
+    public Command reverseCoral() {
+        return Commands.run(
+            () -> mCoralIntake.reverseCoral(), mCoralIntake)
+            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2))
+            .finallyDo(() -> mCoralIntake.stop());
+    }
+
 
 //    public Command intakeCoral() {
 //        return Commands.run(

@@ -24,6 +24,7 @@ import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
 public class Robot extends LoggedRobot {
@@ -141,6 +142,7 @@ public class Robot extends LoggedRobot {
         }
 
         robotContainer = new RobotContainer();
+        OperatorDashboard.INSTANCE.initialize();
     }
 
     @Override
@@ -161,8 +163,8 @@ public class Robot extends LoggedRobot {
         if (Constants.getMode() == Mode.SIM) {
             robotContainer.resetSimulation(
                 new Pose2d(
-                    3, 
-                    3, 
+                    3,
+                    3,
                     new Rotation2d()));
         }
     }
@@ -199,6 +201,10 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+
+        // RobotContainer.s_Intake.mAlgaeIntake.homeCommand().schedule();
+        // RobotContainer.s_Swerve.toggleMultiplier().schedule();
+//        RobotContainer.s_Climb.homeCommandWithCurrent().schedule();
     }
 
     @Override

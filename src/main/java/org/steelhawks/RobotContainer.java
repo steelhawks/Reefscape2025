@@ -3,12 +3,14 @@ package org.steelhawks;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Robot.RobotState;
+import org.steelhawks.commands.VibrateController;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -22,8 +24,12 @@ import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
+import org.steelhawks.subsystems.climb.Climb;
+import org.steelhawks.subsystems.climb.ClimbIO;
+import org.steelhawks.subsystems.climb.ClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
+import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
@@ -33,15 +39,21 @@ import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
+import org.steelhawks.util.DashboardTrigger;
+import org.steelhawks.util.DoublePressTrigger;
 
 public class RobotContainer {
 
-    public static final boolean useVision = false;
+    public static final boolean useVision = true;
 
     public static SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
-    private final Trigger isAltMode;
-    private boolean altMode = false;
+    private final Trigger isShallowEndgame;
+    private final Trigger notifyAtEndgame;
+    private final Trigger isDeepEndgame;
+    private final Trigger nearCoralStation;
+    private boolean shallowClimbMode = false;
+    private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
     public static AutonSelector s_Selector;
@@ -50,6 +62,7 @@ public class RobotContainer {
     public static Elevator s_Elevator;
     public static Intake s_Intake;
     public static Align s_Align;
+    public static Climb s_Climb;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -98,7 +111,13 @@ public class RobotContainer {
                 Math.abs(driver.getLeftY()) > Deadbands.DRIVE_DEADBAND ||
                 Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
                 Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
-        isAltMode = new Trigger(() -> altMode);
+        isShallowEndgame = new Trigger(() -> shallowClimbMode);
+        isDeepEndgame = new Trigger(() -> deepClimbMode);
+        notifyAtEndgame = new Trigger(() ->
+            Robot.getState() == RobotState.TELEOP && DriverStation.getMatchTime() <= Constants.ENDGAME_PERIOD);
+        nearCoralStation = new Trigger(() ->
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_TOP).getTranslation()) <= 3.0 ||
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_BOTTOM).getTranslation()) <= 3.0);
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -126,6 +145,9 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIOCANrange());
+                    s_Climb =
+                        new Climb(
+                            new ClimbIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -151,6 +173,10 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIOCANrange());
+                    s_Climb =
+                        new Climb(
+                            new ClimbIOTalonFX());
+
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -177,6 +203,10 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new ClimbIO() {});
+
                 }
                 case SIMBOT -> {
                     mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
@@ -208,6 +238,9 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIOSim());
+                    s_Climb =
+                        new Climb(
+                            new ClimbIO() {});
                 }
             }
         }
@@ -234,6 +267,10 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new ClimbIO() {});
+
                 }
                 case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
@@ -255,10 +292,11 @@ public class RobotContainer {
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
 
+        configureShallowClimbEndgame();
         configurePathfindingCommands();
+        configureDeepClimbEndgame();
         configureDefaultCommands();
         configureTestBindings();
-        configureAltBindings();
         configureTriggers();
         configureOperator();
         configureDriver();
@@ -271,16 +309,19 @@ public class RobotContainer {
 
     private void configureDefaultCommands() {}
     private void configureTestBindings() {}
-    private void configureAltBindings() {}
+
+    private void configureShallowClimbEndgame() {
+
+    }
+
+    private void configureDeepClimbEndgame() {
+
+    }
 
     private void configureTriggers() {
         s_Swerve.isPathfinding()
             .whileTrue(
                 s_LED.fadeCommand(LEDColor.PURPLE));
-
-        isAltMode
-            .whileTrue(
-                s_LED.bounceWaveCommand(LEDColor.PURPLE));
 
         s_Elevator.atLimit()
             .onTrue(
@@ -291,6 +332,26 @@ public class RobotContainer {
         s_Intake.algaeAtLimit()
             .onTrue(
                 s_LED.flashCommand(LEDColor.BLUE, 0.1, 1));
+
+        s_Climb.atOuterLimit()
+            .onTrue(
+                s_LED.flashCommand(LEDColor.HOT_PINK, 0.1, 1));
+
+        isShallowEndgame
+            .onTrue(
+                Commands.runOnce(() ->
+                    s_LED.setDefaultLighting(
+                        s_LED.rainbowFlashCommand())));
+
+        isDeepEndgame
+            .onTrue(
+                Commands.runOnce(() ->
+                    s_LED.setDefaultLighting(
+                        s_LED.fadeCommand(LEDColor.BLUE))));
+
+        notifyAtEndgame
+            .whileTrue(
+                new VibrateController(1.0, 5.0, driver, operator));
     }
 
     private void configureDriver() {
@@ -307,6 +368,9 @@ public class RobotContainer {
         driver.leftBumper().whileTrue(
             s_Align.alignLeft(new Rotation2d()));
 
+        driver.rightBumper().whileTrue(
+            s_Align.alignRight(new Rotation2d()));
+
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(
@@ -314,26 +378,49 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode())));
 
-        if (RobotBase.isReal()) {
-            driver.b().onTrue(
-                s_Swerve.zeroHeading(
-                    new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
-        }
+        driver.b().onTrue(
+            s_Swerve.zeroHeading(
+                new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
 
-        if (Constants.getMode() == Mode.SIM) {
-            driver.b().onTrue(
-                s_Swerve.zeroHeading(
-                    new Pose2d(
-                        mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
-        }
+//        if (RobotBase.isReal()) {
+//            driver.b().onTrue(
+//                s_Swerve.zeroHeading(
+//                    new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
+//        }
+//
+//        if (Constants.getMode() == Mode.SIM) {
+//            driver.b().onTrue(
+//                s_Swerve.zeroHeading(
+//                    new Pose2d(
+//                        mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
+//        }
     }
 
     private void configureOperator() {
-        operator.start()
-            .and(operator.back())
-            .onTrue(
+//        operator.start()
+//            .and(operator.back())
+//            .onTrue(
+//                Commands.runOnce(
+//                    () -> altMode = !altMode));
+
+        /* ------------- End Game Toggles ------------- */
+        /* ------------- TEST THIS!!!!! ------------- */
+
+        new DoublePressTrigger(operator.start())
+            .onDoubleTap(
                 Commands.runOnce(
-                    () -> altMode = !altMode));
+                    () -> {
+                        deepClimbMode = false;
+                        shallowClimbMode = !shallowClimbMode;
+                    }));
+
+        new DoublePressTrigger(operator.back())
+            .onDoubleTap(
+                Commands.runOnce(
+                    () -> {
+                        shallowClimbMode = false;
+                        deepClimbMode = !deepClimbMode;
+                    }));
 
         /* ------------- Elevator Controls ------------- */
 
@@ -345,22 +432,32 @@ public class RobotContainer {
 //            s_Elevator.applyVolts(1));
 
         // L1
-        operator.leftBumper().whileTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+        operator.leftBumper()
+            .or(new DashboardTrigger("l1"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
-        operator.x().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+        operator.x()
+            .or(new DashboardTrigger("l2"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
-        operator.y().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+        operator.y()
+            .or(new DashboardTrigger("l3"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
-        operator.a().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+        operator.a()
+            .or(new DashboardTrigger("l4"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
         // operator.b().onTrue(
         //     s_Elevator.homeCommand());
-        operator.b().onTrue(
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+        operator.b()
+            .or(new DashboardTrigger("elevatorHome"))
+            .onTrue(
+                s_Elevator.homeCommand());
 
         /* ------------- Intake Controls ------------- */
 
@@ -369,11 +466,22 @@ public class RobotContainer {
                 () -> -operator.getRightY()));
 
         // coral shoot
-        operator.leftTrigger().whileTrue(
-            Commands.either(
-                s_Intake.shootCoralSlow(),
-                s_Intake.shootCoral(),
-                () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() && s_Elevator.isEnabled()));
+        // operator.leftTrigger().whileTrue(
+        //     s_Intake.shootCoral()
+        // );
+
+        operator.leftTrigger()
+            .or(new DashboardTrigger("scoreCoral"))
+            .whileTrue(
+                Commands.either(
+                    s_Intake.shootCoralSlow(),
+                    s_Intake.shootCoral(),
+                    () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() && s_Elevator.isEnabled()));
+
+        operator.povLeft()
+            .or(new DashboardTrigger("intakeCoral"))
+            .whileTrue(
+                s_Intake.reverseCoral());
 
         // intake algae
         operator.rightBumper().whileTrue(
@@ -389,10 +497,24 @@ public class RobotContainer {
         operator.povDown().whileTrue(
             s_Intake.pivotManualAlgaeDown());
 
-        operator.povLeft().whileTrue(
-            s_Intake.mAlgaeIntake.applykS());
+        // operator.povUp().onTrue(
+        //     s_Climb.climbCommandWithCurrent());
+
+        // operator.povDown().onTrue(
+        //     s_Climb.homeCommandWithCurrent());
+
+        // operator.povUp().onTrue(
+        //     s_Climb.runClimbViaSpeed(0.2));
+
+        // operator.povDown().onTrue(
+        //     s_Climb.runClimbViaSpeed(-0.2));
+
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
+
+
 
         operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.applykG());
+            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
     }
 }

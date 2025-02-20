@@ -128,13 +128,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         double leftVelo = leftVelocity.getValueAsDouble();
         double rightVelo = rightVelocity.getValueAsDouble();
 
-//        if (Constants.getRobot() == RobotType.ALPHABOT) {
-//            leftPos *= ELEVATOR_GEAR_RATIO;
-//            rightPos *= ELEVATOR_GEAR_RATIO;
-//            leftVelo *= ELEVATOR_GEAR_RATIO;
-//            rightVelo *= ELEVATOR_GEAR_RATIO;
-//        }
-
         inputs.leftConnected =
             BaseStatusSignal.refreshAll(
                 leftPosition,

@@ -19,12 +19,13 @@ import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.OperatorLock;
-
+import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+@SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
 
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -35,7 +36,7 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
 
     private final ProfiledPIDController mController;
-    private ElevatorFeedforward mFeedforward;
+    private final ElevatorFeedforward mFeedforward;
 
     private final Alert leftMotorDisconnected;
     private final Alert rightMotorDisconnected;
@@ -112,7 +113,6 @@ public class Elevator extends SubsystemBase {
                 "Elevator CANcoder Magnet Bad", AlertType.kError);
 
         this.io = io;
-//        enable();
         disable();
     }
 
@@ -136,8 +136,6 @@ public class Elevator extends SubsystemBase {
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
         }
-
-        Logger.recordOutput("Elevator/ATL1", atThisGoal(ElevatorConstants.State.L1));
 
         if (mEnabled) {
             runElevator(mController.calculate(getPosition()), mController.getSetpoint());
@@ -167,7 +165,7 @@ public class Elevator extends SubsystemBase {
         return new Trigger(mController::atGoal);
     }
 
-    public Trigger atThisGoal(ElevatorConstants.State state) {
+    public Trigger atThisGoal(State state) {
         return new Trigger(
             () -> Math.abs(getPosition() - state.getRadians()) <= constants.TOLERANCE);
     }
@@ -176,21 +174,25 @@ public class Elevator extends SubsystemBase {
         return new Trigger(() -> inputs.atTopLimit || inputs.limitSwitchPressed);
     }
 
+    public Trigger atHome() {
+        return new Trigger(() -> inputs.limitSwitchPressed);
+    }
+
     ///////////////////////
     /* COMMAND FACTORIES */
     ///////////////////////
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
         return mSysId.quasistatic(dir)
-            .finallyDo(() -> io.stop());
+            .finallyDo(io::stop);
     }
 
     public Command sysIdDynamic(SysIdRoutine.Direction dir) {
         return mSysId.dynamic(dir)
-            .finallyDo(() -> io.stop());
+            .finallyDo(io::stop);
     }
 
-    public Command setDesiredState(ElevatorConstants.State state) {
+    public Command setDesiredState(State state) {
         return Commands.runOnce(
             () -> {
                 double goal =
@@ -249,11 +251,11 @@ public class Elevator extends SubsystemBase {
                         io.runElevatorViaSpeed(appliedSpeed);
                     }, this))
             .finallyDo(
-                () -> io.stop())
+                io::stop)
             .withName("Manual Elevator");
     }
 
-    public Command homeCommand() {
+    public Command slamCommand() {
         return Commands.runOnce(this::disable)
             .andThen(
                 Commands.run(
@@ -265,19 +267,41 @@ public class Elevator extends SubsystemBase {
                 io.zeroEncoders();
             }
         })
-        .withName("Home Elevator");
+        .withName("Slam Elevator");
+    }
+
+    public Command homeCommand() {
+        return Commands.run(
+            () -> {
+                mController.setGoal(State.HOME.getRadians());
+                enable();
+
+                if (Math.abs(getPosition() - State.HOME.getRadians()) < constants.TOLERANCE && !inputs.limitSwitchPressed) {
+                    disable();
+                    io.runElevator(
+                        -MathUtil.clamp(0.2 + Math.abs(getPosition() - State.HOME.getRadians()), 0.2, 0.5));
+                }
+            }, this)
+            .until(() -> inputs.limitSwitchPressed)
+            .finallyDo(() -> {
+                mController.reset(State.HOME.getRadians());
+                io.zeroEncoders();
+                io.stop();
+                disable();
+            })
+            .withName("Home Elevator");
     }
 
     public Command applykS() {
         return Commands.run(
             () -> io.runElevator(constants.KS), this)
-            .finallyDo(() -> io.stop());
+            .finallyDo(io::stop);
     }
 
     public Command applykG() {
         return Commands.run(
             () -> io.runElevator(constants.KG), this)
-            .finallyDo(() -> io.stop());
+            .finallyDo(io::stop);
     }
 
     public Command applykV(AngularVelocity desiredVelocity) {
@@ -286,7 +310,7 @@ public class Elevator extends SubsystemBase {
                 double volts = constants.KS + (constants.KV * desiredVelocity.in(RadiansPerSecond));
                 io.runElevator(volts);
             }, this)
-            .finallyDo(() -> io.stop());
+            .finallyDo(io::stop);
     }
 
     public Command applyVolts(double volts) {
@@ -295,7 +319,7 @@ public class Elevator extends SubsystemBase {
                 Logger.recordOutput("Elevator/AppliedVolts", volts);
                 io.runElevator(volts);
             }, this)
-            .finallyDo(() -> io.stop());
+            .finallyDo(io::stop);
     }
 }
 

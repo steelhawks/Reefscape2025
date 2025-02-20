@@ -5,15 +5,15 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
-
-import static edu.wpi.first.units.Units.Inches;
+import org.steelhawks.subsystems.vision.VisionConstants;
 
 public final class Constants {
+
+    public static final double ENDGAME_PERIOD = 20;
 
     public static final boolean USE_MOTION_MAGIC = false;
     public static final boolean TUNING_MODE = false;
@@ -35,7 +35,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.HAWKRIDER;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -82,8 +82,8 @@ public final class Constants {
 
     public static CANBus getCANBus() {
         return switch (getRobot()) {
-            case OMEGABOT, ALPHABOT, SIMBOT -> new CANBus("");
-            case HAWKRIDER -> new CANBus("canivore");
+            case OMEGABOT, HAWKRIDER, SIMBOT -> new CANBus("canivore");
+            case ALPHABOT -> new CANBus("");
         };
     }
 
@@ -100,8 +100,11 @@ public final class Constants {
      */
     public static final class FieldConstants {
 
-        public static final Distance FIELD_LENGTH = Inches.of(690.876);
-        public static final Distance FIELD_WIDTH = Inches.of(317);
+//        public static final Distance FIELD_LENGTH = Inches.of(690.876);
+//        public static final Distance FIELD_WIDTH = Inches.of(317);
+
+        public static final double FIELD_LENGTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldLength();
+        public static final double FIELD_WIDTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldWidth();
 
         /*
          * To properly use the auto flip feature, the poses MUST be for the blue alliance.
