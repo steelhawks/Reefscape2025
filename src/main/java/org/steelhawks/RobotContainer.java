@@ -450,7 +450,7 @@ public class RobotContainer {
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+                s_Elevator.homeCommand());
 
         /* ------------- Intake Controls ------------- */
 
