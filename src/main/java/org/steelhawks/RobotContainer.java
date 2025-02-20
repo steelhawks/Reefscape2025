@@ -51,6 +51,7 @@ public class RobotContainer {
     private final Trigger isShallowEndgame;
     private final Trigger notifyAtEndgame;
     private final Trigger isDeepEndgame;
+    private final Trigger nearCoralStation;
     private boolean shallowClimbMode = false;
     private boolean deepClimbMode = false;
 
@@ -113,6 +114,9 @@ public class RobotContainer {
         isDeepEndgame = new Trigger(() -> deepClimbMode);
         notifyAtEndgame = new Trigger(() ->
             Robot.getState() == RobotState.TELEOP && DriverStation.getMatchTime() <= Constants.ENDGAME_PERIOD);
+        nearCoralStation = new Trigger(() ->
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_TOP).getTranslation()) <= 3.0 ||
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_BOTTOM).getTranslation()) <= 3.0);
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {

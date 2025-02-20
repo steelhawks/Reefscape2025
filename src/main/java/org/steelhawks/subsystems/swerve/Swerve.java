@@ -606,7 +606,7 @@ public class Swerve extends SubsystemBase {
         Pose2d closestPose = null;
 
         for (Pose2d reefPose : reefPoses) {
-            Pose2d validated = AllianceFlip.validate(reefPose);
+            Pose2d validated = AllianceFlip.apply(reefPose);
             double distance = getPose().getTranslation().getDistance(validated.getTranslation());
 
             if (distance < closestDistance) {

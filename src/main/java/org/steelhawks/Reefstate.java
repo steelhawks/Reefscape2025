@@ -100,7 +100,7 @@ public class Reefstate {
         int closestSection = 0;
 
         for (Pose2d pose : allPoses) {
-            Pose2d validatedPose = AllianceFlip.validate(pose);
+            Pose2d validatedPose = AllianceFlip.apply(pose);
             double dist = RobotContainer.s_Swerve.getPose().getTranslation().getDistance(validatedPose.getTranslation());
             if (dist < minDist) {
                 minDist = dist;
@@ -126,7 +126,7 @@ public class Reefstate {
         Pose2d closestSectionPose2d = new Pose2d();
 
         for (Pose2d pose : allPoses) {
-            Pose2d validatedPose = AllianceFlip.validate(pose);
+            Pose2d validatedPose = AllianceFlip.apply(pose);
             double dist = RobotContainer.s_Swerve.getPose().getTranslation().getDistance(validatedPose.getTranslation());
             if (dist < minDist) {
                 minDist = dist;

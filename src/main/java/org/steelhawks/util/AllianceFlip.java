@@ -1,62 +1,48 @@
 package org.steelhawks.util;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import org.steelhawks.Constants.*;
+import org.steelhawks.Constants.FieldConstants;
 
-import static edu.wpi.first.units.Units.Meters;
-
-/**
- * A utility to flip positions from the blue alliance to red alliance
- */
 public class AllianceFlip {
 
-    public static double validate(double xCoordinate) {
-        return shouldFlip() ? FieldConstants.FIELD_LENGTH.in(Meters) - xCoordinate : xCoordinate;
+    public static double applyX(double x) {
+        return shouldFlip() ? FieldConstants.FIELD_LENGTH - x : x;
     }
 
-    /**
-     * Flips a translation to the correct side of the field based on the current alliance color.
-     */
-    public static Translation2d validate(Translation2d translation) {
+    public static double applyY(double y) {
+        return shouldFlip() ? FieldConstants.FIELD_WIDTH - y : y;
+    }
+
+    public static Translation2d apply(Translation2d translation) {
+        return new Translation2d(applyX(translation.getX()), applyY(translation.getY()));
+    }
+
+    public static Rotation2d apply(Rotation2d rotation) {
+        return shouldFlip() ? rotation.rotateBy(Rotation2d.kPi) : rotation;
+    }
+
+    public static Pose2d apply(Pose2d pose) {
         return shouldFlip()
-            ? new Translation2d(validate(translation.getX()), translation.getY())
-            : translation;
-    }
-
-    /**
-     * Flips a rotation based on the current alliance color.
-     */
-    public static Rotation2d validate(Rotation2d rotation) {
-        return shouldFlip() ? new Rotation2d(-rotation.getCos(), rotation.getSin()) : rotation;
-    }
-
-    /**
-     * Flips a pose to the correct side of the field based on the current alliance color.
-     */
-    public static Pose2d validate(Pose2d pose) {
-        return shouldFlip()
-            ? new Pose2d(validate(pose.getTranslation()), validate(pose.getRotation()))
+            ? new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()))
             : pose;
     }
 
-    public static Translation3d validate(Translation3d translation3d) {
-        return shouldFlip()
-            ? new Translation3d(
-            validate(translation3d.getX()), translation3d.getY(), translation3d.getZ())
-            : translation3d;
+    public static Translation3d apply(Translation3d translation) {
+        return new Translation3d(
+            applyX(translation.getX()), applyY(translation.getY()), translation.getZ());
     }
 
-    /**
-     * Decides if a pose should be flipped based on the current alliance color.
-     *
-     * @return true if the alliance is red, false otherwise
-     */
+    public static Rotation3d apply(Rotation3d rotation) {
+        return shouldFlip() ? rotation.rotateBy(new Rotation3d(0.0, 0.0, Math.PI)) : rotation;
+    }
+
+    public static Pose3d apply(Pose3d pose) {
+        return new Pose3d(apply(pose.getTranslation()), apply(pose.getRotation()));
+    }
+
     public static boolean shouldFlip() {
         return DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red);
+            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
     }
 }

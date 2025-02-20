@@ -96,7 +96,7 @@ public class DriveCommands {
 
         return Commands.run(
             () -> {
-                Rotation2d validatedTarget = AllianceFlip.validate(rotationSupplier.get());
+                Rotation2d validatedTarget = AllianceFlip.apply(rotationSupplier.get());
 
                 Translation2d linearVelocity =
                     getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
