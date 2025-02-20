@@ -21,8 +21,10 @@ public class AutonSelector extends VirtualSubsystem {
     private static ChoreoPaths secondPath;
 
     private final LoggedDashboardChooser<StartEndPosition> startingPositionChooser;
-    private final LoggedDashboardChooser<ChoreoPaths> pathChooser1;
-    private final LoggedDashboardChooser<ChoreoPaths> pathChooser2;
+    private LoggedDashboardChooser<ChoreoPaths> pathChooser1;
+    private LoggedDashboardChooser<ChoreoPaths> pathChooser2;
+
+    private final String key;
 
     public enum StartEndPosition {
         DEFAULT_POSITION(3, 3, 0),
@@ -64,6 +66,7 @@ public class AutonSelector extends VirtualSubsystem {
         }
     }
 
+    // probably should change to not change the pose at the start of each path, only change on the first path
     private AutoRoutine autoRoutineMaker(ChoreoPaths currentPath) {
         Command autoCommand = Commands.none();
         if (!Objects.equals(currentPath.name, "No Auto")) {
@@ -158,12 +161,13 @@ public class AutonSelector extends VirtualSubsystem {
             previousStartingPose = currentStartingPose;
             for (int i = 0; i < numOfPaths; i++) {
                 if (paths[i].startingPosition == currentStartingPose) {
+                    pathChooser1 = new LoggedDashboardChooser<>(key + "/Path 1?");
                     pathChooser1.addOption(paths[i].name, paths[i]);
                 }
             }
         }
 
-        if (firstPath != previousFirstPath) {
+        if (firstPath != previousFirstPath && firstPath != null) {
             previousFirstPath = firstPath;
             for (int i = 0; i < numOfPaths; i++) {
                 if (paths[i].startingPosition == firstPath.endingPosition) {
@@ -174,6 +178,7 @@ public class AutonSelector extends VirtualSubsystem {
     }
     
     public AutonSelector(String key) {
+        this.key = key;
         startingPositionChooser =
             new LoggedDashboardChooser<>(key + "/StartPosition?");
     
