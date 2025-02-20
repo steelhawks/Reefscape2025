@@ -84,8 +84,8 @@ public final class Constants {
 
     public static CANBus getCANBus() {
         return switch (getRobot()) {
-            case OMEGABOT, ALPHABOT, SIMBOT -> new CANBus("");
-            case HAWKRIDER -> new CANBus("canivore");
+            case OMEGABOT, HAWKRIDER, SIMBOT -> new CANBus("canivore");
+            case ALPHABOT -> new CANBus("");
         };
     }
 
