@@ -394,12 +394,6 @@ public class RobotContainer {
     }
 
     private void configureOperator() {
-//        operator.start()
-//            .and(operator.back())
-//            .onTrue(
-//                Commands.runOnce(
-//                    () -> altMode = !altMode));
-
         /* ------------- End Game Toggles ------------- */
         /* ------------- TEST THIS!!!!! ------------- */
 
@@ -425,10 +419,6 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-//        operator.x().whileTrue(
-//            s_Elevator.applyVolts(1));
-
-        // L1
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .onTrue(
@@ -449,8 +439,6 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
-        // operator.b().onTrue(
-        //     s_Elevator.homeCommand());
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
             .onTrue(
@@ -461,11 +449,6 @@ public class RobotContainer {
         operator.rightStick().onTrue(
             s_Intake.mAlgaeIntake.toggleManualControl(
                 () -> -operator.getRightY()));
-
-        // coral shoot
-        // operator.leftTrigger().whileTrue(
-        //     s_Intake.shootCoral()
-        // );
 
         operator.leftTrigger()
             .or(new DashboardTrigger("scoreCoral"))
@@ -493,23 +476,6 @@ public class RobotContainer {
 
         operator.povDown().whileTrue(
             s_Intake.pivotManualAlgaeDown());
-
-        // operator.povUp().onTrue(
-        //     s_Climb.climbCommandWithCurrent());
-
-        // operator.povDown().onTrue(
-        //     s_Climb.homeCommandWithCurrent());
-
-        // operator.povUp().onTrue(
-        //     s_Climb.runClimbViaSpeed(0.2));
-
-        // operator.povDown().onTrue(
-        //     s_Climb.runClimbViaSpeed(-0.2));
-
-        // operator.povLeft().whileTrue(
-        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
-
-
 
         operator.povRight().whileTrue(
             s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
