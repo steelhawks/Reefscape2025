@@ -2,9 +2,15 @@ package org.steelhawks.subsystems.climb.deep;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import org.steelhawks.Constants;
@@ -46,6 +52,22 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
         mTopMotor = new TalonFX(constants.DEEP_TOP_MOTOR_ID, Constants.getCANBus());
         mBottomMotor = new TalonFX(constants.DEEP_BOTTOM_MOTOR_ID, Constants.getCANBus());
         mPivotEncoder = new CANcoder(constants.DEEP_CANCODER_ID, Constants.getCANBus());
+
+        var topConfig =
+            new TalonFXConfiguration()
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+
+        var bottomConfig =
+            new TalonFXConfiguration()
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+
+
+        mTopMotor.getConfigurator().apply(topConfig);
+        mBottomMotor.getConfigurator().apply(bottomConfig);
 
         topPosition = mTopMotor.getPosition();
         topVelocity = mTopMotor.getVelocity();
