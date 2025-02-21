@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.climb.deep;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -49,6 +50,11 @@ public class DeepClimbIO775Pro implements DeepClimbIO {
 
         mTopTalon.setInverted(false);
         mBottomTalon.setInverted(true);
+
+        mTopTalon.configVoltageCompSaturation(12.0);
+        mBottomTalon.configVoltageCompSaturation(12.0);
+        mTopTalon.enableVoltageCompensation(true);
+        mBottomTalon.enableVoltageCompensation(true);
     }
 
     @Override
