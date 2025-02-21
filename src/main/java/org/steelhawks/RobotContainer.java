@@ -353,6 +353,10 @@ public class RobotContainer {
         notifyAtEndgame
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver, operator));
+
+        nearCoralStation
+            .whileTrue(
+                s_Intake.intakeCoral());
     }
 
     private void configureDriver() {
