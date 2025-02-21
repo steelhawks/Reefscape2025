@@ -6,21 +6,21 @@ public class IntakeConstants {
 
     public enum AlgaeIntakeState {
         // Keep in mind that all angle measurements listed below are in RADIANS!
-        HOME(1.599829949 + 0.2945243112740431, 0.0, 3.0), // HOME was previously 1.777936017374823
-        INTAKE(0.20, 0.0, 2.0),
-        OUTTAKE((Math.PI / 1.777936017374823), 0.0, 0.0);
+        HOME(0.0, 1.599829949 + 0.2945243112740431, 3.0), // HOME was previously 1.777936017374823
+        INTAKE(0.0, 0.20, 2.0),
+        OUTTAKE(0.0, Math.PI / 1.777936017374823, 0.0);
 
         // Algae Intake Arm's Lexan Component is Perfectly Horizontal: -0.2715145994557585
         // Algae Intake Arm's Lexan Component is Perfectly Vertical: 1.4741555371581012
 
         
-        private final double alphaRadians;
         private final double omegaRadians;
+        private final double alphaRadians;
         private final double hawkriderRadians;
 
-        AlgaeIntakeState(double alpha, double omega, double hawkrider) {
-            this.alphaRadians = alpha;
+        AlgaeIntakeState(double omega, double alpha, double hawkrider) {
             this.omegaRadians = omega;
+            this.alphaRadians = alpha;
             this.hawkriderRadians = hawkrider;
         }
 

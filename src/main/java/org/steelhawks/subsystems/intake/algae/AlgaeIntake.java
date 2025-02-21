@@ -99,7 +99,8 @@ public class AlgaeIntake extends SubsystemBase {
                 constants.ALGAE_KG,
                 constants.ALGAE_KV);
 
-        enable();
+//        enable();
+        disable();
     }
 
     @Override
@@ -128,14 +129,14 @@ public class AlgaeIntake extends SubsystemBase {
         }
 
         if (mEnabled) {
-            // runPivot(mController.calculate(getPosition()), mController.getSetpoint());
-            runPivot(0, mController.getSetpoint());
+             runPivot(mController.calculate(getPosition()), mController.getSetpoint());
         }
     }
 
     @AutoLogOutput(key = "Algae/AdjustedPosition")
     private double getPosition() {
-        return inputs.encoderPositionRad;
+        final double OFFSET_FROM_HORIZONTAL = 0;
+        return inputs.encoderPositionRad + OFFSET_FROM_HORIZONTAL;
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
@@ -181,7 +182,6 @@ public class AlgaeIntake extends SubsystemBase {
                         removeDefaultCommand();
                     }
                     enable();
-                    homeCommand().schedule();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
 
@@ -275,15 +275,11 @@ public class AlgaeIntake extends SubsystemBase {
             .finallyDo(() -> io.stopPivot());
     }
 
-    public Command setDesiredState(IntakeConstants.AlgaeIntakeState state) {
-        return Commands.runOnce(
-            () -> {
-                double goal =
-                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
-                inputs.goal = goal;
-                // mController.setGoal(goal);
-                mController.setGoal(new TrapezoidProfile.State(goal, 0));
-                enable();
-            }, this);
+    public void setDesiredState(IntakeConstants.AlgaeIntakeState state) {
+        double goal =
+            MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
+        inputs.goal = goal;
+        mController.setGoal(goal);
+//        enable();
     }
 }

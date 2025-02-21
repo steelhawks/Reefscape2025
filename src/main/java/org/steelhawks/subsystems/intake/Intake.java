@@ -3,7 +3,6 @@ package org.steelhawks.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
@@ -34,6 +33,8 @@ public class Intake {
     /* COMMAND FACTORIES */
     ///////////////////////
 
+    /* ------------- Algae Commands ------------- */
+
     public Trigger algaeAtGoal() {
         return mAlgaeIntake.atGoal();
     }
@@ -43,7 +44,7 @@ public class Intake {
     }
 
     public Command setDesiredState(IntakeConstants.AlgaeIntakeState state) {
-        return Commands.runOnce(
+        return Commands.run(
             () -> mAlgaeIntake.setDesiredState(state), mAlgaeIntake);
     }
 
@@ -71,6 +72,8 @@ public class Intake {
     public Command shootAlgae() {
         return mAlgaeIntake.outtake();
     }
+
+    /* ------------- Coral Commands ------------- */
 
     public Command shootCoralSlow() {
         return Commands.run(

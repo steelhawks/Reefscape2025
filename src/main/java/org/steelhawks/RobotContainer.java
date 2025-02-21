@@ -27,7 +27,7 @@ import org.steelhawks.subsystems.climb.ClimbIO;
 import org.steelhawks.subsystems.climb.ClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
-import org.steelhawks.subsystems.intake.IntakeConstants;
+import org.steelhawks.subsystems.intake.IntakeConstants.AlgaeIntakeState;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
@@ -274,7 +274,11 @@ public class RobotContainer {
 
     }
 
-    private void configureDefaultCommands() {}
+    private void configureDefaultCommands() {
+        s_Intake.mAlgaeIntake
+            .setDefaultCommand(s_Intake.setDesiredState(AlgaeIntakeState.HOME));
+    }
+
     private void configureTestBindings() {}
 
     private void configureShallowClimbEndgame() {
@@ -423,21 +427,14 @@ public class RobotContainer {
             .whileTrue(
                 s_Intake.reverseCoral());
 
-        // intake algae
         operator.rightBumper().whileTrue(
-            s_Intake.intakeAlgae());
+            Commands.parallel(
+                s_Intake.setDesiredState(AlgaeIntakeState.INTAKE),
+                s_Intake.intakeAlgae()));
 
-        // shoot algae
         operator.rightTrigger().whileTrue(
-            s_Intake.shootAlgae());
-
-        operator.povUp().whileTrue(
-            s_Intake.pivotManualAlgaeUp());
-
-        operator.povDown().whileTrue(
-            s_Intake.pivotManualAlgaeDown());
-
-        operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+            Commands.parallel(
+                s_Intake.setDesiredState(AlgaeIntakeState.OUTTAKE),
+                s_Intake.shootAlgae()));
     }
 }

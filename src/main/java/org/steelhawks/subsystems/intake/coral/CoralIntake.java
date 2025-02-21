@@ -63,6 +63,4 @@ public class CoralIntake extends SubsystemBase {
     }
 
     public void runCharacterization(double volts) {}
-
-    
 }
