@@ -4,11 +4,8 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.VibrateController;
@@ -47,7 +44,6 @@ public class RobotContainer {
 
     public static final boolean useVision = true;
 
-    public static SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
     private final Trigger isShallowEndgame;
     private final Trigger notifyAtEndgame;
@@ -78,32 +74,6 @@ public class RobotContainer {
         s_LED.setDefaultLighting(
             s_LED.movingDiscontinuousGradient(
                 c1, c2));
-    }
-
-    public void updatePhysicsSimulation() {
-        if (Constants.getMode() != Mode.SIM) return;
-
-        // physics sim to simulate the field
-        SimulatedArena.getInstance().simulationPeriodic();
-
-        Pose3d[] algaePoses =
-            SimulatedArena.getInstance()
-                .getGamePiecesArrayByType("Algae");
-        Pose3d[] coralPoses =
-            SimulatedArena.getInstance()
-                .getGamePiecesArrayByType("Coral");
-
-        Logger.recordOutput("FieldSimulation/AlgaePoses", algaePoses);
-        Logger.recordOutput("FieldSimulation/CoralPoses", coralPoses);
-        Logger.recordOutput("FieldSimulation/RobotPosition", mDriveSimulation.getSimulatedDriveTrainPose());
-    }
-
-    public void resetSimulation(Pose2d startingPose) {
-        if (Constants.getMode() != Mode.SIM) return;
-
-        mDriveSimulation.setSimulationWorldPose(startingPose);
-        s_Swerve.setPose(startingPose);
-        SimulatedArena.getInstance().resetFieldForAuto();
     }
 
     public RobotContainer() {
@@ -210,25 +180,21 @@ public class RobotContainer {
 
                 }
                 case SIMBOT -> {
-                    mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
-                        new Pose2d(3, 3, new Rotation2d()));
-                    SimulatedArena.getInstance().addDriveTrainSimulation(mDriveSimulation);
-
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.CORAL_STATION_TOP);
                     Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.CORAL_STATION_BOTTOM);
 
                     s_Swerve =
                         new Swerve(
-                            new GyroIOSim(mDriveSimulation.getGyroSimulation()),
-                            new ModuleIOSim(mDriveSimulation.getModules()[0]),
-                            new ModuleIOSim(mDriveSimulation.getModules()[1]),
-                            new ModuleIOSim(mDriveSimulation.getModules()[2]),
-                            new ModuleIOSim(mDriveSimulation.getModules()[3]));
+                            new GyroIOSim(Swerve.getDriveSimulation().getGyroSimulation()),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[0]),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[1]),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[2]),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[3]));
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
                             new VisionIOPhotonSim(VisionConstants.cameraNames()[0], VisionConstants.robotToCamera()[0],
-                                mDriveSimulation::getSimulatedDriveTrainPose));
+                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim());
@@ -383,18 +349,8 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode())));
 
-        if (RobotBase.isReal()) {
-            driver.b().onTrue(
-                s_Swerve.zeroHeading(
-                    new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
-        }
-
-        if (Constants.getMode() == Mode.SIM) {
-            driver.b().onTrue(
-                s_Swerve.zeroHeading(
-                    new Pose2d(
-                        mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
-        }
+        driver.b().onTrue(
+            s_Swerve.zeroHeading());
     }
 
     private void configureOperator() {

@@ -15,10 +15,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -32,20 +29,21 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.steelhawks.Constants.*;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
@@ -75,6 +73,7 @@ public class Swerve extends SubsystemBase {
     private static final RobotConfig PP_CONFIG;
 
     public static final DriveTrainSimulationConfig MAPLE_SIM_CONFIG;
+    private static final SwerveDriveSimulation DRIVE_SIMULATION;
 
     public static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
@@ -253,6 +252,43 @@ public class Swerve extends SubsystemBase {
                     DriveTrainSimulationConfig.Default();
             }
         }
+
+        if (RobotBase.isSimulation()) {
+            DRIVE_SIMULATION = new SwerveDriveSimulation(MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d()));
+            SimulatedArena.getInstance().addDriveTrainSimulation(DRIVE_SIMULATION);
+        } else {
+            DRIVE_SIMULATION = null;
+        }
+    }
+
+    public static SwerveDriveSimulation getDriveSimulation() {
+        return RobotBase.isSimulation() ? DRIVE_SIMULATION : null;
+    }
+
+    public void updatePhysicsSimulation() {
+        if (Constants.getMode() != Mode.SIM) return;
+
+        // physics sim to simulate the field
+        SimulatedArena.getInstance().simulationPeriodic();
+
+        Pose3d[] algaePoses =
+            SimulatedArena.getInstance()
+                .getGamePiecesArrayByType("Algae");
+        Pose3d[] coralPoses =
+            SimulatedArena.getInstance()
+                .getGamePiecesArrayByType("Coral");
+
+        Logger.recordOutput("FieldSimulation/AlgaePoses", algaePoses);
+        Logger.recordOutput("FieldSimulation/CoralPoses", coralPoses);
+        Logger.recordOutput("FieldSimulation/RobotPosition", DRIVE_SIMULATION.getSimulatedDriveTrainPose());
+    }
+
+    public void resetSimulation(Pose2d startingPose) {
+        if (Constants.getMode() != Mode.SIM) return;
+
+        DRIVE_SIMULATION.setSimulationWorldPose(startingPose);
+        setPose(startingPose);
+        SimulatedArena.getInstance().resetFieldForAuto();
     }
 
     public Swerve(
@@ -343,7 +379,6 @@ public class Swerve extends SubsystemBase {
                     constants.ANGLE_MAX_VELOCITY,
                     constants.ANGLE_MAX_ACCELERATION));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
-
         mAlignDebouncer = new Debouncer(1, DebounceType.kRising);
     }
 
@@ -698,10 +733,18 @@ public class Swerve extends SubsystemBase {
             SPEED_MULTIPLIER = isSlowMode() ? 1.0 : SLOW_SPEED_MULTIPLIER);
     }
 
-    public Command zeroHeading(Pose2d pose) {
+    public Command zeroHeading() {
         return Commands.runOnce(
-            () -> setPose(pose), this)
-                .ignoringDisable(true);
+            () -> {
+                Pose2d zeroed = new Pose2d(getPose().getTranslation(), new Rotation2d());
+
+                if (RobotBase.isSimulation()) {
+                    zeroed = new Pose2d(DRIVE_SIMULATION.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d());
+                }
+
+                setPose(zeroed);
+            }, this)
+            .ignoringDisable(true);
     }
 
     /**
