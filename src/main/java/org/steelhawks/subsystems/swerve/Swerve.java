@@ -125,7 +125,7 @@ public class Swerve extends SubsystemBase {
                             TunerConstants.FrontLeft.WheelRadius,
                             TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
                             WHEEL_COF,
-                            DCMotor.getKrakenX60Foc(1)
+                            DCMotor.getKrakenX60(1)
                                 .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
                             TunerConstants.FrontLeft.SlipCurrent,
                             1),
@@ -574,8 +574,7 @@ public class Swerve extends SubsystemBase {
      * Returns the current odometry rotation.
      */
     public Rotation2d getRotation() {
-        return gyroInputs.connected ?
-            gyroInputs.yawPosition : getPose().getRotation();
+        return getPose().getRotation();
     }
 
     /**
@@ -634,7 +633,11 @@ public class Swerve extends SubsystemBase {
      * Returns the maximum linear speed in meters per sec.
      */
     public double getMaxLinearSpeedMetersPerSec() {
-        return TunerConstantsHawkRider.kSpeedAt12Volts.in(MetersPerSecond);
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> TunerConstantsAlpha.kSpeedAt12Volts.in(MetersPerSecond);
+            case HAWKRIDER -> TunerConstantsHawkRider.kSpeedAt12Volts.in(MetersPerSecond);
+            default -> TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+        };
     }
 
     /**
@@ -656,7 +659,7 @@ public class Swerve extends SubsystemBase {
      */
     public static Translation2d[] getModuleTranslations() {
         return switch (Constants.getRobot()) {
-            case OMEGABOT ->
+            case OMEGABOT, SIMBOT ->
                 new Translation2d[]{
                     new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
                     new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
@@ -669,7 +672,7 @@ public class Swerve extends SubsystemBase {
                 new Translation2d(TunerConstantsAlpha.BackLeft.LocationX, TunerConstantsAlpha.BackLeft.LocationY),
                 new Translation2d(TunerConstantsAlpha.BackRight.LocationX, TunerConstantsAlpha.BackRight.LocationY)
             };
-            case HAWKRIDER, SIMBOT -> new Translation2d[]{
+            case HAWKRIDER -> new Translation2d[]{
                 new Translation2d(TunerConstantsHawkRider.FrontLeft.LocationX, TunerConstantsHawkRider.FrontLeft.LocationY),
                 new Translation2d(TunerConstantsHawkRider.FrontRight.LocationX, TunerConstantsHawkRider.FrontRight.LocationY),
                 new Translation2d(TunerConstantsHawkRider.BackLeft.LocationX, TunerConstantsHawkRider.BackLeft.LocationY),
