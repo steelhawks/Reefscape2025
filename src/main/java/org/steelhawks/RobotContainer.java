@@ -454,7 +454,7 @@ public class RobotContainer {
             .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
                 Commands.either(
-                    s_Intake.shootCoralSlow(),
+                    s_Intake.shootPulsatingCoral(),
                     s_Intake.shootCoral(),
                     () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() && s_Elevator.isEnabled()));
 
