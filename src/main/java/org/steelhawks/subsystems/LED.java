@@ -17,6 +17,7 @@ public class LED extends SubsystemBase {
 
     private static final double RAPID_FLASH_TIMEOUT = .25;
 
+    // LED STRIP: 82 total diodes (20 + 22+ 20 + 20, 4 strips)
     private final AddressableLED LEDStrip;
     private final AddressableLEDBuffer LEDBuffer;
 
