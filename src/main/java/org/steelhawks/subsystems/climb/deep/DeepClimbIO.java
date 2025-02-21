@@ -6,6 +6,8 @@ public interface DeepClimbIO {
 
     @AutoLog
     class DeepClimbIOInputs {
+        public double goal = 0;
+
         public boolean topConnected = false;
         public double topClimbPositionRad = 0;
         public double topClimbVelocityRadPerSec = 0;

@@ -44,7 +44,7 @@ public class ShallowClimbIOTalonFX implements ShallowClimbIO {
                 .withFeedback(new FeedbackConfigs()
                     .withSensorToMechanismRatio(constants.SHALLOW_GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
 
         mClimbMotor.getConfigurator().apply(config);

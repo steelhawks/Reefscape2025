@@ -5,15 +5,16 @@ import org.steelhawks.Constants;
 
 public final class ClimbConstants {
 
-    public enum State {
+    public enum DeepClimbState {
         HOME(0, 0, 0),
+        PREPARE(0, 0, 0),
         CLIMB(0, 0, 0);
 
         private final double alphaRadians;
         private final double omegaRadians;
         private final double hawkriderRadians;
 
-        State(double alpha, double omega, double hawkrider) {
+        DeepClimbState(double alpha, double omega, double hawkrider) {
             this.alphaRadians = alpha;
             this.omegaRadians = omega;
             this.hawkriderRadians = hawkrider;
@@ -43,7 +44,15 @@ public final class ClimbConstants {
             Units.rotationsToRadians(3),
             60,
             61,
-            62);
+            62,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0);
 
     public static final ClimbConstants OMEGA = DEFAULT;
 
@@ -57,7 +66,15 @@ public final class ClimbConstants {
             Units.rotationsToRadians(3),
             35,
             34,
-            22);
+            22,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0);
 
     public static final ClimbConstants HAWKRIDER = DEFAULT;
 
@@ -76,6 +93,17 @@ public final class ClimbConstants {
     public final int DEEP_BOTTOM_MOTOR_ID;
     public final int DEEP_CANCODER_ID;
 
+    public final double DEEP_KP;
+    public final double DEEP_KI;
+    public final double DEEP_KD;
+
+    public final double DEEP_KS;
+    public final double DEEP_KG;
+    public final double DEEP_KV;
+
+    public final double DEEP_MAX_VELO_PER_SECOND;
+    public final double DEEP_MAX_ACCEL_PER_SECOND;
+
     public ClimbConstants(
         int shallow_motorId,
         double shallow_gearRatio,
@@ -85,7 +113,15 @@ public final class ClimbConstants {
         double shallow_maxRadians,
         int deep_topMotorId,
         int deep_bottomMotorId,
-        int deep_cancoderId
+        int deep_cancoderId,
+        double deep_kP,
+        double deep_kI,
+        double deep_kD,
+        double deep_kS,
+        double deep_kG,
+        double deep_kV,
+        double deep_maxVelocityPerSecond,
+        double deep_maxAccelerationPerSecond
     ) {
         SHALLOW_MOTOR_ID = shallow_motorId;
         SHALLOW_GEAR_RATIO = shallow_gearRatio;
@@ -97,5 +133,16 @@ public final class ClimbConstants {
         DEEP_TOP_MOTOR_ID = deep_topMotorId;
         DEEP_BOTTOM_MOTOR_ID = deep_bottomMotorId;
         DEEP_CANCODER_ID = deep_cancoderId;
+
+        DEEP_KP = deep_kP;
+        DEEP_KI = deep_kI;
+        DEEP_KD = deep_kD;
+
+        DEEP_KS = deep_kS;
+        DEEP_KG = deep_kG;
+        DEEP_KV = deep_kV;
+
+        DEEP_MAX_VELO_PER_SECOND = deep_maxVelocityPerSecond;
+        DEEP_MAX_ACCEL_PER_SECOND = deep_maxAccelerationPerSecond;
     }
 }

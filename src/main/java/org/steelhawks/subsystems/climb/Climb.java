@@ -1,25 +1,29 @@
 package org.steelhawks.subsystems.climb;
 
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.subsystems.climb.ClimbConstants.DeepClimbState;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOInputsAutoLogged;
 
-import java.util.function.DoubleSupplier;
-
 public class Climb extends SubsystemBase {
+
+    private static final double CURRENT_THRESHOLD = 40;
 
     private final ShallowClimbIOInputsAutoLogged shallowInputs = new ShallowClimbIOInputsAutoLogged();
     private final DeepClimbIOInputsAutoLogged deepInputs = new DeepClimbIOInputsAutoLogged();
@@ -27,11 +31,25 @@ public class Climb extends SubsystemBase {
     private final ShallowClimbIO shallowIO;
     private final DeepClimbIO deepIO;
 
-    private final Alert motorDisconnected;
+    private final ProfiledPIDController mDeepController;
+    private final ArmFeedforward mDeepFeedforward;
 
-    private boolean mEnabled = false;
+    private final Alert shallowMotorDisconnected;
+    private final Alert topDeepMotorDisconnected;
+    private final Alert bottomDeepMotorDisconnected;
 
     private final Debouncer mDebouncer = new Debouncer(0.005, DebounceType.kBoth);
+    private boolean mEnabled = false;
+
+    public void enable() {
+        mEnabled = true;
+        mDeepController.reset(getDeepPosition());
+    }
+
+    public void disable() {
+        mEnabled = false;
+        runDeepClimb(0, new TrapezoidProfile.State());
+    }
 
     public Climb(ShallowClimbIO shallowIO, DeepClimbIO deepIO) {
         this.shallowIO = shallowIO;
@@ -43,8 +61,27 @@ public class Climb extends SubsystemBase {
             default -> constants = ClimbConstants.OMEGA;
         }
 
-        motorDisconnected =
-            new Alert("Climb Motor is Disconnected", AlertType.kError);
+        mDeepController =
+            new ProfiledPIDController(
+                constants.DEEP_KP,
+                constants.DEEP_KI,
+                constants.DEEP_KD,
+                new TrapezoidProfile.Constraints(
+                    constants.DEEP_MAX_VELO_PER_SECOND,
+                    constants.DEEP_MAX_ACCEL_PER_SECOND));
+
+        mDeepFeedforward =
+            new ArmFeedforward(
+                constants.DEEP_KS,
+                constants.DEEP_KG,
+                constants.DEEP_KV);
+
+        shallowMotorDisconnected =
+            new Alert("Shallow Climb Motor is Disconnected", AlertType.kError);
+        topDeepMotorDisconnected =
+            new Alert("Left Deep Climb Motor is Disconnected", AlertType.kError);
+        bottomDeepMotorDisconnected =
+            new Alert("Right Deep Climb Motor is Disconnected", AlertType.kError);
     }
 
     @Override
@@ -52,20 +89,36 @@ public class Climb extends SubsystemBase {
         shallowIO.updateInputs(shallowInputs);
         deepIO.updateInputs(deepInputs);
         Logger.processInputs("ShallowClimb", shallowInputs);
-        Logger.recordOutput("ShallowClimb/Enabled", mEnabled);
+        Logger.recordOutput("DeepClimb/Enabled", mEnabled);
         Logger.processInputs("DeepClimb", deepInputs);
 
-        motorDisconnected.set(!shallowInputs.motorConnected);
+        shallowMotorDisconnected.set(!shallowInputs.motorConnected);
+        topDeepMotorDisconnected.set(!deepInputs.topConnected);
+        bottomDeepMotorDisconnected.set(!deepInputs.bottomConnected);
 
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Climb/CurrentCommand", getCurrentCommand().getName());
         }
+
+        // stop adding up pid error while disabled
+        if (DriverStation.isDisabled()) {
+            mDeepController.reset(getDeepPosition());
+        }
+
+        if (mEnabled) {
+            runDeepClimb(mDeepController.calculate(getDeepPosition()), mDeepController.getSetpoint());
+        }
     }
 
-    // @AutoLogOutput(key = "Climb/AdjustedPosition")
-    // private double getPosition() {
-    //     return inputs.encoderPositionRad;
-    // }
+    private void runDeepClimb(double output, TrapezoidProfile.State setpoint) {
+        double volts = output + mDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
+        deepIO.runClimb(volts);
+    }
+
+     @AutoLogOutput(key = "DeepClimb/AdjustedPosition")
+     private double getDeepPosition() {
+         return deepInputs.encoderPositionRad;
+     }
 
     /* ------------- Shallow Climb Commands ------------- */
 
@@ -73,27 +126,17 @@ public class Climb extends SubsystemBase {
         return new Trigger(() -> shallowInputs.atOutsideLimit);
     }
 
-    public Command climbCommand() {
-        return runClimbViaSpeed(-0.2)
-            .withDeadline(new WaitCommand(0.15));
+    public Command shallowClimbCommandWithCurrent() {
+        return runShallowClimbViaSpeed(0.2)
+            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > CURRENT_THRESHOLD));
     }
 
-    public Command homeCommand() {
-        return runClimbViaSpeed(0.2)
-            .withDeadline(new WaitCommand(0.15));
+    public Command shallowHomeCommandWithCurrent() {
+        return runShallowClimbViaSpeed(-0.2)
+            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > CURRENT_THRESHOLD));
     }
 
-    public Command climbCommandWithCurrent() {
-        return runClimbViaSpeed(-0.2)
-            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > 40));
-    }
-
-    public Command homeCommandWithCurrent() {
-        return runClimbViaSpeed(0.2)
-            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > 40));
-    }
-
-    public Command runClimbViaSpeed(double speed) {
+    public Command runShallowClimbViaSpeed(double speed) {
         return Commands.run(
             () -> {
                 shallowIO.runClimbViaSpeed(speed);
@@ -101,7 +144,7 @@ public class Climb extends SubsystemBase {
             .finallyDo(() -> shallowIO.stop());
     }
 
-    public Command applyVolts(double volts) {
+    public Command runShallowClimb(double volts) {
         return Commands.run(
             () -> {
                 shallowIO.runClimb(volts);
@@ -111,9 +154,29 @@ public class Climb extends SubsystemBase {
 
     /* ------------- Deep Climb Commands ------------- */
 
-    public Command runDeepClimb(double speed) {
+    public Command setDesiredState(DeepClimbState state) {
+        return Commands.runOnce(
+            () -> {
+                double goal = state.getRadians();
+                deepInputs.goal = goal;
+                mDeepController.setGoal(goal);
+            }, this);
+    }
+
+    public Command runDeepClimbViaSpeed(double speed) {
         return Commands.run(
             () -> deepIO.runClimbViaSpeed(speed))
         .finallyDo(() -> deepIO.stop());
+    }
+
+    public Command runDeepClimb(double volts) {
+        return Commands.run(
+            () -> deepIO.runClimb(volts))
+        .finallyDo(() -> deepIO.stop());
+    }
+
+    public Command prepareDeepClimb() {
+        return Commands.runOnce(
+            () -> setDesiredState(DeepClimbState.PREPARE));
     }
 }
