@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import org.steelhawks.Constants;
@@ -21,6 +22,7 @@ public class DeepClimbIO775Pro implements DeepClimbIO {
 
     private final StatusSignal<Boolean> magnetFault;
     private final StatusSignal<Angle> canCoderPosition;
+    private final StatusSignal<Angle> canCoderAbsolutePosition;
     private final StatusSignal<AngularVelocity> canCoderVelocity;
 
     public DeepClimbIO775Pro() {
@@ -30,15 +32,13 @@ public class DeepClimbIO775Pro implements DeepClimbIO {
             default -> constants = ClimbConstants.OMEGA;
         }
 
-//        mTopTalon = new TalonSRX(constants.DEEP_TOP_MOTOR_ID);
-//        mBottomTalon = new TalonSRX(constants.DEEP_TOP_MOTOR_ID);
+        mTopTalon = new TalonSRX(constants.DEEP_TOP_MOTOR_ID);
+        mBottomTalon = new TalonSRX(constants.DEEP_TOP_MOTOR_ID);
         mPivotEncoder = new CANcoder(constants.DEEP_CANCODER_ID);
-
-        mTopTalon = new TalonSRX(35);
-        mBottomTalon = new TalonSRX(34);
 
         magnetFault = mPivotEncoder.getFault_BadMagnet();
         canCoderPosition = mPivotEncoder.getPosition();
+        canCoderAbsolutePosition = mPivotEncoder.getAbsolutePosition();
         canCoderVelocity = mPivotEncoder.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -71,8 +71,9 @@ public class DeepClimbIO775Pro implements DeepClimbIO {
                 canCoderPosition,
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRad = canCoderPosition.getValueAsDouble();
-        inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
+        inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
+        inputs.encoderAbsolutePositionRad = Units.rotationsToRadians(canCoderAbsolutePosition.getValueAsDouble());
+        inputs.encoderVelocityRadPerSec = Units.rotationsToRadians(canCoderVelocity.getValueAsDouble());
     }
 
     @Override
