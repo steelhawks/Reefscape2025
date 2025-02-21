@@ -108,11 +108,11 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {});
+                            new ElevatorIOTalonFX());
                     s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {});
+                            new CoralIntakeIOTalonFX());
                     s_Align =
                         new Align(
                             new AlignIOCANrange());
@@ -379,30 +379,34 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        operator.leftBumper()
-            .or(new DashboardTrigger("l1"))
-            .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+//        operator.leftBumper()
+//            .or(new DashboardTrigger("l1"))
+//            .onTrue(
+//                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+//
+//        operator.x()
+//            .or(new DashboardTrigger("l2"))
+//            .onTrue(
+//                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+//
+//        operator.y()
+//            .or(new DashboardTrigger("l3"))
+//            .onTrue(
+//                s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+//
+//        operator.a()
+//            .or(new DashboardTrigger("l4"))
+//            .onTrue(
+//                s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+//
+//        operator.b()
+//            .or(new DashboardTrigger("elevatorHome"))
+//            .onTrue(
+//                s_Elevator.homeCommand());
 
         operator.x()
-            .or(new DashboardTrigger("l2"))
-            .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
-
-        operator.y()
-            .or(new DashboardTrigger("l3"))
-            .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L3));
-
-        operator.a()
-            .or(new DashboardTrigger("l4"))
-            .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L4));
-
-        operator.b()
-            .or(new DashboardTrigger("elevatorHome"))
-            .onTrue(
-                s_Elevator.homeCommand());
+            .whileTrue(
+                s_Elevator.applykV());
 
         /* ------------- Intake Controls ------------- */
 

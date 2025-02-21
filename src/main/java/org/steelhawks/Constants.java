@@ -35,7 +35,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
@@ -161,7 +161,8 @@ public final class Constants {
         public static final LEDConstants DEFAULT =
             new LEDConstants(0, 40);
 
-        public static final LEDConstants OMEGA = DEFAULT;
+        public static final LEDConstants OMEGA =
+            new LEDConstants(0, 82);
         public static final LEDConstants ALPHA = DEFAULT;
         public static final LEDConstants HAWKRIDER = DEFAULT;
 

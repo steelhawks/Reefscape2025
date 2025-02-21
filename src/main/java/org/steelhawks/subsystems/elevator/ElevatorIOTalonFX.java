@@ -73,6 +73,25 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                     .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
 
+        if (Constants.getRobot() == RobotType.OMEGABOT) {
+            leftConfig =
+                new TalonFXConfiguration()
+                    .withFeedback(new FeedbackConfigs()
+                        .withSensorToMechanismRatio(constants.GEAR_RATIO))
+                    .withMotorOutput(new MotorOutputConfigs()
+                        .withInverted(InvertedValue.CounterClockwise_Positive)
+                        .withNeutralMode(NeutralModeValue.Brake));
+
+            rightConfig =
+                new TalonFXConfiguration()
+                    .withFeedback(new FeedbackConfigs()
+                        .withSensorToMechanismRatio(constants.GEAR_RATIO))
+                    .withMotorOutput(new MotorOutputConfigs()
+                        .withInverted(InvertedValue.Clockwise_Positive)
+                        .withNeutralMode(NeutralModeValue.Brake));
+        }
+
+
         mLeftMotor.getConfigurator().apply(leftConfig);
         mRightMotor.getConfigurator().apply(rightConfig);
 
@@ -163,7 +182,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
         inputs.encoderVelocityRadPerSec = Units.rotationsToRadians(canCoderVelocity.getValueAsDouble());
 
-        if (Constants.getRobot() == RobotType.ALPHABOT) {
+        if (Constants.getRobot() != RobotType.HAWKRIDER) {
             inputs.encoderConnected = inputs.leftConnected && inputs.rightConnected;
             inputs.magnetGood = inputs.encoderConnected;
             inputs.encoderPositionRad = Units.rotationsToRadians((leftPos + rightPos) / 2.0);

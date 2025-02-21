@@ -304,10 +304,10 @@ public class Elevator extends SubsystemBase {
             .finallyDo(io::stop);
     }
 
-    public Command applykV(AngularVelocity desiredVelocity) {
+    public Command applykV() {
         return Commands.run(
             () -> {
-                double volts = constants.KS + (constants.KV * desiredVelocity.in(RadiansPerSecond));
+                double volts = constants.KS + constants.KV;
                 io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);

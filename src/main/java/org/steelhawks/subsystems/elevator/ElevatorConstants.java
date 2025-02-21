@@ -57,7 +57,24 @@ public final class ElevatorConstants {
             0.5,
             Units.rotationsToRadians(3));
 
-    public static final ElevatorConstants OMEGA = DEFAULT;
+    public static final ElevatorConstants OMEGA =
+        new ElevatorConstants(
+            0,
+            13,
+            14,
+            60,
+            25,
+            0.23,
+            0.2,
+            (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.1,
+            24);
 
     public static final ElevatorConstants ALPHA =
         new ElevatorConstants(

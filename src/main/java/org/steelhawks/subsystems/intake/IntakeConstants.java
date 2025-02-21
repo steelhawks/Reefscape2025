@@ -64,7 +64,32 @@ public class IntakeConstants {
             0.5,
             2 * Math.PI);
 
-    public static final IntakeConstants OMEGA = DEFAULT;
+    public static final IntakeConstants OMEGA =
+        new IntakeConstants(
+            15,
+            1,
+            .1,
+            .135,
+
+            1,
+            17,
+            18,
+            50,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.1,
+            2 * Math.PI);
+
     public static final IntakeConstants ALPHA =
         new IntakeConstants(
             16,
