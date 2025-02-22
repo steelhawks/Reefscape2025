@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
+import org.steelhawks.Constants.RobotType;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 import java.util.function.DoubleSupplier;
@@ -123,19 +124,19 @@ public class AlgaeIntake extends SubsystemBase {
             Logger.recordOutput("Algae/CurrentCommand", getCurrentCommand().getName());
         }
 
-        if (inputs.limitSwitchPressed) {
+        if (inputs.limitSwitchPressed && Constants.getRobot() == RobotType.ALPHABOT) {
             io.zeroEncoders();
         }
 
         if (mEnabled) {
             // runPivot(mController.calculate(getPosition()), mController.getSetpoint());
-            runPivot(0, mController.getSetpoint());
+            runPivot(0, new TrapezoidProfile.State());
         }
     }
 
     @AutoLogOutput(key = "Algae/AdjustedPosition")
     private double getPosition() {
-        return inputs.encoderPositionRad;
+        return inputs.encoderPositionRad + constants.ALGAE_PIVOT_ZERO_OFFSET;
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
@@ -257,13 +258,13 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG), this)
+            () -> io.runPivotWithVoltage(Math.cos(getPosition()) * constants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(constants.ALGAE_KS + (Math.cos(inputs.encoderPositionRad) * constants.ALGAE_KG) + constants.ALGAE_KV))
+            () -> io.runPivotWithVoltage(constants.ALGAE_KS + (Math.cos(getPosition()) * constants.ALGAE_KG) + constants.ALGAE_KV))
             .finallyDo(() -> io.stopPivot());
     }
 

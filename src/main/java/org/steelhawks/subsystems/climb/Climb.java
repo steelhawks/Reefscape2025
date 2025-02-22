@@ -150,7 +150,7 @@ public class Climb extends SubsystemBase {
 
     public Command runShallowClimb() {
         return shallowClimbCommandWithCurrent()
-            .andThen(runShallowClimbViaVolts(-2));
+            .andThen(runShallowClimbViaVolts(-1));
     }
 
     /* ------------- Deep Climb Commands ------------- */

@@ -46,9 +46,9 @@ public class IntakeConstants {
             .135,
             0.1,
             1,
+            16,
             17,
             18,
-            50,
             1,
             1,
             0,
@@ -62,7 +62,8 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            2 * Math.PI);
+            2 * Math.PI,
+            0.724);
 
     public static final IntakeConstants OMEGA =
         new IntakeConstants(
@@ -72,13 +73,13 @@ public class IntakeConstants {
             .225, // .15
             0.1,
             1,
+            16,
             17,
             18,
-            50,
             1,
             1,
-            0,
-            0,
+            0.4,
+            0.33,
             0,
             0,
             0,
@@ -88,7 +89,8 @@ public class IntakeConstants {
             0,
             0,
             0.1,
-            2 * Math.PI);
+            2 * Math.PI,
+            0.7240389318820226 + 1.5631264228554682);
 
     public static final IntakeConstants ALPHA =
         new IntakeConstants(
@@ -117,7 +119,8 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            3);
+            3,
+            0);
 
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
@@ -157,6 +160,7 @@ public class IntakeConstants {
     public final double ALGAE_MANUAL_PIVOT_INCREMENT;
 
     public final double ALGAE_MAX_RADIANS;
+    public final double ALGAE_PIVOT_ZERO_OFFSET;
 
     public IntakeConstants(
         int coral_intakeMotorId,
@@ -182,7 +186,8 @@ public class IntakeConstants {
         double algae_maxAccelerationPerSecSquared,
         double algae_tolerance,
         double algae_manualPivotIncrement,
-        double algae_maxRadians
+        double algae_maxRadians,
+        double algae_pivotZeroOffset
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
         CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
@@ -208,5 +213,6 @@ public class IntakeConstants {
         ALGAE_TOLERANCE = algae_tolerance;
         ALGAE_MANUAL_PIVOT_INCREMENT = algae_manualPivotIncrement;
         ALGAE_MAX_RADIANS = algae_maxRadians;
+        ALGAE_PIVOT_ZERO_OFFSET = algae_pivotZeroOffset;
     }  
 }

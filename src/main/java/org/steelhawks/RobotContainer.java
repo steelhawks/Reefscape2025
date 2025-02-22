@@ -133,7 +133,7 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Intake =
                         new Intake(
-                            new AlgaeIntakeIO() {},
+                            new AlgaeIntakeIOTalonFX(),
                             new CoralIntakeIOTalonFX());
                     s_Align =
                         new Align(
@@ -465,8 +465,8 @@ public class RobotContainer {
         // operator.povDown().whileTrue(
         //     s_Intake.pivotManualAlgaeDown());
 
-        operator.povUp().onTrue(
-            s_Climb.runShallowClimb());
+        // operator.povUp().onTrue(
+        //     s_Climb.runShallowClimb());
 
         // operator.povDown().onTrue(
         //     s_Climb.runClimbViaSpeed(-0.2));
@@ -475,17 +475,30 @@ public class RobotContainer {
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
         operator.povLeft().whileTrue(
-            s_Climb.runDeepClimbViaSpeed(1));
+            s_Intake.mAlgaeIntake.applykS());
 
         operator.povRight().whileTrue(
-            s_Climb.runDeepClimbViaSpeed(-1));
+            s_Intake.mAlgaeIntake.applykG());
 
-        
         operator.povUp().whileTrue(
-            s_Climb.runDeepClimbViaSpeed(0.2));
-
+            s_Intake.mAlgaeIntake.runPivotManualUp());
+            
         operator.povDown().whileTrue(
-            s_Climb.runDeepClimbViaSpeed(-0.2));
+            s_Intake.mAlgaeIntake.runPivotManualDown());
+    
+        
+        // operator.povUp().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(0.2));
+
+        // operator.povDown().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(-0.2));
+
+        // operator.povLeft().whileTrue(
+        //     s_Climb.shallowClimbCommandWithCurrent()
+        //         .andThen(s_Climb.runShallowClimbViaVolts(-1)));
+
+        // operator.povRight().whileTrue(
+        //     s_Climb.shallowHomeCommandWithCurrent());
 
         
 //        operator.povRight().whileTrue(
