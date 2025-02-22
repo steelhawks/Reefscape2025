@@ -431,11 +431,18 @@ public class RobotContainer {
         operator.rightTrigger().whileTrue(
             s_Intake.shootAlgae());
 
-        operator.povUp().whileTrue(
-            s_Intake.pivotManualAlgaeUp());
+        // operator.povUp().whileTrue(
+        //     s_Intake.pivotManualAlgaeUp());
 
-        operator.povDown().whileTrue(
-            s_Intake.pivotManualAlgaeDown());
+        // operator.povDown().whileTrue(
+        //     s_Intake.pivotManualAlgaeDown());
+
+        operator.povUp().onTrue(
+            s_Climb.climbCommandWithCurrent()
+            .andThen(s_Climb.applyVolts(-2)));
+
+        operator.povDown().onTrue(
+            s_Climb.homeCommandWithCurrent());
 
         operator.povRight().whileTrue(
             s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
