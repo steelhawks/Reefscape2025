@@ -27,9 +27,6 @@ public class ShallowClimbIOTalonFX implements ShallowClimbIO {
     private final StatusSignal<Current> climbCurrent;
     private final StatusSignal<Temperature> climbTemp;
 
-    private boolean atOutsideLimit = false;
-    private boolean atInsideLimit = false;
-
     public ShallowClimbIOTalonFX() {
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = ClimbConstants.ALPHA;
@@ -85,31 +82,15 @@ public class ShallowClimbIOTalonFX implements ShallowClimbIO {
         inputs.climbAppliedVolts = climbVoltage.getValueAsDouble();
         inputs.climbCurrentAmps = climbCurrent.getValueAsDouble();
         inputs.climbTempCelsius = climbTemp.getValueAsDouble();
-
-        atOutsideLimit = inputs.atOutsideLimit;
-        atInsideLimit = inputs.atInsideLimit;
     }
 
     @Override
-    public void runClimb(double volts) {
-        boolean stopClimb = (atOutsideLimit && volts > 0) || (atInsideLimit && volts < 0);
-        Logger.recordOutput("Climb/StopClimb", stopClimb);
-        if (stopClimb) {
-            stop();
-            return;
-        }
-
+    public void runClimbViaVolts(double volts) {
          mClimbMotor.setVoltage(volts);
     }
 
     @Override
     public void runClimbViaSpeed(double speed) {
-        boolean isGoingOut = Math.abs(speed) == speed;
-        if ((atOutsideLimit && isGoingOut) || (atInsideLimit && !isGoingOut)) {
-            stop();
-            return;
-        }
-
          mClimbMotor.set(speed);
     }
 
