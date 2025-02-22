@@ -140,8 +140,8 @@ public class RobotContainer {
                             new AlignIOCANrange());
                     s_Climb =
                         new Climb(
-                            new ShallowClimbIO() {},
-                            new DeepClimbIO() {});
+                            new ShallowClimbIOTalonFX() {},
+                            new DeepClimbIOTalonFX() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
