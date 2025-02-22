@@ -326,10 +326,6 @@ public class RobotContainer {
             .onTrue(
                 s_LED.flashCommand(LEDColor.BLUE, 0.1, 1));
 
-        s_Climb.atOuterLimit()
-            .onTrue(
-                s_LED.flashCommand(LEDColor.HOT_PINK, 0.1, 1));
-
         isShallowEndgame
             .onTrue(
                 Commands.runOnce(() ->
