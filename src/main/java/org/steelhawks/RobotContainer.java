@@ -477,8 +477,7 @@ public class RobotContainer {
 
         
         operator.povUp().whileTrue(
-            s_Climb.runDeepClimbViaSpeed(0.2
-            ));
+            s_Climb.runDeepClimbViaSpeed(0.2));
 
         operator.povDown().whileTrue(
             s_Climb.runDeepClimbViaSpeed(-0.2));
