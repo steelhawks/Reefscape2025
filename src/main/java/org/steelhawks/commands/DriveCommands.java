@@ -66,17 +66,7 @@ public class DriveCommands {
 
                 // square for more precise control
                 omega = Math.copySign(Math.pow(omega, 2), omega);
-                ChassisSpeeds speeds =
-                    new ChassisSpeeds(
-                        linearVelocity.getX() * s_Swerve.getMaxLinearSpeedMetersPerSec() * s_Swerve.getSpeedMultiplier(),
-                        linearVelocity.getY() * s_Swerve.getMaxLinearSpeedMetersPerSec() * s_Swerve.getSpeedMultiplier(),
-                        omega * s_Swerve.getMaxAngularSpeedRadPerSec() * s_Swerve.getSpeedMultiplier());
-                s_Swerve.runVelocity(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        speeds,
-                        AllianceFlip.shouldFlip()
-                            ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-                                : s_Swerve.getRotation()));
+                runVelocity(linearVelocity, omega);
             }, s_Swerve)
                 .withName("Teleop Drive");
     }
@@ -101,20 +91,24 @@ public class DriveCommands {
                     alignController.calculate(
                         s_Swerve.getRotation().getRadians(), validatedTarget.getRadians());
 
-                ChassisSpeeds speeds =
-                    new ChassisSpeeds(
-                        linearVelocity.getX() * s_Swerve.getMaxLinearSpeedMetersPerSec() * s_Swerve.getSpeedMultiplier(),
-                        linearVelocity.getY() * s_Swerve.getMaxLinearSpeedMetersPerSec() * s_Swerve.getSpeedMultiplier(),
-                        omega);
-                s_Swerve.runVelocity(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        speeds,
-                        AllianceFlip.shouldFlip()
-                            ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-                                : s_Swerve.getRotation()));
+                runVelocity(linearVelocity, omega);
             }, s_Swerve)
                 .beforeStarting(() -> alignController.reset(s_Swerve.getRotation().getRadians()))
                     .withName("Align to Angle");
+    }
+
+    private static void runVelocity(Translation2d linearVelocity, double omega) {
+        ChassisSpeeds speeds =
+            new ChassisSpeeds(
+                linearVelocity.getX() * s_Swerve.getMaxLinearSpeedMetersPerSec() * s_Swerve.getSpeedMultiplier(),
+                linearVelocity.getY() * s_Swerve.getMaxLinearSpeedMetersPerSec() * s_Swerve.getSpeedMultiplier(),
+                omega * s_Swerve.getMaxAngularSpeedRadPerSec() * s_Swerve.getSpeedMultiplier());
+        s_Swerve.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                speeds,
+                AllianceFlip.shouldFlip()
+                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                        : s_Swerve.getRotation()));
     }
 
     /**

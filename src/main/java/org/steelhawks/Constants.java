@@ -14,6 +14,7 @@ import org.steelhawks.subsystems.vision.VisionConstants;
 public final class Constants {
 
     public static final double ENDGAME_PERIOD = 20;
+    public static final double MATCH_TIME_SECONDS = 150;
 
     public static final boolean USE_MOTION_MAGIC = false;
     public static final boolean TUNING_MODE = false;
@@ -35,7 +36,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -182,22 +183,23 @@ public final class Constants {
      */
     public static final class AutonConstants {
 
-        public static final AutonConstants OMEGA = new AutonConstants(
-            5,
-            0.0,
-            0.0,
-            5,
-            0.0,
-            0.0,
-            3,
-            0.0,
-            0.0,
-            15,
-            20,
-            3,
-            4,
-            5,
-            8);
+        public static final AutonConstants OMEGA =
+            new AutonConstants(
+                5,
+                0.0,
+                0.0,
+                5,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                15,
+                20,
+                3,
+                4,
+                5,
+                8);
 
         public static final AutonConstants ALPHA = new AutonConstants(
             5,

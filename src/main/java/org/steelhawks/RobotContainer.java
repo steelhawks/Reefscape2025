@@ -84,8 +84,27 @@ public class RobotContainer {
                 Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isShallowEndgame = new Trigger(() -> shallowClimbMode);
         isDeepEndgame = new Trigger(() -> deepClimbMode);
-        notifyAtEndgame = new Trigger(() ->
-            Robot.getState() == RobotState.TELEOP && DriverStation.getMatchTime() <= Constants.ENDGAME_PERIOD);
+        notifyAtEndgame = new Trigger(() -> {
+//            When connected to the real field, this number only changes in full integer increments, and always counts down.
+//                When the DS is in practice mode, this number is a floating point number, and counts down.
+//            When the DS is in teleop or autonomous mode, this number is a floating point number, and counts up.
+//            Simulation matches DS behavior without an FMS connected.
+
+            double matchTime = DriverStation.getMatchTime();
+
+            // If connected to FMS, matchTime counts down in whole numbers
+            // If in Practice Mode, matchTime is a floating-point number and counts down
+            if (DriverStation.isFMSAttached()) {
+                return Robot.getState() == RobotState.TELEOP && matchTime <= Constants.ENDGAME_PERIOD;
+            }
+
+            // If in Teleop/Autonomous mode (not connected to FMS), matchTime counts up
+            if (Robot.getState() == RobotState.TELEOP) {
+                return matchTime >= (Constants.MATCH_TIME_SECONDS - Constants.ENDGAME_PERIOD);
+            }
+
+            return false;
+        });
         nearCoralStation = new Trigger(() ->
             s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_TOP).getTranslation()) <= 3.0 ||
             s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_BOTTOM).getTranslation()) <= 3.0);
