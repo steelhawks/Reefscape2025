@@ -12,9 +12,6 @@ public interface ShallowClimbIO {
         public double climbAppliedVolts = 0;
         public double climbCurrentAmps = 0;
         public double climbTempCelsius = 0;
-
-        public boolean atOutsideLimit = false;
-        public boolean atInsideLimit = false;
     }
 
     /**
@@ -22,7 +19,7 @@ public interface ShallowClimbIO {
      */
     default void updateInputs(ShallowClimbIOInputs inputs) {}
 
-    default void runClimb(double volts) {}
+    default void runClimbViaVolts(double volts) {}
 
     default void runClimbViaSpeed(double speed) {}
 

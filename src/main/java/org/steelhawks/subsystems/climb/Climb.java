@@ -122,10 +122,6 @@ public class Climb extends SubsystemBase {
 
     /* ------------- Shallow Climb Commands ------------- */
 
-    public Trigger atOuterLimit() {
-        return new Trigger(() -> shallowInputs.atOutsideLimit);
-    }
-
     public Command shallowClimbCommandWithCurrent() {
         return runShallowClimbViaSpeed(0.2)
             .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > CURRENT_THRESHOLD));
@@ -144,10 +140,10 @@ public class Climb extends SubsystemBase {
             .finallyDo(() -> shallowIO.stop());
     }
 
-    public Command runShallowClimb(double volts) {
+    public Command runShallowClimbViaVolts(double volts) {
         return Commands.run(
             () -> {
-                shallowIO.runClimb(volts);
+                shallowIO.runClimbViaVolts(volts);
             }, this)
             .finallyDo(() -> shallowIO.stop());
     }
