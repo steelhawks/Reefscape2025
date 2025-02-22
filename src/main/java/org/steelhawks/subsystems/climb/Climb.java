@@ -148,6 +148,11 @@ public class Climb extends SubsystemBase {
             .finallyDo(() -> shallowIO.stop());
     }
 
+    public Command runShallowClimb() {
+        return shallowClimbCommandWithCurrent()
+            .andThen(runShallowClimbViaVolts(-2));
+    }
+
     /* ------------- Deep Climb Commands ------------- */
 
     public Command setDesiredState(DeepClimbState state) {
