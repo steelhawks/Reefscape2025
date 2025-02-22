@@ -9,8 +9,8 @@ public final class ElevatorConstants {
 
     public enum State {
         L4(59.905784718904, 0.0, Units.rotationsToRadians(3.0)),
-        L3(35.3237425930366, 0.0, Units.rotationsToRadians(2.0)),
-        L2(19.376478322177476, 0.0, Units.rotationsToRadians(1.0)),
+        L3(35.3237425930366, 16.557021634043668, Units.rotationsToRadians(2.0)),
+        L2(19.376478322177476, 10.42263246328899, Units.rotationsToRadians(1.0)),
         L1(11.3936423020206, 0.0, Units.rotationsToRadians(0.5)),
         HOME(0, 0, 0);
 
@@ -65,7 +65,7 @@ public final class ElevatorConstants {
             60,
             25,
             0.23,
-            0.2,
+            0.175,
             (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0,
             0,
             0,
@@ -73,8 +73,8 @@ public final class ElevatorConstants {
             0,
             0,
             0,
-            0.1,
-            24);
+            0.55,
+            25);
 
     public static final ElevatorConstants ALPHA =
         new ElevatorConstants(

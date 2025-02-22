@@ -1,7 +1,6 @@
 package org.steelhawks.subsystems.intake.coral;
 
 import org.littletonrobotics.junction.AutoLog;
-import org.steelhawks.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 
 public interface CoralIntakeIO {
 
@@ -24,8 +23,6 @@ public interface CoralIntakeIO {
      * Runs the coral outtake at a given percentage of maximum output.
      */
     default void runIntake(double percentageOutput) {}
-
-    default void runReverse(double percentageOutput) {}
 
     /**
      * Stops the elevator.

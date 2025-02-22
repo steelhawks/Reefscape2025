@@ -44,7 +44,7 @@ public class IntakeConstants {
             1,
             .1,
             .135,
-            
+            0.1,
             1,
             17,
             18,
@@ -68,9 +68,9 @@ public class IntakeConstants {
         new IntakeConstants(
             15,
             1,
-            .1,
-            .135,
-
+            .3,
+            .2,
+            0.1,
             1,
             17,
             18,
@@ -96,7 +96,7 @@ public class IntakeConstants {
             1,
             .3,
             .135,
-
+            0.1,
             1,
             18,
             17,
@@ -129,6 +129,7 @@ public class IntakeConstants {
 
     public final double CORAL_SHOOT_SPEED;
     public final double CORAL_SECONDARY_SHOOT_SPEED;
+    public final double CORAL_INTAKE_SPEED;
 
 
     // -------------------- ALGAE --------------------
@@ -162,6 +163,7 @@ public class IntakeConstants {
         double coral_intakeGearRatio,
         double coral_shootSpeed,
         double coral_secondaryShootSpeed,
+        double coral_intakeSpeed,
 
         int algae_limitSwitchId,
         int algae_intakeMotorId,
@@ -186,6 +188,7 @@ public class IntakeConstants {
         CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
         CORAL_SHOOT_SPEED = coral_shootSpeed;
         CORAL_SECONDARY_SHOOT_SPEED = coral_secondaryShootSpeed;
+        CORAL_INTAKE_SPEED = coral_intakeSpeed;
 
         ALGAE_LIMIT_SWITCH_ID = algae_limitSwitchId;
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;

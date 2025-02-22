@@ -49,7 +49,7 @@ public class CoralIntake extends SubsystemBase {
 
     public void reverseCoral() {
         isIntaking = true;
-        io.runReverse(constants.CORAL_SHOOT_SPEED);
+        io.runIntake(-constants.CORAL_INTAKE_SPEED);
     }
 
     public void shootSlowCoral() {
