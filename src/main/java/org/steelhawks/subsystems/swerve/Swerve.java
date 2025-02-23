@@ -635,6 +635,9 @@ public class Swerve extends SubsystemBase {
      * Resets the current odometry pose.
      */
     public void setPose(Pose2d pose) {
+        if (RobotBase.isSimulation()) {
+            DRIVE_SIMULATION.setSimulationWorldPose(pose);
+        }
         mPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
     }
 
