@@ -3,6 +3,7 @@ package org.steelhawks;
 import edu.wpi.first.math.geometry.Pose2d;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.steelhawks.Constants.FieldConstants;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 
 import java.util.ArrayList;
@@ -20,12 +21,12 @@ public class Reefstate {
 
     private static final List<ReefSection> mReefSections =
         List.of(
-            new ReefSection(),
-            new ReefSection(),
-            new ReefSection(),
-            new ReefSection(),
-            new ReefSection(),
-            new ReefSection()
+            new ReefSection(), // Left Section
+            new ReefSection(), // Top Left Section
+            new ReefSection(), // Bottom Left Section
+            new ReefSection(), // Right Section
+            new ReefSection(), // Top Right Section
+            new ReefSection() // Bottom Right Section
         );
 
     public static class ReefSection {
@@ -53,16 +54,57 @@ public class Reefstate {
                 L3Occupied = L3;
                 L4Occupied = L4;
             }
+
+            public void l1() {
+                troughCount++;
+            }
+
+            public void l2() {
+                L2Occupied = true;
+            }
+
+            public void l3() {
+                L3Occupied = true;
+            }
+
+            public void l4() {
+                L4Occupied = true;
+            }
+
+            public void reset() {
+                L2Occupied = false;
+                L3Occupied = false;
+                L4Occupied = false;
+            }
         }
     }
 
     // Updates reef state when coral is placed
-    public static void placeCoral(int section, boolean leftBranch, boolean L2, boolean L3, boolean L4) {
+//    public static void placeCoral(int section, boolean leftBranch, boolean L2, boolean L3, boolean L4) {
+//        ReefSection reefSection = mReefSections.get(section);
+//        if (leftBranch) {
+//            reefSection.mLeftBranch.updateBranchState(L2, L3, L4);
+//        } else {
+//            reefSection.mRightBranch.updateBranchState(L2, L3, L4);
+//        }
+//    }
+
+    public static void placeCoral(int section, boolean leftBranch, ElevatorConstants.State level) {
         ReefSection reefSection = mReefSections.get(section);
         if (leftBranch) {
-            reefSection.mLeftBranch.updateBranchState(L2, L3, L4);
+            switch (level) {
+                case L1 -> reefSection.mLeftBranch.l1();
+                case L2 -> reefSection.mLeftBranch.l2();
+                case L3 -> reefSection.mLeftBranch.l3();
+                case L4 -> reefSection.mLeftBranch.l4();
+            }
         } else {
-            reefSection.mRightBranch.updateBranchState(L2, L3, L4);
+            switch (level) {
+                case L1 -> reefSection.mRightBranch.l1();
+                case L2 -> reefSection.mRightBranch.l2();
+                case L3 -> reefSection.mRightBranch.l3();
+                case L4 -> reefSection.mRightBranch.l4();
+            }
         }
     }
 
@@ -105,5 +147,20 @@ public class Reefstate {
                 AllianceFlip.apply(reef.getPose()).getTranslation().getDistance(currentPose.getTranslation())))
             .map(FieldConstants.Position::getPose)
             .orElse(null);
+    }
+
+    // fix
+    public static ElevatorConstants.State getFreeLevel() {
+        for (int i = 0; i < mReefSections.size(); i++) {
+            ReefSection section = mReefSections.get(i);
+            if (!section.isSectionFull()) {
+                if (!section.mLeftBranch.isBranchFull()) {
+                    return ElevatorConstants.State.L2;
+                } else if (!section.mRightBranch.isBranchFull()) {
+                    return ElevatorConstants.State.L3;
+                }
+            }
+        }
+        return ElevatorConstants.State.HOME;
     }
 }

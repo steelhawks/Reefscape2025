@@ -13,10 +13,13 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
+import org.steelhawks.AutonSelector.StartEndPosition;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.Elevator;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.swerve.Swerve;
+import org.steelhawks.util.AllianceFlip;
 
 import java.io.IOException;
 
@@ -71,6 +74,19 @@ public final class Autos {
 
     public static Command getShortChoreoPathPlannerAuto() {
         return new PathPlannerAuto("Short Auto (Choreo)");
+    }
+
+    public static Command getBC3ToR2Auto() {
+        return Commands.runOnce(
+            () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC3.getPose())))
+            .andThen(
+                followTrajectory("BC3 to R1"),
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                Commands.race(
+                    Commands.waitSeconds(1),
+                    Commands.waitUntil(s_Elevator.atGoal())),
+                s_Intake.shootCoralSlow().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
     }
 
     public static PathPlannerPath getPath(String choreo) {
