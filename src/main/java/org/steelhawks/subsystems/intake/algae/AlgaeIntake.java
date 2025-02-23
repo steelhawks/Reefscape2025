@@ -137,6 +137,8 @@ public class AlgaeIntake extends SubsystemBase {
     @AutoLogOutput(key = "Algae/AdjustedPosition")
     private double getPosition() {
         return inputs.encoderPositionRad + constants.ALGAE_PIVOT_ZERO_OFFSET;
+        // return Math.floor((inputs.encoderPositionRad + constants.ALGAE_PIVOT_ZERO_OFFSET) * 100) / 100;
+
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {

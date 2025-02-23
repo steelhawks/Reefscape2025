@@ -7,7 +7,7 @@ public class IntakeConstants {
     public enum AlgaeIntakeState {
         // Keep in mind that all angle measurements listed below are in RADIANS!
         HOME(1.599829949 + 0.2945243112740431, 0.0, 3.0), // HOME was previously 1.777936017374823
-        INTAKE(0.20, 0.0, 2.0),
+        INTAKE(0.20, 0.3604854851531256, 2.0),
         OUTTAKE((Math.PI / 1.777936017374823), 0.0, 0.0);
 
         // Algae Intake Arm's Lexan Component is Perfectly Horizontal: -0.2715145994557585
@@ -79,8 +79,8 @@ public class IntakeConstants {
             1,
             1,
             0.4,
-            0.33,
-            0,
+            0.26,
+            0.45 * 5.0,
             0,
             0,
             0,
@@ -90,7 +90,9 @@ public class IntakeConstants {
             0,
             0.1,
             2 * Math.PI,
-            0.7240389318820226 + 1.5631264228554682);
+            // 0.7240389318820226 + 1.5631264228554682 + 2.3055731241921187);
+            2.2718255468586346);
+
 
     public static final IntakeConstants ALPHA =
         new IntakeConstants(

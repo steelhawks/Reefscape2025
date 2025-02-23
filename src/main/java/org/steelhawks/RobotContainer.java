@@ -219,6 +219,8 @@ public class RobotContainer {
                         new Vision(
                             s_Swerve::accept,
                             new VisionIOPhotonSim(VisionConstants.cameraNames()[0], VisionConstants.robotToCamera()[0],
+                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
+                            new VisionIOPhotonSim(VisionConstants.cameraNames()[1], VisionConstants.robotToCamera()[1],
                                 Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
@@ -452,12 +454,12 @@ public class RobotContainer {
                 s_Intake.reverseCoral());
 
         // intake algae
-        operator.rightBumper().whileTrue(
-            s_Intake.intakeAlgae());
+        // operator.rightBumper().whileTrue(
+        //     s_Intake.intakeAlgae());
 
-        // shoot algae
-        operator.rightTrigger().whileTrue(
-            s_Intake.shootAlgae());
+        // // shoot algae
+        // operator.rightTrigger().whileTrue(
+        //     s_Intake.shootAlgae());
 
         // operator.povUp().whileTrue(
         //     s_Intake.pivotManualAlgaeUp());
@@ -474,18 +476,23 @@ public class RobotContainer {
         // operator.povLeft().whileTrue(
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
-        operator.povLeft().whileTrue(
-            s_Intake.mAlgaeIntake.applykS());
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.applykS());
 
         operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.applykG());
+            s_Intake.mAlgaeIntake.applykV());
 
         operator.povUp().whileTrue(
             s_Intake.mAlgaeIntake.runPivotManualUp());
             
         operator.povDown().whileTrue(
             s_Intake.mAlgaeIntake.runPivotManualDown());
-    
+
+        // operator.povLeft().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(1));
+
+        // operator.povRight().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(-1));
         
         // operator.povUp().whileTrue(
         //     s_Climb.runDeepClimbViaSpeed(0.2));
