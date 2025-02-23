@@ -9,6 +9,7 @@ import org.steelhawks.subsystems.intake.IntakeConstants;
 public class CoralIntake extends SubsystemBase {
 
     private static final double CURRENT_THRESHOLD = 30;
+    private static final double INTAKE_SPEED = 0.075;
     boolean isIntaking = false;
 
     private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
@@ -36,6 +37,11 @@ public class CoralIntake extends SubsystemBase {
         Logger.processInputs("CoralIntake", inputs);
     }
 
+    public void intakeCoral() {
+        isIntaking = true;
+        io.runIntake(INTAKE_SPEED);
+    }
+
     public void shootCoral() {
         isIntaking = true;
         io.runIntake(constants.CORAL_SHOOT_SPEED);
@@ -43,7 +49,7 @@ public class CoralIntake extends SubsystemBase {
 
     public void reverseCoral() {
         isIntaking = true;
-        io.runReverse(constants.CORAL_SHOOT_SPEED);
+        io.runIntake(-constants.CORAL_INTAKE_SPEED);
     }
 
     public void shootSlowCoral() {

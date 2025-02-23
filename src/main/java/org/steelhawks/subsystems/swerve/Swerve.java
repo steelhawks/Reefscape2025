@@ -15,10 +15,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -32,20 +29,21 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.steelhawks.Constants.*;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
@@ -75,6 +73,7 @@ public class Swerve extends SubsystemBase {
     private static final RobotConfig PP_CONFIG;
 
     public static final DriveTrainSimulationConfig MAPLE_SIM_CONFIG;
+    private static final SwerveDriveSimulation DRIVE_SIMULATION;
 
     public static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
@@ -114,7 +113,7 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                             Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-                ROBOT_MASS_KG = Units.lbsToKilograms(51.2);
+                ROBOT_MASS_KG = Units.lbsToKilograms(115.2);
                 ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(25, 2));
                 WHEEL_COF = COTS.WHEELS.COLSONS.cof;
                 PP_CONFIG =
@@ -125,7 +124,7 @@ public class Swerve extends SubsystemBase {
                             TunerConstants.FrontLeft.WheelRadius,
                             TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
                             WHEEL_COF,
-                            DCMotor.getKrakenX60Foc(1)
+                            DCMotor.getKrakenX60(1)
                                 .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
                             TunerConstants.FrontLeft.SlipCurrent,
                             1),
@@ -253,6 +252,43 @@ public class Swerve extends SubsystemBase {
                     DriveTrainSimulationConfig.Default();
             }
         }
+
+        if (RobotBase.isSimulation()) {
+            DRIVE_SIMULATION = new SwerveDriveSimulation(MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d()));
+            SimulatedArena.getInstance().addDriveTrainSimulation(DRIVE_SIMULATION);
+        } else {
+            DRIVE_SIMULATION = null;
+        }
+    }
+
+    public static SwerveDriveSimulation getDriveSimulation() {
+        return RobotBase.isSimulation() ? DRIVE_SIMULATION : null;
+    }
+
+    public void updatePhysicsSimulation() {
+        if (Constants.getMode() != Mode.SIM) return;
+
+        // physics sim to simulate the field
+        SimulatedArena.getInstance().simulationPeriodic();
+
+        Pose3d[] algaePoses =
+            SimulatedArena.getInstance()
+                .getGamePiecesArrayByType("Algae");
+        Pose3d[] coralPoses =
+            SimulatedArena.getInstance()
+                .getGamePiecesArrayByType("Coral");
+
+        Logger.recordOutput("FieldSimulation/AlgaePoses", algaePoses);
+        Logger.recordOutput("FieldSimulation/CoralPoses", coralPoses);
+        Logger.recordOutput("FieldSimulation/RobotPosition", DRIVE_SIMULATION.getSimulatedDriveTrainPose());
+    }
+
+    public void resetSimulation(Pose2d startingPose) {
+        if (Constants.getMode() != Mode.SIM) return;
+
+        DRIVE_SIMULATION.setSimulationWorldPose(startingPose);
+        setPose(startingPose);
+        SimulatedArena.getInstance().resetFieldForAuto();
     }
 
     public Swerve(
@@ -343,7 +379,6 @@ public class Swerve extends SubsystemBase {
                     constants.ANGLE_MAX_VELOCITY,
                     constants.ANGLE_MAX_ACCELERATION));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
-
         mAlignDebouncer = new Debouncer(1, DebounceType.kRising);
     }
 
@@ -574,8 +609,7 @@ public class Swerve extends SubsystemBase {
      * Returns the current odometry rotation.
      */
     public Rotation2d getRotation() {
-        return gyroInputs.connected ?
-            gyroInputs.yawPosition : getPose().getRotation();
+        return getPose().getRotation();
     }
 
     /**
@@ -592,32 +626,6 @@ public class Swerve extends SubsystemBase {
         return new Rotation2d(Math.IEEEremainder(calculatedAngle, 2 * Math.PI));
     }
 
-    public Pose2d findClosestReef() {
-        Pose2d[] reefPoses = {
-            FieldConstants.LEFT_SECTION,
-            FieldConstants.TOP_LEFT_SECTION,
-            FieldConstants.BOTTOM_LEFT_SECTION,
-            FieldConstants.RIGHT_SECTION,
-            FieldConstants.TOP_RIGHT_SECTION,
-            FieldConstants.BOTTOM_RIGHT_SECTION
-        };
-
-        double closestDistance = Double.MAX_VALUE;
-        Pose2d closestPose = null;
-
-        for (Pose2d reefPose : reefPoses) {
-            Pose2d validated = AllianceFlip.apply(reefPose);
-            double distance = getPose().getTranslation().getDistance(validated.getTranslation());
-
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestPose = validated;
-            }
-        }
-
-        return closestPose;
-    }
-
     public boolean shouldContinuePathfinding(BooleanSupplier stopCondition) {
         Logger.recordOutput("Swerve/InterruptPathfinding", stopCondition.getAsBoolean());
         return !stopCondition.getAsBoolean();
@@ -627,6 +635,9 @@ public class Swerve extends SubsystemBase {
      * Resets the current odometry pose.
      */
     public void setPose(Pose2d pose) {
+        if (RobotBase.isSimulation()) {
+            DRIVE_SIMULATION.setSimulationWorldPose(pose);
+        }
         mPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
     }
 
@@ -634,7 +645,11 @@ public class Swerve extends SubsystemBase {
      * Returns the maximum linear speed in meters per sec.
      */
     public double getMaxLinearSpeedMetersPerSec() {
-        return TunerConstantsHawkRider.kSpeedAt12Volts.in(MetersPerSecond);
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> TunerConstantsAlpha.kSpeedAt12Volts.in(MetersPerSecond);
+            case HAWKRIDER -> TunerConstantsHawkRider.kSpeedAt12Volts.in(MetersPerSecond);
+            default -> TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+        };
     }
 
     /**
@@ -656,7 +671,7 @@ public class Swerve extends SubsystemBase {
      */
     public static Translation2d[] getModuleTranslations() {
         return switch (Constants.getRobot()) {
-            case OMEGABOT ->
+            case OMEGABOT, SIMBOT ->
                 new Translation2d[]{
                     new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
                     new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
@@ -669,7 +684,7 @@ public class Swerve extends SubsystemBase {
                 new Translation2d(TunerConstantsAlpha.BackLeft.LocationX, TunerConstantsAlpha.BackLeft.LocationY),
                 new Translation2d(TunerConstantsAlpha.BackRight.LocationX, TunerConstantsAlpha.BackRight.LocationY)
             };
-            case HAWKRIDER, SIMBOT -> new Translation2d[]{
+            case HAWKRIDER -> new Translation2d[]{
                 new Translation2d(TunerConstantsHawkRider.FrontLeft.LocationX, TunerConstantsHawkRider.FrontLeft.LocationY),
                 new Translation2d(TunerConstantsHawkRider.FrontRight.LocationX, TunerConstantsHawkRider.FrontRight.LocationY),
                 new Translation2d(TunerConstantsHawkRider.BackLeft.LocationX, TunerConstantsHawkRider.BackLeft.LocationY),
@@ -695,10 +710,18 @@ public class Swerve extends SubsystemBase {
             SPEED_MULTIPLIER = isSlowMode() ? 1.0 : SLOW_SPEED_MULTIPLIER);
     }
 
-    public Command zeroHeading(Pose2d pose) {
+    public Command zeroHeading() {
         return Commands.runOnce(
-            () -> setPose(pose), this)
-                .ignoringDisable(true);
+            () -> {
+                Pose2d zeroed = new Pose2d(getPose().getTranslation(), new Rotation2d());
+
+                if (RobotBase.isSimulation()) {
+                    zeroed = new Pose2d(DRIVE_SIMULATION.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d());
+                }
+
+                setPose(zeroed);
+            }, this)
+            .ignoringDisable(true);
     }
 
     /**

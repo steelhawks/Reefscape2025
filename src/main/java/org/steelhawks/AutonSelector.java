@@ -77,11 +77,12 @@ public class AutonSelector extends VirtualSubsystem {
                         currentPath.startingPosition.y,
                         new Rotation2d(currentPath.startingPosition.rotRadians)));
                 if (Constants.getMode() == Mode.SIM) {
-                    RobotContainer.mDriveSimulation.setSimulationWorldPose(
-                        new Pose2d(
-                            currentPath.startingPosition.x,
-                            currentPath.startingPosition.y,
-                            new Rotation2d(currentPath.startingPosition.rotRadians)));
+                    RobotContainer.s_Swerve.getDriveSimulation()
+                        .setSimulationWorldPose(
+                            new Pose2d(
+                                currentPath.startingPosition.x,
+                                currentPath.startingPosition.y,
+                                new Rotation2d(currentPath.startingPosition.rotRadians)));
                 }
             }).andThen(DriveCommands.followPath(Autos.getPath(currentPath.name)));
         }

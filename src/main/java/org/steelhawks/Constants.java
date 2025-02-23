@@ -10,10 +10,12 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import org.steelhawks.subsystems.vision.VisionConstants;
+import org.steelhawks.util.AllianceFlip;
 
 public final class Constants {
 
     public static final double ENDGAME_PERIOD = 20;
+    public static final double MATCH_TIME_SECONDS = 150;
 
     public static final boolean USE_MOTION_MAGIC = false;
     public static final boolean TUNING_MODE = false;
@@ -116,30 +118,52 @@ public final class Constants {
             new Pose2d(4.459432, 4.023238, new Rotation2d());
 
         // Reef Sections
-        public static final Pose2d LEFT_SECTION =
-            new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI));
-        public static final Pose2d TOP_LEFT_SECTION =
-            new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3));
-        public static final Pose2d BOTTOM_LEFT_SECTION =
-            new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3));
+//        public static final Pose2d LEFT_SECTION =
+//            new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI));
+//        public static final Pose2d TOP_LEFT_SECTION =
+//            new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3));
+//        public static final Pose2d BOTTOM_LEFT_SECTION =
+//            new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3));
 
-        public static final Pose2d RIGHT_SECTION =
-            new Pose2d(5.321046, 4.025900, new Rotation2d());
-        public static final Pose2d TOP_RIGHT_SECTION =
-            new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3));
-        public static final Pose2d BOTTOM_RIGHT_SECTION =
-            new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3));
+//        public static final Pose2d RIGHT_SECTION =
+//            new Pose2d(5.321046, 4.025900, new Rotation2d());
+//        public static final Pose2d TOP_RIGHT_SECTION =
+//            new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3));
+//        public static final Pose2d BOTTOM_RIGHT_SECTION =
+//            new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3));
 
-        public static final Pose2d PROCESSOR =
-            new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2));
+//        public static final Pose2d PROCESSOR =
+//            new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2));
 
-        public static final Pose2d CORAL_STATION_BOTTOM =
-            new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI));
+//        public static final Pose2d CORAL_STATION_BOTTOM =
+//            new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI));
         // y: 0.955011
         // .94rad, -.94rad
 
-        public static final Pose2d CORAL_STATION_TOP =
-            new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI));
+//        public static final Pose2d CORAL_STATION_TOP =
+//            new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI));
+
+        public enum Position {
+            LEFT_SECTION(new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI))),
+            TOP_LEFT_SECTION(new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3))),
+            BOTTOM_LEFT_SECTION(new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3))),
+            RIGHT_SECTION(new Pose2d(5.321046, 4.025900, new Rotation2d())),
+            TOP_RIGHT_SECTION(new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3))),
+            BOTTOM_RIGHT_SECTION(new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3))),
+            PROCESSOR(new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2))),
+            CORAL_STATION_BOTTOM(new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI))),
+            CORAL_STATION_TOP(new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI)));
+
+            private final Pose2d pose;
+
+            Position(Pose2d pose) {
+                this.pose = pose;
+            }
+
+            public Pose2d getPose() {
+                return pose;
+            }
+        }
     }
 
     /**
@@ -161,7 +185,8 @@ public final class Constants {
         public static final LEDConstants DEFAULT =
             new LEDConstants(0, 40);
 
-        public static final LEDConstants OMEGA = DEFAULT;
+        public static final LEDConstants OMEGA =
+            new LEDConstants(0, 82);
         public static final LEDConstants ALPHA = DEFAULT;
         public static final LEDConstants HAWKRIDER = DEFAULT;
 
@@ -181,22 +206,23 @@ public final class Constants {
      */
     public static final class AutonConstants {
 
-        public static final AutonConstants OMEGA = new AutonConstants(
-            5,
-            0.0,
-            0.0,
-            5,
-            0.0,
-            0.0,
-            3,
-            0.0,
-            0.0,
-            15,
-            20,
-            3,
-            4,
-            5,
-            8);
+        public static final AutonConstants OMEGA =
+            new AutonConstants(
+                5,
+                0.0,
+                0.0,
+                5,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                15,
+                20,
+                3,
+                4,
+                5,
+                8);
 
         public static final AutonConstants ALPHA = new AutonConstants(
             5,

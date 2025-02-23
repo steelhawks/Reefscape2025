@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.VibrateController;
@@ -25,8 +23,11 @@ import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.climb.Climb;
-import org.steelhawks.subsystems.climb.ClimbIO;
-import org.steelhawks.subsystems.climb.ClimbIOTalonFX;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIO775Pro;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
+import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
+import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.IntakeConstants;
@@ -46,7 +47,6 @@ public class RobotContainer {
 
     public static final boolean useVision = true;
 
-    public static SwerveDriveSimulation mDriveSimulation;
     private final Trigger interruptPathfinding;
     private final Trigger isShallowEndgame;
     private final Trigger notifyAtEndgame;
@@ -79,32 +79,6 @@ public class RobotContainer {
                 c1, c2));
     }
 
-    public void updatePhysicsSimulation() {
-        if (Constants.getMode() != Mode.SIM) return;
-
-        // physics sim to simulate the field
-        SimulatedArena.getInstance().simulationPeriodic();
-
-        Pose3d[] algaePoses =
-            SimulatedArena.getInstance()
-                .getGamePiecesArrayByType("Algae");
-        Pose3d[] coralPoses =
-            SimulatedArena.getInstance()
-                .getGamePiecesArrayByType("Coral");
-
-        Logger.recordOutput("FieldSimulation/AlgaePoses", algaePoses);
-        Logger.recordOutput("FieldSimulation/CoralPoses", coralPoses);
-        Logger.recordOutput("FieldSimulation/RobotPosition", mDriveSimulation.getSimulatedDriveTrainPose());
-    }
-
-    public void resetSimulation(Pose2d startingPose) {
-        if (Constants.getMode() != Mode.SIM) return;
-
-        mDriveSimulation.setSimulationWorldPose(startingPose);
-        s_Swerve.setPose(startingPose);
-        SimulatedArena.getInstance().resetFieldForAuto();
-    }
-
     public RobotContainer() {
         interruptPathfinding =
             new Trigger(() ->
@@ -113,11 +87,30 @@ public class RobotContainer {
                 Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isShallowEndgame = new Trigger(() -> shallowClimbMode);
         isDeepEndgame = new Trigger(() -> deepClimbMode);
-        notifyAtEndgame = new Trigger(() ->
-            Robot.getState() == RobotState.TELEOP && DriverStation.getMatchTime() <= Constants.ENDGAME_PERIOD);
+        notifyAtEndgame = new Trigger(() -> {
+//            When connected to the real field, this number only changes in full integer increments, and always counts down.
+//                When the DS is in practice mode, this number is a floating point number, and counts down.
+//            When the DS is in teleop or autonomous mode, this number is a floating point number, and counts up.
+//            Simulation matches DS behavior without an FMS connected.
+
+            double matchTime = DriverStation.getMatchTime();
+
+            // If connected to FMS, matchTime counts down in whole numbers
+            // If in Practice Mode, matchTime is a floating-point number and counts down
+            if (DriverStation.isFMSAttached()) {
+                return Robot.getState() == RobotState.TELEOP && matchTime <= Constants.ENDGAME_PERIOD;
+            }
+
+            // If in Teleop/Autonomous mode (not connected to FMS), matchTime counts up
+            if (Robot.getState() == RobotState.TELEOP) {
+                return matchTime >= (Constants.MATCH_TIME_SECONDS - Constants.ENDGAME_PERIOD);
+            }
+
+            return false;
+        });
         nearCoralStation = new Trigger(() ->
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_TOP).getTranslation()) <= 3.0 ||
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_BOTTOM).getTranslation()) <= 3.0);
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 3.0 ||
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 3.0);
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -137,17 +130,18 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
-                            new ElevatorIO() {});
+                            new ElevatorIOTalonFX());
                     s_Intake =
                         new Intake(
-                            new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {});
+                            new AlgaeIntakeIOTalonFX(),
+                            new CoralIntakeIOTalonFX());
                     s_Align =
                         new Align(
                             new AlignIOCANrange());
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
+                            new ShallowClimbIOTalonFX() {},
+                            new DeepClimbIOTalonFX() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -175,8 +169,9 @@ public class RobotContainer {
                             new AlignIOCANrange());
                     s_Climb =
                         new Climb(
-                            new ClimbIOTalonFX());
-
+                            new ShallowClimbIOTalonFX(),
+                            new DeepClimbIOTalonFX());
+    
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -205,29 +200,39 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
-
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
+    
                 }
                 case SIMBOT -> {
-                    mDriveSimulation = new SwerveDriveSimulation(Swerve.MAPLE_SIM_CONFIG,
-                        new Pose2d(3, 3, new Rotation2d()));
-                    SimulatedArena.getInstance().addDriveTrainSimulation(mDriveSimulation);
+                    Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
+                    Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.Position.CORAL_STATION_BOTTOM.getPose());
 
-                    Logger.recordOutput("Pose/CoralStationTop", FieldConstants.CORAL_STATION_TOP);
-                    Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.CORAL_STATION_BOTTOM);
+//                    for (Transform3d camTransform : VisionConstants.robotToCamera()) {
+//                        Logger.recordOutput("Camera/" + cameraName, camTransform);
+//                    }
+                    for (int i = 0; i < VisionConstants.cameraNames().length; i++) {
+                        Logger.recordOutput("Camera/" + VisionConstants.cameraNames()[i], VisionConstants.robotToCamera()[i]);
+                    }
 
                     s_Swerve =
                         new Swerve(
-                            new GyroIOSim(mDriveSimulation.getGyroSimulation()),
-                            new ModuleIOSim(mDriveSimulation.getModules()[0]),
-                            new ModuleIOSim(mDriveSimulation.getModules()[1]),
-                            new ModuleIOSim(mDriveSimulation.getModules()[2]),
-                            new ModuleIOSim(mDriveSimulation.getModules()[3]));
+                            new GyroIOSim(Swerve.getDriveSimulation().getGyroSimulation()),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[0]),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[1]),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[2]),
+                            new ModuleIOSim(Swerve.getDriveSimulation().getModules()[3]));
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhotonSim(VisionConstants.cameraNames()[0], VisionConstants.robotToCamera()[0],
-                                mDriveSimulation::getSimulatedDriveTrainPose));
+                            new VisionIOPhotonSim(
+                                VisionConstants.cameraNames()[0],
+                                VisionConstants.robotToCamera()[0],
+                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
+                            new VisionIOPhotonSim(
+                                VisionConstants.cameraNames()[1],
+                                VisionConstants.robotToCamera()[1],
+                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim());
@@ -240,7 +245,8 @@ public class RobotContainer {
                             new AlignIOSim());
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
                 }
             }
         }
@@ -269,8 +275,8 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_Climb =
                         new Climb(
-                            new ClimbIO() {});
-
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
                 }
                 case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
@@ -304,7 +310,10 @@ public class RobotContainer {
 
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
-
+        driver.leftTrigger()
+            .whileTrue(
+                DriveCommands.driveToPosition(
+                    Reefstate.getClosestReef(s_Swerve.getPose()), interruptPathfinding));
     }
 
     private void configureDefaultCommands() {}
@@ -333,10 +342,6 @@ public class RobotContainer {
             .onTrue(
                 s_LED.flashCommand(LEDColor.BLUE, 0.1, 1));
 
-        s_Climb.atOuterLimit()
-            .onTrue(
-                s_LED.flashCommand(LEDColor.HOT_PINK, 0.1, 1));
-
         isShallowEndgame
             .onTrue(
                 Commands.runOnce(() ->
@@ -352,6 +357,10 @@ public class RobotContainer {
         notifyAtEndgame
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver, operator));
+
+        nearCoralStation
+            .whileTrue(
+                s_Intake.intakeCoral());
     }
 
     private void configureDriver() {
@@ -362,11 +371,11 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-        driver.leftTrigger().whileTrue(
-            s_Align.forwardUntil(new Rotation2d()));
+//        driver.leftTrigger().whileTrue(
+//            s_Align.forwardUntil(new Rotation2d()));
 
-        driver.leftBumper().whileTrue(
-            s_Align.alignLeft(new Rotation2d()));
+//        driver.leftBumper().whileTrue(
+//            s_Align.alignLeft(new Rotation2d()));
 
         driver.rightBumper().whileTrue(
             s_Align.alignRight(new Rotation2d()));
@@ -379,30 +388,10 @@ public class RobotContainer {
                     () -> s_Swerve.isSlowMode())));
 
         driver.b().onTrue(
-            s_Swerve.zeroHeading(
-                new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
-
-//        if (RobotBase.isReal()) {
-//            driver.b().onTrue(
-//                s_Swerve.zeroHeading(
-//                    new Pose2d(s_Swerve.getPose().getTranslation(), new Rotation2d())));
-//        }
-//
-//        if (Constants.getMode() == Mode.SIM) {
-//            driver.b().onTrue(
-//                s_Swerve.zeroHeading(
-//                    new Pose2d(
-//                        mDriveSimulation.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d())));
-//        }
+            s_Swerve.zeroHeading());
     }
 
     private void configureOperator() {
-//        operator.start()
-//            .and(operator.back())
-//            .onTrue(
-//                Commands.runOnce(
-//                    () -> altMode = !altMode));
-
         /* ------------- End Game Toggles ------------- */
         /* ------------- TEST THIS!!!!! ------------- */
 
@@ -428,15 +417,11 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-//        operator.x().whileTrue(
-//            s_Elevator.applyVolts(1));
-
-        // L1
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1));
-
+//
         operator.x()
             .or(new DashboardTrigger("l2"))
             .onTrue(
@@ -452,12 +437,11 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
-        // operator.b().onTrue(
-        //     s_Elevator.homeCommand());
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
             .onTrue(
-                s_Elevator.homeCommand());
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+
 
         /* ------------- Intake Controls ------------- */
 
@@ -465,18 +449,18 @@ public class RobotContainer {
             s_Intake.mAlgaeIntake.toggleManualControl(
                 () -> -operator.getRightY()));
 
-        // coral shoot
-        // operator.leftTrigger().whileTrue(
-        //     s_Intake.shootCoral()
-        // );
+//        operator.leftTrigger()
+//            .or(new DashboardTrigger("scoreCoral"))
+//            .whileTrue(
+//                Commands.either(
+//                    s_Intake.shootPulsatingCoral(),
+//                    s_Intake.shootCoral(),
+//                    () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
+//                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled()));
 
         operator.leftTrigger()
-            .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
-                Commands.either(
-                    s_Intake.shootCoralSlow(),
-                    s_Intake.shootCoral(),
-                    () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() && s_Elevator.isEnabled()));
+                s_Intake.shootPulsatingCoral());
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral"))
@@ -484,37 +468,61 @@ public class RobotContainer {
                 s_Intake.reverseCoral());
 
         // intake algae
-        operator.rightBumper().whileTrue(
-            s_Intake.intakeAlgae());
+        // operator.rightBumper().whileTrue(
+        //     s_Intake.intakeAlgae());
 
-        // shoot algae
-        operator.rightTrigger().whileTrue(
-            s_Intake.shootAlgae());
+        // // shoot algae
+        // operator.rightTrigger().whileTrue(
+        //     s_Intake.shootAlgae());
 
-        operator.povUp().whileTrue(
-            s_Intake.pivotManualAlgaeUp());
+        // operator.povUp().whileTrue(
+        //     s_Intake.pivotManualAlgaeUp());
 
-        operator.povDown().whileTrue(
-            s_Intake.pivotManualAlgaeDown());
-
-        // operator.povUp().onTrue(
-        //     s_Climb.climbCommandWithCurrent());
-
-        // operator.povDown().onTrue(
-        //     s_Climb.homeCommandWithCurrent());
+        // operator.povDown().whileTrue(
+        //     s_Intake.pivotManualAlgaeDown());
 
         // operator.povUp().onTrue(
-        //     s_Climb.runClimbViaSpeed(0.2));
+        //     s_Climb.runShallowClimb());
 
         // operator.povDown().onTrue(
         //     s_Climb.runClimbViaSpeed(-0.2));
-
+    
         // operator.povLeft().whileTrue(
         //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
 
-
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.applykS());
 
         operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+            s_Intake.mAlgaeIntake.applykV());
+
+        operator.povUp().whileTrue(
+            s_Intake.mAlgaeIntake.runPivotManualUp());
+            
+        operator.povDown().whileTrue(
+            s_Intake.mAlgaeIntake.runPivotManualDown());
+
+        // operator.povLeft().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(1));
+
+        // operator.povRight().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(-1));
+        
+        // operator.povUp().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(0.2));
+
+        // operator.povDown().whileTrue(
+        //     s_Climb.runDeepClimbViaSpeed(-0.2));
+
+        // operator.povLeft().whileTrue(
+        //     s_Climb.shallowClimbCommandWithCurrent()
+        //         .andThen(s_Climb.runShallowClimbViaVolts(-1)));
+
+        // operator.povRight().whileTrue(
+        //     s_Climb.shallowHomeCommandWithCurrent());
+
+        
+//        operator.povRight().whileTrue(
+//            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
     }
 }

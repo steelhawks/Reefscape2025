@@ -7,7 +7,7 @@ public class IntakeConstants {
     public enum AlgaeIntakeState {
         // Keep in mind that all angle measurements listed below are in RADIANS!
         HOME(1.599829949 + 0.2945243112740431, 0.0, 3.0), // HOME was previously 1.777936017374823
-        INTAKE(0.20, 0.0, 2.0),
+        INTAKE(0.20, 0.3604854851531256, 2.0),
         OUTTAKE((Math.PI / 1.777936017374823), 0.0, 0.0);
 
         // Algae Intake Arm's Lexan Component is Perfectly Horizontal: -0.2715145994557585
@@ -44,11 +44,11 @@ public class IntakeConstants {
             1,
             .1,
             .135,
-            
+            0.1,
             1,
+            16,
             17,
             18,
-            50,
             1,
             1,
             0,
@@ -62,16 +62,45 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            2 * Math.PI);
+            2 * Math.PI,
+            0.724);
 
-    public static final IntakeConstants OMEGA = DEFAULT;
+    public static final IntakeConstants OMEGA =
+        new IntakeConstants(
+            15,
+            1,
+            .3,
+            .225, // .15
+            0.1,
+            1,
+            16,
+            17,
+            18,
+            1,
+            1,
+            0.4,
+            0.26,
+            0.45 * 5.0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.1,
+            2 * Math.PI,
+            // 0.7240389318820226 + 1.5631264228554682 + 2.3055731241921187);
+            2.2718255468586346);
+
+
     public static final IntakeConstants ALPHA =
         new IntakeConstants(
             16,
             1,
             .3,
             .135,
-
+            0.1,
             1,
             18,
             17,
@@ -92,7 +121,8 @@ public class IntakeConstants {
             8,
             0.005,
             0.5,
-            3);
+            3,
+            0);
 
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
@@ -104,6 +134,7 @@ public class IntakeConstants {
 
     public final double CORAL_SHOOT_SPEED;
     public final double CORAL_SECONDARY_SHOOT_SPEED;
+    public final double CORAL_INTAKE_SPEED;
 
 
     // -------------------- ALGAE --------------------
@@ -131,12 +162,14 @@ public class IntakeConstants {
     public final double ALGAE_MANUAL_PIVOT_INCREMENT;
 
     public final double ALGAE_MAX_RADIANS;
+    public final double ALGAE_PIVOT_ZERO_OFFSET;
 
     public IntakeConstants(
         int coral_intakeMotorId,
         double coral_intakeGearRatio,
         double coral_shootSpeed,
         double coral_secondaryShootSpeed,
+        double coral_intakeSpeed,
 
         int algae_limitSwitchId,
         int algae_intakeMotorId,
@@ -155,12 +188,14 @@ public class IntakeConstants {
         double algae_maxAccelerationPerSecSquared,
         double algae_tolerance,
         double algae_manualPivotIncrement,
-        double algae_maxRadians
+        double algae_maxRadians,
+        double algae_pivotZeroOffset
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
         CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
         CORAL_SHOOT_SPEED = coral_shootSpeed;
         CORAL_SECONDARY_SHOOT_SPEED = coral_secondaryShootSpeed;
+        CORAL_INTAKE_SPEED = coral_intakeSpeed;
 
         ALGAE_LIMIT_SWITCH_ID = algae_limitSwitchId;
         ALGAE_INTAKE_MOTOR_ID = algae_intakeMotorId;
@@ -180,5 +215,6 @@ public class IntakeConstants {
         ALGAE_TOLERANCE = algae_tolerance;
         ALGAE_MANUAL_PIVOT_INCREMENT = algae_manualPivotIncrement;
         ALGAE_MAX_RADIANS = algae_maxRadians;
+        ALGAE_PIVOT_ZERO_OFFSET = algae_pivotZeroOffset;
     }  
 }

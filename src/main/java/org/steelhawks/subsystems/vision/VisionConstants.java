@@ -27,7 +27,8 @@ public class VisionConstants {
                 };
             default ->
                 new String[] {
-                    ""
+                    "arducam-front-right",
+                    "arducam-back-left"
                 };
         };
     }
@@ -48,7 +49,23 @@ public class VisionConstants {
                 };
             default ->
                 new Transform3d[] {
-                    new Transform3d()
+                    new Transform3d(
+                        Units.inchesToMeters(10.975),
+                        Units.inchesToMeters(12.556),
+                        Units.inchesToMeters(6.689),
+                        new Rotation3d(
+                            0,
+                            Units.degreesToRadians(28.125),
+                            Units.degreesToRadians(60))), // Z is from the top of the belly pan, NOT the gyro
+
+                    new Transform3d(  
+                        Units.inchesToMeters(- 12.556), // - 12.644
+                        Units.inchesToMeters(- 10.976), // - 11.130
+                        Units.inchesToMeters(6.689), // 6.783901  // Z is from the top of the belly pan, NOT the gyro
+                        new Rotation3d(
+                            0,
+                            Units.degreesToRadians(28.125),
+                            Units.degreesToRadians(210)))
                 };
         };
     }

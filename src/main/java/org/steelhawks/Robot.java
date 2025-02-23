@@ -161,7 +161,7 @@ public class Robot extends LoggedRobot {
         setState(RobotState.DISABLED);
 
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.resetSimulation(
+            robotContainer.s_Swerve.resetSimulation(
                 new Pose2d(
                     3,
                     3,
@@ -222,14 +222,14 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationInit() {
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
+            robotContainer.s_Swerve.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
         }
     }
 
     @Override
     public void simulationPeriodic() {
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.updatePhysicsSimulation();
+            robotContainer.s_Swerve.updatePhysicsSimulation();
         }
     }
 }

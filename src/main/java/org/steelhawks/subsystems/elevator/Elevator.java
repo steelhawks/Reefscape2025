@@ -227,7 +227,7 @@ public class Elevator extends SubsystemBase {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
-                    homeCommand().schedule();
+                    slamCommand().schedule();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
 
@@ -247,6 +247,10 @@ public class Elevator extends SubsystemBase {
                             appliedSpeed = constants.KG / 12.0;
                         }
 
+                        if (inputs.limitSwitchPressed) {
+                            io.zeroEncoders();
+                        }
+
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
                         io.runElevatorViaSpeed(appliedSpeed);
                     }, this))
@@ -259,13 +263,11 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(this::disable)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(-constants.MANUAL_ELEVATOR_INCREMENT), this))
+                    () -> io.runElevatorViaSpeed(-constants.MANUAL_ELEVATOR_INCREMENT / 2.0), this))
         .until(() -> inputs.limitSwitchPressed)
         .finallyDo(() -> {
             io.stop();
-            if (Constants.getRobot() == RobotType.ALPHABOT) {
-                io.zeroEncoders();
-            }
+            io.zeroEncoders();
         })
         .withName("Slam Elevator");
     }
@@ -273,18 +275,19 @@ public class Elevator extends SubsystemBase {
     public Command homeCommand() {
         return Commands.run(
             () -> {
-                mController.setGoal(State.HOME.getRadians());
+//                mController.setGoal(State.HOME.getRadians());
+                setDesiredState(State.HOME).schedule();
                 enable();
 
-                if (Math.abs(getPosition() - State.HOME.getRadians()) < constants.TOLERANCE && !inputs.limitSwitchPressed) {
-                    disable();
-                    io.runElevator(
-                        -MathUtil.clamp(0.2 + Math.abs(getPosition() - State.HOME.getRadians()), 0.2, 0.5));
-                }
+//                if (Math.abs(getPosition() - State.HOME.getRadians()) < constants.TOLERANCE && !inputs.limitSwitchPressed) {
+//                    disable();
+//                    io.runElevator(
+//                        -MathUtil.clamp(0.2 + Math.abs(getPosition() - State.HOME.getRadians()), 0.2, 0.5));
+//                }
             }, this)
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> {
-                mController.reset(State.HOME.getRadians());
+//                mController.reset(State.HOME.getRadians());
                 io.zeroEncoders();
                 io.stop();
                 disable();
@@ -304,10 +307,10 @@ public class Elevator extends SubsystemBase {
             .finallyDo(io::stop);
     }
 
-    public Command applykV(AngularVelocity desiredVelocity) {
+    public Command applykV() {
         return Commands.run(
             () -> {
-                double volts = constants.KS + (constants.KV * desiredVelocity.in(RadiansPerSecond));
+                double volts = constants.KS + constants.KV;
                 io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);

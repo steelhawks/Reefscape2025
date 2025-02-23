@@ -1,19 +1,32 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.steelhawks.Constants.FieldConstants;
 import org.steelhawks.util.AllianceFlip;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 public class Reefstate {
 
-    private static final ArrayList<ReefSection> mReefSections = new ArrayList<>();
+    private static final List<FieldConstants.Position> reefPositions =
+        Arrays.stream(FieldConstants.Position.values())
+            .limit(6) // only take the first 6 positions for the reef
+//            .map(FieldConstants.Position::getPose)
+            .toList();
 
-    static {
-        for (int i = 0; i < 6; i++) {
-            mReefSections.add(new ReefSection());
-        }
-    }
+    private static final List<ReefSection> mReefSections =
+        List.of(
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection()
+        );
 
     public static class ReefSection {
 
@@ -85,55 +98,12 @@ public class Reefstate {
         reefSection.troughCount = troughCount;
     }
 
-    public static int getClosestReefSection() {
-
-        Pose2d[] allPoses = {
-            Constants.FieldConstants.LEFT_SECTION,
-            Constants.FieldConstants.TOP_LEFT_SECTION,
-            Constants.FieldConstants.BOTTOM_LEFT_SECTION,
-            Constants.FieldConstants.RIGHT_SECTION,
-            Constants.FieldConstants.TOP_RIGHT_SECTION,
-            Constants.FieldConstants.BOTTOM_RIGHT_SECTION
-        };
-
-        double minDist = Double.MAX_VALUE;
-        int closestSection = 0;
-
-        for (Pose2d pose : allPoses) {
-            Pose2d validatedPose = AllianceFlip.apply(pose);
-            double dist = RobotContainer.s_Swerve.getPose().getTranslation().getDistance(validatedPose.getTranslation());
-            if (dist < minDist) {
-                minDist = dist;
-
-            }
-        }
-
-        return closestSection;
-    }
-
-    public static Pose2d getClosestReefSectionPose() {
-
-        Pose2d[] allPoses = {
-            Constants.FieldConstants.LEFT_SECTION,
-            Constants.FieldConstants.TOP_LEFT_SECTION,
-            Constants.FieldConstants.BOTTOM_LEFT_SECTION,
-            Constants.FieldConstants.RIGHT_SECTION,
-            Constants.FieldConstants.TOP_RIGHT_SECTION,
-            Constants.FieldConstants.BOTTOM_RIGHT_SECTION
-        };
-
-        double minDist = Double.MAX_VALUE;
-        Pose2d closestSectionPose2d = new Pose2d();
-
-        for (Pose2d pose : allPoses) {
-            Pose2d validatedPose = AllianceFlip.apply(pose);
-            double dist = RobotContainer.s_Swerve.getPose().getTranslation().getDistance(validatedPose.getTranslation());
-            if (dist < minDist) {
-                minDist = dist;
-                closestSectionPose2d = validatedPose;
-            }
-        }
-
-        return closestSectionPose2d;
+    @AutoLogOutput(key = "Pose/ClosestReef")
+    public static Pose2d getClosestReef(Pose2d currentPose) {
+        return reefPositions.stream()
+            .min(Comparator.comparingDouble(reef ->
+                AllianceFlip.apply(reef.getPose()).getTranslation().getDistance(currentPose.getTranslation())))
+            .map(FieldConstants.Position::getPose)
+            .orElse(null);
     }
 }
