@@ -1,11 +1,22 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import org.steelhawks.Constants.FieldConstants;
 import org.steelhawks.util.AllianceFlip;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Reefstate {
+
+    private static final List<Pose2d> reefPositions = List.of(
+        AllianceFlip.apply(FieldConstants.LEFT_SECTION),
+        AllianceFlip.apply(FieldConstants.TOP_LEFT_SECTION),
+        AllianceFlip.apply(FieldConstants.BOTTOM_LEFT_SECTION),
+        AllianceFlip.apply(FieldConstants.RIGHT_SECTION),
+        AllianceFlip.apply(FieldConstants.TOP_RIGHT_SECTION),
+        AllianceFlip.apply(FieldConstants.BOTTOM_RIGHT_SECTION));
 
     private static final ArrayList<ReefSection> mReefSections = new ArrayList<>();
 
@@ -85,55 +96,9 @@ public class Reefstate {
         reefSection.troughCount = troughCount;
     }
 
-    public static int getClosestReefSection() {
-
-        Pose2d[] allPoses = {
-            Constants.FieldConstants.LEFT_SECTION,
-            Constants.FieldConstants.TOP_LEFT_SECTION,
-            Constants.FieldConstants.BOTTOM_LEFT_SECTION,
-            Constants.FieldConstants.RIGHT_SECTION,
-            Constants.FieldConstants.TOP_RIGHT_SECTION,
-            Constants.FieldConstants.BOTTOM_RIGHT_SECTION
-        };
-
-        double minDist = Double.MAX_VALUE;
-        int closestSection = 0;
-
-        for (Pose2d pose : allPoses) {
-            Pose2d validatedPose = AllianceFlip.apply(pose);
-            double dist = RobotContainer.s_Swerve.getPose().getTranslation().getDistance(validatedPose.getTranslation());
-            if (dist < minDist) {
-                minDist = dist;
-
-            }
-        }
-
-        return closestSection;
-    }
-
-    public static Pose2d getClosestReefSectionPose() {
-
-        Pose2d[] allPoses = {
-            Constants.FieldConstants.LEFT_SECTION,
-            Constants.FieldConstants.TOP_LEFT_SECTION,
-            Constants.FieldConstants.BOTTOM_LEFT_SECTION,
-            Constants.FieldConstants.RIGHT_SECTION,
-            Constants.FieldConstants.TOP_RIGHT_SECTION,
-            Constants.FieldConstants.BOTTOM_RIGHT_SECTION
-        };
-
-        double minDist = Double.MAX_VALUE;
-        Pose2d closestSectionPose2d = new Pose2d();
-
-        for (Pose2d pose : allPoses) {
-            Pose2d validatedPose = AllianceFlip.apply(pose);
-            double dist = RobotContainer.s_Swerve.getPose().getTranslation().getDistance(validatedPose.getTranslation());
-            if (dist < minDist) {
-                minDist = dist;
-                closestSectionPose2d = validatedPose;
-            }
-        }
-
-        return closestSectionPose2d;
+    public static Pose2d getClosestReef(Pose2d currentPose) {
+        return reefPositions.stream()
+            .min(Comparator.comparingDouble(reef -> reef.getTranslation().getDistance(currentPose.getTranslation())))
+            .orElse(null);
     }
 }

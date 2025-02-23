@@ -299,7 +299,10 @@ public class RobotContainer {
 
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
-
+        driver.leftTrigger()
+            .whileTrue(
+                DriveCommands.driveToPosition(
+                    Reefstate.getClosestReef(s_Swerve.getPose()), interruptPathfinding));
     }
 
     private void configureDefaultCommands() {}
@@ -357,11 +360,11 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-        driver.leftTrigger().whileTrue(
-            s_Align.forwardUntil(new Rotation2d()));
+//        driver.leftTrigger().whileTrue(
+//            s_Align.forwardUntil(new Rotation2d()));
 
-        driver.leftBumper().whileTrue(
-            s_Align.alignLeft(new Rotation2d()));
+//        driver.leftBumper().whileTrue(
+//            s_Align.alignLeft(new Rotation2d()));
 
         driver.rightBumper().whileTrue(
             s_Align.alignRight(new Rotation2d()));
