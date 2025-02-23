@@ -69,7 +69,7 @@ public class IntakeConstants {
             15,
             1,
             .3,
-            .2,
+            .225, // .15
             0.1,
             1,
             17,

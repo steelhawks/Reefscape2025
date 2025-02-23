@@ -81,8 +81,8 @@ public class Intake {
 
     public Command shootPulsatingCoral() {
         return Commands.sequence(
-                Commands.run(() -> mCoralIntake.shootSlowCoral(), mCoralIntake).withTimeout(0.05),
-                Commands.run(() -> mCoralIntake.stop(), mCoralIntake).withTimeout(0.05)
+                Commands.run(() -> mCoralIntake.shootSlowCoral(), mCoralIntake).withTimeout(0.025),
+                Commands.run(() -> mCoralIntake.stop(), mCoralIntake).withTimeout(0.025)
             ).repeatedly()
             .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());

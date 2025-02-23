@@ -405,7 +405,7 @@ public class RobotContainer {
             .or(new DashboardTrigger("l1"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1));
-
+//
         operator.x()
             .or(new DashboardTrigger("l2"))
             .onTrue(
@@ -424,7 +424,8 @@ public class RobotContainer {
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
             .onTrue(
-                s_Elevator.homeCommand());
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+
 
         /* ------------- Intake Controls ------------- */
 
@@ -432,18 +433,23 @@ public class RobotContainer {
             s_Intake.mAlgaeIntake.toggleManualControl(
                 () -> -operator.getRightY()));
 
-        operator.leftTrigger()
-            .or(new DashboardTrigger("scoreCoral"))
-            .whileTrue(
-                Commands.either(
-                    s_Intake.shootPulsatingCoral(),
-                    s_Intake.shootCoral(),
-                    () -> s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() && s_Elevator.isEnabled()));
-
-//        operator.povLeft()
-//            .or(new DashboardTrigger("intakeCoral"))
+//        operator.leftTrigger()
+//            .or(new DashboardTrigger("scoreCoral"))
 //            .whileTrue(
-//                s_Intake.reverseCoral());
+//                Commands.either(
+//                    s_Intake.shootPulsatingCoral(),
+//                    s_Intake.shootCoral(),
+//                    () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
+//                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled()));
+
+        operator.leftTrigger()
+            .whileTrue(
+                s_Intake.shootPulsatingCoral());
+
+        operator.povLeft()
+            .or(new DashboardTrigger("intakeCoral"))
+            .whileTrue(
+                s_Intake.reverseCoral());
 
         // intake algae
         operator.rightBumper().whileTrue(
