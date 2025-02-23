@@ -18,13 +18,15 @@ public class Reefstate {
         AllianceFlip.apply(FieldConstants.TOP_RIGHT_SECTION),
         AllianceFlip.apply(FieldConstants.BOTTOM_RIGHT_SECTION));
 
-    private static final ArrayList<ReefSection> mReefSections = new ArrayList<>();
-
-    static {
-        for (int i = 0; i < 6; i++) {
-            mReefSections.add(new ReefSection());
-        }
-    }
+    private static final List<ReefSection> mReefSections =
+        List.of(
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection(),
+            new ReefSection()
+        );
 
     public static class ReefSection {
 
