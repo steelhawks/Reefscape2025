@@ -42,14 +42,6 @@ public class Intake {
         return mAlgaeIntake.atLimit();
     }
 
-    public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
-        return mAlgaeIntake.sysIdQuasistatic(dir);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction dir) {
-        return mAlgaeIntake.sysIdDynamic(dir);
-    }
-
     public Command setDesiredState(IntakeConstants.AlgaeIntakeState state) {
         return Commands.runOnce(
             () -> mAlgaeIntake.setDesiredState(state), mAlgaeIntake);
@@ -87,6 +79,15 @@ public class Intake {
             .finallyDo(() -> mCoralIntake.stop());
     }
 
+    public Command shootPulsatingCoral() {
+        return Commands.sequence(
+                Commands.run(() -> mCoralIntake.shootSlowCoral(), mCoralIntake).withTimeout(0.025),
+                Commands.run(() -> mCoralIntake.stop(), mCoralIntake).withTimeout(0.025)
+            ).repeatedly()
+            .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
+            .finallyDo(() -> mCoralIntake.stop());
+    }
+
     public Command shootCoral() {
         return Commands.run(
             () -> mCoralIntake.shootCoral(), mCoralIntake)
@@ -101,12 +102,11 @@ public class Intake {
             .finallyDo(() -> mCoralIntake.stop());
     }
 
-
-//    public Command intakeCoral() {
-//        return Commands.run(
-//            () -> mCoralIntake.runIntake(), mCoralIntake)
-//            .until(mCoralIntake.hasCoral())
-//            .finallyDo(() -> mCoralIntake.stop());
-//    }
+    public Command intakeCoral() {
+        return Commands.run(
+            () -> mCoralIntake.intakeCoral())
+            .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2))
+            .finallyDo(() -> mCoralIntake.stop());
+    }
 }
 

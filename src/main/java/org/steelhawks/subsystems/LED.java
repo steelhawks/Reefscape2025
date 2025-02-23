@@ -135,11 +135,17 @@ public class LED extends SubsystemBase {
             default -> constants = LEDConstants.OMEGA;
         }
 
-        strip2Start = constants.LENGTH / 2;
-        stripLength = constants.LENGTH / 2;
+        // strip2Start = constants.LENGTH / 2;
+        // stripLength = constants.LENGTH / 2;
 
-        LEDStrip = new AddressableLED(constants.PORT);
-        LEDBuffer = new AddressableLEDBuffer(constants.LENGTH);
+        // LEDStrip = new AddressableLED(constants.PORT);
+        // LEDBuffer = new AddressableLEDBuffer(constants.LENGTH);
+
+        strip2Start = 40 / 2;
+        stripLength = 40 / 2;
+
+        LEDStrip = new AddressableLED(0);
+        LEDBuffer = new AddressableLEDBuffer(40);
 
         LEDStrip.setLength(LEDBuffer.getLength());
 

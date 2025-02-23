@@ -28,6 +28,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     // private final double ALGAE_INTAKE_GEAR_RATIO = 1.0 / 10.0;
@@ -98,9 +99,9 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
 
         mCANcoder.getConfigurator().apply(
             new CANcoderConfiguration().withMagnetSensor(
-                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
+                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive)));
 
-        mCANcoder.setPosition(0);
+        // mCANcoder.setPosition(0);
 
         intakePosition = mIntakeMotor.getPosition();
         intakeVelocity = mIntakeMotor.getVelocity();
@@ -181,11 +182,13 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
             BaseStatusSignal.refreshAll(
                 magnetFault,
                 canCoderPosition,
+                canCoderAbsolutePosition,
                 canCoderVelocity).isOK();
         inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRad = canCoderPosition.getValueAsDouble();
-        inputs.encoderAbsolutePositionRad = canCoderAbsolutePosition.getValueAsDouble();
-        inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
+        inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
+        inputs.encoderAbsolutePositionRad = Units.rotationsToRadians(canCoderAbsolutePosition.getValueAsDouble())   ;
+        // inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
+        inputs.encoderVelocityRadPerSec = Math.floor(canCoderVelocity.getValueAsDouble() * 100) / 100;
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
