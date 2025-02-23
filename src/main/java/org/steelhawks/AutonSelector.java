@@ -102,6 +102,9 @@ public class AutonSelector extends VirtualSubsystem {
         DEFAULT_PATH("No Auto", StartEndPosition.DEFAULT_POSITION, StartEndPosition.DEFAULT_POSITION),
 
         BC1_TO_TR1("BC1 to TR1", StartEndPosition.BC1, StartEndPosition.TR1),
+        BC1_TO_TR2("BC1 to TR2", StartEndPosition.BC1, StartEndPosition.TR2),
+        BC2_TO_TR1("BC1 to TR1", StartEndPosition.BC1, StartEndPosition.TR1),
+
         BC2_TO_TR2("BC2 to TR2", StartEndPosition.BC2, StartEndPosition.TR2),
         BC3_TO_R1("BC3 to R1", StartEndPosition.BC3, StartEndPosition.R1),
 
@@ -138,8 +141,11 @@ public class AutonSelector extends VirtualSubsystem {
         LOWER_ALGAE_TO_L2("Lower Algae to L2", StartEndPosition.LOWER_ALGAE, StartEndPosition.L2),
 
         UPPER_SOURCE_TO_TL1("Upper Source to TL1", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL1),
+        UPPER_SOURCE_TO_L1("Upper Source to L1", StartEndPosition.UPPER_SOURCE, StartEndPosition.L1),
         UPPER_SOURCE_TO_TL2("Upper Source to TL2", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL2),
         UPPER_SOURCE_TO_TR1("Upper Source to TR1", StartEndPosition.UPPER_SOURCE, StartEndPosition.TR1),
+
+        UPPER_SOURCE_TO_TR2("Upper Source to TR2", StartEndPosition.UPPER_SOURCE, StartEndPosition.TR2),
 
         LOWER_SOURCE_TO_BL1("Lower Source to BL1", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL1),
         LOWER_SOURCE_TO_BL2("Lower Source to BL2", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL2);
