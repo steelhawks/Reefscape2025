@@ -1,22 +1,22 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.steelhawks.Constants.FieldConstants;
 import org.steelhawks.util.AllianceFlip;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 public class Reefstate {
 
-    private static final List<Pose2d> reefPositions = List.of(
-        AllianceFlip.apply(FieldConstants.LEFT_SECTION),
-        AllianceFlip.apply(FieldConstants.TOP_LEFT_SECTION),
-        AllianceFlip.apply(FieldConstants.BOTTOM_LEFT_SECTION),
-        AllianceFlip.apply(FieldConstants.RIGHT_SECTION),
-        AllianceFlip.apply(FieldConstants.TOP_RIGHT_SECTION),
-        AllianceFlip.apply(FieldConstants.BOTTOM_RIGHT_SECTION));
+    private static final List<FieldConstants.Position> reefPositions =
+        Arrays.stream(FieldConstants.Position.values())
+            .limit(6) // only take the first 6 positions for the reef
+//            .map(FieldConstants.Position::getPose)
+            .toList();
 
     private static final List<ReefSection> mReefSections =
         List.of(
@@ -98,9 +98,12 @@ public class Reefstate {
         reefSection.troughCount = troughCount;
     }
 
+    @AutoLogOutput(key = "Pose/ClosestReef")
     public static Pose2d getClosestReef(Pose2d currentPose) {
         return reefPositions.stream()
-            .min(Comparator.comparingDouble(reef -> reef.getTranslation().getDistance(currentPose.getTranslation())))
+            .min(Comparator.comparingDouble(reef ->
+                AllianceFlip.apply(reef.getPose()).getTranslation().getDistance(currentPose.getTranslation())))
+            .map(FieldConstants.Position::getPose)
             .orElse(null);
     }
 }

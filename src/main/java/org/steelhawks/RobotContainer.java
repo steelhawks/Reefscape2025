@@ -109,8 +109,8 @@ public class RobotContainer {
             return false;
         });
         nearCoralStation = new Trigger(() ->
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_TOP).getTranslation()) <= 3.0 ||
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.CORAL_STATION_BOTTOM).getTranslation()) <= 3.0);
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 3.0 ||
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 3.0);
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -205,8 +205,15 @@ public class RobotContainer {
     
                 }
                 case SIMBOT -> {
-                    Logger.recordOutput("Pose/CoralStationTop", FieldConstants.CORAL_STATION_TOP);
-                    Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.CORAL_STATION_BOTTOM);
+                    Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
+                    Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.Position.CORAL_STATION_BOTTOM.getPose());
+
+//                    for (Transform3d camTransform : VisionConstants.robotToCamera()) {
+//                        Logger.recordOutput("Camera/" + cameraName, camTransform);
+//                    }
+                    for (int i = 0; i < VisionConstants.cameraNames().length; i++) {
+                        Logger.recordOutput("Camera/" + VisionConstants.cameraNames()[i], VisionConstants.robotToCamera()[i]);
+                    }
 
                     s_Swerve =
                         new Swerve(
@@ -218,9 +225,13 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOPhotonSim(VisionConstants.cameraNames()[0], VisionConstants.robotToCamera()[0],
+                            new VisionIOPhotonSim(
+                                VisionConstants.cameraNames()[0],
+                                VisionConstants.robotToCamera()[0],
                                 Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
-                            new VisionIOPhotonSim(VisionConstants.cameraNames()[1], VisionConstants.robotToCamera()[1],
+                            new VisionIOPhotonSim(
+                                VisionConstants.cameraNames()[1],
+                                VisionConstants.robotToCamera()[1],
                                 Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(

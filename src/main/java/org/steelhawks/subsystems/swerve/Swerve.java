@@ -626,32 +626,6 @@ public class Swerve extends SubsystemBase {
         return new Rotation2d(Math.IEEEremainder(calculatedAngle, 2 * Math.PI));
     }
 
-    public Pose2d findClosestReef() {
-        Pose2d[] reefPoses = {
-            FieldConstants.LEFT_SECTION,
-            FieldConstants.TOP_LEFT_SECTION,
-            FieldConstants.BOTTOM_LEFT_SECTION,
-            FieldConstants.RIGHT_SECTION,
-            FieldConstants.TOP_RIGHT_SECTION,
-            FieldConstants.BOTTOM_RIGHT_SECTION
-        };
-
-        double closestDistance = Double.MAX_VALUE;
-        Pose2d closestPose = null;
-
-        for (Pose2d reefPose : reefPoses) {
-            Pose2d validated = AllianceFlip.apply(reefPose);
-            double distance = getPose().getTranslation().getDistance(validated.getTranslation());
-
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestPose = validated;
-            }
-        }
-
-        return closestPose;
-    }
-
     public boolean shouldContinuePathfinding(BooleanSupplier stopCondition) {
         Logger.recordOutput("Swerve/InterruptPathfinding", stopCondition.getAsBoolean());
         return !stopCondition.getAsBoolean();
