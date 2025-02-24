@@ -49,7 +49,7 @@ public class AutonSelector extends VirtualSubsystem {
         pathChooser1.addDefaultOption("No Auto", ChoreoPaths.DEFAULT_PATH);
 
         pathChooser2 =
-            new LoggedDashboardChooser<>(key + "/Path 2");
+            new LoggedDashboardChooser<>(key + "/Path 2?");
         pathChooser2.addDefaultOption("No Second Path", ChoreoPaths.DEFAULT_PATH);
     }
 
@@ -103,7 +103,6 @@ public class AutonSelector extends VirtualSubsystem {
 
         BC1_TO_TR1("BC1 to TR1", StartEndPosition.BC1, StartEndPosition.TR1),
         BC1_TO_TR2("BC1 to TR2", StartEndPosition.BC1, StartEndPosition.TR2),
-        BC2_TO_TR1("BC1 to TR1", StartEndPosition.BC1, StartEndPosition.TR1),
 
         BC2_TO_TR2("BC2 to TR2", StartEndPosition.BC2, StartEndPosition.TR2),
         BC3_TO_R1("BC3 to R1", StartEndPosition.BC3, StartEndPosition.R1),
@@ -232,9 +231,11 @@ public class AutonSelector extends VirtualSubsystem {
         
         if (currentStartingPose != previousStartingPose) {
             previousStartingPose = currentStartingPose;
+            // clear list
+            pathChooser1 = new LoggedDashboardChooser<>(key + "/Path 1?");
+            pathChooser1.addDefaultOption("No Auto", ChoreoPaths.DEFAULT_PATH);
             for (int i = 0; i < numOfPaths; i++) {
                 if (paths[i].startingPosition == currentStartingPose) {
-                    pathChooser1 = new LoggedDashboardChooser<>(key + "/Path 1?");
                     pathChooser1.addOption(paths[i].name, paths[i]);
                 }
             }
@@ -242,6 +243,9 @@ public class AutonSelector extends VirtualSubsystem {
 
         if (firstPath != previousFirstPath && firstPath != null) {
             previousFirstPath = firstPath;
+            // clear list
+            pathChooser2 = new LoggedDashboardChooser<>(key + "/Path 2?");
+            pathChooser2.addDefaultOption("No Second Path", ChoreoPaths.DEFAULT_PATH);
             for (int i = 0; i < numOfPaths; i++) {
                 if (paths[i].startingPosition == firstPath.endingPosition) {
                     pathChooser2.addOption(paths[i].name, paths[i]);
