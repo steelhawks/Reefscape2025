@@ -165,17 +165,11 @@ public class Align extends VirtualSubsystem {
                 double output = mLeftController.calculate(inputs.leftDistanceMeters, LEFT_ALIGN_THRESHOLD);
                 Logger.recordOutput("Align/AngleFeedback", alignOutput);
                 Logger.recordOutput("Align/LeftFeedback", output);
-                ChassisSpeeds speeds =
+                s_Swerve.runVelocity(
                     new ChassisSpeeds(
                         0.0,
                         output * s_Swerve.getMaxLinearSpeedMetersPerSec() * LEFT_SPEED_MULTIPLIER,
-                        alignOutput);
-                s_Swerve.runVelocity(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        speeds,
-                        AllianceFlip.shouldFlip()
-                            ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-                            : s_Swerve.getRotation()));
+                        alignOutput));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mLeftController.atSetpoint()))
         .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
@@ -188,17 +182,11 @@ public class Align extends VirtualSubsystem {
                 double output = mRightController.calculate(inputs.rightDistanceMeters);
                 Logger.recordOutput("Align/AngleFeedback", alignOutput);
                 Logger.recordOutput("Align/RightFeedback", output);
-                ChassisSpeeds speeds =
+                s_Swerve.runVelocity(
                     new ChassisSpeeds(
                         0.0,
                         output * s_Swerve.getMaxLinearSpeedMetersPerSec() * RIGHT_SPEED_MULTIPLIER,
-                        0.0);
-                s_Swerve.runVelocity(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        speeds,
-                        AllianceFlip.shouldFlip()
-                            ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-                            : s_Swerve.getRotation()));
+                        0.0));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mRightController.atSetpoint()))
         .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
