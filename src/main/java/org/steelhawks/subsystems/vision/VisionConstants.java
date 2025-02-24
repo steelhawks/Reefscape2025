@@ -28,7 +28,8 @@ public class VisionConstants {
             default ->
                 new String[] {
                     "arducam-front-right",
-                    "arducam-back-left"
+                    "arducam-back-left",
+                    "arducam-elevator-mount"
                 };
         };
     }
@@ -54,18 +55,27 @@ public class VisionConstants {
                         Units.inchesToMeters(12.556),
                         Units.inchesToMeters(6.689),
                         new Rotation3d(
-                            0,
+                            Units.degreesToRadians(0),
                             Units.degreesToRadians(28.125),
-                            Units.degreesToRadians(60))), // Z is from the top of the belly pan, NOT the gyro
+                            Units.degreesToRadians(60))), // Z is from the top of the belly pan
 
                     new Transform3d(  
                         Units.inchesToMeters(- 12.556), // - 12.644
                         Units.inchesToMeters(- 10.976), // - 11.130
-                        Units.inchesToMeters(6.689), // 6.783901  // Z is from the top of the belly pan, NOT the gyro
+                        Units.inchesToMeters(6.689), // 6.783901  // Z is from the top of the belly pan
                         new Rotation3d(
-                            0,
+                            Units.degreesToRadians(0),
                             Units.degreesToRadians(28.125),
-                            Units.degreesToRadians(210)))
+                            Units.degreesToRadians(210))),
+
+                    new Transform3d(
+                        Units.inchesToMeters(0),
+                        Units.inchesToMeters(13.583),
+                        Units.inchesToMeters(36.604), // Z is from the top of the belly pan
+                        new Rotation3d(
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(45),
+                            Units.degreesToRadians(0)))
                 };
         };
     }
