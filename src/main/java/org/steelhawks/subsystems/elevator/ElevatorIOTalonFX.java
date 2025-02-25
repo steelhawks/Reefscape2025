@@ -22,7 +22,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     private final TalonFX mLeftMotor;
     private final TalonFX mRightMotor;
-    private final CANcoder mCANcoder;
+    private CANcoder mCANcoder = null;
 
     private final DigitalInput mLimitSwitch;
 
@@ -38,9 +38,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final StatusSignal<Current> rightCurrent;
     private final StatusSignal<Temperature> rightTemp;
 
-    private final StatusSignal<Boolean> magnetFault;
-    private final StatusSignal<Angle> canCoderPosition;
-    private final StatusSignal<AngularVelocity> canCoderVelocity;
+    private StatusSignal<Boolean> magnetFault;
+    private StatusSignal<Angle> canCoderPosition;
+    private StatusSignal<AngularVelocity> canCoderVelocity;
 
     private boolean atTopLimit = false;
     private boolean atBottomLimit = false;
@@ -54,7 +54,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         mLeftMotor = new TalonFX(constants.LEFT_ID, Constants.getCANBus());
         mRightMotor = new TalonFX(constants.RIGHT_ID, Constants.getCANBus());
-        mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());
+        if (Constants.getRobot() != RobotType.ALPHABOT) {
+            mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());
+        }
         mLimitSwitch = new DigitalInput(constants.LIMIT_SWITCH_ID);
 
         var leftConfig =
@@ -67,6 +69,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                             ? InvertedValue.CounterClockwise_Positive
                             : InvertedValue.Clockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
+        mLeftMotor.getConfigurator().apply(leftConfig);
 
         var rightConfig =
             new TalonFXConfiguration()
@@ -78,16 +81,26 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                             ? InvertedValue.Clockwise_Positive
                             : InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
-
-        var encoderConfig =
-            new CANcoderConfiguration()
-                .withMagnetSensor(
-                    new MagnetSensorConfigs()
-                        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
-
-        mLeftMotor.getConfigurator().apply(leftConfig);
         mRightMotor.getConfigurator().apply(rightConfig);
-        mCANcoder.getConfigurator().apply(encoderConfig);
+
+        if (Constants.getRobot() != RobotType.ALPHABOT) {
+            var encoderConfig =
+                new CANcoderConfiguration()
+                    .withMagnetSensor(
+                        new MagnetSensorConfigs()
+                            .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+            mCANcoder.getConfigurator().apply(encoderConfig);
+
+            magnetFault = mCANcoder.getFault_BadMagnet();
+            canCoderPosition = mCANcoder.getPosition();
+            canCoderVelocity = mCANcoder.getVelocity();
+            BaseStatusSignal.setUpdateFrequencyForAll(
+                50,
+                magnetFault,
+                canCoderPosition,
+                canCoderVelocity);
+            mCANcoder.optimizeBusUtilization();
+        }
 
         zeroEncoders();
 
@@ -103,10 +116,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightCurrent = mRightMotor.getStatorCurrent();
         rightTemp = mRightMotor.getDeviceTemp();
 
-        magnetFault = mCANcoder.getFault_BadMagnet();
-        canCoderPosition = mCANcoder.getPosition();
-        canCoderVelocity = mCANcoder.getVelocity();
-
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
             leftPosition,
@@ -119,13 +128,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             rightVelocity,
             rightVoltage,
             rightCurrent,
-            rightTemp,
+            rightTemp);
 
-            magnetFault,
-            canCoderPosition,
-            canCoderVelocity);
-
-        ParentDevice.optimizeBusUtilizationForAll(mLeftMotor, mRightMotor, mCANcoder);
+        ParentDevice.optimizeBusUtilizationForAll(mLeftMotor, mRightMotor);
     }
 
     @Override
@@ -156,14 +161,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.rightCurrentAmps = rightCurrent.getValueAsDouble();
         inputs.rightTempCelsius = rightTemp.getValueAsDouble();
 
-        inputs.encoderConnected =
-            BaseStatusSignal.refreshAll(
-                magnetFault,
-                canCoderPosition,
-                canCoderVelocity).isOK();
-        inputs.magnetGood = !magnetFault.getValue();
-        inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
-        inputs.encoderVelocityRadPerSec = Units.rotationsToRadians(canCoderVelocity.getValueAsDouble());
+        if (mCANcoder != null) {
+            inputs.encoderConnected =
+                BaseStatusSignal.refreshAll(
+                    magnetFault,
+                    canCoderPosition,
+                    canCoderVelocity).isOK();
+            inputs.magnetGood = !magnetFault.getValue();
+            inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
+            inputs.encoderVelocityRadPerSec = Units.rotationsToRadians(canCoderVelocity.getValueAsDouble());
+        }
 
         if (Constants.getRobot() == RobotType.ALPHABOT) {
             inputs.encoderConnected = inputs.leftConnected && inputs.rightConnected;
@@ -207,7 +214,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void zeroEncoders() {
-        if (Constants.getRobot() != RobotType.ALPHABOT) {
+        if (mCANcoder != null) {
             mCANcoder.setPosition(0);
         }
         mLeftMotor.setPosition(0);
