@@ -89,6 +89,13 @@ public final class Autos {
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
     }
 
+    public static Command testAuton() {
+        return Commands.runOnce(
+            () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
+            .andThen(
+                followTrajectory("BC1 to TR1"));
+    }
+
     public static PathPlannerPath getPath(String choreo) {
         try {
             return PathPlannerPath.fromChoreoTrajectory(choreo);
