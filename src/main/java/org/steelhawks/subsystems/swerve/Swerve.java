@@ -298,10 +298,30 @@ public class Swerve extends SubsystemBase {
         ModuleIO blModuleIO,
         ModuleIO brModuleIO) {
         this.gyroIO = gyroIO;
-        swerveModules[0] = new SwerveModule(flModuleIO, 0, TunerConstantsHawkRider.FrontLeft);
-        swerveModules[1] = new SwerveModule(frModuleIO, 1, TunerConstantsHawkRider.FrontRight);
-        swerveModules[2] = new SwerveModule(blModuleIO, 2, TunerConstantsHawkRider.BackLeft);
-        swerveModules[3] = new SwerveModule(brModuleIO, 3, TunerConstantsHawkRider.BackRight);
+        swerveModules[0] = new SwerveModule(flModuleIO, 0,
+            switch (Constants.getRobot()) {
+                case ALPHABOT -> TunerConstantsAlpha.FrontLeft;
+                case HAWKRIDER -> TunerConstantsHawkRider.FrontLeft;
+                default -> TunerConstants.FrontLeft;
+            });
+        swerveModules[1] = new SwerveModule(frModuleIO, 1,
+            switch (Constants.getRobot()) {
+                case ALPHABOT -> TunerConstantsAlpha.FrontRight;
+                case HAWKRIDER -> TunerConstantsHawkRider.FrontRight;
+                default -> TunerConstants.FrontRight;
+            });
+        swerveModules[2] = new SwerveModule(blModuleIO, 2,
+            switch (Constants.getRobot()) {
+                case ALPHABOT -> TunerConstantsAlpha.BackLeft;
+                case HAWKRIDER -> TunerConstantsHawkRider.BackLeft;
+                default -> TunerConstants.BackLeft;
+            });
+        swerveModules[3] = new SwerveModule(brModuleIO, 3,
+            switch (Constants.getRobot()) {
+                case ALPHABOT -> TunerConstantsAlpha.BackRight;
+                case HAWKRIDER -> TunerConstantsHawkRider.BackRight;
+                default -> TunerConstants.BackRight;
+            });
 
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
