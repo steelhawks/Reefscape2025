@@ -342,6 +342,10 @@ public class RobotContainer {
             .onTrue(
                 s_LED.flashCommand(LEDColor.BLUE, 0.1, 1));
 
+        s_Intake.hasCoral()
+            .onTrue(
+                s_LED.flashCommand(LEDColor.GREEN, 0.1, 3));
+
         isShallowEndgame
             .onTrue(
                 Commands.runOnce(() ->
@@ -360,7 +364,8 @@ public class RobotContainer {
 
         nearCoralStation
             .whileTrue(
-                s_Intake.intakeCoral());
+                s_Intake.intakeCoral()
+                    .unless(s_Intake.hasCoral()));
     }
 
     private void configureDriver() {
