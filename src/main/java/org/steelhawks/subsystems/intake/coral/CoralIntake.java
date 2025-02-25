@@ -17,8 +17,13 @@ public class CoralIntake extends SubsystemBase {
     private final CoralIntakeIO io;
 
     public Trigger hasCoral() {
-        return new Trigger(
-            () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
+        return switch (Constants.getRobot()) {
+            case ALPHABOT ->
+                new Trigger(
+                    () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
+            case HAWKRIDER -> new Trigger(() -> false);
+            default -> new Trigger(() -> inputs.beamBroken);
+        };
     }
 
     public CoralIntake(CoralIntakeIO io) {

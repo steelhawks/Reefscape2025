@@ -34,6 +34,10 @@ public class Intake {
     /* COMMAND FACTORIES */
     ///////////////////////
 
+    public Trigger hasCoral() {
+        return mCoralIntake.hasCoral();
+    }
+
     public Trigger algaeAtGoal() {
         return mAlgaeIntake.atGoal();
     }

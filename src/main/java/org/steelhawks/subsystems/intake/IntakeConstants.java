@@ -38,6 +38,8 @@ public class IntakeConstants {
         }
     }
 
+    public static final int BEAM_BREAK_ID_OMEGA = 15;
+
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
             16,

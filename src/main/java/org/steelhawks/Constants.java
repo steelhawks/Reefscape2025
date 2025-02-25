@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import org.steelhawks.subsystems.vision.VisionConstants;
-import org.steelhawks.util.AllianceFlip;
 
 public final class Constants {
 
@@ -37,7 +36,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.HAWKRIDER;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.

@@ -1,6 +1,8 @@
 package org.steelhawks.subsystems.intake.coral;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -20,9 +22,11 @@ import edu.wpi.first.units.measure.Voltage;
 import static org.steelhawks.util.PhoenixUtil.*;
 
 public class CoralIntakeIOTalonFX implements CoralIntakeIO {
-    
+
     private final IntakeConstants constants;
     private final TalonFX mIntakeMotor;
+
+    private DigitalInput mBeamBreak = null;
 
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
@@ -38,7 +42,11 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
         }
 
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
-        
+        if (Constants.getRobot() == RobotType.OMEGABOT) {
+            mBeamBreak = new DigitalInput(IntakeConstants.BEAM_BREAK_ID_OMEGA);
+        }
+
+
         var motorConfig = new TalonFXConfiguration();
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -75,6 +83,10 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
         inputs.appliedVolts = voltage.getValueAsDouble();
         inputs.currentAmps = current.getValueAsDouble();
         inputs.tempCelsius = temp.getValueAsDouble();
+
+        if (mBeamBreak != null) {
+            inputs.beamBroken = !mBeamBreak.get();
+        }
     }
 
     @Override
