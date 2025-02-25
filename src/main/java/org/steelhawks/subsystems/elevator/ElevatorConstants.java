@@ -72,7 +72,7 @@ public final class ElevatorConstants {
             0.0,
             30,
             60,
-            Units.rotationsToRadians(0.003),
+            0.02,
             0.55,
             24);
 

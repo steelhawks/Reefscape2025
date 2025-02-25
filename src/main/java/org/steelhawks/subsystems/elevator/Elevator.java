@@ -273,24 +273,11 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command homeCommand() {
-        return Commands.run(
-            () -> {
-//                mController.setGoal(State.HOME.getRadians());
-                setDesiredState(State.HOME).schedule();
-                enable();
-
-//                if (Math.abs(getPosition() - State.HOME.getRadians()) < constants.TOLERANCE && !inputs.limitSwitchPressed) {
-//                    disable();
-//                    io.runElevator(
-//                        -MathUtil.clamp(0.2 + Math.abs(getPosition() - State.HOME.getRadians()), 0.2, 0.5));
-//                }
-            }, this)
+        return setDesiredState(State.HOME)
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> {
-//                mController.reset(State.HOME.getRadians());
                 io.zeroEncoders();
                 io.stop();
-                disable();
             })
             .withName("Home Elevator");
     }
@@ -325,4 +312,3 @@ public class Elevator extends SubsystemBase {
             .finallyDo(io::stop);
     }
 }
-
