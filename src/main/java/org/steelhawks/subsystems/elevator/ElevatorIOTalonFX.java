@@ -65,7 +65,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                     .withSensorToMechanismRatio(constants.GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(
-                        Constants.getRobot() != RobotType.OMEGABOT
+                        Constants.getRobot() == RobotType.OMEGABOT
                             ? InvertedValue.CounterClockwise_Positive
                             : InvertedValue.Clockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
@@ -77,7 +77,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                     .withSensorToMechanismRatio(constants.GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(
-                        Constants.getRobot() != RobotType.OMEGABOT
+                        Constants.getRobot() == RobotType.OMEGABOT
                             ? InvertedValue.Clockwise_Positive
                             : InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
@@ -88,7 +88,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 new CANcoderConfiguration()
                     .withMagnetSensor(
                         new MagnetSensorConfigs()
-                            .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+                            .withSensorDirection(
+                                Constants.getRobot() == RobotType.OMEGABOT
+                                ? SensorDirectionValue.Clockwise_Positive
+                                : SensorDirectionValue.CounterClockwise_Positive));
             mCANcoder.getConfigurator().apply(encoderConfig);
 
             magnetFault = mCANcoder.getFault_BadMagnet();
