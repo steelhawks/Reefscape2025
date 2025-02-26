@@ -9,7 +9,7 @@ import org.steelhawks.subsystems.intake.IntakeConstants;
 public class CoralIntake extends SubsystemBase {
 
     private static final double CURRENT_THRESHOLD = 30;
-    private static final double INTAKE_SPEED = 0.075;
+    private static final double INTAKE_SPEED = 0.05;
     boolean isIntaking = false;
 
     private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
@@ -66,8 +66,4 @@ public class CoralIntake extends SubsystemBase {
         isIntaking = false;
         io.stop();
     }
-
-    public void runCharacterization(double volts) {}
-
-    
 }

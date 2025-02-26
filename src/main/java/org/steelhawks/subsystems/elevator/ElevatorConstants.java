@@ -81,7 +81,7 @@ public final class ElevatorConstants {
             0,
             14,
             15,
-            50,
+            -1,
             10,
             0.18,
             0.18625,
@@ -98,23 +98,23 @@ public final class ElevatorConstants {
             60); // 60
 
     public static final ElevatorConstants HAWKRIDER =
-            new ElevatorConstants(
-            0,
-            20,
-            21,
-            22,
-            1,
-            0.15,
-            0.09,
-            0.6,
-            9.1,
-            0,
-            0.002,
-            5.2,
-            8,
-            Units.rotationsToRadians(.005),
-            0.5,
-            18.5);
+        new ElevatorConstants(
+        0,
+        20,
+        21,
+        22,
+        1,
+        0.15,
+        0.09,
+        0.6,
+        9.1,
+        0,
+        0.002,
+        5.2,
+        8,
+        Units.rotationsToRadians(.005),
+        0.5,
+        18.5);
 
     public final int LIMIT_SWITCH_ID;
     public final int LEFT_ID;

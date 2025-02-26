@@ -1,5 +1,7 @@
 package org.steelhawks.subsystems.intake.coral;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
@@ -42,14 +44,15 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
         }
 
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
-        if (Constants.getRobot() == RobotType.OMEGABOT) {
+        if (Constants.getRobot() == RobotType.OMEGABOT)
             mBeamBreak = new DigitalInput(IntakeConstants.BEAM_BREAK_ID_OMEGA);
-        }
 
 
-        var motorConfig = new TalonFXConfiguration();
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var motorConfig =
+            new TalonFXConfiguration()
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
         mIntakeMotor.getConfigurator().apply(motorConfig);
 
         position = mIntakeMotor.getPosition();
@@ -92,10 +95,6 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     @Override
     public void runIntake(double percentageOutput) {
         mIntakeMotor.set(percentageOutput);
-    }
-
-    public void runReverse(double percentageOutput) {
-        mIntakeMotor.set(- percentageOutput);
     }
 
     @Override

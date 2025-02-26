@@ -162,11 +162,11 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Intake = 
                         new Intake(
-                            new AlgaeIntakeIOTalonFX(),
+                            new AlgaeIntakeIO() {},
                             new CoralIntakeIOTalonFX());
                     s_Align =
                         new Align(
-                            new AlignIOCANrange());
+                            new AlignIO() {});
                     s_Climb =
                         new Climb(
                             new ShallowClimbIOTalonFX(),

@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -17,12 +16,9 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
-import org.steelhawks.Constants.RobotType;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 @SuppressWarnings("unused")
@@ -245,10 +241,6 @@ public class Elevator extends SubsystemBase {
 
                         if (speed.getAsDouble() == 0.0) {
                             appliedSpeed = constants.KG / 12.0;
-                        }
-
-                        if (inputs.limitSwitchPressed) {
-                            io.zeroEncoders();
                         }
 
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);

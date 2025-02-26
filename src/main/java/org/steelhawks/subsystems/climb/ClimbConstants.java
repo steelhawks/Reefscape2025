@@ -44,7 +44,7 @@ public final class ClimbConstants {
             Units.rotationsToRadians(3),
             60,
             61,
-            62,
+            -1,
             0,
             0,
             0,

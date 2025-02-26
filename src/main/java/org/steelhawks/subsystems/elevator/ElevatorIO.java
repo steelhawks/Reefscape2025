@@ -47,6 +47,8 @@ public interface ElevatorIO {
      */
     default void runElevatorViaSpeed(double speed) {}
 
+    default void runPosition(double positionRad, double feedforward) {}
+
     /**
      * Zeros the position of the motor encoders.
      */

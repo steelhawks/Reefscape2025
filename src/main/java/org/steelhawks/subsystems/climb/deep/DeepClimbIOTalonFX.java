@@ -22,7 +22,7 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
 
     private final TalonFX mTopMotor;
     private final TalonFX mBottomMotor;
-    private final CANcoder mPivotEncoder;
+    private CANcoder mPivotEncoder = null;
 
     private final StatusSignal<Angle> topPosition;
     private final StatusSignal<AngularVelocity> topVelocity;
@@ -36,11 +36,11 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
     private final StatusSignal<Current> bottomCurrent;
     private final StatusSignal<Temperature> bottomTemperature;
 
-    private final StatusSignal<Boolean> magnetFault;
-    private final StatusSignal<Angle> pivotPosition;
-    private final StatusSignal<Angle> pivotAbsolutePosition;
-    private final StatusSignal<AngularVelocity> pivotVelocity;
-    private final StatusSignal<Voltage> pivotVoltage;
+    private StatusSignal<Boolean> magnetFault = null;
+    private StatusSignal<Angle> pivotPosition = null;
+    private StatusSignal<Angle> pivotAbsolutePosition = null;
+    private StatusSignal<AngularVelocity> pivotVelocity = null;
+    private StatusSignal<Voltage> pivotVoltage = null;
 
     public DeepClimbIOTalonFX() {
         switch (Constants.getRobot()) {
@@ -51,7 +51,8 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
 
         mTopMotor = new TalonFX(constants.DEEP_TOP_MOTOR_ID, Constants.getCANBus());
         mBottomMotor = new TalonFX(constants.DEEP_BOTTOM_MOTOR_ID, Constants.getCANBus());
-        mPivotEncoder = new CANcoder(constants.DEEP_CANCODER_ID, Constants.getCANBus());
+        if (constants.DEEP_CANCODER_ID != -1)
+            mPivotEncoder = new CANcoder(constants.DEEP_CANCODER_ID, Constants.getCANBus());
 
         var topConfig =
             new TalonFXConfiguration()
@@ -81,11 +82,22 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
         bottomCurrent = mBottomMotor.getStatorCurrent();
         bottomTemperature = mBottomMotor.getDeviceTemp();
 
-        magnetFault = mPivotEncoder.getFault_BadMagnet();
-        pivotPosition = mPivotEncoder.getPosition();
-        pivotAbsolutePosition = mPivotEncoder.getAbsolutePosition();
-        pivotVelocity = mPivotEncoder.getVelocity();
-        pivotVoltage = mPivotEncoder.getSupplyVoltage();
+        if (mPivotEncoder != null) {
+            magnetFault = mPivotEncoder.getFault_BadMagnet();
+            pivotPosition = mPivotEncoder.getPosition();
+            pivotAbsolutePosition = mPivotEncoder.getAbsolutePosition();
+            pivotVelocity = mPivotEncoder.getVelocity();
+            pivotVoltage = mPivotEncoder.getSupplyVoltage();
+
+            BaseStatusSignal.setUpdateFrequencyForAll(
+                50,
+                magnetFault,
+                pivotPosition,
+                pivotAbsolutePosition,
+                pivotVelocity,
+                pivotVoltage);
+            mPivotEncoder.optimizeBusUtilization();
+        }
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
@@ -99,15 +111,9 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
             bottomVelocity,
             bottomVoltage,
             bottomCurrent,
-            bottomTemperature,
+            bottomTemperature);
 
-            magnetFault,
-            pivotPosition,
-            pivotAbsolutePosition,
-            pivotVelocity,
-            pivotVoltage);
-
-        ParentDevice.optimizeBusUtilizationForAll(mTopMotor, mBottomMotor, mPivotEncoder);
+        ParentDevice.optimizeBusUtilizationForAll(mTopMotor, mBottomMotor);
     }
 
     @Override
@@ -137,6 +143,15 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
         inputs.bottomClimbAppliedVolts = bottomVoltage.getValueAsDouble();
         inputs.bottomClimbCurrentAmps = bottomCurrent.getValueAsDouble();
         inputs.bottomClimbTempCelsius = bottomTemperature.getValueAsDouble();
+
+        if (mPivotEncoder == null) {
+            inputs.encoderConnected = false;
+            inputs.magnetGood = false;
+            inputs.encoderPositionRad = 0;
+            inputs.encoderAbsolutePositionRad = 0;
+            inputs.encoderVelocityRadPerSec = 0;
+            return;
+        }
 
         inputs.encoderConnected =
             BaseStatusSignal.refreshAll(
