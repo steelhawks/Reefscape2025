@@ -12,7 +12,6 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.*;
@@ -48,18 +47,26 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Mode;
-import org.steelhawks.RobotContainer;
+import org.steelhawks.Odometry;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
-import org.steelhawks.util.AllianceFlip;
+import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.HolonomicController;
 import org.steelhawks.util.LocalADStarAK;
 
+@SuppressWarnings("unused")
 public class Swerve extends SubsystemBase {
+
+    public enum PathfindingTo {
+        NONE,
+        CORAL_STATION,
+        REEF
+    }
 
     private static final double SLOW_SPEED_MULTIPLIER = 0.3;
     private static double SPEED_MULTIPLIER = SLOW_SPEED_MULTIPLIER;
+    private PathfindingTo pathfindingTo = PathfindingTo.NONE;
     private boolean isPathfinding = false;
 
     public static final double ODOMETRY_FREQUENCY =
@@ -95,9 +102,14 @@ public class Swerve extends SubsystemBase {
             new SwerveModulePosition(),
             new SwerveModulePosition()
         };
-
-    private final SwerveDrivePoseEstimator mPoseEstimator =
-        new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+    private final Odometry odometry =
+        new Odometry(
+            kinematics,
+            () -> rawGyroRotation,
+            () -> lastModulePositions,
+            new Pose2d(),
+                VisionConstants.cameraNames()[0],
+                    VisionConstants.robotToCamera()[0]); // todo find the reef cam index;
 
     private final ProfiledPIDController mAlignController;
     private final Debouncer mAlignDebouncer;
@@ -463,7 +475,7 @@ public class Swerve extends SubsystemBase {
             }
 
             // Apply update
-            mPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+            odometry.updateGlobalEstimator(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
 
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
@@ -494,22 +506,11 @@ public class Swerve extends SubsystemBase {
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     }
 
-    /**
-     * Accepts a vision measurement and updates the pose estimator.
-     *
-     * @param visionRobotPoseMeters The robot pose measurement from the vision system.
-     * @param timestampSeconds The timestamp of the vision measurement.
-     * @param visionMeasurementStdDevs The standard deviations of the vision measurement.
-     */
-    public void accept(
+    public void acceptVisionMeasurement(
         Pose2d visionRobotPoseMeters,
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs) {
-
-        if (!RobotContainer.useVision) return;
-
-        mPoseEstimator.addVisionMeasurement(
-            visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+        odometry.acceptVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 
     /**
@@ -622,7 +623,7 @@ public class Swerve extends SubsystemBase {
      */
     @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
-        return mPoseEstimator.getEstimatedPosition();
+        return odometry.getPose();
     }
 
     /**
@@ -658,7 +659,7 @@ public class Swerve extends SubsystemBase {
         if (RobotBase.isSimulation()) {
             DRIVE_SIMULATION.setSimulationWorldPose(pose);
         }
-        mPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+        odometry.setGlobalPose(rawGyroRotation, getModulePositions(), pose);
     }
 
     /**
@@ -713,8 +714,9 @@ public class Swerve extends SubsystemBase {
         };
     }
 
-    public void setPathfinding(boolean pathfinding) {
-        isPathfinding = pathfinding;
+    public void setPathfinding(PathfindingTo pathfinding) {
+        isPathfinding = pathfinding != PathfindingTo.NONE;
+        pathfindingTo = pathfinding;
     }
 
     public Trigger isPathfinding() {

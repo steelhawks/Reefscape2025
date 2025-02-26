@@ -24,13 +24,11 @@ import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
-import org.steelhawks.subsystems.climb.deep.DeepClimbIO775Pro;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
-import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
@@ -126,7 +124,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstants.BackRight));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
+                            s_Swerve::acceptVisionMeasurement,
                             new VisionIO() {});
                     s_Elevator =
                         new Elevator(
@@ -155,7 +153,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstantsAlpha.BackRight));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
+                            s_Swerve::acceptVisionMeasurement,
                             new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()));
                     s_Elevator =
                         new Elevator(
@@ -185,7 +183,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstantsHawkRider.BackRight));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
+                            s_Swerve::acceptVisionMeasurement,
                             new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()),
                             new VisionIOLimelight(VisionConstants.cameraNames()[1], () -> s_Swerve.getRotation()));
                     s_Elevator =
@@ -224,7 +222,7 @@ public class RobotContainer {
                             new ModuleIOSim(Swerve.getDriveSimulation().getModules()[3]));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
+                            s_Swerve::acceptVisionMeasurement,
                             new VisionIOPhotonSim(
                                 VisionConstants.cameraNames()[0],
                                 VisionConstants.robotToCamera()[0],
@@ -264,7 +262,7 @@ public class RobotContainer {
                 case OMEGABOT, ALPHABOT -> {
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
+                            s_Swerve::acceptVisionMeasurement,
                             new VisionIO() {});
                     s_Intake =
                         new Intake(
@@ -281,7 +279,7 @@ public class RobotContainer {
                 case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
+                            s_Swerve::acceptVisionMeasurement,
                             new VisionIO() {},
                             new VisionIO() {},
                             new VisionIO() {});
@@ -313,7 +311,7 @@ public class RobotContainer {
         driver.leftTrigger()
             .whileTrue(
                 DriveCommands.driveToPosition(
-                    Reefstate.getClosestReef(s_Swerve.getPose()), interruptPathfinding));
+                    Reefstate.getClosestReef(s_Swerve.getPose()), Swerve.PathfindingTo.REEF, interruptPathfinding));
     }
 
     private void configureDefaultCommands() {}

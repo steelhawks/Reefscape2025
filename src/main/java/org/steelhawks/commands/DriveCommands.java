@@ -119,11 +119,11 @@ public class DriveCommands {
      * @param emergencyStop The supplier that will stop the command if it returns true.
      * @return The command to drive to the target position.
      */
-    public static Command driveToPosition(Pose2d target, BooleanSupplier emergencyStop) {
+    public static Command driveToPosition(Pose2d target, Swerve.PathfindingTo pathfindingTo, BooleanSupplier emergencyStop) {
         return AutoBuilder.pathfindToPose(target, AutonConstants.HAWKRIDER.CONSTRAINTS)
             .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
-                .beforeStarting(() -> s_Swerve.setPathfinding(true))
-                    .finallyDo(() -> s_Swerve.setPathfinding(false))
+                .beforeStarting(() -> s_Swerve.setPathfinding(pathfindingTo))
+                    .finallyDo(() -> s_Swerve.setPathfinding(Swerve.PathfindingTo.NONE))
                         .withName("Drive to Position");
     }
 
@@ -134,11 +134,11 @@ public class DriveCommands {
      * @param emergencyStop The supplier that will stop the command if it returns true.
      * @return The command to drive to the target path.
      */
-    public static Command driveToPath(PathPlannerPath path, BooleanSupplier emergencyStop) {
+    public static Command driveToPath(PathPlannerPath path, Swerve.PathfindingTo pathfindingTo, BooleanSupplier emergencyStop) {
         return AutoBuilder.pathfindThenFollowPath(path, AutonConstants.HAWKRIDER.CONSTRAINTS)
             .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
-                .beforeStarting(() -> s_Swerve.setPathfinding(true))
-                    .finallyDo(() -> s_Swerve.setPathfinding(false))
+                .beforeStarting(() -> s_Swerve.setPathfinding(pathfindingTo))
+                    .finallyDo(() -> s_Swerve.setPathfinding(Swerve.PathfindingTo.NONE))
                         .withName("Drive to Path");
     }
 
@@ -151,7 +151,7 @@ public class DriveCommands {
      * @return The command to drive to the target position.
      */
     public static Command driveToPosition(Pose2d target) {
-        return driveToPosition(target, () -> false);
+        return driveToPosition(target, Swerve.PathfindingTo.NONE, () -> false);
     }
 
     /**
@@ -162,7 +162,7 @@ public class DriveCommands {
      * @return The command to drive to the target path.
      */
     public static Command driveToPath(PathPlannerPath path) {
-        return driveToPath(path, () -> false);
+        return driveToPath(path, Swerve.PathfindingTo.NONE, () -> false);
     }
 
 

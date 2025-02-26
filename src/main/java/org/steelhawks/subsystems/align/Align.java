@@ -11,7 +11,6 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -97,12 +96,12 @@ public class Align extends VirtualSubsystem {
     }
 
     public static PathPlannerPath directPath(Pose2d goal) {
-        AutonConstants constants;
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = AutonConstants.ALPHA;
-            case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
-            default -> constants = AutonConstants.OMEGA;
-        }
+        final AutonConstants constants =
+            switch (Constants.getRobot()) {
+                case ALPHABOT -> AutonConstants.ALPHA;
+                case HAWKRIDER -> AutonConstants.HAWKRIDER;
+                default -> AutonConstants.OMEGA;
+            };
 
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(s_Swerve.getPose(), goal);
         double speed =
@@ -119,14 +118,17 @@ public class Align extends VirtualSubsystem {
         return path;
     }
 
-    public static Command directPathFollow(Pose2d goal) { // fix this
-        return Commands.defer(
-            () ->
-                AutoBuilder.followPath(directPath(goal))
-                    .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
-                    .andThen(
-                        Commands.run(() -> s_Swerve.runVelocity(HolonomicController.calculate(goal)))), // pathplanner isnt precise enough so we gotta fix it ourselves
-            Set.of(s_Swerve));
+    public static Command directPathFollow(Pose2d goal, Swerve.PathfindingTo pathfindingTo) { // fix this
+        return Commands.runOnce(() -> s_Swerve.setPathfinding(pathfindingTo))
+            .andThen(
+                Commands.defer(
+                    () ->
+                        AutoBuilder.followPath(directPath(goal))
+                            .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
+                            .andThen(
+                                Commands.run(() -> s_Swerve.runVelocity(HolonomicController.calculate(goal)))), // pathplanner isnt precise enough so we gotta fix it ourselves
+                    Set.of(s_Swerve))
+            .finallyDo(() -> s_Swerve.setPathfinding(Swerve.PathfindingTo.NONE)));
     }
 
     public Command forwardUntil(Rotation2d angle) {
