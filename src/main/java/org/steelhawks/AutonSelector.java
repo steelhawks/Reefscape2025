@@ -14,7 +14,9 @@ import java.util.Objects;
 
 public class AutonSelector extends VirtualSubsystem {
     private static StartEndPosition previousStartingPose = StartEndPosition.DEFAULT_POSITION;
-    private final double outTakeCenterOffset = 0.3052572;
+    private static final double CORAL_OFFSET = 0.3052572;
+    private static final double CORAL_OFFSET_X = Math.cos(Math.toRadians(30))*CORAL_OFFSET;
+    private static final double CORAL_OFFSET_Y = Math.sin(Math.toRadians(30))*CORAL_OFFSET;
 
     private record AutoRoutine(
         String name, Command runPath, StartEndPosition endingPosition) {}
@@ -64,29 +66,29 @@ public class AutonSelector extends VirtualSubsystem {
         RC2(7.58, 1.9068, Math.PI),
         RC3(7.58, 0.8137, Math.PI),
 
-        TR1(4.989901, 5.20103502, -2.0956),
-        TR2(5.246277332305908, 5.067183494567871, -2.0956),
+        TR1(4.989901+CORAL_OFFSET_X, 5.20103502-CORAL_OFFSET_Y, -2.0956),
+        TR2(5.246277332305908+CORAL_OFFSET_X, 5.067183494567871-CORAL_OFFSET_Y, -2.0956),
 
-        R1(5.7603, 3.88456261, Math.PI),
-        R2(5.75724601, 3.552718283, Math.PI),
+        R1(5.7603, 4.18981981-CORAL_OFFSET, Math.PI),
+        R2(5.7603, 3.857975483-CORAL_OFFSET, Math.PI),
         
-        BR1(4.98813963, 2.839053, 2.0951905),
-        BR2(5.277015, 3.00554514, 2.101656),
+        BR1(4.98813963-CORAL_OFFSET_X, 2.839053-CORAL_OFFSET_Y, 2.101656),
+        BR2(5.277015-CORAL_OFFSET_X, 3.00554514-CORAL_OFFSET_Y, 2.101656),
 
-        BL1(3.71385, 3.0024, 1.0472),
-        BL2(3.988043, 2.83145452, 1.03837),
+        BL1(3.71385-CORAL_OFFSET_X, 3.0024+CORAL_OFFSET_Y, 1.0472),
+        BL2(3.988043-CORAL_OFFSET_X, 2.83145452+CORAL_OFFSET_Y, 1.0472),
 
-        L1(3.2205, 4.4952572, 0),
-        L2(3.218805, 4.1633412, 0),
+        L1(3.2205, 4.19+CORAL_OFFSET, 0),
+        L2(3.2205, 3.858084+CORAL_OFFSET, 0),
 
-        TL1(3.71745, 5.0408244, -1.0472),
-        TL2(3.9975, 5.207482, -1.0472),
+        TL1(3.71745+CORAL_OFFSET_X, 5.0408244+CORAL_OFFSET_Y, -1.0472),
+        TL2(3.9975+CORAL_OFFSET_X, 5.207482+CORAL_OFFSET_Y, -1.0472),
 
         UPPER_ALGAE(1.7405211925506592, 5.857955455780029, 3.141592653589793),
         CENTER_ALGAE(1.7537007331848145, 3.999641180038452, 3.141592653589793),
         LOWER_ALGAE(1.5560076236724854, 2.1808652877807617, 3.141592653589793),
-        UPPER_SOURCE(1.252878189086914, 7.215447902679443, 2.2206668954618283),
-        LOWER_SOURCE(1.252878189086914, 0.79, 0.9463541928379318);
+        UPPER_SOURCE(1.3549774885177612, 7.263299465179443, -0.9380478121282612),
+        LOWER_SOURCE(1.2797433137893677, 0.8141096234321594, 0.9463541928379318);
 
         public final double x;
         public final double y;
