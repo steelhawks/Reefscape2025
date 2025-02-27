@@ -264,6 +264,20 @@ public class Elevator extends SubsystemBase {
         .withName("Slam Elevator");
     }
 
+    public Command noSlamCommand() {
+        return setDesiredState(State.HOME_ABOVE_BAR)
+            .andThen(
+                Commands.waitUntil(atThisGoal(State.HOME_ABOVE_BAR)), 
+                Commands.runOnce(() -> disable()),
+                Commands.run(() -> io.runElevatorViaSpeed(-0.05)))
+            .until(() -> inputs.limitSwitchPressed)
+            .finallyDo(() -> {
+                io.stop();
+                io.zeroEncoders();
+            })
+            .withName("No Slam Elevator");
+    }
+
     public Command homeCommand() {
         return setDesiredState(State.HOME)
             .until(() -> inputs.limitSwitchPressed)

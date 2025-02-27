@@ -442,10 +442,15 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
+        // operator.b()
+        //     .or(new DashboardTrigger("elevatorHome"))
+        //     .onTrue(
+        //         s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+                s_Elevator.noSlamCommand());
 
 
         /* ------------- Intake Controls ------------- */
