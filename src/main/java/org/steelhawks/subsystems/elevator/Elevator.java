@@ -269,7 +269,7 @@ public class Elevator extends SubsystemBase {
             .andThen(
                 Commands.waitUntil(atThisGoal(State.HOME_ABOVE_BAR)), 
                 Commands.runOnce(() -> disable()),
-                Commands.run(() -> io.runElevatorViaSpeed(-0.05)))
+                Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> {
                 io.stop();

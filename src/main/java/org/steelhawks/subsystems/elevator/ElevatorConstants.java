@@ -8,7 +8,7 @@ import java.util.Arrays;
 public final class ElevatorConstants {
 
     public enum State {
-        L4(59.905784718904, 24.21, Units.rotationsToRadians(3.0)),
+        L4(59.905784718904, 24, Units.rotationsToRadians(3.0)),
         L3(35.3237425930366, 14.947108797157687, Units.rotationsToRadians(2.0)),
         L2(19.376478322177476, 9.10417597610128, Units.rotationsToRadians(1.0)),
         L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
