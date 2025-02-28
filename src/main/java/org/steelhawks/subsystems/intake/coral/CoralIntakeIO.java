@@ -13,7 +13,8 @@ public interface CoralIntakeIO {
         public double currentAmps = 0;
         public double tempCelsius = 0;
 
-        public boolean beamBroken = false;
+        public boolean beamConnected = false;
+        public double beamDistance = 0.0;
     }
 
     /**

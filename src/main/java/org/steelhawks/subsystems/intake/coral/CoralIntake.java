@@ -10,6 +10,7 @@ public class CoralIntake extends SubsystemBase {
 
     private static final double CURRENT_THRESHOLD = 30;
     private static final double INTAKE_SPEED = 0.05;
+    private static final double DIST_TO_HAVE_CORAL = 0.1;
     boolean isIntaking = false;
 
     private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
@@ -22,7 +23,7 @@ public class CoralIntake extends SubsystemBase {
                 new Trigger(
                     () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
-            default -> new Trigger(() -> inputs.beamBroken);
+            default -> new Trigger(() -> inputs.beamDistance < DIST_TO_HAVE_CORAL);
         };
     }
 
