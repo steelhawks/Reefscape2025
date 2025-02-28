@@ -1,7 +1,10 @@
 package org.steelhawks.subsystems.intake.coral;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.intake.IntakeConstants;
@@ -10,11 +13,12 @@ public class CoralIntake extends SubsystemBase {
 
     private static final double CURRENT_THRESHOLD = 30;
     private static final double INTAKE_SPEED = 0.05;
-    private static final double DIST_TO_HAVE_CORAL = 0.1;
+    private static final double DIST_TO_HAVE_CORAL = 0.075;
     boolean isIntaking = false;
 
     private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
     private final IntakeConstants constants;
+    private final Debouncer beamDebounce;
     private final CoralIntakeIO io;
 
     public Trigger hasCoral() {
@@ -23,13 +27,13 @@ public class CoralIntake extends SubsystemBase {
                 new Trigger(
                     () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
-            default -> new Trigger(() -> inputs.beamDistance < DIST_TO_HAVE_CORAL);
+            default -> new Trigger(() -> beamDebounce.calculate(inputs.beamDistance < DIST_TO_HAVE_CORAL));
         };
     }
 
     public CoralIntake(CoralIntakeIO io) {
         this.io = io;
-
+        beamDebounce = new Debouncer(.3, DebounceType.kBoth);
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = IntakeConstants.ALPHA;
             case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
@@ -41,6 +45,7 @@ public class CoralIntake extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("CoralIntake", inputs);
+        Logger.recordOutput("CoralIntake/HasCoral", hasCoral().getAsBoolean());
     }
 
     public void intakeCoral() {

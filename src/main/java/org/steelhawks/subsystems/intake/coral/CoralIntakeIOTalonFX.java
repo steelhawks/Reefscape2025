@@ -33,7 +33,7 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     private final StatusSignal<Current> current;
     private final StatusSignal<Temperature> temp;
 
-    private final StatusSignal<Distance> distance;
+    private StatusSignal<Distance> distance;
 
     public CoralIntakeIOTalonFX() {
         switch (Constants.getRobot()) {
@@ -44,7 +44,7 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
 
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         if (Constants.getRobot() == RobotType.OMEGABOT) {
-            mBeamBreak = new CANrange(IntakeConstants.BEAM_BREAK_ID_OMEGA, Constants.getCANBus());
+            mBeamBreak = new CANrange(IntakeConstants.CAN_RANGE_ID_OMEGA, Constants.getCANBus());
             distance = mBeamBreak.getDistance();
             distance.setUpdateFrequency(50);
         }

@@ -38,7 +38,7 @@ public class IntakeConstants {
         }
     }
 
-    public static final int BEAM_BREAK_ID_OMEGA = 15;
+    public static final int CAN_RANGE_ID_OMEGA = 17;
 
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
