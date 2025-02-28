@@ -27,6 +27,7 @@ public class VisionConstants {
                 };
             default ->
                 new String[] {
+                    "arducam-front-left",
                     "arducam-front-right",
                     "arducam-back-left",
                     "arducam-elevator-mount"
@@ -50,6 +51,17 @@ public class VisionConstants {
                 };
             default ->
                 new Transform3d[] {
+                    // Front Left
+                    new Transform3d(
+                        Units.inchesToMeters(0),
+                        Units.inchesToMeters(0),
+                        Units.inchesToMeters(6.689),
+                        new Rotation3d(
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0))), // Z is from the top of the belly pan
+
+                    // Front Right
                     new Transform3d(
                         Units.inchesToMeters(10.975),
                         Units.inchesToMeters(12.556),
@@ -59,6 +71,7 @@ public class VisionConstants {
                             Units.degreesToRadians(28.125),
                             Units.degreesToRadians(60))), // Z is from the top of the belly pan
 
+                    // Back Left
                     new Transform3d(  
                         Units.inchesToMeters(- 12.556), // - 12.644
                         Units.inchesToMeters(- 10.976), // - 11.130
@@ -68,6 +81,7 @@ public class VisionConstants {
                             Units.degreesToRadians(28.125),
                             Units.degreesToRadians(210))),
 
+                    // Elevator Mount
                     new Transform3d(
                         Units.inchesToMeters(0),
                         Units.inchesToMeters(13.583),
