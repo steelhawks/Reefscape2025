@@ -23,19 +23,13 @@ public class AutonSelector extends VirtualSubsystem {
     private record AutoRoutine(
         String name, Command runPath, StartEndPosition endingPosition) {}
 
-    private static ChoreoPaths previousFirstPath = ChoreoPaths.DEFAULT_PATH;
-    private static ChoreoPaths firstPath;
-    private static ChoreoPaths secondPath;
-
     private final LoggedDashboardChooser<StartEndPosition> startingPositionChooser;
-    private LoggedDashboardChooser<ChoreoPaths> pathChooser1;
     private final String key;
 
     private static final int NUMBER_OF_SELECTORS = 8;
     private static ArrayList<LoggedDashboardChooser<ChoreoPaths>> mChoosers = new ArrayList<>();
     private static ArrayList<ChoreoPaths> previousPaths = new ArrayList<>();
 
-    private static int numOfPaths = ChoreoPaths.values().length;
     private static final ChoreoPaths[] paths = ChoreoPaths.values();
 
     public AutonSelector(String key) {
