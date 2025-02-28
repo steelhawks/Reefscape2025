@@ -10,6 +10,8 @@ import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class AutonSelector extends VirtualSubsystem {
@@ -27,12 +29,14 @@ public class AutonSelector extends VirtualSubsystem {
 
     private final LoggedDashboardChooser<StartEndPosition> startingPositionChooser;
     private LoggedDashboardChooser<ChoreoPaths> pathChooser1;
-    private LoggedDashboardChooser<ChoreoPaths> pathChooser2;
-
     private final String key;
 
-    public static int numOfPaths = ChoreoPaths.values().length;
-    public static final ChoreoPaths[] paths = ChoreoPaths.values();
+    private static final int NUMBER_OF_SELECTORS = 8;
+    private static ArrayList<LoggedDashboardChooser<ChoreoPaths>> mChoosers = new ArrayList<>();
+    private static ArrayList<ChoreoPaths> previousPaths = new ArrayList<>();
+
+    private static int numOfPaths = ChoreoPaths.values().length;
+    private static final ChoreoPaths[] paths = ChoreoPaths.values();
 
     public AutonSelector(String key) {
         this.key = key;
@@ -47,13 +51,16 @@ public class AutonSelector extends VirtualSubsystem {
         startingPositionChooser.addOption("RC2", StartEndPosition.RC2);
         startingPositionChooser.addOption("RC3", StartEndPosition.RC3);
 
-        pathChooser1 =
-            new LoggedDashboardChooser<>(key + "/Path 1?");
-        pathChooser1.addDefaultOption("No Auto", ChoreoPaths.DEFAULT_PATH);
+        // make selectors
+        for (int i = 0; i <= NUMBER_OF_SELECTORS; i++) {
+            LoggedDashboardChooser<ChoreoPaths> selector = new LoggedDashboardChooser<>(key + "/Path " + i);
+            selector.addDefaultOption("No Path", ChoreoPaths.DEFAULT_PATH);
+            mChoosers.add(i, selector);
+        }
 
-        pathChooser2 =
-            new LoggedDashboardChooser<>(key + "/Path 2?");
-        pathChooser2.addDefaultOption("No Second Path", ChoreoPaths.DEFAULT_PATH);
+        for (int i = 0; i <= NUMBER_OF_SELECTORS; i++) {
+            previousPaths.add(ChoreoPaths.DEFAULT_PATH);
+        }
     }
 
     public enum StartEndPosition {
@@ -185,9 +192,9 @@ public class AutonSelector extends VirtualSubsystem {
                             new Rotation2d(currentPath.startingPosition.rotRadians))))),
             Commands.none(),
             () -> currentPath.name.startsWith("BC") || currentPath.name.startsWith("RC")) // if starting position is Blue Cage or Red Cage, set the pose to that
-        .andThen(DriveCommands.followPath(Autos.getPath(currentPath.name)));
+        .andThen(DriveCommands.followPath(Autos.getPath(currentPath.name))).andThen(Commands.print("path"));
 
-//        UNTESTED
+//      // UNTESTED
         if (currentPath.isReefPath) {
             autoCommand =
                 autoCommand
@@ -234,38 +241,54 @@ public class AutonSelector extends VirtualSubsystem {
     @Override
     public void periodic() {
         StartEndPosition currentStartingPose = startingPositionChooser.get();
-        firstPath = pathChooser1.get();
-        secondPath = pathChooser2.get();
-        
-        if (currentStartingPose != previousStartingPose) {
-            previousStartingPose = currentStartingPose;
-            // clear list
-            pathChooser1 = new LoggedDashboardChooser<>(key + "/Path 1?");
-            pathChooser1.addDefaultOption("No Auto", ChoreoPaths.DEFAULT_PATH);
-            for (int i = 0; i < numOfPaths; i++) {
-                if (paths[i].startingPosition == currentStartingPose) {
-                    pathChooser1.addOption(paths[i].name, paths[i]);
-                }
-            }
-        }
 
-        if (firstPath != previousFirstPath && firstPath != null) {
-            previousFirstPath = firstPath;
-            // clear list
-            pathChooser2 = new LoggedDashboardChooser<>(key + "/Path 2?");
-            pathChooser2.addDefaultOption("No Second Path", ChoreoPaths.DEFAULT_PATH);
-            for (int i = 0; i < numOfPaths; i++) {
-                if (paths[i].startingPosition == firstPath.endingPosition) {
-                    pathChooser2.addOption(paths[i].name, paths[i]);
+        // if the robot is disabled, check selectors for changes
+        if(Robot.getState().equals(Robot.RobotState.DISABLED)) {
+            // check the first selector based on start position
+            if (currentStartingPose != previousStartingPose) {
+                previousStartingPose = currentStartingPose;
+                mChoosers.set(0, makeChooserWithMatchingPaths(0, currentStartingPose));
+            }
+
+            // check other selectors
+            for (int i = 0; i < mChoosers.size(); i++) {
+                ChoreoPaths path = mChoosers.get(i).get();
+                int nextChooserIndex = i + 1;
+                if (path != null && !path.equals(previousPaths.get(i)) && nextChooserIndex <= NUMBER_OF_SELECTORS) {
+                    previousPaths.set(i, path);
+                    mChoosers.set(
+                            nextChooserIndex,
+                            makeChooserWithMatchingPaths(nextChooserIndex, path.endingPosition)
+                    );
                 }
             }
         }
     }
-   
+
+    // makes a new dashboard chooser with paths starting from the given position
+    public LoggedDashboardChooser<ChoreoPaths> makeChooserWithMatchingPaths(int index, StartEndPosition lastEndPosition) {
+        LoggedDashboardChooser<ChoreoPaths> chooser = new LoggedDashboardChooser<>(key + "/Path " + index);
+        chooser.addDefaultOption("No Path", ChoreoPaths.DEFAULT_PATH);
+
+        // iterate through paths list and check if they have the same start position as the end position
+        for (ChoreoPaths path : paths) {
+            if (path.startingPosition.equals(lastEndPosition) && !path.equals(ChoreoPaths.DEFAULT_PATH)) {
+                chooser.addOption(path.name, path);
+            }
+        }
+        return chooser;
+    }
+
     public Command getAutonCommand() {
-        return new SequentialCommandGroup(
-            autoRoutineMaker(firstPath).runPath,
-            autoRoutineMaker(secondPath).runPath
-        );
+        SequentialCommandGroup group = new SequentialCommandGroup();
+        // add paths to sequential command group
+        for (int i = 0; i < NUMBER_OF_SELECTORS; i++) {
+            ChoreoPaths path = mChoosers.get(i).get();
+            if (!path.equals(ChoreoPaths.DEFAULT_PATH)) {
+                group.addCommands(autoRoutineMaker(path).runPath);
+            }
+        }
+
+        return group;
     }
 }

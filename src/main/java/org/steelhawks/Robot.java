@@ -186,8 +186,9 @@ public class Robot extends LoggedRobot {
         setState(RobotState.AUTON);
         // autonomousCommand = Autos.testAuton();
 
-        RobotContainer.s_Selector.getAutonCommand();
+        autonomousCommand = RobotContainer.s_Selector.getAutonCommand();
 //            Autos.getBC3ToR2Auto();
+
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
