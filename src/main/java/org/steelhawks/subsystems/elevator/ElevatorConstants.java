@@ -78,8 +78,9 @@ public final class ElevatorConstants {
             70,
             0.02,
             0.55,
-            24.21235275598696);
-
+            // 24.21235275598696);
+            24.38);
+            
     public static final ElevatorConstants ALPHA =
         new ElevatorConstants(
             0,
