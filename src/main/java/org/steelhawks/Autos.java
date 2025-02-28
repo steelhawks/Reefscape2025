@@ -29,6 +29,7 @@ public final class Autos {
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
     private static final Intake s_Intake = RobotContainer.s_Intake;
 
+
     private static final AutoFactory autoFactory =
         new AutoFactory(
             s_Swerve::getPose,
@@ -60,6 +61,18 @@ public final class Autos {
         return routine;
     }
 
+    public static AutoRoutine testAuton() {
+        AutoRoutine testAuton = autoFactory.newRoutine("test");
+        AutoTrajectory BC3_TO_R1 = testAuton.trajectory("BC3 to R1");
+
+        testAuton.active().onTrue(
+            Commands.sequence(
+                BC3_TO_R1.resetOdometry(), 
+                BC3_TO_R1.cmd()));
+
+        return testAuton;
+    }
+
     public static Command getPathPlannerAuton() {
         return new PathPlannerAuto("Experimental Auto");
     }
@@ -76,7 +89,7 @@ public final class Autos {
         return new PathPlannerAuto("Short Auto (Choreo)");
     }
 
-    public static Command getBC3ToR2Auto() {
+    public static Command getBC3ToR1Auto() {
         return Commands.runOnce(
             () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC3.getPose())))
             .andThen(
@@ -86,14 +99,40 @@ public final class Autos {
                     Commands.waitSeconds(1),
                     Commands.waitUntil(s_Elevator.atGoal())),
                 s_Intake.shootCoralSlow().withTimeout(1.0),
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
+
+                followTrajectory("R1 to Lower Source"),
+
+                Commands.waitSeconds(1),
+
+                followTrajectory("Lower Source to BL1"),
+
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                Commands.race(
+                    Commands.waitSeconds(1),
+                    Commands.waitUntil(s_Elevator.atGoal())),
+                s_Intake.shootCoralSlow().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
+                
+                followTrajectory("BL1 to Lower Source"),
+                
+                Commands.waitSeconds(1),
+                
+                followTrajectory("Lower Source to BL2"),
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                Commands.race(
+                    Commands.waitSeconds(1),
+                    Commands.waitUntil(s_Elevator.atGoal())),
+                s_Intake.shootCoralSlow().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
+                );
     }
 
-    public static Command testAuton() {
+    public static Command test() {
         return Commands.runOnce(
-            () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
+            () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC3.getPose())))
             .andThen(
-                followTrajectory("BC1 to TR1"));
+                followTrajectory("BC3 to R1"));
     }
 
     public static PathPlannerPath getPath(String choreo) {
