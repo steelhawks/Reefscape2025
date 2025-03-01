@@ -68,66 +68,27 @@ public final class Autos {
         return testAuton;
     }
 
+    private static Command elevatorAndShoot(ElevatorConstants.State state) {
+        return Commands.sequence(
+                s_Elevator.setDesiredState(state),
+                Commands.race(
+                        Commands.waitSeconds(1),
+                        Commands.waitUntil(s_Elevator.atGoal())
+                ),
+                s_Intake.shootCoralSlow().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
+        );
+    }
+
     public static Command getPathPlannerAuton() {
         return new PathPlannerAuto("Experimental Auto");
     }
 
-    public static Command getFullPathPlannerAuto() {
-        return new PathPlannerAuto("Full Auto");
-    }
-
-    public static Command getChoreoPathPlannerAuto() {
-        return new PathPlannerAuto("Full Auto (Choreo)");
-    }
-
-    public static Command getShortChoreoPathPlannerAuto() {
-        return new PathPlannerAuto("Short Auto (Choreo)");
-    }
-
-    public static Command getBC3ToR1Auto() {
+    public static Command getBC1Auton() {
         return Commands.runOnce(
-            () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC3.getPose())))
-            .andThen(
-                followTrajectory("BC1 to TL1"),
-                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-                Commands.race(
-                    Commands.waitSeconds(1),
-                    Commands.waitUntil(s_Elevator.atGoal())),
-                s_Intake.shootCoralSlow().withTimeout(1.0),
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
-
-                followTrajectory("TL1 to Upper Source"),
-
-//                Commands.waitSeconds(1),
-
-                followTrajectory("Upper Source to TL1")
-
-//                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-//                Commands.race(
-//                    Commands.waitSeconds(1),
-//                    Commands.waitUntil(s_Elevator.atGoal())),
-//                s_Intake.shootCoralSlow().withTimeout(1.0),
-//                s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
-//
-//                followTrajectory("BL1 to Lower Source"),
-//
-//                Commands.waitSeconds(1),
-//
-//                followTrajectory("Lower Source to BL2"),
-//                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-//                Commands.race(
-//                    Commands.waitSeconds(1),
-//                    Commands.waitUntil(s_Elevator.atGoal())),
-//                s_Intake.shootCoralSlow().withTimeout(1.0),
-//                s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
-                );
-    }
-
-    public static Command test() {
-        return Commands.runOnce(
-                        () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC3.getPose())))
+                        () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
                 .andThen(
-                        followTrajectory("BC1 to TL1"),
+                        followTrajectory("BC1 to TR2"),
                         s_Elevator.setDesiredState(ElevatorConstants.State.L4),
                         Commands.race(
                                 Commands.waitSeconds(1),
@@ -138,7 +99,7 @@ public final class Autos {
                         s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
 
 
-                .andThen(followTrajectory("TL1 to Upper Source"));
+                .andThen(followTrajectory("TR2 to Upper Source"));
     }
 
     public static PathPlannerPath getPath(String choreo) {
