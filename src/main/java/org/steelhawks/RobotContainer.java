@@ -133,7 +133,7 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Intake =
                         new Intake(
-                            new AlgaeIntakeIOTalonFX(),
+                            new AlgaeIntakeIO() {},
                             new CoralIntakeIOTalonFX());
                     s_Align =
                         new Align(
@@ -459,23 +459,23 @@ public class RobotContainer {
             s_Intake.mAlgaeIntake.toggleManualControl(
                 () -> -operator.getRightY()));
 
-//        operator.leftTrigger()
-//            .or(new DashboardTrigger("scoreCoral"))
-//            .whileTrue(
-//                Commands.either(
-//                    s_Intake.shootPulsatingCoral(),
-//                    s_Intake.shootCoral(),
-//                    () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
-//                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled()));
-
         operator.leftTrigger()
+            .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
-                s_Intake.shootPulsatingCoral());
+                Commands.either(
+                    s_Intake.shootPulsatingCoral(),
+                    s_Intake.shootCoral(),
+                    () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
+                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled()));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral"))
             .whileTrue(
                 s_Intake.reverseCoral());
+
+        operator.povRight()
+            .whileTrue(
+                s_Intake.intakeCoral());
 
         // intake algae
         operator.rightBumper().whileTrue(

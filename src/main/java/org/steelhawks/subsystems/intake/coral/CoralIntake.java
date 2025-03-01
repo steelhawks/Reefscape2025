@@ -12,7 +12,7 @@ import org.steelhawks.subsystems.intake.IntakeConstants;
 public class CoralIntake extends SubsystemBase {
 
     private static final double CURRENT_THRESHOLD = 30;
-    private static final double INTAKE_SPEED = 0.05;
+    private static final double INTAKE_SPEED = 0.1;
     private static final double DIST_TO_HAVE_CORAL = 0.075;
     boolean isIntaking = false;
 
