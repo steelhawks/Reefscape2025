@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static org.steelhawks.autonselector.AutonSelectorConstants.NUMBER_OF_PATH_SELECTORS;
+import static org.steelhawks.autonselector.AutonSelectorConstants.NUMBER_OF_REEF_ZONES;
 
 public class AutonSelector extends VirtualSubsystem {
     private static StartEndPosition previousStartingPose = StartEndPosition.DEFAULT_POSITION;
@@ -56,8 +57,8 @@ public class AutonSelector extends VirtualSubsystem {
         }
 
         ReefZones[] zoneList = ReefZones.values();
-        for (ReefZones zone : zoneList) {
-            LoggedDashboardChooser<State> selector = new LoggedDashboardChooser<>(key + "/Elevator Zone " + zone.longName);
+        for (int i = 0; i < NUMBER_OF_REEF_ZONES; i++) {
+            LoggedDashboardChooser<State> selector = new LoggedDashboardChooser<>(key + "/Elevator Zone " + zoneList[i].longName);
             selector.addDefaultOption("No Elevator (Return Home)", State.HOME);
             selector.addOption("L2", State.L2);
             selector.addOption("L3", State.L3);
@@ -195,9 +196,9 @@ public class AutonSelector extends VirtualSubsystem {
         // add paths to sequential command group
         for (int i = 0; i < NUMBER_OF_PATH_SELECTORS; i++) {
             ChoreoPaths path = mPathChoosers.get(i).get();
-            //if (!path.equals(ChoreoPaths.DEFAULT_PATH)) {
+            if (!path.equals(ChoreoPaths.DEFAULT_PATH)) {
                 group.addCommands(autoRoutineMaker(path).runPath);
-            //}
+            }
         }
 
         return group;

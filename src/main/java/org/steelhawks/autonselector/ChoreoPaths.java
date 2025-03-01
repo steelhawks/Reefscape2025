@@ -9,13 +9,13 @@ public enum ChoreoPaths {
     BC1_TO_TR2("BC1 to TR2", StartEndPosition.BC1, StartEndPosition.TR2, ReefZones.TR),
 
     BC2_TO_TR2("BC2 to TR2", StartEndPosition.BC2, StartEndPosition.TR2, ReefZones.TR),
-    BC3_TO_R1("BC3 to R1", StartEndPosition.BC3, StartEndPosition.R1, ReefZones.TR),
+    BC3_TO_R1("BC3 to R1", StartEndPosition.BC3, StartEndPosition.R1, ReefZones.R),
 
     RC1_TO_R2("RC1 to R2", StartEndPosition.RC1, StartEndPosition.R2, ReefZones.R),
-    RC2_TO_BR2("RC2 to BR2", StartEndPosition.RC2, StartEndPosition.BR2, ReefZones.R),
-    RC3_TO_BL1("RC3 to BL1", StartEndPosition.RC3, StartEndPosition.BL1, ReefZones.R),
-    RC3_TO_BL2("RC3 to BL2", StartEndPosition.RC3, StartEndPosition.BL2, ReefZones.R),
-    RC3_TO_L2("RC3 to L2", StartEndPosition.RC3, StartEndPosition.L2, ReefZones.R),
+    RC2_TO_BR2("RC2 to BR2", StartEndPosition.RC2, StartEndPosition.BR2, ReefZones.BR),
+    RC3_TO_BL1("RC3 to BL1", StartEndPosition.RC3, StartEndPosition.BL1, ReefZones.BL),
+    RC3_TO_BL2("RC3 to BL2", StartEndPosition.RC3, StartEndPosition.BL2, ReefZones.BL),
+    RC3_TO_L2("RC3 to L2", StartEndPosition.RC3, StartEndPosition.L2, ReefZones.L),
 
     TR1_TO_UPPER_SOURCE("TR1 to Upper Source", StartEndPosition.TR1, StartEndPosition.UPPER_SOURCE, ReefZones.UNDEFINED),
     TR2_TO_UPPER_ALGAE("TR2 to Upper Algae", StartEndPosition.TR2, StartEndPosition.UPPER_ALGAE, ReefZones.UNDEFINED),
@@ -44,7 +44,7 @@ public enum ChoreoPaths {
     LOWER_ALGAE_TO_L2("Lower Algae to L2", StartEndPosition.LOWER_ALGAE, StartEndPosition.L2, ReefZones.L),
 
     UPPER_SOURCE_TO_TL1("Upper Source to TL1", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL1, ReefZones.TL),
-    UPPER_SOURCE_TO_L1("Upper Source to L1", StartEndPosition.UPPER_SOURCE, StartEndPosition.L1, ReefZones.TL),
+    UPPER_SOURCE_TO_L1("Upper Source to L1", StartEndPosition.UPPER_SOURCE, StartEndPosition.L1, ReefZones.L),
     UPPER_SOURCE_TO_TL2("Upper Source to TL2", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL2, ReefZones.TL),
     UPPER_SOURCE_TO_TR1("Upper Source to TR1", StartEndPosition.UPPER_SOURCE, StartEndPosition.TR1, ReefZones.TR),
 
