@@ -53,12 +53,12 @@ public class VisionConstants {
                 new Transform3d[] {
                     // Front Left
                     new Transform3d(
-                        Units.inchesToMeters(0),
-                        Units.inchesToMeters(0),
+                        Units.inchesToMeters(- 11.315133),
+                        Units.inchesToMeters(11.685378),
                         Units.inchesToMeters(6.689),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(28.125),
                             Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
                     // Front Right
