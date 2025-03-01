@@ -426,7 +426,7 @@ public class RobotContainer {
             .or(new DashboardTrigger("l1"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1));
-//
+
         operator.x()
             .or(new DashboardTrigger("l2"))
             .onTrue(
@@ -441,11 +441,6 @@ public class RobotContainer {
             .or(new DashboardTrigger("l4"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
-
-        // operator.b()
-        //     .or(new DashboardTrigger("elevatorHome"))
-        //     .onTrue(
-        //         s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
@@ -468,10 +463,6 @@ public class RobotContainer {
                     () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled()));
 
-        operator.povRight()
-            .whileTrue(
-                s_Intake.shootCoral());
-
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral"))
             .whileTrue(
@@ -480,63 +471,5 @@ public class RobotContainer {
         operator.povRight()
             .whileTrue(
                 s_Intake.intakeCoral());
-
-        // intake algae
-        operator.rightBumper().whileTrue(
-            s_Intake.intakeAlgae());
-
-        // shoot algae
-        operator.rightTrigger().whileTrue(
-            s_Intake.shootAlgae());
-
-        // operator.povUp().whileTrue(
-        //     s_Intake.pivotManualAlgaeUp());
-
-        // operator.povDown().whileTrue(
-        //     s_Intake.pivotManualAlgaeDown());
-
-        // operator.povUp().onTrue(
-        //     s_Climb.runShallowClimb());
-
-        // operator.povDown().onTrue(
-        //     s_Climb.runClimbViaSpeed(-0.2));
-    
-        // operator.povLeft().whileTrue(
-        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.OUTTAKE));
-
-        // operator.povLeft().whileTrue(
-        //     s_Intake.mAlgaeIntake.applykS());
-
-        // operator.povRight().whileTrue(
-        //     s_Intake.mAlgaeIntake.applykV());
-
-        // operator.povUp().whileTrue(
-        //     s_Intake.mAlgaeIntake.runPivotManualUp());
-            
-        // operator.povDown().whileTrue(
-        //     s_Intake.mAlgaeIntake.runPivotManualDown());
-
-        // operator.povLeft().whileTrue(
-        //     s_Climb.runDeepClimbViaSpeed(1));
-
-        // operator.povRight().whileTrue(
-        //     s_Climb.runDeepClimbViaSpeed(-1));
-        
-        // operator.povUp().whileTrue(
-        //     s_Climb.runDeepClimbViaSpeed(0.2));
-
-        // operator.povDown().whileTrue(
-        //     s_Climb.runDeepClimbViaSpeed(-0.2));
-
-        // operator.povLeft().whileTrue(
-        //     s_Climb.shallowClimbCommandWithCurrent()
-        //         .andThen(s_Climb.runShallowClimbViaVolts(-1)));
-
-        // operator.povRight().whileTrue(
-        //     s_Climb.shallowHomeCommandWithCurrent());
-
-        
-//        operator.povRight().whileTrue(
-//            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
     }
 }
