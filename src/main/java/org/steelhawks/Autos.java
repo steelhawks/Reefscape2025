@@ -111,7 +111,7 @@ public final class Autos {
         return new PathPlannerAuto("Experimental Auto");
     }
 
-    public static Command getBC1Auton() {
+    public static Command getBC1AutonTest() {
         return Commands.runOnce(
                         () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
                 .andThen(
@@ -129,15 +129,78 @@ public final class Autos {
                 .andThen(followTrajectory("TR2 to Upper Source"));
     }
 
-    public static Command getBC1AutonTEST() {
+    public static Command getBC1Auton() {
         return createAuto(StartEndPosition.BC1, new String[]{
                 "BC1 to TL1",
                 "TL1 to Upper Source",
                 "Upper Source to TL2",
                 "TL2 to Upper Source",
+                "Upper Source to L1",
+                "L1 to Upper Source",
                 "Upper Source to L1"
         });
     }
+
+    public static Command getBC2Auton() {
+        return createAuto(StartEndPosition.BC2, new String[]{
+                "BC2 to TR1",
+                "TR1 to Upper Source",
+                "Upper Source to TR2",
+                "TR2 to Upper Source",
+                "Upper Source to L1",
+                "L1 to Upper Source",
+                "Upper Source to L1"
+        });
+    }
+
+    public static Command getBC3Auton() {
+        return createAuto(StartEndPosition.BC2, new String[]{
+                "BC3 to TR1",
+                "TR1 to Upper Source",
+                "Upper Source to TR2",
+                "TR2 to Upper Source",
+                "Upper Source to L1",
+                "L1 to Upper Source",
+                "Upper Source to L1"
+        });
+    }
+
+    public static Command getRC1Auton() {
+        return createAuto(StartEndPosition.BC2, new String[]{
+                "RC1 to BR1",
+                "BR1 to Lower Source",
+                "Lower Source to BL1",
+                "BL1 to Lower Source",
+                "Lower Source to BL1",
+                "BL1 to Lower Source",
+                "Lower Source to BL2"
+        });
+    }
+
+    public static Command getRC2Auton() {
+        return createAuto(StartEndPosition.BC2, new String[]{
+                "RC2 to BR1",
+                "BR1 to Lower Source",
+                "Lower Source to BL1",
+                "BL1 to Lower Source",
+                "Lower Source to BL1",
+                "BL1 to Lower Source",
+                "Lower Source to BL2"
+        });
+    }
+
+    public static Command getRC3Auton() {
+        return createAuto(StartEndPosition.BC2, new String[]{
+                "RC3 to BR1",
+                "BR1 to Lower Source",
+                "Lower Source to BL1",
+                "BL1 to Lower Source",
+                "Lower Source to BL1",
+                "BL1 to Lower Source",
+                "Lower Source to BL2"
+        });
+    }
+
 
     public static PathPlannerPath getPath(String choreo) {
         try {

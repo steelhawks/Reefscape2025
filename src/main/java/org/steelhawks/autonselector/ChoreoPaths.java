@@ -19,13 +19,13 @@ public enum ChoreoPaths {
     BC3_TO_TR1("BC3 to TR1", StartEndPosition.BC3, StartEndPosition.TR1, ReefZones.TR),
     BC3_TO_TR2 ("BC3 to TR2", StartEndPosition.BC3, StartEndPosition.TR2, ReefZones.TR),
 
-    BL1_TO_LOWER_SOURCE("BL1 to lower source", StartEndPosition.BL1, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
-    BL2_TO_LOWER_SOURCE("BL2 to lower source", StartEndPosition.BL2, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
+    BL1_TO_LOWER_SOURCE("BL1 to Lower source", StartEndPosition.BL1, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
+    BL2_TO_LOWER_SOURCE("BL2 to Lower source", StartEndPosition.BL2, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
 
-    BR1_TO_LOWER_SOURCE("BR1 to lower source", StartEndPosition.BR1, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
-    BR2_TO_LOWER_SOURCE("BR2 to lower source", StartEndPosition.BR2, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
+    BR1_TO_LOWER_SOURCE("BR1 to Lower source", StartEndPosition.BR1, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
+    BR2_TO_LOWER_SOURCE("BR2 to Lower source", StartEndPosition.BR2, StartEndPosition.LOWER_SOURCE, ReefZones.UNDEFINED),
 
-    L1_TO_UPPER_SOURCE("L1 to upper source", StartEndPosition.L1, StartEndPosition.UPPER_SOURCE, ReefZones.UNDEFINED),
+    L1_TO_UPPER_SOURCE("L1 to Upper source", StartEndPosition.L1, StartEndPosition.UPPER_SOURCE, ReefZones.UNDEFINED),
     
     L2_TO_UPPER_SOURCE("L2 to Upper Source", StartEndPosition.L2, StartEndPosition.UPPER_SOURCE, ReefZones.UNDEFINED),
 
