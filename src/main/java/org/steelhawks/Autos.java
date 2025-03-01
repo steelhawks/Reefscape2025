@@ -17,6 +17,7 @@ import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public final class Autos {
 
@@ -81,6 +82,31 @@ public final class Autos {
         );
     }
 
+    private static boolean endsWithSource(String trajectory) {
+        String[] words = trajectory.split(" ");
+        return words[words.length - 1].equals("Source");
+    }
+
+    private static Command buildTrajectorySequence(String[] trajectories) {
+        ArrayList<Command> commands = new ArrayList<>();
+
+        for (String trajectory : trajectories) {
+            commands.add(followTrajectory(trajectory));
+            if (endsWithSource(trajectory)) {
+                commands.add(Commands.waitSeconds(1));
+            } else {
+                commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
+            }
+        }
+
+        return Commands.sequence(commands.toArray(new Command[commands.size()]));
+    }
+
+    private static Command createAuto(StartEndPosition pose, String[] trajectories) {
+        return Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(pose.getPose())))
+                .andThen(buildTrajectorySequence(trajectories));
+    }
+
     public static Command getPathPlannerAuton() {
         return new PathPlannerAuto("Experimental Auto");
     }
@@ -101,6 +127,16 @@ public final class Autos {
 
 
                 .andThen(followTrajectory("TR2 to Upper Source"));
+    }
+
+    public static Command getBC1AutonTEST() {
+        return createAuto(StartEndPosition.BC1, new String[]{
+                "BC1 to TL1",
+                "TL1 to Upper Source",
+                "Upper Source to TL2",
+                "TL2 to Upper Source",
+                "Upper Source to L1"
+        });
     }
 
     public static PathPlannerPath getPath(String choreo) {
