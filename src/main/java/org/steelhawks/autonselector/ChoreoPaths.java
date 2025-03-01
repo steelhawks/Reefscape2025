@@ -16,7 +16,8 @@ public enum ChoreoPaths {
 
     BC3_TO_R1 ("BC3 to R1", StartEndPosition.BC3, StartEndPosition.R1, ReefZones.R),
     BC3_TO_R2("BC3 to R2", StartEndPosition.BC3, StartEndPosition.R2, ReefZones.R),
-    BC3_TO_TR1("BC3 to TR1", StartEndPosition.TR1, StartEndPosition.R2, ReefZones.TR),
+    BC3_TO_TR1("BC3 to TR1", StartEndPosition.BC3, StartEndPosition.TR1, ReefZones.TR),
+    BC3_TO_TR2("BC3 to TR1", StartEndPosition.BC3, StartEndPosition.TR2, ReefZones.TR),
 
     RC1_TO_R2("RC1 to R2", StartEndPosition.RC1, StartEndPosition.R2, ReefZones.R),
     RC2_TO_BR2("RC2 to BR2", StartEndPosition.RC2, StartEndPosition.BR2, ReefZones.BR),
