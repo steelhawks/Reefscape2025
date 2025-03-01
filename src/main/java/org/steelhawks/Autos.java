@@ -68,14 +68,15 @@ public final class Autos {
         return testAuton;
     }
 
-    private static Command elevatorAndShoot(ElevatorConstants.State state) {
+    public static Command elevatorAndShoot(ElevatorConstants.State state) {
         return Commands.sequence(
                 s_Elevator.setDesiredState(state),
                 Commands.race(
                         Commands.waitSeconds(1),
                         Commands.waitUntil(s_Elevator.atGoal())
                 ),
-                s_Intake.shootCoralSlow().withTimeout(1.0),
+                // s_Intake.shootCoralSlow().withTimeout(1.0),
+                Commands.waitSeconds(1),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
         );
     }

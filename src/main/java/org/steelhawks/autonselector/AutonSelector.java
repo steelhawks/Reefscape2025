@@ -89,12 +89,14 @@ public class AutonSelector extends VirtualSubsystem {
         .andThen(DriveCommands.followPath(Autos.getPath(currentPath.name)));
         
         ReefZones assignedZone = currentPath.assignedZone;
+        State elevatorDesiredState = getDesiredElevatorState(assignedZone);
 
-        if (!assignedZone.equals(ReefZones.UNDEFINED)) {
+        // if current path is a reef path, score
+        if (!assignedZone.equals(ReefZones.UNDEFINED) && !elevatorDesiredState.equals(State.HOME)) {
             autoCommand = 
                 autoCommand
                     .andThen(
-                        RobotContainer.s_Elevator.setDesiredState(getDesiredElevatorState(assignedZone)));
+                        Autos.elevatorAndShoot(elevatorDesiredState));
         }
 
         // UNTESTED
