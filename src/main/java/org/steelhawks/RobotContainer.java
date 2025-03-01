@@ -472,6 +472,10 @@ public class RobotContainer {
             .whileTrue(
                 s_Intake.shootPulsatingCoral());
 
+        operator.povRight()
+            .whileTrue(
+                s_Intake.shootCoral());
+
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral"))
             .whileTrue(
@@ -497,20 +501,20 @@ public class RobotContainer {
         // operator.povDown().onTrue(
         //     s_Climb.runClimbViaSpeed(-0.2));
     
-        operator.povLeft().whileTrue(
-            s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.OUTTAKE));
+        // operator.povLeft().whileTrue(
+        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.OUTTAKE));
 
         // operator.povLeft().whileTrue(
         //     s_Intake.mAlgaeIntake.applykS());
 
-        operator.povRight().whileTrue(
-            s_Intake.mAlgaeIntake.applykV());
+        // operator.povRight().whileTrue(
+        //     s_Intake.mAlgaeIntake.applykV());
 
-        operator.povUp().whileTrue(
-            s_Intake.mAlgaeIntake.runPivotManualUp());
+        // operator.povUp().whileTrue(
+        //     s_Intake.mAlgaeIntake.runPivotManualUp());
             
-        operator.povDown().whileTrue(
-            s_Intake.mAlgaeIntake.runPivotManualDown());
+        // operator.povDown().whileTrue(
+        //     s_Intake.mAlgaeIntake.runPivotManualDown());
 
         // operator.povLeft().whileTrue(
         //     s_Climb.runDeepClimbViaSpeed(1));
