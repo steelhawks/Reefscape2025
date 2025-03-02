@@ -32,14 +32,9 @@ object OperatorDashboard : VirtualSubsystem() {
 //    }
 
     fun initialize() {
-        try {
-            val ip = InetAddress.getLocalHost()
-            println("IP ADDR NT4 " + ip.hostAddress + ":2601")
-            DriverStation.reportWarning("IP Address NT4 " + ip.hostAddress + ":2601", false)
-
-            Alert("Operator Dashboard at " + ip.hostAddress + ":2601", AlertType.kInfo).set(true)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        for (connection in NetworkTableInstance.getDefault().connections) {
+            println("Connection: $connection")
+            Alert("Connected Devices" + connection.remote_ip, AlertType.kInfo).set(true)
         }
     }
 
