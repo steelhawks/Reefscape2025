@@ -3,13 +3,9 @@ package org.steelhawks.subsystems.intake.schlong;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
-import org.steelhawks.subsystems.elevator.ElevatorIO;
 import org.steelhawks.subsystems.intake.IntakeConstants;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
@@ -20,8 +16,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 
@@ -107,7 +101,7 @@ public class Schlong extends SubsystemBase {
 
         pivotMotorDisconnected.set(!inputs.pivotConnected);
         spinMotorDisconnected.set(!inputs.spinConnected);
-        limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
+        limitSwitchDisconnected.set(!inputs.limitSwitchConnected && constants.SCHLONG_LIMIT_SWITCH_ID != -1);
 
         // stop adding up pid error while disabled
         if (DriverStation.isDisabled()) {
@@ -129,7 +123,7 @@ public class Schlong extends SubsystemBase {
         Logger.recordOutput("Schlong/Feedforward", ff);
         double volts = fb + ff;
 
-        if ((inputs.limitSwitchPressed && volts <= 0)) {
+        if ((atLimit().getAsBoolean() && volts <= 0)) {
             io.stopPivot();
             return;
         }
@@ -152,7 +146,7 @@ public class Schlong extends SubsystemBase {
     }
 
     public Trigger atLimit() {
-        return new Trigger(() -> inputs.limitSwitchPressed);
+        return new Trigger(() -> getPivotPosition() >= constants.SCHLONG_MAX_RADIANS);
     }
 
 
@@ -179,7 +173,7 @@ public class Schlong extends SubsystemBase {
                 mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
             }, this)
-            .withName("Set Desired Schlong State");
+            .withName("Set Desired State");
     }
 
     public Command applyPivotSpeed(double speed) {

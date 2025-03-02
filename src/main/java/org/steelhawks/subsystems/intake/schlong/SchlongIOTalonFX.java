@@ -1,11 +1,9 @@
 package org.steelhawks.subsystems.intake.schlong;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
-
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -15,9 +13,7 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -30,6 +26,7 @@ public class SchlongIOTalonFX implements SchlongIO {
 
     private final TalonFX mSpinMotor;
     private final TalonFX mPivotMotor;
+    private final CANcoder mPivotEncoder;
 
     private final DigitalInput mLimitSwitch;
 
@@ -45,6 +42,12 @@ public class SchlongIOTalonFX implements SchlongIO {
     private final StatusSignal<Current> pivotCurrent;
     private final StatusSignal<Temperature> pivotTemp;
 
+    private StatusSignal<Boolean> magnetFault = null;
+    private StatusSignal<Angle> canCoderPosition = null;
+    private StatusSignal<Angle> canCoderAbsolutePosition = null;
+    private StatusSignal<AngularVelocity> canCoderVelocity = null;
+
+
     public SchlongIOTalonFX() {
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = IntakeConstants.ALPHA;
@@ -54,7 +57,26 @@ public class SchlongIOTalonFX implements SchlongIO {
 
         mSpinMotor = new TalonFX(constants.SCHLONG_SPIN_MOTOR_ID);
         mPivotMotor = new TalonFX(constants.SCHLONG_PIVOT_MOTOR_ID);
-        mLimitSwitch = new DigitalInput(constants.SCHLONG_LIMIT_SWITCH_ID);
+        if (constants.SCHLONG_LIMIT_SWITCH_ID != -1) {
+            mLimitSwitch = new DigitalInput(constants.SCHLONG_LIMIT_SWITCH_ID);
+            mPivotEncoder = null;
+        } else {
+            mLimitSwitch = null;
+            mPivotEncoder = new CANcoder(constants.SCHLONG_CANCODER_ID);
+
+            magnetFault = mPivotEncoder.getFault_BadMagnet();
+            canCoderPosition = mPivotEncoder.getPosition();
+            canCoderAbsolutePosition = mPivotEncoder.getAbsolutePosition();
+            canCoderVelocity = mPivotEncoder.getVelocity();
+
+            BaseStatusSignal.setUpdateFrequencyForAll(
+                50,
+                magnetFault,
+                canCoderPosition,
+                canCoderAbsolutePosition,
+                canCoderVelocity);
+            ParentDevice.optimizeBusUtilizationForAll(mPivotEncoder);
+        }
 
         var spinConfig = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs()
@@ -63,7 +85,6 @@ public class SchlongIOTalonFX implements SchlongIO {
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake));
 
-        
         var pivotConfig = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs()
                 .withSensorToMechanismRatio(constants.SCHLONG_PIVOT_GEAR_RATIO))
@@ -73,8 +94,6 @@ public class SchlongIOTalonFX implements SchlongIO {
 
         mSpinMotor.getConfigurator().apply(spinConfig);
         mPivotMotor.getConfigurator().apply(pivotConfig);
-
-        zeroEncoders();
 
         spinPosition = mSpinMotor.getPosition();
         spinVelocity = mSpinMotor.getVelocity();
@@ -176,6 +195,10 @@ public class SchlongIOTalonFX implements SchlongIO {
 
     @Override
     public void zeroEncoders() {
-        mPivotMotor.setPosition(Units.radiansToRotations(- Math.PI / 2));
+        if (Constants.getRobot() == RobotType.ALPHABOT)
+            mPivotMotor.setPosition(Units.radiansToRotations(- Math.PI / 2));
+
+        if (mPivotEncoder != null)
+            mPivotEncoder.setPosition(0);
     }
 }

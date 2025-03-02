@@ -28,7 +28,6 @@ import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
-import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
@@ -151,8 +150,8 @@ public class RobotContainer {
                             new AlignIOCANrange());
                     s_Climb =
                         new Climb(
-                            new ShallowClimbIOTalonFX() {},
-                            new DeepClimbIOTalonFX() {});
+                            new ShallowClimbIO() {},
+                            new DeepClimbIO() {});
                     s_Schlong =
                         new Schlong(
                             new SchlongIO() {});
@@ -183,12 +182,10 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_Climb =
                         new Climb(
-                            new ShallowClimbIOTalonFX(),
+                            new ShallowClimbIO() {},
                             new DeepClimbIOTalonFX());
-
                     s_Schlong = new Schlong(
                         new SchlongIOTalonFX());
-
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -334,7 +331,6 @@ public class RobotContainer {
         configureTriggers();
         configureOperator();
         configureDriver();
-
     }
 
     private void checkIfDevicesConnected() {

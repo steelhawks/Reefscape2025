@@ -84,19 +84,37 @@ public class IntakeConstants {
             18,
             1,
             1,
-            0,
-            0.15,
-            2.6,
-            3.9,
-            0,
-            0.01,
-            0.1,
-            5.2,
-            8,
-            0.005,
-            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
             2 * Math.PI,
-            0.724);
+            0.0,
+            0,
+            0,
+            -1,
+            -1,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0);
 
     public static final IntakeConstants OMEGA =
         new IntakeConstants(
@@ -124,64 +142,12 @@ public class IntakeConstants {
             0.1,
             2 * Math.PI,
             // 0.7240389318820226 + 1.5631264228554682 + 2.3055731241921187);
-            2.2135342769189803); // 2.2718255468586346
-            2 * Math.PI,
+            2.2135342769189803, // 2.2718255468586346
 
-            23,
-            24,
-            3,
-
-            1,
-            1,
-
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            5.2,
-            8,
-            Units.rotationsToRadians(0.005),
-            0.5,
-            Math.PI);
-
-
-    public static final IntakeConstants ALPHA =
-        new IntakeConstants(
-            16,
-            1,
-            .3,
-            .135,
-            0.1,
-            1,
-            18,
-            17,
-            50,
-            10,
-            22.64857645, // 25.17
-            0.3525,
-            0.37,
-            0.71428571428571428571428571428571,
-            // 3.9,
-            // 0,
-            // 0.01,
-            0.05,
-            0,
-            0,
-            0.1,
-            5.2,
-            8,
-            0.005,
-            0.5,
-            3,
-            0);
-            3,
-
-            23,
             33,
-            3,
+            23,
+            -1,
+            -1,
 
             1,
             1,
@@ -192,13 +158,15 @@ public class IntakeConstants {
             0,
             0,
             0,
-
             1,
             5.2,
             8,
             Units.rotationsToRadians(0.005),
             0.5,
             Math.PI);
+
+
+    public static final IntakeConstants ALPHA = DEFAULT;
 
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
@@ -243,6 +211,7 @@ public class IntakeConstants {
     public final int SCHLONG_SPIN_MOTOR_ID;
     public final int SCHLONG_PIVOT_MOTOR_ID;
     public final int SCHLONG_LIMIT_SWITCH_ID;
+    public final int SCHLONG_CANCODER_ID;
 
     public final double SCHLONG_SPIN_GEAR_RATIO;
     public final double SCHLONG_PIVOT_GEAR_RATIO;
@@ -289,11 +258,11 @@ public class IntakeConstants {
         double algae_manualPivotIncrement,
         double algae_maxRadians,
         double algae_pivotZeroOffset,
-        double algae_maxRadians,
 
         int schlong_spinMotorId,
         int schlong_pivotMotorId,
         int schlong_limitSwitchId,
+        int schlong_canCoderId,
 
         double schlong_spinGearRatio,
         double schlong_pivotGearRatio,
@@ -341,6 +310,7 @@ public class IntakeConstants {
         SCHLONG_SPIN_MOTOR_ID = schlong_spinMotorId;
         SCHLONG_PIVOT_MOTOR_ID = schlong_pivotMotorId;
         SCHLONG_LIMIT_SWITCH_ID = schlong_limitSwitchId;
+        SCHLONG_CANCODER_ID = schlong_canCoderId;
 
         SCHLONG_SPIN_GEAR_RATIO = schlong_spinGearRatio;
         SCHLONG_PIVOT_GEAR_RATIO = schlong_pivotGearRatio;
