@@ -32,7 +32,7 @@ public enum ChoreoPaths {
     LOWER_SOURCE_TO_BR1("Lower Source to BR1", StartEndPosition.LOWER_SOURCE, StartEndPosition.BR1, AutonBuilder.ReefZones.BR),
 
     R1_TO_LOWER_SOURCE("R1 to Lower Source",StartEndPosition.R1, StartEndPosition.LOWER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),
-    R1_TO_UPPER_SOURCE("R1 to Lower Source",StartEndPosition.R1, StartEndPosition.UPPER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),
+    R1_TO_UPPER_SOURCE("R1 to Upper Source",StartEndPosition.R1, StartEndPosition.UPPER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),
     R2_TO_LOWER_SOURCE("R2 to Lower Source", StartEndPosition.R2, StartEndPosition.LOWER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),
 
     RC1_TO_BR1("RC1 to BR1", StartEndPosition.RC1, StartEndPosition.BR1, AutonBuilder.ReefZones.BR),
@@ -41,17 +41,17 @@ public enum ChoreoPaths {
     RC1_TO_R1("RC1 to R1", StartEndPosition.RC1, StartEndPosition.R1, AutonBuilder.ReefZones.R),
     RC1_TO_R2("RC1 to R2", StartEndPosition.RC1, StartEndPosition.R2, AutonBuilder.ReefZones.R),
 
-    RC2_TO_BR1("RC2 to BR2", StartEndPosition.RC2, StartEndPosition.BR2, AutonBuilder.ReefZones.BR),
+    RC2_TO_BR1("RC2 to BR1", StartEndPosition.RC2, StartEndPosition.BR1, AutonBuilder.ReefZones.BR),
     RC2_TO_BR2("RC2 to BR2", StartEndPosition.RC2, StartEndPosition.BR2, AutonBuilder.ReefZones.BR),
 
     RC2_TO_R2("RC2 to R2", StartEndPosition.RC2, StartEndPosition.R2, AutonBuilder.ReefZones.R),
-    RC2_TO_R1("RC2 to R2", StartEndPosition.RC2, StartEndPosition.R1, AutonBuilder.ReefZones.R),
+    RC2_TO_R1("RC2 to R1", StartEndPosition.RC2, StartEndPosition.R1, AutonBuilder.ReefZones.R),
 
     RC3_TO_BL1("RC3 to BL1", StartEndPosition.RC3, StartEndPosition.BL1, AutonBuilder.ReefZones.BL),
     RC3_TO_BL2("RC3 to BL2", StartEndPosition.RC3, StartEndPosition.BL2, AutonBuilder.ReefZones.BL),
 
     RC3_TO_BR1("RC3 to BR1", StartEndPosition.RC3, StartEndPosition.BR1, AutonBuilder.ReefZones.BR),
-    RC3_TO_BR2("RC3 to BR1", StartEndPosition.RC3, StartEndPosition.BR2, AutonBuilder.ReefZones.BR),
+    RC3_TO_BR2("RC3 to BR2", StartEndPosition.RC3, StartEndPosition.BR2, AutonBuilder.ReefZones.BR),
 
     TL1_TO_UPPER_SOURCE("TL1 to Upper Source", StartEndPosition.TL1, StartEndPosition.UPPER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),
     TL2_TO_UPPER_SOURCE("TL2 to Upper Source", StartEndPosition.TL2, StartEndPosition.UPPER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),
@@ -61,7 +61,7 @@ public enum ChoreoPaths {
 
     UPPER_SOURCE_TO_L1("Upper Source to L1", StartEndPosition.UPPER_SOURCE, StartEndPosition.L1, AutonBuilder.ReefZones.L),
     UPPER_SOURCE_TO_L2("Upper Source to L2", StartEndPosition.UPPER_SOURCE, StartEndPosition.L2, AutonBuilder.ReefZones.L),
-    UPPER_SOURCE_TO_R1("Upper Source to R1", StartEndPosition.UPPER_SOURCE, StartEndPosition.R1, AutonBuilder.ReefZones.L),
+    UPPER_SOURCE_TO_R1("Upper Source to R1", StartEndPosition.UPPER_SOURCE, StartEndPosition.R1, AutonBuilder.ReefZones.R),
 
     UPPER_SOURCE_TO_TL1("Upper Source to TL1", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL1, AutonBuilder.ReefZones.TL),
     UPPER_SOURCE_TO_TL2("Upper Source to TL2", StartEndPosition.UPPER_SOURCE, StartEndPosition.TL2, AutonBuilder.ReefZones.TL),
