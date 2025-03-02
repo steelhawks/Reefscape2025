@@ -1,6 +1,8 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.networktables.ConnectionInfo;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -307,10 +309,29 @@ public class RobotContainer {
         configurePathfindingCommands();
         configureDeepClimbEndgame();
         configureDefaultCommands();
+        checkIfDevicesConnected();
         configureTestBindings();
         configureTriggers();
         configureOperator();
         configureDriver();
+
+    }
+
+    private void checkIfDevicesConnected() {
+        boolean orangePi1Connected = false;
+        boolean orangePi2Connected = false;
+        for (ConnectionInfo info : NetworkTableInstance.getDefault().getConnections()) {
+            if (info.remote_ip.equals("10.26.1.11")) {
+                orangePi1Connected = true;
+            }
+
+            if (info.remote_ip.equals("10.26.1.12")) {
+                orangePi2Connected = true;
+            }
+        }
+
+        new Alert("Orange Pi 1 is not connected", AlertType.kError).set(orangePi1Connected);
+        new Alert("Orange Pi 2 is not connected", AlertType.kError).set(orangePi2Connected);
     }
 
     private void configurePathfindingCommands() {
