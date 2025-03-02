@@ -408,10 +408,10 @@ public class RobotContainer {
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver, operator));
 
-        nearCoralStation
-            .whileTrue(
-                s_Intake.intakeCoral()
-                .until(s_Intake.hasCoral()));
+        // nearCoralStation
+        //     .whileTrue(
+        //         s_Intake.intakeCoral()
+        //         .until(s_Intake.hasCoral()));
     }
 
     private void configureDriver() {
