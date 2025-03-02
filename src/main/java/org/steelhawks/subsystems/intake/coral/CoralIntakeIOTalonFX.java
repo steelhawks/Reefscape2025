@@ -1,5 +1,9 @@
 package org.steelhawks.subsystems.intake.coral;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.hardware.CANrange;
+import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
@@ -14,11 +18,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Voltage;
 import static org.steelhawks.util.PhoenixUtil.*;
 
 public class CoralIntakeIOTalonFX implements CoralIntakeIO {
@@ -26,13 +25,15 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     private final IntakeConstants constants;
     private final TalonFX mIntakeMotor;
 
-    private DigitalInput mBeamBreak = null;
+    private CANrange mBeamBreak = null;
 
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
     private final StatusSignal<Voltage> voltage;
     private final StatusSignal<Current> current;
     private final StatusSignal<Temperature> temp;
+
+    private StatusSignal<Distance> distance;
 
     public CoralIntakeIOTalonFX() {
         switch (Constants.getRobot()) {
@@ -43,13 +44,17 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
 
         mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         if (Constants.getRobot() == RobotType.OMEGABOT) {
-            mBeamBreak = new DigitalInput(IntakeConstants.BEAM_BREAK_ID_OMEGA);
+            mBeamBreak = new CANrange(IntakeConstants.CAN_RANGE_ID_OMEGA, Constants.getCANBus());
+            distance = mBeamBreak.getDistance();
+            distance.setUpdateFrequency(50);
         }
 
 
-        var motorConfig = new TalonFXConfiguration();
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        var motorConfig =
+            new TalonFXConfiguration()
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
         mIntakeMotor.getConfigurator().apply(motorConfig);
 
         position = mIntakeMotor.getPosition();
@@ -84,18 +89,16 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
         inputs.currentAmps = current.getValueAsDouble();
         inputs.tempCelsius = temp.getValueAsDouble();
 
+        inputs.beamConnected = mBeamBreak != null && mBeamBreak.isConnected();
+
         if (mBeamBreak != null) {
-            inputs.beamBroken = !mBeamBreak.get();
+            inputs.beamDistance = mBeamBreak.getDistance().getValueAsDouble();
         }
     }
 
     @Override
     public void runIntake(double percentageOutput) {
         mIntakeMotor.set(percentageOutput);
-    }
-
-    public void runReverse(double percentageOutput) {
-        mIntakeMotor.set(- percentageOutput);
     }
 
     @Override

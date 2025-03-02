@@ -8,11 +8,15 @@ import java.util.Arrays;
 public final class ElevatorConstants {
 
     public enum State {
-        L4(59.905784718904, 23.85877018437932, Units.rotationsToRadians(3.0)),
-        L3(35.3237425930366, 14.947108797157687, Units.rotationsToRadians(2.0)),
-        L2(19.376478322177476, 9.10417597610128, Units.rotationsToRadians(1.0)),
+        L4(59.905784718904, 23.299634187195004, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21 
+        L3(35.3237425930366, 13.956157208183564, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687 
+        L2(19.376478322177476, 8.308039947188632, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128 
         L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
-        HOME(0, 0, 0);
+        HOME(0, 0, 0),
+
+        // This is the "HOME" position the elevator goes to, before manually going down to the ACTUAL home position at the bottom bar
+        HOME_ABOVE_BAR(0, 1, 0); 
+
 
         private final double alphaRadians;
         private final double omegaRadians;
@@ -62,26 +66,28 @@ public final class ElevatorConstants {
             0,
             13,
             14,
-            60,
+            16,
             25,
             0.23,
             0.175,
             (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0,
-            2.75, // 2.6, 2.7
-            0.001,
-            0.0,
-            30,
-            60,
+            5.5, // 2.75
+            0,
+            0.02, // 0.0145
+            35,
+            70,
             0.02,
             0.55,
-            24);
+            // 24.21235275598696);
+            // 24.435);
+            24.663);
 
     public static final ElevatorConstants ALPHA =
         new ElevatorConstants(
             0,
             14,
             15,
-            50,
+            -1,
             10,
             0.18,
             0.18625,
@@ -98,23 +104,23 @@ public final class ElevatorConstants {
             60); // 60
 
     public static final ElevatorConstants HAWKRIDER =
-            new ElevatorConstants(
-            0,
-            20,
-            21,
-            22,
-            1,
-            0.15,
-            0.09,
-            0.6,
-            9.1,
-            0,
-            0.002,
-            5.2,
-            8,
-            Units.rotationsToRadians(.005),
-            0.5,
-            18.5);
+        new ElevatorConstants(
+        0,
+        20,
+        21,
+        22,
+        1,
+        0.15,
+        0.09,
+        0.6,
+        9.1,
+        0,
+        0.002,
+        5.2,
+        8,
+        Units.rotationsToRadians(.005),
+        0.5,
+        18.5);
 
     public final int LIMIT_SWITCH_ID;
     public final int LEFT_ID;

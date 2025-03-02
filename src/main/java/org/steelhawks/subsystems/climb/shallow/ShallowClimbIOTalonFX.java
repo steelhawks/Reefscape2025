@@ -43,7 +43,6 @@ public class ShallowClimbIOTalonFX implements ShallowClimbIO {
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
-
         mClimbMotor.getConfigurator().apply(config);
 
         zeroEncoders();
@@ -67,9 +66,6 @@ public class ShallowClimbIOTalonFX implements ShallowClimbIO {
 
     @Override
     public void updateInputs(ShallowClimbIOInputs inputs) {
-        double climbPos = climbPosition.getValueAsDouble();
-        double climbVelo = climbVelocity.getValueAsDouble();
-
         inputs.motorConnected =
             BaseStatusSignal.refreshAll(
                 climbPosition,
@@ -77,8 +73,8 @@ public class ShallowClimbIOTalonFX implements ShallowClimbIO {
                 climbVoltage,
                 climbCurrent,
                 climbTemp).isOK();
-        inputs.climbPositionRad = Units.rotationsToRadians(climbPos);
-        inputs.climbVelocityRadPerSec = Units.rotationsToRadians(climbVelo);
+        inputs.climbPositionRad = Units.rotationsToRadians(climbPosition.getValueAsDouble());
+        inputs.climbVelocityRadPerSec = Units.rotationsToRadians(climbVelocity.getValueAsDouble());
         inputs.climbAppliedVolts = climbVoltage.getValueAsDouble();
         inputs.climbCurrentAmps = climbCurrent.getValueAsDouble();
         inputs.climbTempCelsius = climbTemp.getValueAsDouble();

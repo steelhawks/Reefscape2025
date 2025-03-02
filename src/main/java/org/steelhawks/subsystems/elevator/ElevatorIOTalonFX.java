@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.elevator;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -54,9 +55,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         mLeftMotor = new TalonFX(constants.LEFT_ID, Constants.getCANBus());
         mRightMotor = new TalonFX(constants.RIGHT_ID, Constants.getCANBus());
-        if (Constants.getRobot() != RobotType.ALPHABOT) {
+        if (constants.CANCODER_ID != -1)
             mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());
-        }
         mLimitSwitch = new DigitalInput(constants.LIMIT_SWITCH_ID);
 
         var leftConfig =
@@ -85,17 +85,18 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         if (Constants.getRobot() != RobotType.ALPHABOT) {
             var encoderConfig =
-                new CANcoderConfiguration()
-                    .withMagnetSensor(
-                        new MagnetSensorConfigs()
-                            .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+                new CANcoderConfiguration().MagnetSensor
+                    .withSensorDirection(
+                        Constants.getRobot() == RobotType.OMEGABOT
+                            ? SensorDirectionValue.Clockwise_Positive
+                            : SensorDirectionValue.CounterClockwise_Positive);
             mCANcoder.getConfigurator().apply(encoderConfig);
 
             magnetFault = mCANcoder.getFault_BadMagnet();
             canCoderPosition = mCANcoder.getPosition();
             canCoderVelocity = mCANcoder.getVelocity();
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50,
+                100,
                 magnetFault,
                 canCoderPosition,
                 canCoderVelocity);
@@ -210,6 +211,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
          mLeftMotor.set(speed);
          mRightMotor.set(speed);
+    }
+
+    @Override
+    public void runPosition(double positionRad, double feedforward) {
+        mLeftMotor.setControl(
+            new PositionVoltage(positionRad)
+                .withFeedForward(feedforward));
+        mRightMotor.setControl(
+            new PositionVoltage(positionRad)
+                .withFeedForward(feedforward));
     }
 
     @Override

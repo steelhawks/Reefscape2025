@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.181663907284768,
-        "y": 4.192073675496688
+        "x": 2.0,
+        "y": 7.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.181663907284768,
-        "y": 4.192073675496688
+        "x": 3.0,
+        "y": 7.0
       },
       "isLocked": false,
-      "linkedName": "L1 Reef"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.217,
-        "y": 5.864758522727272
+        "x": 4.0,
+        "y": 7.0
       },
       "prevControl": {
-        "x": 2.2170000000000005,
-        "y": 5.864758522727272
+        "x": 3.0,
+        "y": 7.0
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Upper Algae"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],

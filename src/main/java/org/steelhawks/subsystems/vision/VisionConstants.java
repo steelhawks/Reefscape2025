@@ -27,9 +27,10 @@ public class VisionConstants {
                 };
             default ->
                 new String[] {
-                    "arducam-front-right",
-                    "arducam-back-left",
-                    "arducam-elevator-mount"
+                    "arducam-front-left", 
+                    "arducam-front-right", 
+                    "arducam-back-left", 
+                    "arducam-elevator-mount" 
                 };
         };
     }
@@ -50,31 +51,56 @@ public class VisionConstants {
                 };
             default ->
                 new Transform3d[] {
+                    // Front Left
                     new Transform3d(
-                        Units.inchesToMeters(10.975),
-                        Units.inchesToMeters(12.556),
+                        // Left-Right: 11.315133
+                        // Front-Back: 11.685378
+                        // Up-Down: 6.689
+                        Units.inchesToMeters(11.685378),
+                        Units.inchesToMeters(11.315133),
                         Units.inchesToMeters(6.689),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(28.125),
-                            Units.degreesToRadians(60))), // Z is from the top of the belly pan
+                            Units.degreesToRadians(- 28.125),
+                            Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
+                    // Front Right
+                    new Transform3d(
+                        // Left-Right: 10.975
+                        // Front-Back: 12.556
+                        // Up-Down: 6.689
+                        Units.inchesToMeters(12.556),
+                        Units.inchesToMeters(- 10.975),
+                        Units.inchesToMeters(6.689),
+                        new Rotation3d(
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(- 28.125),
+                            Units.degreesToRadians(- 60))), // Z is from the top of the belly pan
+
+                    // Back Left
                     new Transform3d(  
-                        Units.inchesToMeters(- 12.556), // - 12.644
-                        Units.inchesToMeters(- 10.976), // - 11.130
+                        // Left-Right: 12.556
+                        // Front-Back: 10.976
+                        // Up-Down: 6.689
+                        Units.inchesToMeters(- 10.976), // - 12.644
+                        Units.inchesToMeters(12.556), // - 11.130
                         Units.inchesToMeters(6.689), // 6.783901  // Z is from the top of the belly pan
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(28.125),
-                            Units.degreesToRadians(210))),
+                            Units.degreesToRadians(- 28.125),
+                            Units.degreesToRadians(- 210))),
 
+                    // Elevator Mount
                     new Transform3d(
-                        Units.inchesToMeters(0),
+                        // Left-Right: 0
+                        // Front-Back: 13.583
+                        // Up-Down: 36.604
                         Units.inchesToMeters(13.583),
+                        Units.inchesToMeters(0),
                         Units.inchesToMeters(36.604), // Z is from the top of the belly pan
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(45),
+                            Units.degreesToRadians(- 45),
                             Units.degreesToRadians(0)))
                 };
         };
