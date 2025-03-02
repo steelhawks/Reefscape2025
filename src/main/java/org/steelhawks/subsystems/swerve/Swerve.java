@@ -113,7 +113,7 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                             Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-                ROBOT_MASS_KG = Units.lbsToKilograms(121.6);
+                ROBOT_MASS_KG = Units.lbsToKilograms(131.2);
                 ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
                 WHEEL_COF = COTS.WHEELS.COLSONS.cof;
                 PP_CONFIG =
@@ -392,9 +392,9 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                constants.AUTO_ALIGN_KP,
-                constants.AUTO_ALIGN_KI,
-                constants.AUTO_ALIGN_KD,
+                constants.ROTATION_KP,
+                constants.ROTATION_KI,
+                constants.ROTATION_KD,
                 new TrapezoidProfile.Constraints(
                     constants.ANGLE_MAX_VELOCITY,
                     constants.ANGLE_MAX_ACCELERATION));

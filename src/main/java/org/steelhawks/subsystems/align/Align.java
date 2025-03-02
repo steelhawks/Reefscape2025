@@ -16,6 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import jdk.dynalink.support.ChainedCallSite;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.AutonConstants;
@@ -97,7 +98,7 @@ public class Align extends VirtualSubsystem {
     }
 
     public static PathPlannerPath directPath(Pose2d goal) {
-        AutonConstants constants;
+        final AutonConstants constants;
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = AutonConstants.ALPHA;
             case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
@@ -125,7 +126,12 @@ public class Align extends VirtualSubsystem {
                 AutoBuilder.followPath(directPath(goal))
                     .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
                     .andThen(
-                        Commands.run(() -> s_Swerve.runVelocity(HolonomicController.calculate(goal)))), // pathplanner isnt precise enough so we gotta fix it ourselves
+                        Commands.run(() -> s_Swerve.runVelocity(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                HolonomicController.calculate(goal),
+                                AllianceFlip.shouldFlip()
+                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
             Set.of(s_Swerve));
     }
 

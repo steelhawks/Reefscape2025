@@ -207,10 +207,10 @@ public final class Constants {
 
         public static final AutonConstants OMEGA =
             new AutonConstants(
-                5,
+                5.0,
                 0.0,
                 0.0,
-                5,
+                5.0,
                 0.0,
                 0.0,
                 0.0,
