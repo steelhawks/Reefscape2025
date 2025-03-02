@@ -1,8 +1,8 @@
-package org.steelhawks.autonselector;
+package org.steelhawks.util.autonbuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import static org.steelhawks.autonselector.AutonSelectorConstants.*;
+import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 
 public enum StartEndPosition {
     DEFAULT_POSITION(3, 3, 0),
