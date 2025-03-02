@@ -30,7 +30,9 @@ public class VisionConstants {
                     "arducam-front-left", 
                     "arducam-front-right", 
                     "arducam-back-left", 
-                    "arducam-elevator-mount" 
+                    "arducam-elevator-mount",
+                    "arducam-bridge-mount",
+                    "arducam-beam-mount" 
                 };
         };
     }
@@ -61,7 +63,7 @@ public class VisionConstants {
                         Units.inchesToMeters(6.689),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(- 28.125),
+                            Units.degreesToRadians(-28.125),
                             Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
                     // Front Right
@@ -70,25 +72,25 @@ public class VisionConstants {
                         // Front-Back: 12.556
                         // Up-Down: 6.689
                         Units.inchesToMeters(12.556),
-                        Units.inchesToMeters(- 10.975),
+                        Units.inchesToMeters(-10.975),
                         Units.inchesToMeters(6.689),
                         new Rotation3d(
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(- 28.125),
-                            Units.degreesToRadians(- 60))), // Z is from the top of the belly pan
+                            Units.degreesToRadians(15),
+                            Units.degreesToRadians(-28.125),
+                            Units.degreesToRadians(-60))), // Z is from the top of the belly pan
 
                     // Back Left
                     new Transform3d(  
                         // Left-Right: 12.556
                         // Front-Back: 10.976
                         // Up-Down: 6.689
-                        Units.inchesToMeters(- 10.976), // - 12.644
+                        Units.inchesToMeters(-10.976), // - 12.644
                         Units.inchesToMeters(12.556), // - 11.130
                         Units.inchesToMeters(6.689), // 6.783901  // Z is from the top of the belly pan
                         new Rotation3d(
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(- 28.125),
-                            Units.degreesToRadians(- 210))),
+                            Units.degreesToRadians(-15),
+                            Units.degreesToRadians(-28.125),
+                            Units.degreesToRadians(-210))),
 
                     // Elevator Mount
                     new Transform3d(
@@ -100,8 +102,36 @@ public class VisionConstants {
                         Units.inchesToMeters(36.604), // Z is from the top of the belly pan
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(- 45),
-                            Units.degreesToRadians(0)))
+                            Units.degreesToRadians(-45),
+                            Units.degreesToRadians(0))),
+
+                    // Bridge Mount, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
+                    new Transform3d(
+                        // Left-Right: 2.000679
+                        // Front-Back: 10.862403
+                        // Up-Down: 8.312102
+                        Units.inchesToMeters(-10.862403),
+                        Units.inchesToMeters(-2.000679),
+                        Units.inchesToMeters(8.312102),
+                        new Rotation3d(
+                            Units.degreesToRadians(8.5),
+                            Units.degreesToRadians(-15),
+                            Units.degreesToRadians(-150))),
+
+                    // Beam Mount, the arducam that's hanging off of the beam supporting the funnel
+                    new Transform3d(
+                        // Left-Right: 2.312500
+                        // Front-Back: 14.622078
+                        // Up-Down: 24.062500 
+                            // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                            // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                        Units.inchesToMeters(-14.622078),
+                        Units.inchesToMeters(2.312500),
+                        Units.inchesToMeters(24.062500),
+                        new Rotation3d(
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(-180)))
                 };
         };
     }
