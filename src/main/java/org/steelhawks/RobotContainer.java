@@ -24,16 +24,13 @@ import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
-import org.steelhawks.subsystems.climb.deep.DeepClimbIO775Pro;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
-import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
-import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOTalonFX;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
@@ -45,7 +42,7 @@ import org.steelhawks.util.DoublePressTrigger;
 
 public class RobotContainer {
 
-    public static final boolean useVision = true;
+    public static final boolean useVision = false;
 
     private final Trigger interruptPathfinding;
     private final Trigger isShallowEndgame;
@@ -127,7 +124,15 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIO() {});
+                            new VisionIOPhoton(
+                                VisionConstants.cameraNames()[0],
+                                VisionConstants.robotToCamera()[0]),
+                            new VisionIOPhoton(
+                                VisionConstants.cameraNames()[1],
+                                VisionConstants.robotToCamera()[1]),
+                            new VisionIOPhoton(
+                                VisionConstants.cameraNames()[2],
+                                VisionConstants.robotToCamera()[2]));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -365,7 +370,7 @@ public class RobotContainer {
         nearCoralStation
             .whileTrue(
                 s_Intake.intakeCoral()
-                    .unless(s_Intake.hasCoral()));
+                .until(s_Intake.hasCoral()));
     }
 
     private void configureDriver() {
