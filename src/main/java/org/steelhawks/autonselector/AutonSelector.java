@@ -9,11 +9,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.Autos;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
-
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -86,7 +84,7 @@ public class AutonSelector extends VirtualSubsystem {
                             new Rotation2d(currentPath.startingPosition.rotRadians))))),
             Commands.none(),
             () -> currentPath.name.startsWith("BC") || currentPath.name.startsWith("RC")) // if starting position is Blue Cage or Red Cage, set the pose to that
-        .andThen(DriveCommands.followPath(Autos.getPath(currentPath.name)));
+        .andThen(Autos.followTrajectory(currentPath.name));
         
         ReefZones assignedZone = currentPath.assignedZone;
         State elevatorDesiredState = getDesiredElevatorState(assignedZone);
@@ -147,10 +145,6 @@ public class AutonSelector extends VirtualSubsystem {
 
         return elevState;
     }
-
-    private boolean getLeftBranch() {
-        return false;
-    }
         
     @Override
     public void periodic() {
@@ -171,9 +165,8 @@ public class AutonSelector extends VirtualSubsystem {
                 if (path != null && !path.equals(previousPaths.get(i)) && nextChooserIndex <= NUMBER_OF_PATH_SELECTORS) {
                     previousPaths.set(i, path);
                     mPathChoosers.set(
-                            nextChooserIndex,
-                            makeChooserWithMatchingPaths(nextChooserIndex, path.endingPosition)
-                    );
+                        nextChooserIndex,
+                        makeChooserWithMatchingPaths(nextChooserIndex, path.endingPosition));
                 }
             }
         }

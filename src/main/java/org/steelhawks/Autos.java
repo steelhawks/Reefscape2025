@@ -25,7 +25,6 @@ public final class Autos {
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
     private static final Intake s_Intake = RobotContainer.s_Intake;
 
-
     private static final AutoFactory autoFactory =
         new AutoFactory(
             s_Swerve::getPose,
@@ -34,7 +33,7 @@ public final class Autos {
             true,
             s_Swerve);
 
-    private static Command followTrajectory(String choreo) {
+    public static Command followTrajectory(String choreo) {
         try {
             PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(choreo);
             return DriveCommands.followPath(path);
@@ -71,15 +70,12 @@ public final class Autos {
 
     public static Command elevatorAndShoot(ElevatorConstants.State state) {
         return Commands.sequence(
-                s_Elevator.setDesiredState(state),
-                Commands.race(
-                        Commands.waitSeconds(1),
-                        Commands.waitUntil(s_Elevator.atGoal())
-                ),
-                // s_Intake.shootCoralSlow().withTimeout(1.0),
-                Commands.waitSeconds(1),
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
-        );
+            s_Elevator.setDesiredState(state),
+            Commands.deadline(
+                Commands.waitSeconds(2.0),
+                Commands.waitUntil(s_Elevator.atThisGoal(state))),
+            s_Intake.shootCoral().withTimeout(1.0),
+            s_Elevator.noSlamCommand());
     }
 
     private static boolean endsWithSource(String trajectory) {
@@ -93,7 +89,7 @@ public final class Autos {
         for (String trajectory : trajectories) {
             commands.add(followTrajectory(trajectory));
             if (endsWithSource(trajectory)) {
-                commands.add(Commands.waitSeconds(1));
+                commands.add(Commands.waitUntil(s_Intake.hasCoral()));
             } else {
                 commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
             }
@@ -104,7 +100,7 @@ public final class Autos {
 
     private static Command createAuto(StartEndPosition pose, String[] trajectories) {
         return Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(pose.getPose())))
-                .andThen(buildTrajectorySequence(trajectories));
+            .andThen(buildTrajectorySequence(trajectories));
     }
 
     public static Command getPathPlannerAuton() {
@@ -113,24 +109,21 @@ public final class Autos {
 
     public static Command getBC1AutonTest() {
         return Commands.runOnce(
-                        () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
-                .andThen(
-                        followTrajectory("BC1 to TR2"),
-                        s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-                        Commands.race(
-                                Commands.waitSeconds(1),
-                                Commands.waitUntil(s_Elevator.atGoal())),
-                        s_Intake.shootCoralSlow()
-                                .withTimeout(1.0)
-                        ,
-                        s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
-
-
-                .andThen(followTrajectory("TR2 to Upper Source"));
+            () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
+            .andThen(
+                followTrajectory("BC1 to TR2"),
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                Commands.race(
+                    Commands.waitSeconds(1),
+                    Commands.waitUntil(s_Elevator.atGoal())),
+                s_Intake.shootCoralSlow().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
+            .andThen(followTrajectory("TR2 to Upper Source"));
     }
 
     public static Command getBC1Auton() {
-        return createAuto(StartEndPosition.BC1, new String[]{
+        return createAuto(StartEndPosition.BC1,
+            new String[]{
                 "BC1 to TL1",
                 "TL1 to Upper Source",
                 "Upper Source to TL2",
@@ -138,11 +131,12 @@ public final class Autos {
                 "Upper Source to L1",
                 "L1 to Upper Source",
                 "Upper Source to L1"
-        });
+            });
     }
 
     public static Command getBC2Auton() {
-        return createAuto(StartEndPosition.BC2, new String[]{
+        return createAuto(StartEndPosition.BC2,
+            new String[]{
                 "BC2 to TR1",
                 "TR1 to Upper Source",
                 "Upper Source to TR2",
@@ -150,11 +144,12 @@ public final class Autos {
                 "Upper Source to L1",
                 "L1 to Upper Source",
                 "Upper Source to L1"
-        });
+            });
     }
 
     public static Command getBC3Auton() {
-        return createAuto(StartEndPosition.BC2, new String[]{
+        return createAuto(StartEndPosition.BC2,
+            new String[]{
                 "BC3 to TR1",
                 "TR1 to Upper Source",
                 "Upper Source to TR2",
@@ -162,11 +157,12 @@ public final class Autos {
                 "Upper Source to L1",
                 "L1 to Upper Source",
                 "Upper Source to L1"
-        });
+            });
     }
 
     public static Command getRC1Auton() {
-        return createAuto(StartEndPosition.BC2, new String[]{
+        return createAuto(StartEndPosition.BC2,
+            new String[]{
                 "RC1 to BR1",
                 "BR1 to Lower Source",
                 "Lower Source to BL1",
@@ -174,11 +170,12 @@ public final class Autos {
                 "Lower Source to BL1",
                 "BL1 to Lower Source",
                 "Lower Source to BL2"
-        });
+            });
     }
 
     public static Command getRC2Auton() {
-        return createAuto(StartEndPosition.BC2, new String[]{
+        return createAuto(StartEndPosition.BC2,
+            new String[]{
                 "RC2 to BR1",
                 "BR1 to Lower Source",
                 "Lower Source to BL1",
@@ -186,11 +183,12 @@ public final class Autos {
                 "Lower Source to BL1",
                 "BL1 to Lower Source",
                 "Lower Source to BL2"
-        });
+            });
     }
 
     public static Command getRC3Auton() {
-        return createAuto(StartEndPosition.BC2, new String[]{
+        return createAuto(StartEndPosition.BC2,
+            new String[]{
                 "RC3 to BR1",
                 "BR1 to Lower Source",
                 "Lower Source to BL1",
@@ -198,17 +196,6 @@ public final class Autos {
                 "Lower Source to BL1",
                 "BL1 to Lower Source",
                 "Lower Source to BL2"
-        });
-    }
-
-
-    public static PathPlannerPath getPath(String choreo) {
-        try {
-            return PathPlannerPath.fromChoreoTrajectory(choreo);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+            });
     }
 }

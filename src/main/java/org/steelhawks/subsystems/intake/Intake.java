@@ -79,37 +79,31 @@ public class Intake {
     public Command shootCoralSlow() {
         return Commands.run(
             () -> mCoralIntake.shootSlowCoral(), mCoralIntake)
-//            .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 
     public Command shootPulsatingCoral() {
         return Commands.sequence(
                 Commands.run(() -> mCoralIntake.shootSlowCoral(), mCoralIntake).withTimeout(0.025),
-                Commands.run(() -> mCoralIntake.stop(), mCoralIntake).withTimeout(0.025)
-            ).repeatedly()
-            .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
+                Commands.run(() -> mCoralIntake.stop(), mCoralIntake).withTimeout(0.025)).repeatedly()
             .finallyDo(() -> mCoralIntake.stop());
     }
 
     public Command shootCoral() {
         return Commands.run(
             () -> mCoralIntake.shootCoral(), mCoralIntake)
-            .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 
     public Command reverseCoral() {
         return Commands.run(
             () -> mCoralIntake.reverseCoral(), mCoralIntake)
-            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 
     public Command intakeCoral() {
         return Commands.run(
             () -> mCoralIntake.intakeCoral())
-            .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 }
