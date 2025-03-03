@@ -364,9 +364,7 @@ public class RobotContainer {
     private void configureDefaultCommands() {}
     private void configureTestBindings() {}
 
-    private void configureShallowClimbEndgame() {
-
-    }
+    private void configureShallowClimbEndgame() {}
 
     private void configureDeepClimbEndgame() {
 
@@ -494,11 +492,6 @@ public class RobotContainer {
 
 
         /* ------------- Intake Controls ------------- */
-
-        operator.rightStick().onTrue(
-            s_Intake.mAlgaeIntake.toggleManualControl(
-                () -> -operator.getRightY()));
-
         operator.leftTrigger()
             .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
@@ -506,53 +499,25 @@ public class RobotContainer {
                     s_Intake.shootPulsatingCoral(),
                     s_Intake.shootCoral(),
                     () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
-                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled()));
+                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
+                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
+
 
         operator.povLeft()
-            .or(new DashboardTrigger("intakeCoral"))
+            .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
-                s_Intake.reverseCoral());
+                s_Intake.reverseCoral()
+            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
 
         operator.povRight()
             .whileTrue(
-                s_Intake.intakeCoral());
-        // intake algae
-        operator.rightBumper().whileTrue(
-            s_Intake.intakeAlgae());
-
-        // shoot algae
-        operator.rightTrigger().whileTrue(
-            s_Intake.shootAlgae());
-
-        operator.povUp().whileTrue(
-            s_Intake.pivotManualAlgaeUp());
-
-        operator.povDown().whileTrue(
-            s_Intake.pivotManualAlgaeDown());
-
-        // operator.povUp().onTrue(
-        //     s_Climb.climbCommandWithCurrent());
-
-        // operator.povDown().onTrue(
-        //     s_Climb.homeCommandWithCurrent());
-
-        // operator.povLeft().onTrue(
-        //     s_Climb.climbCommandWithCurrent());
-
-        // operator.povRight().onTrue(
-        //     s_Climb.homeCommandWithCurrent());
-
-        // operator.povLeft().whileTrue(
-        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.HOME));
+                s_Intake.intakeCoral()
+            .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2)));
 
         operator.povLeft().whileTrue(
             s_Schlong.applyPivotSpeed(0.4));
 
         operator.povRight().whileTrue(
-            s_Schlong.applySpinSpeed(0.4)
-        );
-
-        // operator.povRight().whileTrue(
-        //     s_Intake.mAlgaeIntake.setDesiredState(IntakeConstants.AlgaeIntakeState.INTAKE));
+            s_Schlong.applySpinSpeed(0.4));
     }
 }
