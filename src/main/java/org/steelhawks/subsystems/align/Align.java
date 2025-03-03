@@ -16,6 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import jdk.dynalink.support.ChainedCallSite;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.AutonConstants;
@@ -50,6 +51,9 @@ public class Align extends VirtualSubsystem {
     private static final double RIGHT_SPEED_MULTIPLIER = .3;
 
     //    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
+    private static final double DISTANCE_BETWEEN_REEF_CORNER_AND_RIGHT_CORAL_BRANCH = 12.053354;
+    private static final double DISTANCE_BETWEEN_REEF_CORNER_AND_LEFT_CORAL_BRANCH = 12.051569;
+    private static final double DISTANCE_BETWEEN_CORAL_INTAKE_AND_ROBOT_RIGHT_SIDE = 6.101920;
     private static final double TARGET_DISTANCE = Units.inchesToMeters(3.0); // 0.051 meters
     private static final double LEFT_ALIGN_THRESHOLD = 0.39;
     private static final double RIGHT_ALIGN_THRESHOLD = 0.34500000000000003;
@@ -97,7 +101,7 @@ public class Align extends VirtualSubsystem {
     }
 
     public static PathPlannerPath directPath(Pose2d goal) {
-        AutonConstants constants;
+        final AutonConstants constants;
         switch (Constants.getRobot()) {
             case ALPHABOT -> constants = AutonConstants.ALPHA;
             case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
@@ -125,7 +129,12 @@ public class Align extends VirtualSubsystem {
                 AutoBuilder.followPath(directPath(goal))
                     .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
                     .andThen(
-                        Commands.run(() -> s_Swerve.runVelocity(HolonomicController.calculate(goal)))), // pathplanner isnt precise enough so we gotta fix it ourselves
+                        Commands.run(() -> s_Swerve.runVelocity(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                HolonomicController.calculate(goal),
+                                AllianceFlip.shouldFlip()
+                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
             Set.of(s_Swerve));
     }
 

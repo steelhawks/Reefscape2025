@@ -2,6 +2,8 @@ package org.steelhawks.subsystems.intake;
 
 import org.steelhawks.Constants;
 
+import edu.wpi.first.math.util.Units;
+
 public class IntakeConstants {
 
     public enum AlgaeIntakeState {
@@ -40,6 +42,35 @@ public class IntakeConstants {
 
     public static final int CAN_RANGE_ID_OMEGA = 17;
 
+    public enum SchlongState {
+        // Keep in mind that all angle measurements listed below are in RADIANS!
+        HOME(- Math.PI / 2, 0.0, 3.0),
+        ERECT(0, 0, 0);
+
+        private final double alphaRadians;
+        private final double omegaRadians;
+        private final double hawkriderRadians;
+
+        SchlongState(double alpha, double omega, double hawkrider) {
+            this.alphaRadians = alpha;
+            this.omegaRadians = omega;
+            this.hawkriderRadians = hawkrider;
+        }
+
+        public double getRadians() {
+            switch (Constants.getRobot()) {
+                case ALPHABOT:
+                    return alphaRadians;
+                case OMEGABOT:
+                    return omegaRadians;
+                case HAWKRIDER:
+                    return hawkriderRadians;
+                default:
+                    return 0;
+            }
+        }
+    }
+
     public static final IntakeConstants DEFAULT =
         new IntakeConstants(
             16,
@@ -53,19 +84,37 @@ public class IntakeConstants {
             18,
             1,
             1,
-            0,
-            0.15,
-            2.6,
-            3.9,
-            0,
-            0.01,
-            0.1,
-            5.2,
-            8,
-            0.005,
-            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
             2 * Math.PI,
-            0.724);
+            0.0,
+            0,
+            0,
+            -1,
+            -1,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0);
 
     public static final IntakeConstants OMEGA =
         new IntakeConstants(
@@ -93,38 +142,31 @@ public class IntakeConstants {
             0.1,
             2 * Math.PI,
             // 0.7240389318820226 + 1.5631264228554682 + 2.3055731241921187);
-            2.2135342769189803); // 2.2718255468586346
+            2.2135342769189803, // 2.2718255468586346
 
+            33,
+            23,
+            -1,
+            -1,
 
-    public static final IntakeConstants ALPHA =
-        new IntakeConstants(
-            16,
             1,
-            .3,
-            .135,
-            0.1,
             1,
-            18,
-            17,
-            50,
-            10,
-            22.64857645, // 25.17
-            0.3525,
-            0.37,
-            0.71428571428571428571428571428571,
-            // 3.9,
-            // 0,
-            // 0.01,
-            0.05,
+
             0,
             0,
-            0.1,
+            0,
+            0,
+            0,
+            0,
+            1,
             5.2,
             8,
-            0.005,
+            Units.rotationsToRadians(0.005),
             0.5,
-            3,
-            0);
+            Math.PI);
+
+
+    public static final IntakeConstants ALPHA = DEFAULT;
 
     public static final IntakeConstants HAWKRIDER = DEFAULT;
 
@@ -166,6 +208,30 @@ public class IntakeConstants {
     public final double ALGAE_MAX_RADIANS;
     public final double ALGAE_PIVOT_ZERO_OFFSET;
 
+    public final int SCHLONG_SPIN_MOTOR_ID;
+    public final int SCHLONG_PIVOT_MOTOR_ID;
+    public final int SCHLONG_LIMIT_SWITCH_ID;
+    public final int SCHLONG_CANCODER_ID;
+
+    public final double SCHLONG_SPIN_GEAR_RATIO;
+    public final double SCHLONG_PIVOT_GEAR_RATIO;
+
+    public final double SCHLONG_KS;
+    public final double SCHLONG_KG;
+    public final double SCHLONG_KV;
+
+    public final double SCHLONG_KP;
+    public final double SCHLONG_KI;
+    public final double SCHLONG_KD;
+
+    public final double SCHLONG_SPEED_MULTIPLIER;
+    public final double SCHLONG_MAX_VELOCITY_PER_SEC;
+    public final double SCHLONG_MAX_ACCELERATION_PER_SEC_SQUARED;
+    public final double SCHLONG_TOLERANCE;
+    public final double SCHLONG_MANUAL_PIVOT_INCREMENT;
+    public final double SCHLONG_MAX_RADIANS;
+
+
     public IntakeConstants(
         int coral_intakeMotorId,
         double coral_intakeGearRatio,
@@ -191,7 +257,29 @@ public class IntakeConstants {
         double algae_tolerance,
         double algae_manualPivotIncrement,
         double algae_maxRadians,
-        double algae_pivotZeroOffset
+        double algae_pivotZeroOffset,
+
+        int schlong_spinMotorId,
+        int schlong_pivotMotorId,
+        int schlong_limitSwitchId,
+        int schlong_canCoderId,
+
+        double schlong_spinGearRatio,
+        double schlong_pivotGearRatio,
+
+        double schlong_kS,
+        double schlong_kG,
+        double schlong_kV,
+        double schlong_kP,
+        double schlong_kI,
+        double schlong_kD,
+        double schlong_speedMultiplier,
+        double schlong_maxVelocityPerSec,
+        double schlong_maxAccelerationPerSecSquared,
+        double schlong_tolerance,
+        double schlong_manualPivotIncrement,
+        double schlong_maxRadians
+
     ) {
         CORAL_INTAKE_MOTOR_ID = coral_intakeMotorId;
         CORAL_INTAKE_GEAR_RATIO = coral_intakeGearRatio;
@@ -218,5 +306,26 @@ public class IntakeConstants {
         ALGAE_MANUAL_PIVOT_INCREMENT = algae_manualPivotIncrement;
         ALGAE_MAX_RADIANS = algae_maxRadians;
         ALGAE_PIVOT_ZERO_OFFSET = algae_pivotZeroOffset;
-    }  
+
+        SCHLONG_SPIN_MOTOR_ID = schlong_spinMotorId;
+        SCHLONG_PIVOT_MOTOR_ID = schlong_pivotMotorId;
+        SCHLONG_LIMIT_SWITCH_ID = schlong_limitSwitchId;
+        SCHLONG_CANCODER_ID = schlong_canCoderId;
+
+        SCHLONG_SPIN_GEAR_RATIO = schlong_spinGearRatio;
+        SCHLONG_PIVOT_GEAR_RATIO = schlong_pivotGearRatio;
+
+        SCHLONG_KS = schlong_kS;
+        SCHLONG_KG = schlong_kG;
+        SCHLONG_KV = schlong_kV;
+        SCHLONG_KP = schlong_kP;
+        SCHLONG_KI = schlong_kI;
+        SCHLONG_KD = schlong_kD;
+        SCHLONG_SPEED_MULTIPLIER = schlong_speedMultiplier;
+        SCHLONG_MAX_VELOCITY_PER_SEC = schlong_maxVelocityPerSec;
+        SCHLONG_MAX_ACCELERATION_PER_SEC_SQUARED = schlong_maxAccelerationPerSecSquared;
+        SCHLONG_TOLERANCE = schlong_tolerance;
+        SCHLONG_MANUAL_PIVOT_INCREMENT = schlong_manualPivotIncrement;
+        SCHLONG_MAX_RADIANS = schlong_maxRadians;
+    }
 }
