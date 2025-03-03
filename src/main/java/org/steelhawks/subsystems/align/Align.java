@@ -51,7 +51,9 @@ public class Align extends VirtualSubsystem {
     private static final double RIGHT_SPEED_MULTIPLIER = .3;
 
     //    private static final double LEFT_SENSOR_ANGLE = 31; // degrees
-    private static final double DISTANCE_BETWEEN_REEF_CORNER_AND_CORAL_BRANCH = 12.051569;
+    private static final double DISTANCE_BETWEEN_REEF_CORNER_AND_RIGHT_CORAL_BRANCH = 12.053354;
+    private static final double DISTANCE_BETWEEN_REEF_CORNER_AND_LEFT_CORAL_BRANCH = 12.051569;
+    private static final double DISTANCE_BETWEEN_CORAL_INTAKE_AND_ROBOT_RIGHT_SIDE = 6.101920;
     private static final double TARGET_DISTANCE = Units.inchesToMeters(3.0); // 0.051 meters
     private static final double LEFT_ALIGN_THRESHOLD = 0.39;
     private static final double RIGHT_ALIGN_THRESHOLD = 0.34500000000000003;
