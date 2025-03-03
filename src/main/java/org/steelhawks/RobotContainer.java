@@ -111,8 +111,8 @@ public class RobotContainer {
             return false;
         });
         nearCoralStation = new Trigger(() ->
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 3.0 ||
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 3.0);
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 1.0 ||
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 1.0);
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -352,10 +352,13 @@ public class RobotContainer {
 
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
+//        driver.leftTrigger()
+//            .whileTrue(
+//                DriveCommands.driveToPosition(
+//                    Reefstate.getClosestReef(s_Swerve.getPose()), interruptPathfinding));
         driver.leftTrigger()
             .whileTrue(
-                DriveCommands.driveToPosition(
-                    Reefstate.getClosestReef(s_Swerve.getPose()), interruptPathfinding));
+                Align.directPathFollow(Reefstate.getClosestReef(s_Swerve.getPose())));
     }
 
     private void configureDefaultCommands() {}
