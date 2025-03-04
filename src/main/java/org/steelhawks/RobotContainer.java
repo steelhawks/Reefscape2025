@@ -53,6 +53,7 @@ public class RobotContainer {
     private final Trigger notifyAtEndgame;
     private final Trigger isDeepEndgame;
     private final Trigger nearCoralStation;
+    private final Trigger modifierTrigger;
     private boolean shallowClimbMode = false;
     private boolean deepClimbMode = false;
 
@@ -113,6 +114,7 @@ public class RobotContainer {
         nearCoralStation = new Trigger(() ->
             s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 1.0 ||
             s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 1.0);
+        modifierTrigger = operator.rightBumper();
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -471,16 +473,29 @@ public class RobotContainer {
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
         operator.x()
+            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l2"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
+        operator.x()
+            .and(modifierTrigger)
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L2));
+
         operator.y()
+            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
+        operator.y()
+            .and(modifierTrigger)
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L3));
+
         operator.a()
+            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
@@ -502,7 +517,6 @@ public class RobotContainer {
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
 
-
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
@@ -517,7 +531,7 @@ public class RobotContainer {
         operator.povLeft().whileTrue(
             s_Schlong.applyPivotSpeed(0.4));
 
-        operator.povRight().whileTrue(
+        operator.rightTrigger().whileTrue(
             s_Schlong.applySpinSpeed(0.4));
     }
 }
