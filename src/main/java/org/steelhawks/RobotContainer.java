@@ -304,14 +304,22 @@ public class RobotContainer {
                             new SchlongIO() {});
                 }
 
-                case HAWKRIDER -> { // hawkrider has 2 limelights and an orange pi running pv
+                case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
                             new VisionIO() {},
-                            new VisionIO() {},
                             new VisionIO() {});
-                }
+            }
+
+            if (Constants.getRobot() == RobotType.OMEGABOT) {
+                s_Vision =
+                    new Vision(
+                        s_Swerve::accept,
+                        new VisionIO() {},
+                        new VisionIO() {},
+                        new VisionIO() {},
+                        new VisionIO() {});
             }
 
             s_Elevator =
