@@ -1,11 +1,14 @@
 package org.steelhawks.subsystems.intake.coral;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.CANrange;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.first.wpilibj.DigitalInput;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -14,6 +17,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+
+import static org.steelhawks.util.PhoenixUtil.*;
 
 public class CoralIntakeIOTalonFX implements CoralIntakeIO {
 
@@ -28,7 +33,7 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     private final StatusSignal<Current> current;
     private final StatusSignal<Temperature> temp;
 
-    private StatusSignal<Distance> distance = null;
+    private StatusSignal<Distance> distance;
 
     public CoralIntakeIOTalonFX() {
         switch (Constants.getRobot()) {

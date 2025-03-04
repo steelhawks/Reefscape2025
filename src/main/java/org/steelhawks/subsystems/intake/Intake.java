@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
@@ -85,25 +86,30 @@ public class Intake {
     public Command shootPulsatingCoral() {
         return Commands.sequence(
                 Commands.run(() -> mCoralIntake.shootSlowCoral(), mCoralIntake).withTimeout(0.025),
-                Commands.run(() -> mCoralIntake.stop(), mCoralIntake).withTimeout(0.025)).repeatedly()
+                Commands.run(() -> mCoralIntake.stop(), mCoralIntake).withTimeout(0.025)
+            ).repeatedly()
+            .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 
     public Command shootCoral() {
         return Commands.run(
             () -> mCoralIntake.shootCoral(), mCoralIntake)
+            .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 
     public Command reverseCoral() {
         return Commands.run(
             () -> mCoralIntake.reverseCoral(), mCoralIntake)
+            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 
     public Command intakeCoral() {
         return Commands.run(
             () -> mCoralIntake.intakeCoral())
+            .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 }
