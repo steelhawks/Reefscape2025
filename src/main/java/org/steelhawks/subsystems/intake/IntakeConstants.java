@@ -43,9 +43,9 @@ public class IntakeConstants {
     public static final int CAN_RANGE_ID_OMEGA = 17;
 
     public enum SchlongState {
-        // Keep in mind that all angle measurements listed below are in RADIANS!
-        HOME(- Math.PI / 2, 0.0, 3.0),
-        ERECT(0, 0, 0);
+        HOME(-Math.PI / 2, -Math.PI / 2, 0.0),
+        ERECT(0, 0, 0),
+        AVOID_ELEVATOR(0, 0 ,0);
 
         private final double alphaRadians;
         private final double omegaRadians;

@@ -185,7 +185,7 @@ public final class Constants {
             new LEDConstants(0, 40);
 
         public static final LEDConstants OMEGA =
-            new LEDConstants(0, 82);
+            new LEDConstants(0, 41);
         public static final LEDConstants ALPHA = DEFAULT;
         public static final LEDConstants HAWKRIDER = DEFAULT;
 

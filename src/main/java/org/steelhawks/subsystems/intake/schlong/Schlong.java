@@ -192,7 +192,7 @@ public class Schlong extends SubsystemBase {
     public Command applySpinSpeed(double speed) {
         return Commands.run(
             () -> {
-                io.runSpinWithSpeed(- speed);
+                io.runSpinWithSpeed(speed);
             }, this)
             .finallyDo(() -> io.stopSpin());
     }
@@ -224,7 +224,7 @@ public class Schlong extends SubsystemBase {
     public Command applykV() {
         return Commands.run(
             () -> io.runPivotWithVoltage(
-                constants.SCHLONG_KS + constants.SCHLONG_KG * Math.cos(getPivotPosition()) + constants.SCHLONG_KV))
+                constants.SCHLONG_KS * Math.signum(getPivotPosition()) + constants.SCHLONG_KG * Math.cos(getPivotPosition()) + constants.SCHLONG_KV))
                 .finallyDo(() -> io.stopPivot());
     }
 }

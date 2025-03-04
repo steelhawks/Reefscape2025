@@ -15,8 +15,11 @@ public final class ElevatorConstants {
         HOME(0, 0, 0),
 
         // This is the "HOME" position the elevator goes to, before manually going down to the ACTUAL home position at the bottom bar
-        HOME_ABOVE_BAR(0, 1, 0); 
+        HOME_ABOVE_BAR(0, 1, 0),
 
+        // Algae Knockout Positions
+        KNOCK_L2(0, 0, 0),
+        KNOCK_L3(0, 0, 0);
 
         private final double alphaRadians;
         private final double omegaRadians;
@@ -73,7 +76,7 @@ public final class ElevatorConstants {
             (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0,
             5.5, // 2.75
             0,
-            0.02, // 0.0145
+            0.02, // we should increase kD
             35,
             70,
             0.02,
