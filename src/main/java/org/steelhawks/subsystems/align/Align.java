@@ -138,6 +138,132 @@ public class Align extends VirtualSubsystem {
             Set.of(s_Swerve));
     }
 
+    public static Command alignRobotToAprilTag(Camera... cameras) {
+
+        alignXController.setTolerance(
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().tolerance().get());
+        alignYController.setTolerance(
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().tolerance().get());
+
+        return Commands.runOnce(
+            () -> {
+                for (Camera camera : cameras) {
+                    if (camera.getCameraDuties().contains(CameraDuty.REEF_LOCALIZATION)) {
+                        camera.setValidTags(RobotState.getReefAlignData().closestReefTag());
+                    }
+                }
+                V1_Gamma_LEDs.setAutoAligning(true);
+            })
+        .andThen(
+            Commands.run(
+                () -> {
+                    ChassisSpeeds speeds;
+                    if (RobotState.getReefAlignData().closestReefTag() != -1) {
+                        double xSpeed = 0.0;
+                        double ySpeed = 0.0;
+
+                        double ex =
+                            RobotState.getReefAlignData().setpoint().getX()
+                                - RobotState.getRobotPoseReef().getX();
+                        double ey =
+                            RobotState.getReefAlignData().setpoint().getY()
+                                - RobotState.getRobotPoseReef().getY();
+
+                        // Rotate errors into the reef post's coordinate frame
+                        double ex_prime =
+                            ex
+                                * Math.cos(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians())
+                                + ey
+                                * Math.sin(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians());
+                        double ey_prime =
+                            -ex
+                                * Math.sin(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians())
+                                + ey
+                                * Math.cos(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians());
+
+                        if (!alignXController.atSetpoint())
+                            xSpeed = alignXController.calculate(0, ex_prime);
+                        else alignXController.reset(ex_prime);
+                        if (!alignYController.atSetpoint())
+                            ySpeed = alignYController.calculate(0, ey_prime);
+                        else alignYController.reset(ey_prime);
+
+                        Logger.recordOutput("xSpeed", -xSpeed);
+                        Logger.recordOutput("ySpeed", -ySpeed);
+
+                        // Re-rotate the speeds into field relative coordinate frame
+                        double adjustedXSpeed =
+                            xSpeed
+                                * Math.cos(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians())
+                                - ySpeed
+                                * Math.sin(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians());
+                        double adjustedYSpeed =
+                            xSpeed
+                                * Math.sin(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians())
+                                + ySpeed
+                                * Math.cos(
+                                RobotState.getReefAlignData()
+                                    .setpoint()
+                                    .getRotation()
+                                    .getRadians());
+
+                        speeds =
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                -adjustedXSpeed,
+                                -adjustedYSpeed,
+                                thetaSpeedCalculate(),
+                                RobotState.getRobotPoseReef()
+                                    .getRotation()
+                                    .plus(new Rotation2d(Math.PI)));
+                    } else {
+                        speeds = new ChassisSpeeds();
+                    }
+                    s_Swerve.runVelocity(speeds);
+                },
+                s_Swerve)
+            .until(() -> RobotState.getReefAlignData().atSetpoint())
+            .finallyDo(
+                () -> {
+                    s_Swerve.runVelocity(new ChassisSpeeds());
+                    alignHeadingController.reset(
+                        RobotState.getRobotPoseReef().getRotation().getRadians());
+                    alignXController.reset(RobotState.getRobotPoseReef().getX());
+                    alignYController.reset(RobotState.getRobotPoseReef().getY());
+                    for (Camera camera : cameras) {
+                        camera.setValidTags(FieldConstants.validTags);
+                    }
+                    V1_Gamma_LEDs.setAutoAligning(false);
+                }));
+    }
+
     public Command forwardUntil(Rotation2d angle) {
         return Commands.run(
             () -> {
