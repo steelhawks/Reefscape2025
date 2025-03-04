@@ -58,7 +58,6 @@ public class RobotContainer {
     private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
-    public static AutonSelector s_Selector;
     public static Swerve s_Swerve;
     public static Vision s_Vision;
     public static Elevator s_Elevator;
@@ -251,6 +250,10 @@ public class RobotContainer {
                             new VisionIOPhotonSim(
                                 VisionConstants.cameraNames()[1],
                                 VisionConstants.robotToCamera()[1],
+                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
+                            new VisionIOPhotonSim(
+                                VisionConstants.cameraNames()[2],
+                                VisionConstants.robotToCamera()[2],
                                 Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
@@ -327,10 +330,8 @@ public class RobotContainer {
                     new ElevatorIO() {});
         }
 
-        s_Selector =
-            new AutonSelector("Auton Selector");
-
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
+        Autos.init();
 
         configureShallowClimbEndgame();
         configurePathfindingCommands();

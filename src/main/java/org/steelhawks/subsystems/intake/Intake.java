@@ -78,7 +78,6 @@ public class Intake {
     public Command shootCoralSlow() {
         return Commands.run(
             () -> mCoralIntake.shootSlowCoral(), mCoralIntake)
-            .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2))
             .finallyDo(() -> mCoralIntake.stop());
     }
 
