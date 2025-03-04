@@ -30,6 +30,7 @@ public enum ChoreoPaths {
     LOWER_SOURCE_TO_BL1("Lower Source to BL1", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL1, AutonBuilder.ReefZones.BL),
     LOWER_SOURCE_TO_BL2("Lower Source to BL2", StartEndPosition.LOWER_SOURCE, StartEndPosition.BL2, AutonBuilder.ReefZones.BL),
     LOWER_SOURCE_TO_BR1("Lower Source to BR1", StartEndPosition.LOWER_SOURCE, StartEndPosition.BR1, AutonBuilder.ReefZones.BR),
+    LOWER_SOURCE_TO_BR2("Lower Source to BR2", StartEndPosition.LOWER_SOURCE, StartEndPosition.BR2, AutonBuilder.ReefZones.BR),
 
     R1_TO_LOWER_SOURCE("R1 to Lower Source",StartEndPosition.R1, StartEndPosition.LOWER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),
     R1_TO_UPPER_SOURCE("R1 to Upper Source",StartEndPosition.R1, StartEndPosition.UPPER_SOURCE, AutonBuilder.ReefZones.UNDEFINED),

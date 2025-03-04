@@ -70,7 +70,8 @@ public final class Autos {
         for (String trajectory : trajectories) {
             commands.add(followTrajectory(trajectory));
             if (endsWithSource(trajectory)) {
-                commands.add(Commands.waitUntil(s_Intake.hasCoral()));
+//                commands.add(Commands.waitUntil(s_Intake.hasCoral()));
+                commands.add(Commands.waitSeconds(1));
             } else {
                 commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
             }
@@ -96,6 +97,13 @@ public final class Autos {
                 s_Intake.shootCoralSlow().withTimeout(1.0),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .andThen(followTrajectory("TR2 to Upper Source"));
+    }
+
+    public static Command getTestPath() {
+        return Commands.runOnce(
+                        () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
+                .andThen(
+                        followTrajectory("Test Path"));
     }
 
     public static Command getBC1Auton() {
@@ -153,13 +161,15 @@ public final class Autos {
     public static Command getRC2Auton() {
         return createAuto(StartEndPosition.RC2,
             new String[]{
-                "RC2 to BR1",
-                "BR1 to Lower Source",
-                "Lower Source to BL1",
-                "BL1 to Lower Source",
-                "Lower Source to BL1",
-                "BL1 to Lower Source",
-                "Lower Source to BL2"
+                "RC2 to BR2",
+                    "BR2 to Lower Source",
+                    "Lower Source to BR1"
+//                "BR1 to Lower Source",
+//                "Lower Source to BL1",
+//                "BL1 to Lower Source",
+//                "Lower Source to BL1",
+//                "BL1 to Lower Source",
+//                "Lower Source to BL2"
             }).withName("RC2 Auto");
     }
 
