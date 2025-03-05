@@ -19,7 +19,14 @@ public final class Constants {
     public static final boolean USE_MOTION_MAGIC = false;
     public static final boolean TUNING_MODE = false;
 
-    public static final PowerDistribution.ModuleType PD_MODULE_TYPE = PowerDistribution.ModuleType.kRev;
+    public static final int POWER_DISTRIBUTION_CAN_ID =
+        getRobot() == RobotType.ALPHABOT
+            ? 0
+            : 1;
+    public static final PowerDistribution.ModuleType PD_MODULE_TYPE =
+        getRobot() == RobotType.ALPHABOT
+            ? PowerDistribution.ModuleType.kCTRE
+            : PowerDistribution.ModuleType.kRev;
     public static final double SIM_UPDATE_LOOP = 0.020;
 
     public enum Mode {
@@ -36,7 +43,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
