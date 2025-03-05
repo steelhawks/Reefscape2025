@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
+import org.steelhawks.commands.SuperStructure;
 import org.steelhawks.commands.VibrateController;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -30,6 +31,7 @@ import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
+import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
@@ -480,35 +482,36 @@ public class RobotContainer {
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+                SuperStructure.runElevator(ElevatorConstants.State.L1));
 
         operator.x()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l2"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+                SuperStructure.runElevator(ElevatorConstants.State.L2));
 
         operator.x()
             .and(modifierTrigger)
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L2));
+                Commands.sequence(
+                    SuperStructure.knockAlgae(ElevatorConstants.State.KNOCK_L2)));
 
         operator.y()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+                SuperStructure.runElevator(ElevatorConstants.State.L3));
 
         operator.y()
             .and(modifierTrigger)
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L3));
+                SuperStructure.knockAlgae(ElevatorConstants.State.L3));
 
         operator.a()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+                SuperStructure.runElevator(ElevatorConstants.State.L4));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
