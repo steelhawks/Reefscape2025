@@ -196,6 +196,7 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                             Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+                Logger.recordOutput("Swerve/DriveBaseRadius", DRIVE_BASE_RADIUS);
                 ROBOT_MASS_KG = Units.lbsToKilograms(131.2);
                 ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
                 WHEEL_COF = COTS.WHEELS.COLSONS.cof;
