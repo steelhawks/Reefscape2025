@@ -1,6 +1,7 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.steelhawks.Constants.FieldConstants;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
@@ -16,7 +17,6 @@ public class Reefstate {
     private static final List<FieldConstants.Position> reefPositions =
         Arrays.stream(FieldConstants.Position.values())
             .limit(6) // only take the first 6 positions for the reef
-//            .map(FieldConstants.Position::getPose)
             .toList();
 
     private static final List<ReefSection> mReefSections =
@@ -162,5 +162,29 @@ public class Reefstate {
             }
         }
         return ElevatorConstants.State.HOME;
+    }
+
+    public static Rotation2d getRotationFromTagId(int tagId) {
+        if (AllianceFlip.shouldFlip()) { // red alliance
+            return switch (tagId) {
+                case 17 -> FieldConstants.Position.BOTTOM_LEFT_SECTION.getPose().getRotation();
+                case 18 -> FieldConstants.Position.LEFT_SECTION.getPose().getRotation();
+                case 19 -> FieldConstants.Position.TOP_LEFT_SECTION.getPose().getRotation();
+                case 20 -> FieldConstants.Position.TOP_RIGHT_SECTION.getPose().getRotation();
+                case 21 -> FieldConstants.Position.RIGHT_SECTION.getPose().getRotation();
+                case 22 -> FieldConstants.Position.BOTTOM_RIGHT_SECTION.getPose().getRotation();
+                default -> null;
+            };
+        } else { // blue allance
+            return switch (tagId) {
+                case 6 -> FieldConstants.Position.BOTTOM_RIGHT_SECTION.getPose().getRotation();
+                case 7 -> FieldConstants.Position.RIGHT_SECTION.getPose().getRotation();
+                case 8 -> FieldConstants.Position.TOP_RIGHT_SECTION.getPose().getRotation();
+                case 9 -> FieldConstants.Position.TOP_LEFT_SECTION.getPose().getRotation();
+                case 10 -> FieldConstants.Position.LEFT_SECTION.getPose().getRotation();
+                case 11 -> FieldConstants.Position.BOTTOM_LEFT_SECTION.getPose().getRotation();
+                default -> null;
+            };
+        }
     }
 }

@@ -13,7 +13,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     private static final double ELEVATOR_WEIGHT = 40; // kg
     private static final double SPROCKET_RAD = // the driving drum
-        Units.inchesToMeters(1.729 / 2.0);
+        Units.inchesToMeters(1.888);
     private static final double ELEVATOR_GEARING = 10.0 / 1.0;
     private static final double MIN_HEIGHT = 0; //m
     public static final double MAX_HEIGHT = 1; //m
