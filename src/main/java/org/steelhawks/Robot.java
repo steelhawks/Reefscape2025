@@ -92,7 +92,7 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());
                 new PowerDistribution(
-                    1, Constants.PD_MODULE_TYPE); // Enables power distribution logging
+                    Constants.POWER_DISTRIBUTION_CAN_ID, Constants.PD_MODULE_TYPE); // Enables power distribution logging
             }
             case SIM -> // Running a physics simulator, log to NT
                 Logger.addDataReceiver(new NT4Publisher());

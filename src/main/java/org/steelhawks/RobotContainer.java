@@ -225,6 +225,7 @@ public class RobotContainer {
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
                     Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.Position.CORAL_STATION_BOTTOM.getPose());
+                    Logger.recordOutput("Swerve/ModuleTranslations", Swerve.getModuleTranslations());
 
 //                    for (Transform3d camTransform : VisionConstants.robotToCamera()) {
 //                        Logger.recordOutput("Camera/" + cameraName, camTransform);
