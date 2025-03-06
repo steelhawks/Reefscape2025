@@ -531,17 +531,20 @@ public class RobotContainer {
 //            .onTrue(
 //                s_Schlong.setDesiredState(IntakeConstants.SchlongState.ERECT));
 
+        // operator.x()
+        //     .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+        // operator.y()
+        //     .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        // operator.a()
+        //     .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
+        // operator.b()
+        //     .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
         operator.x()
-            .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-        operator.y()
-            .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        operator.a()
-            .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kForward));
-
-        operator.b()
-            .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+            .whileTrue(s_Schlong.applykG());
 
 
         /* ------------- Intake Controls ------------- */

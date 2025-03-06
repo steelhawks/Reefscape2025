@@ -152,9 +152,10 @@ public class Schlong extends SubsystemBase {
 
     @AutoLogOutput(key = "Schlong/AdjustedPosition")
     public double getPivotPosition() {
-//        final double armOffsetToZero = -6.270913460876501 - 0.15646604036433587;
-        final double armOffsetToZero = -.22;
-        return Units.degreesToRadians(Conversions.convert360To180(inputs.pivotPositionRad + armOffsetToZero));
+       final double armOffsetToZero = -6.270913460876501 - 0.15646604036433587;
+       return ((inputs.pivotPositionRad + armOffsetToZero) * ((-Math.PI / 2) / (-4.3933209765044765)));
+        // final double armOffsetToZero = -.22;
+        // return Units.degreesToRadians(Conversions.convert360To180(inputs.pivotPositionRad + armOffsetToZero));
     }
 
     public Trigger atGoal() {
@@ -239,8 +240,8 @@ public class Schlong extends SubsystemBase {
     public Command applykG() {
         return Commands.run(
             () -> {
-//                double volts = constants.SCHLONG_KG * Math.cos(getPivotPosition());
-                double volts = mFeedforward.calculate(getPivotPosition(), 0);
+               double volts = constants.SCHLONG_KG * Math.cos(getPivotPosition());
+                // double volts = mFeedforward.calculate(getPivotPosition(), 0);
                 Logger.recordOutput("Schlong/GravityCompensation", volts);
                 io.runPivotWithVoltage("Apply KG", volts);
             }, this)
