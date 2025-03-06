@@ -1,6 +1,5 @@
 package org.steelhawks;
 
-import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
@@ -9,10 +8,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
-import org.steelhawks.commands.SuperStructure;
 import org.steelhawks.commands.VibrateController;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -33,7 +30,6 @@ import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.intake.Intake;
-import org.steelhawks.subsystems.intake.IntakeConstants;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
@@ -264,6 +260,10 @@ public class RobotContainer {
                             new VisionIOPhotonSim(
                                 VisionConstants.cameraNames()[2],
                                 VisionConstants.robotToCamera()[2],
+                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
+                            new VisionIOPhotonSim(
+                                VisionConstants.cameraNames()[3],
+                                VisionConstants.robotToCamera()[3],
                                 Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(

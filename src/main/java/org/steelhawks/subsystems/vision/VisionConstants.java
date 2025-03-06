@@ -26,11 +26,10 @@ public class VisionConstants {
                 };
             default ->
                 new String[] {
-                    "arducam-front-left", 
-                    "arducam-front-right", 
-                    "arducam-back-left",
+                    "arducam-front-left",
+                    "arducam-front-right",
                     "arducam-bridge-mount",
-                    "arducam-beam-mount" 
+                    "arducam-beam-mount"
                 };
         };
     }
@@ -78,17 +77,17 @@ public class VisionConstants {
                             Units.degreesToRadians(-60))), // Z is from the top of the belly pan
 
                     // Back Left
-                    new Transform3d(  
-                        // Left-Right: 12.556
-                        // Front-Back: 10.976
-                        // Up-Down: 6.689
-                        Units.inchesToMeters(-10.976), // - 12.644
-                        Units.inchesToMeters(12.556), // - 11.130
-                        Units.inchesToMeters(6.689), // 6.783901  // Z is from the top of the belly pan
-                        new Rotation3d(
-                            Units.degreesToRadians(-15),
-                            Units.degreesToRadians(-28.125),
-                            Units.degreesToRadians(-210))),
+//                    new Transform3d(
+//                        // Left-Right: 12.556
+//                        // Front-Back: 10.976
+//                        // Up-Down: 6.689
+//                        Units.inchesToMeters(-10.976), // - 12.644
+//                        Units.inchesToMeters(12.556), // - 11.130
+//                        Units.inchesToMeters(6.689), // 6.783901  // Z is from the top of the belly pan
+//                        new Rotation3d(
+//                            Units.degreesToRadians(-15),
+//                            Units.degreesToRadians(-28.125),
+//                            Units.degreesToRadians(-210))),
 
                     // Elevator Mount
 //                    new Transform3d(
