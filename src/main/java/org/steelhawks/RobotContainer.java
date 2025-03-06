@@ -161,7 +161,7 @@ public class RobotContainer {
                             new DeepClimbIOTalonFX());
                     s_Schlong =
                         new Schlong(
-                            new SchlongIOTalonFX());
+                            new SchlongIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
