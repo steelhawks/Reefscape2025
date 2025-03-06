@@ -14,8 +14,12 @@ public class Conversions {
      * @param angle angle in radians
      * @return returns a continuous angle from 0-2pi to an angle that is -pi to pi
      */
-    private double convert360To180(double angle) {
+    public static double convert360To180Rad(double angle) {
         return (angle + Math.PI) % (2 * Math.PI) - Math.PI;
+    }
+
+    public static double convert360To180(double angle) {
+        return (angle + 180) % 360 - 180;
     }
 
     /**

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.SuperStructure;
@@ -483,44 +484,64 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        operator.leftBumper()
-            .or(new DashboardTrigger("l1"))
-            .onTrue(
-                SuperStructure.runElevator(ElevatorConstants.State.L1));
+//        operator.leftBumper()
+//            .or(new DashboardTrigger("l1"))
+//            .onTrue(
+//                SuperStructure.runElevator(ElevatorConstants.State.L1));
+
+//        operator.x()
+//            .and(modifierTrigger.negate())
+//            .or(new DashboardTrigger("l2"))
+//            .onTrue(
+//                SuperStructure.runElevator(ElevatorConstants.State.L2));
+//
+//        operator.x()
+//            .and(modifierTrigger)
+//            .onTrue(
+//                Commands.sequence(
+//                    SuperStructure.knockAlgae(ElevatorConstants.State.KNOCK_L2)));
+//
+//        operator.y()
+//            .and(modifierTrigger.negate())
+//            .or(new DashboardTrigger("l3"))
+//            .onTrue(
+//                SuperStructure.runElevator(ElevatorConstants.State.L3));
+//
+//        operator.y()
+//            .and(modifierTrigger)
+//            .onTrue(
+//                SuperStructure.knockAlgae(ElevatorConstants.State.L3));
+//
+//        operator.a()
+//            .and(modifierTrigger.negate())
+//            .or(new DashboardTrigger("l4"))
+//            .onTrue(
+//                SuperStructure.runElevator(ElevatorConstants.State.L4));
+//
+//        operator.b()
+//            .or(new DashboardTrigger("elevatorHome"))
+//            .onTrue(
+//                s_Elevator.noSlamCommand());
+
+//        operator.x()
+//            .onTrue(
+//                s_Schlong.setDesiredState(IntakeConstants.SchlongState.AVOID_ELEVATOR));
+//
+//        operator.y()
+//            .onTrue(
+//                s_Schlong.setDesiredState(IntakeConstants.SchlongState.ERECT));
 
         operator.x()
-            .and(modifierTrigger.negate())
-            .or(new DashboardTrigger("l2"))
-            .onTrue(
-                SuperStructure.runElevator(ElevatorConstants.State.L2));
-
-        operator.x()
-            .and(modifierTrigger)
-            .onTrue(
-                Commands.sequence(
-                    SuperStructure.knockAlgae(ElevatorConstants.State.KNOCK_L2)));
+            .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
         operator.y()
-            .and(modifierTrigger.negate())
-            .or(new DashboardTrigger("l3"))
-            .onTrue(
-                SuperStructure.runElevator(ElevatorConstants.State.L3));
-
-        operator.y()
-            .and(modifierTrigger)
-            .onTrue(
-                SuperStructure.knockAlgae(ElevatorConstants.State.L3));
+            .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
         operator.a()
-            .and(modifierTrigger.negate())
-            .or(new DashboardTrigger("l4"))
-            .onTrue(
-                SuperStructure.runElevator(ElevatorConstants.State.L4));
+            .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
         operator.b()
-            .or(new DashboardTrigger("elevatorHome"))
-            .onTrue(
-                s_Elevator.noSlamCommand());
+            .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
 
         /* ------------- Intake Controls ------------- */
@@ -544,9 +565,6 @@ public class RobotContainer {
             .whileTrue(
                 s_Intake.intakeCoral()
             .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2)));
-
-        operator.povLeft().whileTrue(
-            s_Schlong.applyPivotSpeed(0.4));
 
         operator.rightTrigger().whileTrue(
             s_Schlong.applySpinSpeed(0.4));

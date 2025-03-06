@@ -45,7 +45,7 @@ public class IntakeConstants {
     public enum SchlongState {
         HOME(-Math.PI / 2, -Math.PI / 2, 0.0),
         ERECT(0, 0, 0),
-        AVOID_ELEVATOR(0, 0 ,0);
+        AVOID_ELEVATOR(0, -Math.PI / 4,0);
 
         private final double alphaRadians;
         private final double omegaRadians;
@@ -153,7 +153,7 @@ public class IntakeConstants {
             1,
 
             0,
-            0,
+            0.7,
             0,
             0,
             0,

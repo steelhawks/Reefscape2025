@@ -1,14 +1,13 @@
 package org.steelhawks.subsystems.intake.schlong;
 
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.intake.IntakeConstants;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -69,6 +68,11 @@ public class SchlongIOTalonFX implements SchlongIO {
             canCoderPosition = mPivotEncoder.getPosition();
             canCoderAbsolutePosition = mPivotEncoder.getAbsolutePosition();
             canCoderVelocity = mPivotEncoder.getVelocity();
+
+            var encoderConfig =
+                new CANcoderConfiguration().MagnetSensor
+                    .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
+            mPivotEncoder.getConfigurator().apply(encoderConfig);
 
             BaseStatusSignal.setUpdateFrequencyForAll(
                 50,
@@ -180,8 +184,9 @@ public class SchlongIOTalonFX implements SchlongIO {
     }
 
     @Override
-    public void runPivotWithVoltage(double volts) {
-        mPivotMotor.set(volts);
+    public void runPivotWithVoltage(String runningHere, double volts) {
+        System.out.println(runningHere);
+        mPivotMotor.setVoltage(volts);
     }
 
     @Override
@@ -208,7 +213,7 @@ public class SchlongIOTalonFX implements SchlongIO {
     @Override
     public void zeroEncoders() {
         if (Constants.getRobot() == RobotType.ALPHABOT)
-            mPivotMotor.setPosition(Units.radiansToRotations(- Math.PI / 2));
+            mPivotMotor.setPosition(Units.radiansToRotations(-Math.PI / 2));
 
         if (mPivotEncoder != null)
             mPivotEncoder.setPosition(0);

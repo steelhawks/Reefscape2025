@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.intake.schlong;
 
+import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
@@ -17,6 +18,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.steelhawks.util.Conversions;
+
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 
@@ -79,12 +83,12 @@ public class Schlong extends SubsystemBase {
         mSysId = 
             new SysIdRoutine(
                 new SysIdRoutine.Config(
-                    null,
-                    null,
+                    Volts.of(.25).per(Second),
+                    Volts.of(.5),
                     null,
                     (state) -> Logger.recordOutput("Schlong/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
-                    (voltage) -> io.runPivotWithVoltage(voltage.in(Volts)), null, this));
+                    (voltage) -> io.runPivotWithVoltage("SYSID", voltage.in(Volts)), null, this));
 
         pivotMotorDisconnected = 
             new Alert(
@@ -121,15 +125,15 @@ public class Schlong extends SubsystemBase {
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Schlong/CurrentCommand", getCurrentCommand().getName());
         }
+//
+//        if (shouldEStop.getAsBoolean()) {
+//            disable();
+//            return;
+//        }
 
-        if (shouldEStop.getAsBoolean()) {
-            disable();
-            return;
-        }
-
-        if (mEnabled) {
-            runPivot(mController.calculate(getPivotPosition()), mController.getSetpoint());
-        }
+//        if (mEnabled) {
+//            runPivot(mController.calculate(getPivotPosition()), mController.getSetpoint());
+//        }
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
@@ -143,13 +147,14 @@ public class Schlong extends SubsystemBase {
             return;
         }
 
-        io.runPivotWithVoltage(volts);
+        io.runPivotWithVoltage("Subsystem", volts);
     }
 
     @AutoLogOutput(key = "Schlong/AdjustedPosition")
     public double getPivotPosition() {
-        final double armOffsetToZero = -6.270913460876501 - 0.15646604036433587;
-        return inputs.pivotPositionRad + armOffsetToZero;
+//        final double armOffsetToZero = -6.270913460876501 - 0.15646604036433587;
+        final double armOffsetToZero = -.22;
+        return Units.degreesToRadians(Conversions.convert360To180(inputs.pivotPositionRad + armOffsetToZero));
     }
 
     public Trigger atGoal() {
@@ -201,7 +206,7 @@ public class Schlong extends SubsystemBase {
 
     public Command applyPivotVolts(double volts) {
         return Commands.run(
-            () -> io.runPivotWithVoltage(volts))
+            () -> io.runPivotWithVoltage("Volts testing linear", volts))
             .finallyDo(()-> io.stopPivot());
     }
 
@@ -227,19 +232,24 @@ public class Schlong extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(constants.SCHLONG_KS))
+            () -> io.runPivotWithVoltage("Apply Ks", constants.SCHLONG_KS))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(constants.SCHLONG_KG * Math.cos(getPivotPosition())), this)
+            () -> {
+//                double volts = constants.SCHLONG_KG * Math.cos(getPivotPosition());
+                double volts = mFeedforward.calculate(getPivotPosition(), 0);
+                Logger.recordOutput("Schlong/GravityCompensation", volts);
+                io.runPivotWithVoltage("Apply KG", volts);
+            }, this)
             .finallyDo(() -> io.stopPivot());
     }
     
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(
+            () -> io.runPivotWithVoltage("Apply KV",
                 constants.SCHLONG_KS * Math.signum(getPivotPosition()) + constants.SCHLONG_KG * Math.cos(getPivotPosition()) + constants.SCHLONG_KV))
                 .finallyDo(() -> io.stopPivot());
     }
