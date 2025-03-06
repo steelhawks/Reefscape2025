@@ -149,6 +149,14 @@ public class Reefstate {
             .orElse(null);
     }
 
+    public static String getClosestReefName(Pose2d currentPose) {
+        return reefPositions.stream()
+            .min(Comparator.comparingDouble(reef ->
+                AllianceFlip.apply(reef.getPose()).getTranslation().getDistance(currentPose.getTranslation())))
+            .map(FieldConstants.Position::name)
+            .orElse(null);
+    }
+
     // fix
     public static ElevatorConstants.State getFreeLevel() {
         for (int i = 0; i < mReefSections.size(); i++) {
