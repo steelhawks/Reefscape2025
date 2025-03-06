@@ -147,6 +147,8 @@ public class Robot extends LoggedRobot {
 
         PortForwarder.add(80, "10.26.1.11", 5800);
         PortForwarder.add(80, "10.26.1.12", 5800);
+
+        Logger.recordOutput("Align/ClosestReef", Reefstate.getClosestReefName(RobotContainer.s_Swerve.getPose()));
     }
 
     @Override

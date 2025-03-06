@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
@@ -46,6 +47,7 @@ import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.DashboardTrigger;
 import org.steelhawks.util.DoublePressTrigger;
+import org.steelhawks.util.autonbuilder.StartEndPosition;
 
 public class RobotContainer {
 
@@ -371,13 +373,61 @@ public class RobotContainer {
 
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
-//        driver.leftTrigger()
-//            .whileTrue(
-//                DriveCommands.driveToPosition(
-//                    Reefstate.getClosestReef(s_Swerve.getPose()), interruptPathfinding));
-        driver.leftTrigger()
+        driver.leftBumper()
             .whileTrue(
-                Align.directPathFollow(Reefstate.getClosestReef(s_Swerve.getPose())));
+                getAlign(true));
+        driver.rightBumper()
+            .whileTrue(
+                getAlign(false));
+    }
+
+    private Command getAlign(boolean isAligningLeft) {
+        return switch (Reefstate.getClosestReefName(s_Swerve.getPose())) {
+            case "LEFT_SECTION" -> {
+                if (isAligningLeft) {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.L1.getPose()));
+                } else {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.L2.getPose()));
+                }
+            }
+            case "TOP_LEFT_SECTION" -> {
+                if (isAligningLeft) {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TL1.getPose()));
+                } else {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TL2.getPose()));
+                }
+            }
+            case "BOTTOM_LEFT_SECTION" -> {
+                if (isAligningLeft) {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BL1.getPose()));
+                } else {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BL2.getPose()));
+                }
+            }
+            case "RIGHT_SECTION" -> {
+                if (isAligningLeft) {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.R1.getPose()));
+                } else {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.R2.getPose()));
+                }
+            }
+            case "TOP_RIGHT_SECTION" -> {
+                if (isAligningLeft) {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TR1.getPose()));
+                } else {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TR2.getPose()));
+                }
+            }
+            case "BOTTOM_RIGHT_SECTION" -> {
+                if (isAligningLeft) {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BR1.getPose()));
+                } else {
+                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BR2.getPose()));
+                }
+            }
+            default ->
+                throw new IllegalStateException("Unexpected value: " + Reefstate.getClosestReefName(s_Swerve.getPose()));
+        };
     }
 
     private void configureDefaultCommands() {}
@@ -444,8 +494,8 @@ public class RobotContainer {
 //        driver.leftBumper().whileTrue(
 //            s_Align.alignLeft(new Rotation2d()));
 
-        driver.rightBumper().whileTrue(
-            s_Align.alignRight(new Rotation2d()));
+//        driver.rightBumper().whileTrue(
+//            s_Align.alignRight(new Rotation2d()));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(

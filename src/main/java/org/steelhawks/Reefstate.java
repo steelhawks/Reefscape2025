@@ -140,7 +140,6 @@ public class Reefstate {
         reefSection.troughCount = troughCount;
     }
 
-    @AutoLogOutput(key = "Pose/ClosestReef")
     public static Pose2d getClosestReef(Pose2d currentPose) {
         return reefPositions.stream()
             .min(Comparator.comparingDouble(reef ->
