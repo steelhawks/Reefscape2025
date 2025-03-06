@@ -5,7 +5,6 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -13,8 +12,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import org.steelhawks.subsystems.vision.VisionConstants;
 
 public final class Constants {
-
-    public static final double previousWeight = 131.2; // TEMPORARY, DELETE AFTERWARDS
 
     public static final double ENDGAME_PERIOD = 20;
     public static final double MATCH_TIME_SECONDS = 150;
@@ -188,8 +185,6 @@ public final class Constants {
      * Constants for autonomous driving functions.
      */
     public static final class AutonConstants {
-        public static final double distanceBetweenCoralIntakeAndRobotCenter = Units.inchesToMeters(9.836467);
-        // RC2 to BR2, BR2 to Lower Source, Lower Source to BR1, BR1 to Lower Source, Lower Source to BL2
 
         public static final AutonConstants OMEGA =
             new AutonConstants(
