@@ -373,12 +373,12 @@ public class RobotContainer {
 
     private void configurePathfindingCommands() {
         /* ------------- Pathfinding Poses ------------- */
-        driver.leftBumper()
-            .whileTrue(
-                getAlign(true));
-        driver.rightBumper()
-            .whileTrue(
-                getAlign(false));
+//        driver.leftBumper()
+//            .whileTrue(
+//                getAlign(true));
+//        driver.rightBumper()
+//            .whileTrue(
+//                getAlign(false));
     }
 
     private Command getAlign(boolean isAligningLeft) {
