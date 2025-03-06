@@ -7,6 +7,7 @@ import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
@@ -143,6 +144,9 @@ public class Robot extends LoggedRobot {
 
         robotContainer = new RobotContainer();
         OperatorDashboard.INSTANCE.initialize();
+
+        PortForwarder.add(80, "10.26.1.11", 5800);
+        PortForwarder.add(80, "10.26.1.12", 5800);
     }
 
     @Override

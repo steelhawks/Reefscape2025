@@ -49,7 +49,7 @@ import org.steelhawks.util.DoublePressTrigger;
 
 public class RobotContainer {
 
-    public static final boolean useVision = false;
+    public static final boolean useVision = true;
 
     private final Trigger interruptPathfinding;
     private final Trigger isShallowEndgame;
@@ -158,7 +158,7 @@ public class RobotContainer {
                     s_Climb =
                         new Climb(
                             new ShallowClimbIO() {},
-                            new DeepClimbIO() {});
+                            new DeepClimbIOTalonFX());
                     s_Schlong =
                         new Schlong(
                             new SchlongIOTalonFX());
@@ -484,44 +484,50 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-//        operator.leftBumper()
-//            .or(new DashboardTrigger("l1"))
-//            .onTrue(
-//                SuperStructure.runElevator(ElevatorConstants.State.L1));
+       operator.leftBumper()
+           .or(new DashboardTrigger("l1"))
+           .onTrue(
+               s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
-//        operator.x()
-//            .and(modifierTrigger.negate())
-//            .or(new DashboardTrigger("l2"))
-//            .onTrue(
-//                SuperStructure.runElevator(ElevatorConstants.State.L2));
-//
+       operator.x()
+        //    .and(modifierTrigger.negate())
+           .or(new DashboardTrigger("l2"))
+           .onTrue(
+               s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+
 //        operator.x()
 //            .and(modifierTrigger)
 //            .onTrue(
 //                Commands.sequence(
 //                    SuperStructure.knockAlgae(ElevatorConstants.State.KNOCK_L2)));
 //
-//        operator.y()
-//            .and(modifierTrigger.negate())
-//            .or(new DashboardTrigger("l3"))
-//            .onTrue(
-//                SuperStructure.runElevator(ElevatorConstants.State.L3));
+       operator.y()
+        //    .and(modifierTrigger.negate())
+           .or(new DashboardTrigger("l3"))
+           .onTrue(
+               s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 //
-//        operator.y()
-//            .and(modifierTrigger)
-//            .onTrue(
-//                SuperStructure.knockAlgae(ElevatorConstants.State.L3));
+    //    operator.y()
+    //        .and(modifierTrigger)
+    //        .onTrue(
+    //            SuperStructure.knockAlgae(ElevatorConstants.State.L3));
 //
-//        operator.a()
-//            .and(modifierTrigger.negate())
-//            .or(new DashboardTrigger("l4"))
-//            .onTrue(
-//                SuperStructure.runElevator(ElevatorConstants.State.L4));
+       operator.a()
+        //    .and(modifierTrigger.negate())
+           .or(new DashboardTrigger("l4"))
+           .onTrue(
+               s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 //
-//        operator.b()
-//            .or(new DashboardTrigger("elevatorHome"))
-//            .onTrue(
-//                s_Elevator.noSlamCommand());
+       operator.b()
+           .or(new DashboardTrigger("elevatorHome"))
+           .onTrue(
+               s_Elevator.noSlamCommand());
+
+        // operator.povUp()
+        //     .whileTrue(s_Climb.runDeepClimbViaSpeed(0.2));
+
+        // operator.povDown()
+        //     .whileTrue(s_Climb.runDeepClimbViaSpeed(-0.2));
 
 //        operator.x()
 //            .onTrue(
@@ -543,8 +549,8 @@ public class RobotContainer {
         // operator.b()
         //     .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        operator.x()
-            .whileTrue(s_Schlong.applykG());
+        // operator.x()
+        //     .whileTrue(s_Schlong.applykG());
 
 
         /* ------------- Intake Controls ------------- */

@@ -159,9 +159,9 @@ public class VisionConstants {
             default ->
                 new double[] {
                     3.0, // arducam-front-left
-                    1.2, // arducam-front-right
+                    1.5, // arducam-front-right
                     1.3, // arducam-back-left
-                    1.0, // arducam-bridge-mount
+                    1.5, // arducam-bridge-mount
                     1.0, // arducam-beam-mount
                 };
         };
