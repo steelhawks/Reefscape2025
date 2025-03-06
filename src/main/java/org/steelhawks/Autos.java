@@ -162,14 +162,14 @@ public final class Autos {
         return createAuto(StartEndPosition.RC2,
             new String[]{
                 "RC2 to BR2",
-                 "BR2 to Lower Source",
-                 "Lower Source to BR1",
-//                "BR1 to Lower Source",
+                "BR2 to Lower Source",
+                "Lower Source to BR1",
+                "BR1 to Lower Source",
 //                "Lower Source to BL1",
 //                "BL1 to Lower Source",
 //                "Lower Source to BL1",
 //                "BL1 to Lower Source",
-//                "Lower Source to BL2"
+                "Lower Source to BL2"
             }).withName("RC2 Auto");
     }
 
