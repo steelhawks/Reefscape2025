@@ -17,7 +17,6 @@ public class VisionConstants {
         return switch (Constants.getRobot()) {
             case ALPHABOT ->
                 new String[] {
-//                    "Arducam_OV2311_USB_Camera",
                     "limelight-coral"
                 };
             case HAWKRIDER ->
@@ -29,8 +28,7 @@ public class VisionConstants {
                 new String[] {
                     "arducam-front-left", 
                     "arducam-front-right", 
-                    "arducam-back-left", 
-                    "arducam-elevator-mount",
+                    "arducam-back-left",
                     "arducam-bridge-mount",
                     "arducam-beam-mount" 
                 };
@@ -93,17 +91,17 @@ public class VisionConstants {
                             Units.degreesToRadians(-210))),
 
                     // Elevator Mount
-                    new Transform3d(
-                        // Left-Right: 0
-                        // Front-Back: 13.583
-                        // Up-Down: 36.604
-                        Units.inchesToMeters(13.583),
-                        Units.inchesToMeters(0),
-                        Units.inchesToMeters(36.604), // Z is from the top of the belly pan
-                        new Rotation3d(
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(-45),
-                            Units.degreesToRadians(0))),
+//                    new Transform3d(
+//                        // Left-Right: 0
+//                        // Front-Back: 13.583
+//                        // Up-Down: 36.604
+//                        Units.inchesToMeters(13.583),
+//                        Units.inchesToMeters(0),
+//                        Units.inchesToMeters(36.604), // Z is from the top of the belly pan
+//                        new Rotation3d(
+//                            Units.degreesToRadians(0),
+//                            Units.degreesToRadians(-45),
+//                            Units.degreesToRadians(0))),
 
                     // Bridge Mount, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
                     new Transform3d(
@@ -136,16 +134,6 @@ public class VisionConstants {
         };
     }
 
-//    public static Transform3d ROBOT_TO_CAMERA0 =
-//        new Transform3d(
-//            Units.inchesToMeters(-7.5), 0.0, 0.2, new Rotation3d(0.0, 0.35, 0.79));
-// -7.5
-    // Limelight offsets used for Vision Simulation
-    public static Transform3d ROBOT_TO_CAMERA1 =
-        new Transform3d(0, 0, 0, new Rotation3d());
-    public static Transform3d ROBOT_TO_CAMERA2 =
-        new Transform3d(0, 0, 0, new Rotation3d());
-
     // Basic filtering thresholds
     public static double MAX_AMBIGUITY = 0.3;
     public static double MAX_ZERROR = 0.75;
@@ -170,10 +158,11 @@ public class VisionConstants {
                 };
             default ->
                 new double[] {
-                    3.0, // Camera 0
-                    1.2, // Camera 1
-                    1.3, // Camera 2
-                    1.0 // Camera 3
+                    3.0, // arducam-front-left
+                    1.2, // arducam-front-right
+                    1.3, // arducam-back-left
+                    1.0, // arducam-bridge-mount
+                    1.0, // arducam-beam-mount
                 };
         };
 
