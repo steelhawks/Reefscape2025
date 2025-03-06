@@ -55,14 +55,15 @@ public class SchlongIOTalonFX implements SchlongIO {
             default -> constants = IntakeConstants.OMEGA;
         }
 
-        mSpinMotor = new TalonFX(constants.SCHLONG_SPIN_MOTOR_ID);
-        mPivotMotor = new TalonFX(constants.SCHLONG_PIVOT_MOTOR_ID);
+        mSpinMotor = new TalonFX(constants.SCHLONG_SPIN_MOTOR_ID, Constants.getCANBus());
+        mPivotMotor = new TalonFX(constants.SCHLONG_PIVOT_MOTOR_ID, Constants.getCANBus());
         if (constants.SCHLONG_LIMIT_SWITCH_ID != -1) {
             mLimitSwitch = new DigitalInput(constants.SCHLONG_LIMIT_SWITCH_ID);
-            mPivotEncoder = null;
         } else {
             mLimitSwitch = null;
-            mPivotEncoder = new CANcoder(constants.SCHLONG_CANCODER_ID);
+        }
+        if (constants.SCHLONG_CANCODER_ID != -1) {
+            mPivotEncoder = new CANcoder(constants.SCHLONG_CANCODER_ID, Constants.getCANBus());
 
             magnetFault = mPivotEncoder.getFault_BadMagnet();
             canCoderPosition = mPivotEncoder.getPosition();
@@ -75,7 +76,9 @@ public class SchlongIOTalonFX implements SchlongIO {
                 canCoderPosition,
                 canCoderAbsolutePosition,
                 canCoderVelocity);
-            ParentDevice.optimizeBusUtilizationForAll(mPivotEncoder);
+            mPivotEncoder.optimizeBusUtilization();
+        } else {
+            mPivotEncoder = null;
         }
 
         var spinConfig = new TalonFXConfiguration()
@@ -126,12 +129,6 @@ public class SchlongIOTalonFX implements SchlongIO {
 
     @Override
     public void updateInputs(SchlongIOInputs inputs) {
-        double spinPos = spinPosition.getValueAsDouble();
-        double pivotPos = pivotPosition.getValueAsDouble();
-
-        double spinVelo = spinVelocity.getValueAsDouble();
-        double pivotVelo = pivotVelocity.getValueAsDouble();
-
         inputs.spinConnected =
             BaseStatusSignal.refreshAll(
                 spinPosition,
@@ -139,8 +136,8 @@ public class SchlongIOTalonFX implements SchlongIO {
                 spinVoltage,
                 spinCurrent,
                 spinTemp).isOK();
-        inputs.spinPositionRad = Units.rotationsToRadians(spinPos);
-        inputs.spinVelocityRadPerSec = Units.rotationsToRadians(spinVelo);
+        inputs.spinPositionRad = Units.rotationsToRadians(spinPosition.getValueAsDouble());
+        inputs.spinVelocityRadPerSec = Units.rotationsToRadians(spinVelocity.getValueAsDouble());
         inputs.spinAppliedVolts = spinVoltage.getValueAsDouble();
         inputs.spinCurrentAmps = spinCurrent.getValueAsDouble();
         inputs.spinTempCelsius = spinTemp.getValueAsDouble();
@@ -152,14 +149,29 @@ public class SchlongIOTalonFX implements SchlongIO {
                 pivotVoltage,
                 pivotCurrent,
                 pivotTemp).isOK();
-        inputs.pivotPositionRad = Units.rotationsToRadians(pivotPos);
-        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelo);
+        inputs.pivotPositionRad = Units.rotationsToRadians(pivotPosition.getValueAsDouble());
+        inputs.pivotVelocityRadPerSec = Units.rotationsToRadians(pivotVelocity.getValueAsDouble());
         inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
         inputs.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
         inputs.pivotTempCelsius = pivotTemp.getValueAsDouble();
 
-        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.SCHLONG_LIMIT_SWITCH_ID;
-        inputs.limitSwitchPressed = !mLimitSwitch.get();
+        if (mPivotEncoder != null) {
+            inputs.encoderConnected =
+                BaseStatusSignal.refreshAll(
+                    magnetFault,
+                    canCoderPosition,
+                    canCoderAbsolutePosition,
+                    canCoderVelocity).isOK();
+            inputs.magnetGood = !magnetFault.getValue();
+            inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
+            inputs.encoderAbsolutePositionRad = Units.rotationsToRadians(canCoderAbsolutePosition.getValueAsDouble())   ;
+            inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
+        }
+
+        if (mLimitSwitch != null) {
+            inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.SCHLONG_LIMIT_SWITCH_ID;
+            inputs.limitSwitchPressed = !mLimitSwitch.get();    
+        }
     }
 
     @Override

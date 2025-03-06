@@ -157,7 +157,7 @@ public class RobotContainer {
                             new DeepClimbIO() {});
                     s_Schlong =
                         new Schlong(
-                            new SchlongIO() {});
+                            new SchlongIOTalonFX());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -187,8 +187,9 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIOTalonFX());
-                    s_Schlong = new Schlong(
-                        new SchlongIOTalonFX());
+                    s_Schlong = 
+                        new Schlong(
+                            new SchlongIOTalonFX());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -530,11 +531,11 @@ public class RobotContainer {
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
 
-        operator.povLeft()
-            .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
-            .whileTrue(
-                s_Intake.reverseCoral()
-            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
+        // operator.povLeft()
+        //     .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
+        //     .whileTrue(
+        //         s_Intake.reverseCoral()
+        //     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
 
         operator.povRight()
             .whileTrue(

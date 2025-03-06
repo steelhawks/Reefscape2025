@@ -22,6 +22,12 @@ public interface SchlongIO {
         public double pivotCurrentAmps = 0;
         public double pivotTempCelsius = 0;
 
+        public boolean encoderConnected = false;
+        public boolean magnetGood = false;
+        public double encoderPositionRad = 0;
+        public double encoderAbsolutePositionRad = 0;
+        public double encoderVelocityRadPerSec = 0;
+
         public boolean limitSwitchConnected = false;
         public boolean limitSwitchPressed = false;
     }

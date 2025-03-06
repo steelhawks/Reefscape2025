@@ -148,7 +148,8 @@ public class Schlong extends SubsystemBase {
 
     @AutoLogOutput(key = "Schlong/AdjustedPosition")
     public double getPivotPosition() {
-        return inputs.pivotPositionRad;
+        final double armOffsetToZero = -6.270913460876501 - 0.15646604036433587;
+        return inputs.pivotPositionRad + armOffsetToZero;
     }
 
     public Trigger atGoal() {
