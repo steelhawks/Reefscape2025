@@ -94,26 +94,6 @@ public class AutonBuilder extends VirtualSubsystem {
                         Autos.elevatorAndShoot(elevatorDesiredState));
         }
 
-        // UNTESTED
-        /*
-        if (currentPath.isReefPath) {
-            autoCommand =
-                autoCommand
-                    .andThen(
-                        RobotContainer.s_Elevator.setDesiredState(Reefstate.getFreeLevel()),
-                        Commands.race(
-                            Commands.waitSeconds(1),
-                            Commands.waitUntil(RobotContainer.s_Elevator.atGoal())),
-                            Commands.either(
-                                RobotContainer.s_Intake.shootPulsatingCoral(),
-                                RobotContainer.s_Intake.shootCoral(),
-                                () -> (RobotContainer.s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
-                                    RobotContainer.s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && RobotContainer.s_Elevator.isEnabled()),
-                        RobotContainer.s_Intake.shootPulsatingCoral().withTimeout(1.0),
-//                        Commands.runOnce(() -> Reefstate.placeCoral(getSection(currentPath.name), ))),
-                        RobotContainer.s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
-        }
-        */
         return new AutoRoutine(currentPath.name, autoCommand, currentPath.endingPosition);
     }
 
