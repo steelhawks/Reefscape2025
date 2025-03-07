@@ -10,6 +10,7 @@ import org.steelhawks.util.autonbuilder.StartEndPosition;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
@@ -54,7 +55,9 @@ public final class Autos {
             Commands.deadline(
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
-            s_Intake.shootCoral().withTimeout(1.0),
+            Commands.either(
+                s_Intake.shootPulsatingCoral().withTimeout(1.0), s_Intake.shootCoral().withTimeout(1.0), 
+                () -> (state == State.L4 || state == State.L1)),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .withName("Elevator and Shoot in Auton");
     }
