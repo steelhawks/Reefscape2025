@@ -456,7 +456,9 @@ public class RobotContainer {
 
         s_Intake.hasCoral()
             .onTrue(
-                s_LED.flashCommand(LEDColor.GREEN, 0.1, 3));
+                Commands.parallel(
+                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 3),
+                    new VibrateController(1.0, 2, driver, operator)));
 
         isShallowEndgame
             .onTrue(
