@@ -188,7 +188,11 @@ public final class Constants {
      * Constants for autonomous driving functions.
      */
     public static final class AutonConstants {
-        public static final double distanceBetweenCoralIntakeAndRobotCenter = Units.inchesToMeters(9.836467);
+        // Distance between coral intake and robot center
+        public static final double coralOffset = 0.2498462618; // Units.inchesToMeters(9.836467); 
+        public static final double coralOffsetSmallComponent = 0.1249231309;
+        public static final double coralOffsetBigComponent = 0.21637320975937756890536690206266;
+
         // RC2 to BR2, BR2 to Lower Source, Lower Source to BR1, BR1 to Lower Source, Lower Source to BL2
 
         public static final AutonConstants OMEGA =
