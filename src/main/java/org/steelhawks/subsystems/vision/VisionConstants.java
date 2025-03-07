@@ -77,31 +77,31 @@ public class VisionConstants {
                             Units.degreesToRadians(0),
                             Units.degreesToRadians(60.036534))), // Z is from the top of the belly pan
 
-                    // // FRONT RIGHT (Arducam has pitch angle)
-                    // new Transform3d(
-                    //     // Left-Right: 10.975
-                    //     // Front-Back: 12.556
-                    //     // Up-Down: 6.689
-                    //     Units.inchesToMeters(12.556),
-                    //     Units.inchesToMeters(-10.975),
-                    //     Units.inchesToMeters(6.689),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(15),
-                    //         Units.degreesToRadians(-28.125),
-                    //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
-
-                    // FRONT RIGHT (Arducam has NO pitch angle. Printed for HVR on 20250307)
+                    // FRONT RIGHT (Arducam has pitch angle)
                     new Transform3d(
-                        // Left-Right: 11.559949
-                        // Front-Back: 12.071904
-                        // Up-Down: 6.763611
-                        Units.inchesToMeters(12.071904),
-                        Units.inchesToMeters(-11.559949),
-                        Units.inchesToMeters(6.763611),
+                        // Left-Right: 10.975
+                        // Front-Back: 12.556
+                        // Up-Down: 6.689
+                        Units.inchesToMeters(12.556),
+                        Units.inchesToMeters(-10.975),
+                        Units.inchesToMeters(6.689),
                         new Rotation3d(
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(-30))), // Z is from the top of the belly pan
+                            Units.degreesToRadians(15),
+                            Units.degreesToRadians(-28.125),
+                            Units.degreesToRadians(-60))), // Z is from the top of the belly pan
+
+                    // // FRONT RIGHT (Arducam has NO pitch angle. Printed for HVR on 20250307)
+                    // new Transform3d(
+                    //     // Left-Right: 11.559949
+                    //     // Front-Back: 12.071904
+                    //     // Up-Down: 6.763611
+                    //     Units.inchesToMeters(12.071904),
+                    //     Units.inchesToMeters(-11.559949),
+                    //     Units.inchesToMeters(6.763611),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(-30))), // Z is from the top of the belly pan
 
 
                     // BACK LEFT
