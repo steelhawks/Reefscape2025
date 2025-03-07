@@ -126,14 +126,14 @@ public class Align extends VirtualSubsystem {
         return Commands.defer(
             () ->
                 AutoBuilder.followPath(directPath(goal))
-                    .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
-                    .andThen(
-                        Commands.run(() -> s_Swerve.runVelocity(
-                            ChassisSpeeds.fromFieldRelativeSpeeds(
-                                HolonomicController.calculate(goal),
-                                AllianceFlip.shouldFlip()
-                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
+                    .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf),
+//                    .andThen(
+//                        Commands.run(() -> s_Swerve.runVelocity(
+//                            ChassisSpeeds.fromFieldRelativeSpeeds(
+//                                HolonomicController.calculate(goal),
+//                                AllianceFlip.shouldFlip()
+//                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+//                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
             Set.of(s_Swerve));
     }
 
