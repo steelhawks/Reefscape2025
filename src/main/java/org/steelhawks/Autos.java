@@ -70,8 +70,7 @@ public final class Autos {
         for (String trajectory : trajectories) {
             commands.add(followTrajectory(trajectory));
             if (endsWithSource(trajectory)) {
-//                commands.add(Commands.waitUntil(s_Intake.hasCoral()));
-                commands.add(Commands.waitSeconds(1));
+                commands.add(Commands.waitUntil(s_Intake.hasCoral()));
             } else {
                 commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
             }
