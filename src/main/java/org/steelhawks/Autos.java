@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -104,11 +105,16 @@ public final class Autos {
             .andThen(followTrajectory("TR2 to Upper Source"));
     }
 
-    public static Command getTestPath() {
-        return Commands.runOnce(
-                        () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
-                .andThen(
-                        followTrajectory("Test Path"));
+    public static Command getStraightTestPath() {
+        return new PathPlannerAuto("straight auto");
+    }
+
+    public static Command getTurnTestPath() {
+        return new PathPlannerAuto("turn auto");
+    }
+
+    public static Command getCurvedTestPath() {
+        return new PathPlannerAuto("curved auto");
     }
 
     public static Command getBC1Auton() {
