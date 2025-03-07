@@ -130,13 +130,13 @@ public final class Autos {
     public static Command getBC1Auton() {
         return createAuto(StartEndPosition.BC1,
             new String[]{
-                "BC1 to TL1",
-                "TL1 to Upper Source",
-                "Upper Source to TL2",
+                "BC1 to TL2",
                 "TL2 to Upper Source",
-                "Upper Source to L1",
-                "L1 to Upper Source",
-                "Upper Source to L1"
+                "Upper Source to TL1",
+                "TL1 to Upper Source"
+                // "Upper Source to TL1",
+                // "TL1 to Upper Source"
+                // "Upper Source to L2"
             }).withName("BC1 Auto");
     }
 

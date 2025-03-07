@@ -47,7 +47,7 @@ import org.steelhawks.util.autonbuilder.StartEndPosition;
 
 public class RobotContainer {
 
-    public static final boolean useVision = true;
+    public static final boolean useVision = false;
 
     private final Trigger interruptPathfinding;
     private final Trigger isShallowEndgame;
