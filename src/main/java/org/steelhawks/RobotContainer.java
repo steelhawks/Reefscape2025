@@ -614,11 +614,11 @@ public class RobotContainer {
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
 
-        // operator.povLeft()
-        //     .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
-        //     .whileTrue(
-        //         s_Intake.reverseCoral()
-        //     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
+        operator.povLeft()
+            .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
+            .whileTrue(
+                s_Intake.reverseCoral()
+            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
 
         operator.povRight()
             .whileTrue(
