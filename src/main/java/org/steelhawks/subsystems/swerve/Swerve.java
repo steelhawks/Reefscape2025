@@ -196,10 +196,8 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                             Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-                Logger.recordOutput("Swerve/DriveBaseRadius", DRIVE_BASE_RADIUS);
                 ROBOT_MASS_KG = Units.lbsToKilograms(137.9);
                 ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
-                Logger.recordOutput("Swerve/MomentOfInertia", ROBOT_MOI);
                 WHEEL_COF = COTS.WHEELS.COLSONS.cof;
                 PP_CONFIG =
                     new RobotConfig(
@@ -239,6 +237,9 @@ public class Swerve extends SubsystemBase {
         } else {
             DRIVE_SIMULATION = null;
         }
+
+        Logger.recordOutput("Swerve/DriveBaseRadius", DRIVE_BASE_RADIUS);
+        Logger.recordOutput("Swerve/MomentOfInertia", ROBOT_MOI);
     }
 
     public static SwerveDriveSimulation getDriveSimulation() {
