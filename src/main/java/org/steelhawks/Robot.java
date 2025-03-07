@@ -191,8 +191,6 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
        autonomousCommand = Autos.getAuto();
-        // autonomousCommand = Autos.getRC2Auton();
-        // autonomousCommand = Autos.getTestPath();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
