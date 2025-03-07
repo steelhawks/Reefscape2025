@@ -92,16 +92,16 @@ public class VisionConstants {
 
                     // FRONT RIGHT (Arducam has NO pitch angle. Printed for HVR on 20250307)
                     new Transform3d(
-                        // Left-Right: 10.977241
-                        // Front-Back: 12.556861
-                        // Up-Down: 6.559985
-                        Units.inchesToMeters(12.556861),
-                        Units.inchesToMeters(-10.977241),
-                        Units.inchesToMeters(6.559985),
+                        // Left-Right: 11.559949
+                        // Front-Back: 12.071904
+                        // Up-Down: 6.763611
+                        Units.inchesToMeters(12.071904),
+                        Units.inchesToMeters(-11.559949),
+                        Units.inchesToMeters(6.763611),
                         new Rotation3d(
-                            Units.degreesToRadians(15),
-                            Units.degreesToRadians(-28.125),
-                            Units.degreesToRadians(-60))), // Z is from the top of the belly pan
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(-30))), // Z is from the top of the belly pan
 
 
                     // BACK LEFT
