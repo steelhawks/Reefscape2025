@@ -375,10 +375,17 @@ public class RobotContainer {
         /* ------------- Pathfinding Poses ------------- */
        driver.leftBumper()
            .whileTrue(
-               getAlign(true));
+               Commands.runOnce(
+                   () -> s_Swerve.setPathfinding(true))
+               .andThen(getAlign(true)))
+           .onFalse(
+               Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
        driver.rightBumper()
            .whileTrue(
-               getAlign(false));
+               Commands.runOnce(() -> s_Swerve.setPathfinding(true))
+               .andThen(getAlign(false)))
+           .onFalse(
+               Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
     }
 
     private Command getAlign(boolean isAligningLeft) {
