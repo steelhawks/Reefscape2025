@@ -55,7 +55,7 @@ public final class Autos {
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
             s_Intake.shootCoral().withTimeout(1.0),
-            s_Elevator.noSlamCommand())
+            s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .withName("Elevator and Shoot in Auton");
     }
 
