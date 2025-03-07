@@ -75,7 +75,7 @@ public final class Autos {
             if (endsWithSource(trajectory)) {
                 commands.add(Commands.waitUntil(s_Intake.hasCoral()));
             } else {
-                commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
+                commands.add(elevatorAndShoot(ElevatorConstants.State.L3));
             }
         }
 
