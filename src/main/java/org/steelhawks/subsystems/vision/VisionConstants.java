@@ -50,33 +50,61 @@ public class VisionConstants {
                 };
             default ->
                 new Transform3d[] {
-                    // Front Left
+                    // // FRONT LEFT (Arducam has pitch angle)
+                    // new Transform3d(
+                    //     // Left-Right: 11.315133
+                    //     // Front-Back: 11.685378
+                    //     // Up-Down: 6.689
+                    //     Units.inchesToMeters(11.685378),
+                    //     Units.inchesToMeters(11.315133),
+                    //     Units.inchesToMeters(6.689),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(-28.125),
+                    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
+
+
+                    // FRONT LEFT (Arducam has NO pitch angle. Printed for HVR on 20250307)
                     new Transform3d(
-                        // Left-Right: 11.315133
-                        // Front-Back: 11.685378
-                        // Up-Down: 6.689
-                        Units.inchesToMeters(11.685378),
-                        Units.inchesToMeters(11.315133),
-                        Units.inchesToMeters(6.689),
+                        // Left-Right: 11.365368
+                        // Front-Back: 12.784361
+                        // Up-Down: 6.763611
+                        Units.inchesToMeters(12.784361),
+                        Units.inchesToMeters(11.365368),
+                        Units.inchesToMeters(6.763611),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(-28.125),
-                            Units.degreesToRadians(0))), // Z is from the top of the belly pan
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(60.036534))), // Z is from the top of the belly pan
 
-                    // Front Right
+                    // // FRONT RIGHT (Arducam has pitch angle)
+                    // new Transform3d(
+                    //     // Left-Right: 10.975
+                    //     // Front-Back: 12.556
+                    //     // Up-Down: 6.689
+                    //     Units.inchesToMeters(12.556),
+                    //     Units.inchesToMeters(-10.975),
+                    //     Units.inchesToMeters(6.689),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(15),
+                    //         Units.degreesToRadians(-28.125),
+                    //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
+
+                    // FRONT RIGHT (Arducam has NO pitch angle. Printed for HVR on 20250307)
                     new Transform3d(
-                        // Left-Right: 10.975
-                        // Front-Back: 12.556
-                        // Up-Down: 6.689
-                        Units.inchesToMeters(12.556),
-                        Units.inchesToMeters(-10.975),
-                        Units.inchesToMeters(6.689),
+                        // Left-Right: 10.977241
+                        // Front-Back: 12.556861
+                        // Up-Down: 6.559985
+                        Units.inchesToMeters(12.556861),
+                        Units.inchesToMeters(-10.977241),
+                        Units.inchesToMeters(6.559985),
                         new Rotation3d(
                             Units.degreesToRadians(15),
                             Units.degreesToRadians(-28.125),
                             Units.degreesToRadians(-60))), // Z is from the top of the belly pan
 
-                    // Back Left
+
+                    // BACK LEFT
 //                    new Transform3d(
 //                        // Left-Right: 12.556
 //                        // Front-Back: 10.976
@@ -89,7 +117,7 @@ public class VisionConstants {
 //                            Units.degreesToRadians(-28.125),
 //                            Units.degreesToRadians(-210))),
 
-                    // Elevator Mount
+                    // ELEVATOR MOUNT
 //                    new Transform3d(
 //                        // Left-Right: 0
 //                        // Front-Back: 13.583
@@ -102,7 +130,7 @@ public class VisionConstants {
 //                            Units.degreesToRadians(-45),
 //                            Units.degreesToRadians(0))),
 
-                    // Bridge Mount, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
+                    // BRIDGE MOUNT, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
                     new Transform3d(
                         // Left-Right: 2.000679
                         // Front-Back: 10.862403
@@ -115,7 +143,7 @@ public class VisionConstants {
                             Units.degreesToRadians(-15),
                             Units.degreesToRadians(-150))),
 
-                    // Beam Mount, the arducam that's hanging off of the beam supporting the funnel
+                    // BEAM MOUNT, the arducam that's hanging off of the beam supporting the funnel
                     new Transform3d(
                         // Left-Right: 2.312500
                         // Front-Back: 14.622078
