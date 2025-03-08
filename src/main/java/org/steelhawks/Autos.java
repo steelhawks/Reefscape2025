@@ -40,6 +40,7 @@ public final class Autos {
         autoChooser.addOption("RC1 Auton", getRC1Auton());
         autoChooser.addOption("RC2 Auton", getRC2Auton());
         autoChooser.addOption("RC3 Auton", getRC3Auton());
+        autoChooser.addOption("RC2 Auton Skip", getRC2AutonSkip());
     }
 
     public static Command followTrajectory(String choreo) {
@@ -214,7 +215,7 @@ public final class Autos {
 
     public static Command getRC2AutonSkip() {
         return Commands.runOnce(
-                () -> s_Swerve.setPose(new Pose2d(7.58, 1.9068, new Rotation2d())))
+                () -> s_Swerve.setPose(AllianceFlip.apply(new Pose2d(7.58, 1.9068, new Rotation2d(Math.PI)))))
             .andThen(
                 followTrajectory("RC2 to BR2 (Version 2)"),
                 Commands.waitSeconds(1),
