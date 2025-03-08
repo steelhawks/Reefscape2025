@@ -596,7 +596,7 @@ public class RobotContainer {
         //     .whileTrue(s_Climb.runDeepClimbViaSpeed(-0.5));
 
         operator.povUp()
-            .whileTrue(s_Schlong.applyPivotSpeed(0.4));
+            .whileTrue(s_Schlong.applyPivotSpeed(0.15));
 
         operator.povDown()
             .whileTrue(s_Schlong.applySpinSpeed(-0.2));
