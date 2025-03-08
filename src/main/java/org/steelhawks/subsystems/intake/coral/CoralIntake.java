@@ -61,10 +61,9 @@ public class CoralIntake extends SubsystemBase {
         io.runIntake(constants.CORAL_SHOOT_SPEED);
     }
 
-    public void reverseCoral(DoubleSupplier speed) {
+    public void reverseCoral() {
         isIntaking = true;
-        double accSpeed = -MathUtil.clamp(speed.getAsDouble() * constants.CORAL_INTAKE_SPEED, 0.0, constants.CORAL_INTAKE_SPEED);
-        io.runIntake(accSpeed);
+        io.runIntake(-constants.CORAL_INTAKE_SPEED);
     }
 
     public void shootSlowCoral() {

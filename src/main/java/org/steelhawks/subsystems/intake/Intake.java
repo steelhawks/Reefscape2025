@@ -94,9 +94,9 @@ public class Intake {
             .finallyDo(() -> mCoralIntake.stop());
     }
 
-    public Command reverseCoral(DoubleSupplier speed) {
+    public Command reverseCoral() {
         return Commands.run(
-            () -> mCoralIntake.reverseCoral(speed), mCoralIntake)
+            () -> mCoralIntake.reverseCoral(), mCoralIntake).withTimeout(.1)
             .finallyDo(() -> mCoralIntake.stop());
     }
 
