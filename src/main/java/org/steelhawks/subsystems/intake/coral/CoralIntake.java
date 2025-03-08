@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.intake.coral;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -8,6 +9,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.intake.IntakeConstants;
+
+import java.util.function.DoubleSupplier;
 
 public class CoralIntake extends SubsystemBase {
 
@@ -58,9 +61,9 @@ public class CoralIntake extends SubsystemBase {
         io.runIntake(constants.CORAL_SHOOT_SPEED);
     }
 
-    public void reverseCoral() {
+    public void reverseCoral(DoubleSupplier speed) {
         isIntaking = true;
-        io.runIntake(-constants.CORAL_INTAKE_SPEED);
+        io.runIntake(-MathUtil.clamp(speed.getAsDouble(), 0.0, constants.CORAL_INTAKE_SPEED));
     }
 
     public void shootSlowCoral() {
