@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.207,
+        "y": 1.009
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.0455136912518044,
+        "y": 1.3550255996522829
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.783591504290915,
+        "y": 2.693970301717187
+      },
+      "prevControl": {
+        "x": 4.19299081163857,
+        "y": 2.3443101533187294
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 120.41601879000001
+  },
+  "reversed": false,
+  "folder": "Event Hudson Valley",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 54.222
+  },
+  "useDefaultConstraints": true
+}
