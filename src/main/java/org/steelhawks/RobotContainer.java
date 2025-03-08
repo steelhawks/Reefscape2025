@@ -30,6 +30,7 @@ import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.elevator.*;
+import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
@@ -524,17 +525,16 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
-        operator.x()
-            //    .and(modifierTrigger.negate())
-            .or(new DashboardTrigger("l2"))
-            .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+       operator.x()
+           .and(modifierTrigger.negate())
+           .or(new DashboardTrigger("l2"))
+           .onTrue(
+               s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
-//        operator.x()
-//            .and(modifierTrigger)
-//            .onTrue(
-//                Commands.sequence(
-//                    SuperStructure.knockAlgae(ElevatorConstants.State.KNOCK_L2)));
+       operator.x()
+           .and(modifierTrigger)
+           .onTrue(
+               s_Elevator.setDesiredState(State.KNOCK_L3));
 //
         operator.y()
             //    .and(modifierTrigger.negate())
