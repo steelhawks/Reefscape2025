@@ -115,8 +115,8 @@ public class RobotContainer {
         });
         nearCoralStation = new Trigger(() ->
             s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 1.0 ||
-                s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 1.0);
-        modifierTrigger = operator.rightBumper();
+            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 1.0);
+        modifierTrigger = operator.rightTrigger();
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
