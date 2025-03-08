@@ -197,8 +197,8 @@ public final class Autos {
             new String[]{
                 // "RC2 to BR2",
                 "RC2 to BR2 (Version 2)",
-                "BR2 to Lower Source",
-                "Lower Source to BR1",
+                "BR2 to Lower Source (Version 2)",
+                "Lower Source to BR1 (Version 2)",
                 "BR1 to Lower Source",
 //                "Lower Source to BL1",
 //                "BL1 to Lower Source",
