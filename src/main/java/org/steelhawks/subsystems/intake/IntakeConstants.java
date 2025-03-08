@@ -122,7 +122,7 @@ public class IntakeConstants {
             1,
             .3,
             .225, // .15
-            0.2,
+            0.1,
             1,
             16,
             17,
