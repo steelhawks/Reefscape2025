@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
@@ -632,7 +633,7 @@ public class RobotContainer {
         operator.rightTrigger()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
-                s_Intake.reverseCoral(() -> operator.getHID().getRightTriggerAxis())
+                s_Intake.reverseCoral(() -> MathUtil.applyDeadband(operator.getHID().getRightTriggerAxis(), Deadbands.REVERSE_CORAL_DEADBAND))
             .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
 
         operator.povRight()
