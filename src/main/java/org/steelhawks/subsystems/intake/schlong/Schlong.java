@@ -215,7 +215,7 @@ public class Schlong extends SubsystemBase {
         return Commands.run(
             () -> {
                 io.runSpinWithSpeed(speed);
-            }, this)
+            })
             .finallyDo(() -> io.stopSpin());
     }
 

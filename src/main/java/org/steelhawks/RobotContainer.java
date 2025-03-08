@@ -593,13 +593,13 @@ public class RobotContainer {
         //     .whileTrue(s_Climb.runDeepClimbViaSpeed(0.5));
 
         // operator.povDown()
-        //     .whileTrue(s_Climb.runDeepClimbViaSpeed(-0.5));
-
-        operator.povUp()
-            .whileTrue(s_Schlong.applyPivotSpeed(0.15));
+        //     .whileTrue(s
 
         operator.rightBumper()
-            .whileTrue(s_Schlong.applySpinSpeed(-0.2));
+            .whileTrue(
+                Commands.parallel(
+                    s_Schlong.applySpinSpeed(-0.2),
+                    s_Schlong.applyPivotSpeed(0.15)));
 
 //        operator.x()
 //            .onTrue(
