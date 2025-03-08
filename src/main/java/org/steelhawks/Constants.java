@@ -225,8 +225,8 @@ public final class Constants {
             0.0,
             15,
             20,
-            3,
             4,
+            5,
             5,
             8);
 

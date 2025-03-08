@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.AutonConstants;
+import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.swerve.Swerve;
@@ -123,18 +124,19 @@ public class Align extends VirtualSubsystem {
     }
 
     public static Command directPathFollow(Pose2d goal) { // fix this
-        return Commands.defer(
-            () ->
-                AutoBuilder.followPath(directPath(goal))
-                    .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf),
-//                    .andThen(
-//                        Commands.run(() -> s_Swerve.runVelocity(
-//                            ChassisSpeeds.fromFieldRelativeSpeeds(
-//                                HolonomicController.calculate(goal),
-//                                AllianceFlip.shouldFlip()
-//                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-//                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
-            Set.of(s_Swerve));
+//         return Commands.defer(
+//             () ->
+//                 AutoBuilder.followPath(directPath(goal))
+//                     .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf),
+// //                    .andThen(
+// //                        Commands.run(() -> s_Swerve.runVelocity(
+// //                            ChassisSpeeds.fromFieldRelativeSpeeds(
+// //                                HolonomicController.calculate(goal),
+// //                                AllianceFlip.shouldFlip()
+// //                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+// //                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
+//             Set.of(s_Swerve));
+        return DriveCommands.driveToPosition(goal);
     }
 
     //    public static Command alignRobotToAprilTag(Camera... cameras) {

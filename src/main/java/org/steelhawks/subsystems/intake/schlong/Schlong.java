@@ -27,7 +27,7 @@ import static edu.wpi.first.units.Units.Volts;
 public class Schlong extends SubsystemBase {
     private final SchlongIOInputsAutoLogged inputs = new SchlongIOInputsAutoLogged();
     private final IntakeConstants constants;
-    private final Trigger shouldEStop;
+    // private final Trigger shouldEStop;
     private final SysIdRoutine mSysId;
     private boolean mEnabled = false;
     private final SchlongIO io;
@@ -59,10 +59,10 @@ public class Schlong extends SubsystemBase {
 //        shouldEStop = new Trigger(
 //            () -> !RobotContainer.s_Elevator.atGoal().getAsBoolean()
 //                && getPivotPosition() >= constants.SCHLONG_MAX_RADIANS);
-        shouldEStop =
-            new Trigger(
-                RobotContainer.s_Elevator.atGoal().negate()
-                .and(atLimit()));
+        // shouldEStop =
+        //     new Trigger(
+        //         RobotContainer.s_Elevator.atGoal().negate()
+        //         .and(atLimit()));
 
         mController = 
             new ProfiledPIDController(

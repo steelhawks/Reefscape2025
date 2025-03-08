@@ -2,6 +2,9 @@ package org.steelhawks;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
@@ -103,6 +106,13 @@ public final class Autos {
                 s_Intake.shootCoralSlow().withTimeout(1.0),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .andThen(followTrajectory("TR2 to Upper Source"));
+    }                                            
+    
+    public static Command getPIDAutonTest() {
+        return Commands.runOnce(
+            () -> s_Swerve.setPose(new Pose2d(2.0, 1.0, new Rotation2d())))
+            .andThen(
+                followTrajectory("PID Auton Test"));
     }
 
     public static Command getStraightTestPath() {
@@ -120,13 +130,13 @@ public final class Autos {
     public static Command getBC1Auton() {
         return createAuto(StartEndPosition.BC1,
             new String[]{
-                "BC1 to TL1",
-                "TL1 to Upper Source",
-                "Upper Source to TL2",
+                "BC1 to TL2",
                 "TL2 to Upper Source",
-                "Upper Source to L1",
-                "L1 to Upper Source",
-                "Upper Source to L1"
+                "Upper Source to TL1",
+                "TL1 to Upper Source"
+                // "Upper Source to TL1",
+                // "TL1 to Upper Source"
+                // "Upper Source to L2"
             }).withName("BC1 Auto");
     }
 
@@ -172,7 +182,8 @@ public final class Autos {
     public static Command getRC2Auton() {
         return createAuto(StartEndPosition.RC2,
             new String[]{
-                "RC2 to BR2",
+                // "RC2 to BR2",
+                "RC2 to BR2 (Version 2)",
                 "BR2 to Lower Source",
                 "Lower Source to BR1",
                 "BR1 to Lower Source",
