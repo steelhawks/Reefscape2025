@@ -217,7 +217,7 @@ public final class Autos {
         return Commands.runOnce(
                 () -> s_Swerve.setPose(AllianceFlip.apply(new Pose2d(7.58, 1.9068, new Rotation2d(Math.PI)))))
             .andThen(
-                followTrajectory("RC2 to BR2 (Version 2)"),
+                followTrajectory("RC2 to BR2"), //Switch to version 2 if bad vision
                 Commands.waitSeconds(1),
                 followTrajectory("BR2 to Lower Source"),
                 Commands.waitSeconds(1),
