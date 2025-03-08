@@ -60,10 +60,11 @@ public final class Autos {
             Commands.deadline(
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
-            Commands.either(
-                s_Intake.shootPulsatingCoral().withTimeout(1.0),
-                s_Intake.shootCoral().withTimeout(1.0),
-                () -> (state == State.L4 || state == State.L1)),
+            // Commands.either(
+            //     s_Intake.shootPulsatingCoral().withTimeout(1.0),
+            //     s_Intake.shootCoral().withTimeout(1.0),
+            //     () -> (state == State.L4 || state == State.L1)),
+            s_Intake.shootCoral().withTimeout(1.0),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .withName("Elevator and Shoot in Auton");
     }
