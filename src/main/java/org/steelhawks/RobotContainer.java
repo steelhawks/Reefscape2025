@@ -632,7 +632,7 @@ public class RobotContainer {
         operator.rightTrigger()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
-                s_Intake.reverseCoral()
+                s_Intake.reverseCoral(() -> operator.getHID().getRightTriggerAxis())
             .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
 
         operator.povRight()

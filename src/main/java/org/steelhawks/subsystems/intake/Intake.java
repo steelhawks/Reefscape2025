@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.steelhawks.Constants;
-import org.steelhawks.subsystems.LED;
-import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntake;
 import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
 import org.steelhawks.subsystems.intake.coral.CoralIntake;
 import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
+
+import java.util.function.DoubleSupplier;
 
 public class Intake {
 
@@ -94,9 +94,9 @@ public class Intake {
             .finallyDo(() -> mCoralIntake.stop());
     }
 
-    public Command reverseCoral() {
+    public Command reverseCoral(DoubleSupplier speed) {
         return Commands.run(
-            () -> mCoralIntake.reverseCoral(), mCoralIntake)
+            () -> mCoralIntake.reverseCoral(speed), mCoralIntake)
             .finallyDo(() -> mCoralIntake.stop());
     }
 
