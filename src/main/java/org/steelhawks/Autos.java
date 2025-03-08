@@ -2,7 +2,6 @@ package org.steelhawks;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,7 +13,6 @@ import org.steelhawks.util.autonbuilder.StartEndPosition;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
-import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
@@ -39,6 +37,7 @@ public final class Autos {
         autoChooser.addOption("BC3 Auton", getBC3Auton());
         autoChooser.addOption("RC1 Auton", getRC1Auton());
         autoChooser.addOption("RC2 Auton", getRC2Auton());
+        autoChooser.addOption("RC2 Auton PATHPLANNER", getRC2AutonPathPlanner());
         autoChooser.addOption("RC3 Auton", getRC3Auton());
         autoChooser.addOption("RC2 Auton Skip", getRC2AutonSkip());
     }
@@ -53,6 +52,18 @@ public final class Autos {
             throw new RuntimeException(e);
         }
     }
+
+    public static Command followPathPlannerTrajectory(String pathPlanner) {
+        try {
+            PathPlannerPath path = PathPlannerPath.fromPathFile(pathPlanner);
+            return DriveCommands.followPath(path).withName("Following " + pathPlanner);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public static Command elevatorAndShoot(ElevatorConstants.State state) {
         return Commands.sequence(
@@ -197,10 +208,19 @@ public final class Autos {
             }).withName("RC2 Auto");
     }
 
-//     public static Command getRC2Auton() {
-//         return createAuto(StartEndPosition.RC2,
-//             new String[]{
-//                 "RC2 to BL2",
+    public static Command getRC2AutonPathPlanner() {
+        return Commands.runOnce(
+            () -> s_Swerve.setPose(AllianceFlip.apply(new Pose2d(7.580, 1.907, new Rotation2d()))))
+        .andThen(
+            followPathPlannerTrajectory("RC2 to BR2"),
+            elevatorAndShoot(ElevatorConstants.State.L4));
+//            followPathPlannerTrajectory("BR2 to Lower Source"),
+//            Commands.race(
+//                Commands.waitSeconds(3.5), Commands.waitUntil(s_Intake.hasCoral())),
+//            followPathPlannerTrajectory("Lower Source to BR1"),
+//            elevatorAndShoot(ElevatorConstants.State.L4));
+    }
+
     public static Command getRC3Auton() {
         return createAuto(StartEndPosition.RC3,
             new String[]{

@@ -4,24 +4,24 @@
     {
       "anchor": {
         "x": 7.58,
-        "y": 1.9068
+        "y": 1.907
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.093864052796434,
-        "y": 1.9068000000000003
+        "y": 1.9070000000000003
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.071207757190085,
-        "y": 2.8565586596426025
+        "x": 5.128275462962962,
+        "y": 2.8488288483796294
       },
       "prevControl": {
-        "x": 5.297005262243088,
-        "y": 2.74924842382216
+        "x": 5.354072968015965,
+        "y": 2.741518612559187
       },
       "nextControl": null,
       "isLocked": false,
@@ -54,7 +54,7 @@
     "rotation": 120.41601879000001
   },
   "reversed": false,
-  "folder": "Event Hudson Valley",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0.0,
     "rotation": 180.0
