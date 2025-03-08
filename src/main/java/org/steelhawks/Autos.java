@@ -199,17 +199,6 @@ public final class Autos {
 //         return createAuto(StartEndPosition.RC2,
 //             new String[]{
 //                 "RC2 to BL2",
-//                 "BR2 to Lower Source",
-//                 "Lower Source to BR1",
-//                 "BR1 to Lower Source",
-// //                "Lower Source to BL1",
-// //                "BL1 to Lower Source",
-// //                "Lower Source to BL1",
-// //                "BL1 to Lower Source",
-//                 "Lower Source to BR2"
-//             }).withName("RC2 Auto");
-//     }
-
     public static Command getRC3Auton() {
         return createAuto(StartEndPosition.RC3,
             new String[]{
@@ -221,6 +210,23 @@ public final class Autos {
                 "BL1 to Lower Source",
                 "Lower Source to BL2"
             }).withName("RC3 Auto");
+    }
+
+    public static Command getRC2AutonSkip() {
+        return Commands.runOnce(
+                () -> s_Swerve.setPose(new Pose2d(7.58, 1.9068, new Rotation2d())))
+            .andThen(
+                followTrajectory("RC2 to BR2 (Version 2)"),
+                Commands.waitSeconds(1),
+                followTrajectory("BR2 to Lower Source"),
+                Commands.waitSeconds(1),
+                followTrajectory("Lower Source to BR1"),
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                Commands.race(
+                    Commands.waitSeconds(3),
+                    Commands.waitUntil(s_Elevator.atGoal())),
+                s_Intake.shootPulsatingCoral().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
     }
 
     public static Command getAuto() {
