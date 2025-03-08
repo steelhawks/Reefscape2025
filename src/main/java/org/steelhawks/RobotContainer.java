@@ -598,7 +598,7 @@ public class RobotContainer {
         operator.povUp()
             .whileTrue(s_Schlong.applyPivotSpeed(0.15));
 
-        operator.povDown()
+        operator.rightBumper()
             .whileTrue(s_Schlong.applySpinSpeed(-0.2));
 
 //        operator.x()
