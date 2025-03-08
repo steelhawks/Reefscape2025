@@ -157,10 +157,10 @@ public class RobotContainer {
                     s_Climb =
                         new Climb(
                             new ShallowClimbIO() {},
-                            new DeepClimbIOTalonFX());
+                            new DeepClimbIO() {});
                     s_Schlong =
                         new Schlong(
-                            new SchlongIO() {});
+                            new SchlongIOTalonFX());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -589,11 +589,17 @@ public class RobotContainer {
            .onTrue(
                s_Elevator.noSlamCommand());
 
+        // operator.povUp()
+        //     .whileTrue(s_Climb.runDeepClimbViaSpeed(0.5));
+
+        // operator.povDown()
+        //     .whileTrue(s_Climb.runDeepClimbViaSpeed(-0.5));
+
         operator.povUp()
-            .whileTrue(s_Climb.runDeepClimbViaSpeed(0.5));
+            .whileTrue(s_Schlong.applyPivotSpeed(0.4));
 
         operator.povDown()
-            .whileTrue(s_Climb.runDeepClimbViaSpeed(-0.5));
+            .whileTrue(s_Schlong.applySpinSpeed(0.2));
 
 //        operator.x()
 //            .onTrue(
