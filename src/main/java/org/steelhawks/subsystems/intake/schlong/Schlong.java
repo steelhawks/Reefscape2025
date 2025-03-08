@@ -147,7 +147,7 @@ public class Schlong extends SubsystemBase {
             return;
         }
 
-        io.runPivotWithVoltage("Subsystem", volts);
+        // io.runPivotWithVoltage("Subsystem", volts);
     }
 
     @AutoLogOutput(key = "Schlong/AdjustedPosition")
