@@ -213,12 +213,12 @@ public final class Autos {
             () -> s_Swerve.setPose(AllianceFlip.apply(new Pose2d(7.580, 1.907, new Rotation2d()))))
         .andThen(
             followPathPlannerTrajectory("RC2 to BR2"),
+            elevatorAndShoot(ElevatorConstants.State.L4),
+            followPathPlannerTrajectory("BR2 to Lower Source"),
+            Commands.race(
+                Commands.waitSeconds(3.5), Commands.waitUntil(s_Intake.hasCoral())),
+            followPathPlannerTrajectory("Lower Source to BR1"),
             elevatorAndShoot(ElevatorConstants.State.L4));
-//            followPathPlannerTrajectory("BR2 to Lower Source"),
-//            Commands.race(
-//                Commands.waitSeconds(3.5), Commands.waitUntil(s_Intake.hasCoral())),
-//            followPathPlannerTrajectory("Lower Source to BR1"),
-//            elevatorAndShoot(ElevatorConstants.State.L4));
     }
 
     public static Command getRC3Auton() {
