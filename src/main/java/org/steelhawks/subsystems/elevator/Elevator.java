@@ -232,14 +232,14 @@ public class Elevator extends SubsystemBase {
             .withName("Toggle Manual Control");
     }
 
-    public Command elevatorManual(DoubleSupplier speed) {
+    private Command elevatorManual(DoubleSupplier speed) {
         return Commands.runOnce(this::disable, this)
             .andThen(
                 Commands.run(
                     () -> {
-                        double appliedSpeed = MathUtil.clamp(speed.getAsDouble(), -1, 1);
+                        double appliedSpeed = speed.getAsDouble();
 
-                        if (speed.getAsDouble() == 0.0) {
+                        if (appliedSpeed == 0.0) {
                             appliedSpeed = constants.KG / 12.0;
                         }
 

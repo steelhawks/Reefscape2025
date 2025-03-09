@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.climb;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
@@ -11,15 +12,17 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.climb.ClimbConstants.DeepClimbState;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOInputsAutoLogged;
+
+import java.util.function.DoubleSupplier;
 
 public class Climb extends SubsystemBase {
 
@@ -27,6 +30,7 @@ public class Climb extends SubsystemBase {
 
     private final ShallowClimbIOInputsAutoLogged shallowInputs = new ShallowClimbIOInputsAutoLogged();
     private final DeepClimbIOInputsAutoLogged deepInputs = new DeepClimbIOInputsAutoLogged();
+    private OperatorLock mOperatorLock = OperatorLock.LOCKED;
     private final ClimbConstants constants;
     private final ShallowClimbIO shallowIO;
     private final DeepClimbIO deepIO;
@@ -82,6 +86,8 @@ public class Climb extends SubsystemBase {
             new Alert("Left Deep Climb Motor is Disconnected", AlertType.kError);
         bottomDeepMotorDisconnected =
             new Alert("Right Deep Climb Motor is Disconnected", AlertType.kError);
+
+        goHome().schedule();
     }
 
     @Override
@@ -155,6 +161,56 @@ public class Climb extends SubsystemBase {
 
     /* ------------- Deep Climb Commands ------------- */
 
+    public Command toggleManualControl(DoubleSupplier joystickAxis) {
+        return Commands.runOnce(
+            () -> {
+                Logger.recordOutput("Climb/RequestedClimbSpeed", joystickAxis.getAsDouble());
+
+                if (mOperatorLock == OperatorLock.LOCKED) {
+                    disable();
+                    setDefaultCommand(
+                        deepClimbManual(
+                            () -> MathUtil.clamp(
+                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Constants.Deadbands.ELEVATOR_DEADBAND),
+                                -0.5,
+                                0.5)));
+                    mOperatorLock = OperatorLock.UNLOCKED;
+                } else {
+                    if (getDefaultCommand() != null) {
+                        getDefaultCommand().cancel();
+                        removeDefaultCommand();
+                    }
+                    setDesiredState(DeepClimbState.HOME);
+                    enable();
+                    mOperatorLock = OperatorLock.LOCKED;
+                }
+
+                Logger.recordOutput("Climb/IsLocked", mOperatorLock == OperatorLock.LOCKED);
+            }, this)
+        .withName("Toggle Manual Control");
+    }
+
+    private Command deepClimbManual(DoubleSupplier speed) {
+        final double kG = 0.0;
+
+        return Commands.runOnce(this::disable, this)
+            .andThen(
+                Commands.run(
+                    () -> {
+                        double appliedSpeed = speed.getAsDouble();
+
+                        if (appliedSpeed == 0.0) {
+                            appliedSpeed = Math.cos(getDeepPosition()) * kG / 12.0;
+                        }
+
+                        Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
+                        deepIO.runClimbViaSpeed(appliedSpeed);
+                    }, this))
+            .finallyDo(
+                deepIO::stop)
+            .withName("Manual Climb Pivot");
+    }
+
     public Command setDesiredState(DeepClimbState state) {
         return Commands.runOnce(
             () -> {
@@ -178,6 +234,17 @@ public class Climb extends SubsystemBase {
 
     public Command prepareDeepClimb() {
         return Commands.runOnce(
-            () -> setDesiredState(DeepClimbState.PREPARE));
+            () -> {
+                enable();
+                setDesiredState(DeepClimbState.PREPARE);
+            }).ignoringDisable(true);
+    }
+
+    public Command goHome() {
+        return Commands.runOnce(
+            () -> {
+                enable();
+                setDesiredState(DeepClimbState.HOME);
+            }).ignoringDisable(true);
     }
 }

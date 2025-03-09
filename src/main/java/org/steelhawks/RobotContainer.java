@@ -1,8 +1,5 @@
 package org.steelhawks;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
@@ -46,7 +43,6 @@ import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.DashboardTrigger;
-import org.steelhawks.util.DoublePressTrigger;
 import org.steelhawks.util.FieldBoundingBox;
 import org.steelhawks.util.autonbuilder.StartEndPosition;
 
@@ -58,7 +54,6 @@ public class RobotContainer {
     private final Trigger isShallowEndgame;
     private final Trigger notifyAtEndgame;
     private final Trigger isDeepEndgame;
-    private final Trigger nearCoralStation;
     private final Trigger modifierTrigger;
     private boolean shallowClimbMode = false;
     private boolean deepClimbMode = false;
@@ -116,9 +111,6 @@ public class RobotContainer {
 
             return false;
         });
-        nearCoralStation = new Trigger(() ->
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 1.0 ||
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 1.0);
         modifierTrigger = operator.rightTrigger();
 
         if (Constants.getMode() != Mode.REPLAY) {
@@ -437,7 +429,11 @@ public class RobotContainer {
 
     private void configureShallowClimbEndgame() {}
 
-    private void configureDeepClimbEndgame() {}
+    private void configureDeepClimbEndgame() {
+        operator.leftStick()
+            .onTrue(
+                s_Climb.toggleManualControl(() -> -operator.getRightY()));
+    }
 
     private void configureTriggers() {
         s_Swerve.isPathfinding()
@@ -470,7 +466,13 @@ public class RobotContainer {
             .onTrue(
                 Commands.runOnce(() ->
                     s_LED.setDefaultLighting(
-                        s_LED.fadeCommand(LEDColor.BLUE))));
+                        s_LED.fadeCommand(LEDColor.BLUE)))
+                .andThen(
+                    s_Climb.prepareDeepClimb()))
+            .onFalse(
+                s_Climb.goHome()
+                    .andThen(
+                        Commands.runOnce(this::waitForDs)));
 
         notifyAtEndgame
             .whileTrue(
@@ -479,7 +481,9 @@ public class RobotContainer {
         new FieldBoundingBox(
             "Top Coral Station",
             0.0, 2.0, 6.2, 8.0,
-            s_Swerve::getPose);
+            s_Swerve::getPose)
+            .whileTrue(
+                s_Intake.intakeCoral());
     }
 
     private void configureDriver() {
@@ -503,23 +507,10 @@ public class RobotContainer {
 
     private void configureOperator() {
         /* ------------- End Game Toggles ------------- */
-        /* ------------- TEST THIS!!!!! ------------- */
-
-        new DoublePressTrigger(operator.start())
-            .onDoubleTap(
-                Commands.runOnce(
-                    () -> {
-                        deepClimbMode = false;
-                        shallowClimbMode = !shallowClimbMode;
-                    }));
-
-        new DoublePressTrigger(operator.back())
-            .onDoubleTap(
-                Commands.runOnce(
-                    () -> {
-                        shallowClimbMode = false;
-                        deepClimbMode = !deepClimbMode;
-                    }));
+        operator.start()
+        .and(operator.back())
+            .onTrue(
+                Commands.runOnce(() -> deepClimbMode = !deepClimbMode));
 
         /* ------------- Elevator Controls ------------- */
 
