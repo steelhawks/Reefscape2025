@@ -224,7 +224,6 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIO() {});
-
                     s_Schlong =
                         new Schlong(
                             new SchlongIO() {});
@@ -525,17 +524,17 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
-       operator.x()
-           .and(modifierTrigger.negate())
-           .or(new DashboardTrigger("l2"))
-           .onTrue(
-               s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+        operator.x()
+            .and(modifierTrigger.negate())
+            .or(new DashboardTrigger("l2"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
-       operator.x()
-           .and(modifierTrigger)
-           .onTrue(
-               s_Elevator.setDesiredState(State.KNOCK_L3));
-//
+        operator.x()
+            .and(modifierTrigger)
+            .onTrue(
+                s_Elevator.setDesiredState(State.KNOCK_L3));
+
         operator.y()
             //    .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
@@ -570,7 +569,7 @@ public class RobotContainer {
                             s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
                     .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
 
-        operator.rightTrigger()
+        operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
                 s_Intake.reverseCoral()
