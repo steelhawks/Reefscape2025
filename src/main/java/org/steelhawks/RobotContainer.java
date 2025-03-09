@@ -375,7 +375,7 @@ public class RobotContainer {
     }
 
     private Command getAlign(boolean isAligningLeft) {
-        return switch (Reefstate.getClosestReefName(s_Swerve.getPose())) {
+        return switch (ReefUtil.getClosestReefName(s_Swerve.getPose())) {
             case "LEFT_SECTION" -> {
                 if (isAligningLeft) {
                     yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.L1.getPose()));
@@ -419,7 +419,7 @@ public class RobotContainer {
                 }
             }
             default ->
-                throw new IllegalStateException("Unexpected value: " + Reefstate.getClosestReefName(s_Swerve.getPose()));
+                throw new IllegalStateException("Unexpected value: " + ReefUtil.getClosestReefName(s_Swerve.getPose()));
         };
     }
 

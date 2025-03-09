@@ -2,7 +2,7 @@ package org.steelhawks.util;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import org.steelhawks.Constants.FieldConstants;
+import org.steelhawks.FieldConstants;
 
 public class AllianceFlip {
 

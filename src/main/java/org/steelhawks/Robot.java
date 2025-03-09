@@ -159,7 +159,7 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
-        Logger.recordOutput("Align/ClosestReef", Reefstate.getClosestReefName(RobotContainer.s_Swerve.getPose()));
+        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestReefName(RobotContainer.s_Swerve.getPose()));
     }
 
     @Override
