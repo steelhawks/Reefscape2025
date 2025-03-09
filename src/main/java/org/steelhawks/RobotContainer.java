@@ -1,6 +1,8 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
@@ -45,6 +47,7 @@ import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.DashboardTrigger;
 import org.steelhawks.util.DoublePressTrigger;
+import org.steelhawks.util.FieldBoundingBox;
 import org.steelhawks.util.autonbuilder.StartEndPosition;
 
 public class RobotContainer {
@@ -472,6 +475,11 @@ public class RobotContainer {
         notifyAtEndgame
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver, operator));
+
+        new FieldBoundingBox(
+            "Top Coral Station",
+            0.0, 2.0, 6.2, 8.0,
+            s_Swerve::getPose);
     }
 
     private void configureDriver() {

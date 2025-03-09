@@ -191,7 +191,6 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
         autonomousCommand = Autos.getAuto();
-        // autonomousCommand = Autos.getPIDAutonTest();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
