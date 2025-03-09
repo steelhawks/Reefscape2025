@@ -52,7 +52,6 @@ import org.steelhawks.RobotContainer;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
-import org.steelhawks.util.HolonomicController;
 import org.steelhawks.util.LocalADStarAK;
 
 public class Swerve extends SubsystemBase {
@@ -448,10 +447,6 @@ public class Swerve extends SubsystemBase {
         }
 
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
-    }
-
-    public void followChoreoTrajectory(SwerveSample sample) {
-        runVelocity(HolonomicController.calculate(sample));
     }
 
     /**

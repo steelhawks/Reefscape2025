@@ -1,6 +1,5 @@
 package org.steelhawks.subsystems.align;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -11,7 +10,6 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,15 +17,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.AutonConstants;
+import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
-import org.steelhawks.util.HolonomicController;
 import org.steelhawks.util.VirtualSubsystem;
 import java.util.List;
-import java.util.Set;
 
 public class Align extends VirtualSubsystem {
 
@@ -326,5 +325,10 @@ public class Align extends VirtualSubsystem {
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mRightController.atSetpoint()))
         .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
+    }
+
+    public Command alignToClosestReef(ElevatorConstants.State level) {
+        return new SwerveDriveAlignment(
+            () -> ReefUtil.getClosestCoralBranch().getScorePose(level));
     }
 }

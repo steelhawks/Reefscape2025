@@ -2,19 +2,15 @@ package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
-import org.steelhawks.subsystems.vision.VisionConstants;
 
 public final class Constants {
 
-    public static final double previousWeight = 131.2; // TEMPORARY, DELETE AFTERWARDS
+    public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(36.0);
 
     public static final double ENDGAME_PERIOD = 20;
     public static final double MATCH_TIME_SECONDS = 150;
@@ -104,49 +100,6 @@ public final class Constants {
     public static final class OIConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
-    }
-
-    /**
-     * Constants for the field.
-     */
-    public static final class FieldConstants {
-
-//        public static final Distance FIELD_LENGTH = Inches.of(690.876);
-//        public static final Distance FIELD_WIDTH = Inches.of(317);
-
-        public static final double FIELD_LENGTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldLength();
-        public static final double FIELD_WIDTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldWidth();
-
-        /*
-         * To properly use the auto flip feature, the poses MUST be for the blue alliance.
-         * The auto flip feature will automatically flip the poses for the red alliance.
-         */
-        public static final Pose2d BLUE_STARTING_POSE =
-            new Pose2d(new Translation2d(0, 0), new Rotation2d());
-        public static final Pose2d REEF_POSE =
-            new Pose2d(4.459432, 4.023238, new Rotation2d());
-
-        public enum Position {
-            LEFT_SECTION(new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI))),
-            TOP_LEFT_SECTION(new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3))),
-            BOTTOM_LEFT_SECTION(new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3))),
-            RIGHT_SECTION(new Pose2d(5.321046, 4.025900, new Rotation2d())),
-            TOP_RIGHT_SECTION(new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3))),
-            BOTTOM_RIGHT_SECTION(new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3))),
-            PROCESSOR(new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2))),
-            CORAL_STATION_BOTTOM(new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI))),
-            CORAL_STATION_TOP(new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI)));
-
-            private final Pose2d pose;
-
-            Position(Pose2d pose) {
-                this.pose = pose;
-            }
-
-            public Pose2d getPose() {
-                return pose;
-            }
-        }
     }
 
     /**
