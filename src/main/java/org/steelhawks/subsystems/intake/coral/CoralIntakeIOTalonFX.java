@@ -5,7 +5,6 @@ import com.ctre.phoenix6.hardware.CANrange;
 import edu.wpi.first.units.measure.*;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
-import org.steelhawks.subsystems.intake.IntakeConstants;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -14,12 +13,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+import org.steelhawks.subsystems.intake.IntakeConstants;
 
 public class CoralIntakeIOTalonFX implements CoralIntakeIO {
 
-    private final IntakeConstants constants;
     private final TalonFX mIntakeMotor;
-
     private CANrange mBeamBreak = null;
 
     private final StatusSignal<Angle> position;
@@ -31,13 +29,7 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
     private StatusSignal<Distance> distance = null;
 
     public CoralIntakeIOTalonFX() {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = IntakeConstants.ALPHA;
-            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
-            default -> constants = IntakeConstants.OMEGA;
-        }
-
-        mIntakeMotor = new TalonFX(constants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
+        mIntakeMotor = new TalonFX(IntakeConstants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
         if (Constants.getRobot() == RobotType.OMEGABOT) {
             mBeamBreak = new CANrange(IntakeConstants.CAN_RANGE_ID_OMEGA, Constants.getCANBus());
             distance = mBeamBreak.getDistance();

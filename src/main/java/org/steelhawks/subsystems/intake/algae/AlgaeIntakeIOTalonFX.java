@@ -4,8 +4,6 @@ import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
 
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
-import org.steelhawks.subsystems.intake.IntakeConstants;
-import org.steelhawks.subsystems.intake.IntakeConstants.AlgaeIntakeState;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -28,7 +26,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.steelhawks.subsystems.intake.IntakeConstants;
 
 public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     // private final double ALGAE_INTAKE_GEAR_RATIO = 1.0 / 10.0;
@@ -40,10 +38,8 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     // Horizontal: -45.61
     // Vertical: -6.06
 
-    // Horizoontal: -1.88
+    // Horizontal: -1.88
     // Vertical: - 0.39
-
-    private final IntakeConstants constants;
 
     private final TalonFX mIntakeMotor;
     private final TalonFX mPivotMotor;
@@ -69,27 +65,21 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     private final StatusSignal<AngularVelocity> canCoderVelocity;
 
     public AlgaeIntakeIOTalonFX() {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = IntakeConstants.ALPHA;
-            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
-            default -> constants = IntakeConstants.OMEGA;
-        }
-
-        mIntakeMotor = new TalonFX(constants.ALGAE_INTAKE_MOTOR_ID, Constants.getCANBus());
-        mPivotMotor = new TalonFX(constants.ALGAE_PIVOT_MOTOR_ID, Constants.getCANBus());
-        mCANcoder = new CANcoder(constants.ALGAE_CANCODER_ID, Constants.getCANBus());
-        mLimitSwitch = new DigitalInput(constants.ALGAE_LIMIT_SWITCH_ID);
+        mIntakeMotor = new TalonFX(IntakeConstants.ALGAE_INTAKE_MOTOR_ID, Constants.getCANBus());
+        mPivotMotor = new TalonFX(IntakeConstants.ALGAE_PIVOT_MOTOR_ID, Constants.getCANBus());
+        mCANcoder = new CANcoder(IntakeConstants.ALGAE_CANCODER_ID, Constants.getCANBus());
+        mLimitSwitch = new DigitalInput(IntakeConstants.ALGAE_LIMIT_SWITCH_ID);
 
         var intakeConfig = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs()
-                .withSensorToMechanismRatio(constants.ALGAE_INTAKE_GEAR_RATIO))
+                .withSensorToMechanismRatio(IntakeConstants.ALGAE_INTAKE_GEAR_RATIO))
             .withMotorOutput(new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake));
 
         var pivotConfig = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs()
-                .withSensorToMechanismRatio(constants.ALGAE_PIVOT_GEAR_RATIO))
+                .withSensorToMechanismRatio(IntakeConstants.ALGAE_PIVOT_GEAR_RATIO))
             .withMotorOutput(new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake));
@@ -190,7 +180,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
         // inputs.encoderVelocityRadPerSec = canCoderVelocity.getValueAsDouble();
         inputs.encoderVelocityRadPerSec = Math.floor(canCoderVelocity.getValueAsDouble() * 100) / 100;
 
-        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.ALGAE_LIMIT_SWITCH_ID;
+        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == IntakeConstants.ALGAE_LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
 
         if (Constants.getRobot() == RobotType.ALPHABOT) {
@@ -208,7 +198,7 @@ public class AlgaeIntakeIOTalonFX implements AlgaeIntakeIO {
     public void zeroEncoders() {
         // note that for the arm to be "horizontal", the line connecting the center of mass of the arm and its pivot must be parallel to the ground
         // this is NOT necessarily the same thing as for the arm's lexan portion to be parallel to the ground, since the weight of the intake wheels aren't perfectly parallel
-        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(AlgaeIntakeState.HOME.getRadians())));
+        tryUntilOk(5, () -> mPivotMotor.setPosition(Units.radiansToRotations(IntakeConstants.AlgaeIntakeState.HOME.getRadians())));
     }
 
     @Override
