@@ -200,8 +200,8 @@ public class Schlong extends SubsystemBase {
 
     public Command applyPivotSpeed(double speed) {
         return Commands.run(() -> {
-            io.runPivotWithSpeed(speed);
-        }, this)
+                io.runPivotWithSpeed(speed);
+        })
         .finallyDo(() -> io.stopPivot());
     }
 
@@ -215,7 +215,7 @@ public class Schlong extends SubsystemBase {
         return Commands.run(
             () -> {
                 io.runSpinWithSpeed(speed);
-            })
+            }, this)
             .finallyDo(() -> io.stopSpin());
     }
 

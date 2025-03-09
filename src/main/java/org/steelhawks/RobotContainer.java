@@ -541,16 +541,21 @@ public class RobotContainer {
         operator.x()
             .and(modifierTrigger)
             .onTrue(
-                s_Elevator.setDesiredState(State.KNOCK_L3));
+                s_Elevator.setDesiredState(State.KNOCK_L2));
 
         operator.y()
-            //    .and(modifierTrigger.negate())
+            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
+        operator.x()
+            .and(modifierTrigger)
+            .onTrue(
+                s_Elevator.setDesiredState(State.KNOCK_L3));
+
         operator.a()
-            //    .and(modifierTrigger.negate())
+            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
@@ -571,11 +576,11 @@ public class RobotContainer {
             .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
                 Commands.either(
-                        s_Intake.shootPulsatingCoral(),
-                        s_Intake.shootCoral(),
-                        () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
-                            s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
+                    s_Intake.shootPulsatingCoral(),
+                    s_Intake.shootCoral(),
+                    () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
+                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
+                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
