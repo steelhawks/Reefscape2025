@@ -19,23 +19,15 @@ public class DeepClimbIO775Pro implements DeepClimbIO {
 
     private final CANcoder mPivotEncoder;
 
-    private final ClimbConstants constants;
-
     private final StatusSignal<Boolean> magnetFault;
     private final StatusSignal<Angle> canCoderPosition;
     private final StatusSignal<Angle> canCoderAbsolutePosition;
     private final StatusSignal<AngularVelocity> canCoderVelocity;
 
     public DeepClimbIO775Pro() {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = ClimbConstants.ALPHA;
-            case HAWKRIDER -> constants = ClimbConstants.HAWKRIDER;
-            default -> constants = ClimbConstants.OMEGA;
-        }
-
-        mTopTalon = new TalonSRX(constants.DEEP_TOP_MOTOR_ID);
-        mBottomTalon = new TalonSRX(constants.DEEP_TOP_MOTOR_ID);
-        mPivotEncoder = new CANcoder(constants.DEEP_CANCODER_ID);
+        mTopTalon = new TalonSRX(ClimbConstants.DEEP_TOP_MOTOR_ID);
+        mBottomTalon = new TalonSRX(ClimbConstants.DEEP_TOP_MOTOR_ID);
+        mPivotEncoder = new CANcoder(ClimbConstants.DEEP_CANCODER_ID);
 
         magnetFault = mPivotEncoder.getFault_BadMagnet();
         canCoderPosition = mPivotEncoder.getPosition();
