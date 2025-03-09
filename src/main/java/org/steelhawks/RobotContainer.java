@@ -87,8 +87,8 @@ public class RobotContainer {
         interruptPathfinding =
             new Trigger(() ->
                 Math.abs(driver.getLeftY()) > Deadbands.DRIVE_DEADBAND ||
-                Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
-                Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
+                    Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
+                    Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isShallowEndgame = new Trigger(() -> shallowClimbMode);
         isDeepEndgame = new Trigger(() -> deepClimbMode);
         notifyAtEndgame = new Trigger(() -> {
@@ -114,7 +114,7 @@ public class RobotContainer {
         });
         nearCoralStation = new Trigger(() ->
             s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation()) <= 1.0 ||
-            s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 1.0);
+                s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation()) <= 1.0);
         modifierTrigger = operator.rightBumper();
 
         if (Constants.getMode() != Mode.REPLAY) {
@@ -179,7 +179,7 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
-                    s_Intake = 
+                    s_Intake =
                         new Intake(
                             new AlgaeIntakeIO() {},
                             new CoralIntakeIOTalonFX());
@@ -190,7 +190,7 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIOTalonFX());
-                    s_Schlong = 
+                    s_Schlong =
                         new Schlong(
                             new SchlongIOTalonFX());
                 }
@@ -233,9 +233,6 @@ public class RobotContainer {
                     Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.Position.CORAL_STATION_BOTTOM.getPose());
                     Logger.recordOutput("Swerve/ModuleTranslations", Swerve.getModuleTranslations());
 
-//                    for (Transform3d camTransform : VisionConstants.robotToCamera()) {
-//                        Logger.recordOutput("Camera/" + cameraName, camTransform);
-//                    }
                     for (int i = 0; i < VisionConstants.cameraNames().length; i++) {
                         Logger.recordOutput("Camera/" + VisionConstants.cameraNames()[i], VisionConstants.robotToCamera()[i]);
                     }
@@ -377,22 +374,9 @@ public class RobotContainer {
         driver.leftBumper()
             .whileTrue(
                 getAlign(true));
-        
+
         driver.rightBumper()
             .whileTrue(getAlign(false));
-    //    driver.leftBumper()
-    //        .whileTrue(
-    //            Commands.runOnce(
-    //                () -> s_Swerve.setPathfinding(true))
-    //            .andThen(getAlign(true)))
-    //        .onFalse(
-    //            Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
-    //    driver.rightBumper()
-    //        .whileTrue(
-    //            Commands.runOnce(() -> s_Swerve.setPathfinding(true))
-    //            .andThen(getAlign(false)))
-    //        .onFalse(
-    //            Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
     }
 
     private Command getAlign(boolean isAligningLeft) {
@@ -445,13 +429,12 @@ public class RobotContainer {
     }
 
     private void configureDefaultCommands() {}
+
     private void configureTestBindings() {}
 
     private void configureShallowClimbEndgame() {}
 
-    private void configureDeepClimbEndgame() {
-
-    }
+    private void configureDeepClimbEndgame() {}
 
     private void configureTriggers() {
         s_Swerve.isPathfinding()
@@ -489,11 +472,6 @@ public class RobotContainer {
         notifyAtEndgame
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver, operator));
-
-        // nearCoralStation
-        //     .whileTrue(
-        //         s_Intake.intakeCoral()
-        //         .until(s_Intake.hasCoral()));
     }
 
     private void configureDriver() {
@@ -503,15 +481,6 @@ public class RobotContainer {
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
-
-//        driver.leftTrigger().whileTrue(
-//            s_Align.forwardUntil(new Rotation2d()));
-
-//        driver.leftBumper().whileTrue(
-//            s_Align.alignLeft(new Rotation2d()));
-
-//        driver.rightBumper().whileTrue(
-//            s_Align.alignRight(new Rotation2d()));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
@@ -550,16 +519,16 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-       operator.leftBumper()
-           .or(new DashboardTrigger("l1"))
-           .onTrue(
-               s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+        operator.leftBumper()
+            .or(new DashboardTrigger("l1"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
 
-       operator.x()
-        //    .and(modifierTrigger.negate())
-           .or(new DashboardTrigger("l2"))
-           .onTrue(
-               s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+        operator.x()
+            //    .and(modifierTrigger.negate())
+            .or(new DashboardTrigger("l2"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
 //        operator.x()
 //            .and(modifierTrigger)
@@ -567,33 +536,22 @@ public class RobotContainer {
 //                Commands.sequence(
 //                    SuperStructure.knockAlgae(ElevatorConstants.State.KNOCK_L2)));
 //
-       operator.y()
-        //    .and(modifierTrigger.negate())
-           .or(new DashboardTrigger("l3"))
-           .onTrue(
-               s_Elevator.setDesiredState(ElevatorConstants.State.L3));
-//
-    //    operator.y()
-    //        .and(modifierTrigger)
-    //        .onTrue(
-    //            SuperStructure.knockAlgae(ElevatorConstants.State.L3));
-//
-       operator.a()
-        //    .and(modifierTrigger.negate())
-           .or(new DashboardTrigger("l4"))
-           .onTrue(
-               s_Elevator.setDesiredState(ElevatorConstants.State.L4));
-//
-       operator.b()
-           .or(new DashboardTrigger("elevatorHome"))
-           .onTrue(
-               s_Elevator.noSlamCommand());
+        operator.y()
+            //    .and(modifierTrigger.negate())
+            .or(new DashboardTrigger("l3"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
-        // operator.povUp()
-        //     .whileTrue(s_Climb.runDeepClimbViaSpeed(0.5));
+        operator.a()
+            //    .and(modifierTrigger.negate())
+            .or(new DashboardTrigger("l4"))
+            .onTrue(
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
-        // operator.povDown()
-        //     .whileTrue(s
+        operator.b()
+            .or(new DashboardTrigger("elevatorHome"))
+            .onTrue(
+                s_Elevator.noSlamCommand());
 
         operator.rightBumper()
             .whileTrue(
@@ -601,50 +559,26 @@ public class RobotContainer {
                     s_Schlong.applySpinSpeed(-0.2),
                     s_Schlong.applyPivotSpeed(0.15)));
 
-//        operator.x()
-//            .onTrue(
-//                s_Schlong.setDesiredState(IntakeConstants.SchlongState.AVOID_ELEVATOR));
-//
-//        operator.y()
-//            .onTrue(
-//                s_Schlong.setDesiredState(IntakeConstants.SchlongState.ERECT));
-
-        // operator.x()
-        //     .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-        // operator.y()
-        //     .whileTrue(s_Schlong.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        // operator.a()
-        //     .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kForward));
-
-        // operator.b()
-        //     .whileTrue(s_Schlong.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        // operator.x()
-        //     .whileTrue(s_Schlong.applykG());
-
-
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
             .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
                 Commands.either(
-                    s_Intake.shootPulsatingCoral(),
-                    s_Intake.shootCoral(),
-                    () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
-                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
-                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
+                        s_Intake.shootPulsatingCoral(),
+                        s_Intake.shootCoral(),
+                        () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
+                            s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
 
         operator.rightTrigger()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
                 s_Intake.reverseCoral()
-            .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
 
         operator.povRight()
             .whileTrue(
                 s_Intake.intakeCoral()
-            .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2)));
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2)));
     }
 }
