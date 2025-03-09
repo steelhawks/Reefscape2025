@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance
 import org.steelhawks.Robot
 import org.steelhawks.RobotContainer
 import org.steelhawks.subsystems.elevator.ElevatorConstants
-import java.net.InetAddress
 
 object OperatorDashboard : VirtualSubsystem() {
     private var ntInstance: NetworkTableInstance = NetworkTableInstance.getDefault()
