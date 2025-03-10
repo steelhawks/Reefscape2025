@@ -31,12 +31,11 @@ import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.claw.ClawIO;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
-import org.steelhawks.subsystems.algae.AlgaeIntakeIO;
-import org.steelhawks.subsystems.algae.AlgaeIntakeIOSim;
 import org.steelhawks.subsystems.claw.ClawIOSim;
 import org.steelhawks.subsystems.claw.ClawIOTalonFX;
 import org.steelhawks.subsystems.schlong.Schlong;
 import org.steelhawks.subsystems.schlong.SchlongIO;
+import org.steelhawks.subsystems.schlong.SchlongIOSim;
 import org.steelhawks.subsystems.schlong.SchlongIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
@@ -272,7 +271,7 @@ public class RobotContainer {
                             new DeepClimbIO() {});
                     s_Schlong =
                         new Schlong(
-                            new SchlongIO() {});
+                            new SchlongIOSim());
                 }
             }
         }
