@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ClawIO {
 
     @AutoLog
-    class CoralIntakeIOInputs {
+    class ClawIntakeIOInputs {
         public boolean connected = false;
         public double positionRad = 0;
         public double velocityRadPerSec = 0;
@@ -20,7 +20,7 @@ public interface ClawIO {
     /**
      * Updates the set of loggable inputs.
      */
-    default void updateInputs(CoralIntakeIOInputs inputs) {}
+    default void updateInputs(ClawIntakeIOInputs inputs) {}
 
     /**
      * Runs the coral outtake at a given percentage of maximum output.

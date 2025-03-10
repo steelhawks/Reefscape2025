@@ -16,7 +16,7 @@ public class Claw extends SubsystemBase {
     private static final double DIST_TO_HAVE_CORAL = 0.075;
     private boolean isIntaking = false;
 
-    private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
+    private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
     private final Debouncer beamDebounce;
     private final ClawIO io;
 

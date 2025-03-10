@@ -211,21 +211,34 @@ public class Swerve extends SubsystemBase {
                             1),
                         getModuleTranslations());
                 MAPLE_SIM_CONFIG =
+//                    DriveTrainSimulationConfig.Default()
+//                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+//                        .withCustomModuleTranslations(getModuleTranslations())
+//                        .withGyro(COTS.ofPigeon2())
+//                        .withSwerveModule(
+//                            new SwerveModuleSimulationConfig(
+//                                DCMotor.getKrakenX60(1),
+//                                DCMotor.getKrakenX60(1),
+//                                TunerConstants.FrontLeft.DriveMotorGearRatio,
+//                                TunerConstants.FrontLeft.SteerMotorGearRatio,
+//                                Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
+//                                Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
+//                                Meters.of(TunerConstants.FrontLeft.WheelRadius),
+//                                KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
+//                                WHEEL_COF));
                     DriveTrainSimulationConfig.Default()
-                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
-                        .withCustomModuleTranslations(getModuleTranslations())
-                        .withGyro(COTS.ofPigeon2())
-                        .withSwerveModule(
-                            new SwerveModuleSimulationConfig(
-                                DCMotor.getKrakenX60(1),
-                                DCMotor.getKrakenX60(1),
-                                TunerConstants.FrontLeft.DriveMotorGearRatio,
-                                TunerConstants.FrontLeft.SteerMotorGearRatio,
-                                Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
-                                Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-                                Meters.of(TunerConstants.FrontLeft.WheelRadius),
-                                KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
-                                WHEEL_COF));
+                    // Specify gyro type (for realistic gyro drifting and error simulation)
+                    .withGyro(COTS.ofPigeon2())
+                    // Specify swerve module (for realistic swerve dynamics)
+                    .withSwerveModule(COTS.ofMark4n(
+                        DCMotor.getKrakenX60(1),
+                        DCMotor.getKrakenX60(1),
+                        COTS.WHEELS.COLSONS.cof,
+                        3)) // L3 Gear ratio
+                    // Configures the track length and track width (spacing between swerve modules)
+                    .withTrackLengthTrackWidth(Inches.of(25), Inches.of(25))
+                    // Configures the bumper size (dimensions of the robot bumper)
+                    .withBumperSize(Inches.of(36), Inches.of(36));
             }
         }
 

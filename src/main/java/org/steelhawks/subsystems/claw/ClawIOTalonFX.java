@@ -61,7 +61,7 @@ public class ClawIOTalonFX implements ClawIO {
     }
 
     @Override
-    public void updateInputs(CoralIntakeIOInputs inputs) {
+    public void updateInputs(ClawIntakeIOInputs inputs) {
         inputs.connected =
             BaseStatusSignal.refreshAll(
                 position,
