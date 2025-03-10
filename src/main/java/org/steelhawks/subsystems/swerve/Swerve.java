@@ -307,15 +307,6 @@ public class Swerve extends SubsystemBase {
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
 
-        // Configure AutoBuilder for PathPlanner
-        final AutonConstants constants;
-
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = AutonConstants.ALPHA;
-            case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
-            default -> constants = AutonConstants.OMEGA;
-        }
-
         AutoBuilder.configure(
             this::getPose,
             this::setPose,
@@ -323,11 +314,11 @@ public class Swerve extends SubsystemBase {
             this::runVelocity,
             new PPHolonomicDriveController(
                 new PIDConstants(
-                    constants.TRANSLATION_KP,
-                    constants.TRANSLATION_KI, constants.TRANSLATION_KD),
+                    AutonConstants.TRANSLATION_KP,
+                    AutonConstants.TRANSLATION_KI, AutonConstants.TRANSLATION_KD),
                 new PIDConstants(
-                    constants.ROTATION_KP,
-                    constants.ROTATION_KI, constants.ROTATION_KD)),
+                    AutonConstants.ROTATION_KP,
+                    AutonConstants.ROTATION_KI, AutonConstants.ROTATION_KD)),
             PP_CONFIG,
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
             this);
@@ -373,12 +364,12 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                constants.ROTATION_KP,
-                constants.ROTATION_KI,
-                constants.ROTATION_KD,
+                AutonConstants.ROTATION_KP,
+                AutonConstants.ROTATION_KI,
+                AutonConstants.ROTATION_KD,
                 new TrapezoidProfile.Constraints(
-                    constants.ANGLE_MAX_VELOCITY,
-                    constants.ANGLE_MAX_ACCELERATION));
+                    AutonConstants.ANGLE_MAX_VELOCITY,
+                    AutonConstants.ANGLE_MAX_ACCELERATION));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
         mAlignDebouncer = new Debouncer(1, DebounceType.kRising);
     }

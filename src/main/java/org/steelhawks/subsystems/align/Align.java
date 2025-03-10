@@ -101,13 +101,6 @@ public class Align extends VirtualSubsystem {
     }
 
     public static PathPlannerPath directPath(Pose2d goal) {
-        final AutonConstants constants;
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = AutonConstants.ALPHA;
-            case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
-            default -> constants = AutonConstants.OMEGA;
-        }
-
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(s_Swerve.getPose(), goal);
         double speed =
             Math.hypot(
@@ -116,7 +109,7 @@ public class Align extends VirtualSubsystem {
         PathPlannerPath path =
             new PathPlannerPath(
                 waypoints,
-                constants.CONSTRAINTS,
+                AutonConstants.CONSTRAINTS,
                 new IdealStartingState(speed, s_Swerve.getRotation()),
                 new GoalEndState(0, goal.getRotation()));
         path.preventFlipping = false;
