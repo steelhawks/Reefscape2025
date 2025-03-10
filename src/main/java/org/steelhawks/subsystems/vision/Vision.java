@@ -12,6 +12,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,8 @@ public class Vision extends SubsystemBase {
     private final VisionIO[] io;
     private final VisionIOInputsAutoLogged[] inputs;
     private final Alert[] disconnectedAlerts;
+
+    private static int[] allowedTagIds;
 
     public Vision(VisionConsumer consumer, VisionIO... io) {
         this.consumer = consumer;
@@ -38,8 +41,14 @@ public class Vision extends SubsystemBase {
         for (int i = 0; i < inputs.length; i++) {
             disconnectedAlerts[i] =
                 new Alert(
-                    "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+                    "Vision camera " + i + " is disconnected.", AlertType.kWarning);
         }
+
+        whitelistTagIds(ALL_ALLOWED_TAGS);
+    }
+
+    public static void whitelistTagIds(int... tagIds) {
+        allowedTagIds = tagIds;
     }
 
     /**
@@ -64,7 +73,13 @@ public class Vision extends SubsystemBase {
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
             io[i].updateInputs(inputs[i]);
-            Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+            Logger.processInputs("Vision/Camera" + i, inputs[i]);
+        }
+
+        if (RobotContainer.s_Swerve.isPathfinding().getAsBoolean()) {
+            whitelistTagIds(ONLY_REEF_TAGS);
+        } else {
+            whitelistTagIds(ALL_ALLOWED_TAGS);
         }
 
         // Initialize logging values
@@ -86,6 +101,17 @@ public class Vision extends SubsystemBase {
 
             // Add tag poses
             for (int tagId : inputs[cameraIndex].tagIds) {
+                // Check if tag ID is whitelisted
+                boolean isWhitelisted = false;
+                for (int allowedTagId : allowedTagIds) {
+                    if (tagId == allowedTagId) {
+                        isWhitelisted = true;
+                        break;
+                    }
+                }
+                if (!isWhitelisted) {
+                    continue;
+                }
                 var tagPose = APRIL_TAG_LAYOUT.getTagPose(tagId);
                 if (tagPose.isPresent()) {
                     tagPoses.add(tagPose.get());
@@ -99,8 +125,7 @@ public class Vision extends SubsystemBase {
                     observation.tagCount() == 0 // Must have at least one tag
                         || (observation.tagCount() == 1
                         && observation.ambiguity() > MAX_AMBIGUITY) // Cannot be high ambiguity
-                        || Math.abs(observation.pose().getZ())
-                        > MAX_ZERROR // Must have realistic Z coordinate
+                        || Math.abs(observation.pose().getZ()) > MAX_ZERROR // Must have realistic Z coordinate
 
                         // Must be within the field boundaries
                         || observation.pose().getX() < 0.0
@@ -144,16 +169,16 @@ public class Vision extends SubsystemBase {
 
             // Log camera datadata
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
+                "Vision/Camera" + cameraIndex + "/TagPoses",
                 tagPoses.toArray(new Pose3d[tagPoses.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
+                "Vision/Camera" + cameraIndex + "/RobotPoses",
                 robotPoses.toArray(new Pose3d[robotPoses.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
+                "Vision/Camera" + cameraIndex + "/RobotPosesAccepted",
                 robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
+                "Vision/Camera" + cameraIndex + "/RobotPosesRejected",
                 robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
             allTagPoses.addAll(tagPoses);
             allRobotPoses.addAll(robotPoses);
@@ -175,8 +200,8 @@ public class Vision extends SubsystemBase {
     }
 
     @FunctionalInterface
-    public static interface VisionConsumer {
-        public void accept(
+    public interface VisionConsumer {
+        void accept(
             Pose2d visionRobotPoseMeters,
             double timestampSeconds,
             Matrix<N3, N1> visionMeasurementStdDevs);

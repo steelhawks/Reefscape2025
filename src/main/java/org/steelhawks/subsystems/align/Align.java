@@ -315,6 +315,8 @@ public class Align extends VirtualSubsystem {
     }
 
     public Command alignToClosestReef(ElevatorConstants.State level) {
-        return directPathFollow(ReefUtil.getClosestCoralBranch().getScorePose(level));
+        return Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(true))
+            .andThen(directPathFollow(ReefUtil.getClosestCoralBranch().getScorePose(level)))
+            .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false)));
     }
 }
