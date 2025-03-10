@@ -232,6 +232,10 @@ public class RobotContainer {
                         Logger.recordOutput("Camera/" + VisionConstants.cameraNames()[i], VisionConstants.robotToCamera()[i]);
                     }
 
+                    for (ReefUtil.CoralBranch branch : ReefUtil.CoralBranch.values()) {
+                        Logger.recordOutput("Pose/" + branch.name(), branch.getScorePose(State.L4));
+                    }
+
                     s_Swerve =
                         new Swerve(
                             new GyroIOSim(Swerve.getDriveSimulation().getGyroSimulation()),

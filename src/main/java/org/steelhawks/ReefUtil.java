@@ -10,6 +10,7 @@ import org.steelhawks.util.AprilTag;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import static org.steelhawks.util.AprilTag.tagToArrayIndex;
 
 public class ReefUtil {
 
@@ -19,18 +20,18 @@ public class ReefUtil {
             .toList();
 
     public enum CoralBranch {
-        TR1(FieldConstants.APRILTAGS[20], FieldConstants.APRILTAGS[11]),
-        TR2(FieldConstants.APRILTAGS[20], FieldConstants.APRILTAGS[11]),
-        R1(FieldConstants.APRILTAGS[21], FieldConstants.APRILTAGS[10]),
-        R2(FieldConstants.APRILTAGS[21], FieldConstants.APRILTAGS[10]),
-        BR1(FieldConstants.APRILTAGS[22], FieldConstants.APRILTAGS[9]),
-        BR2(FieldConstants.APRILTAGS[22], FieldConstants.APRILTAGS[9]),
-        BL1(FieldConstants.APRILTAGS[17], FieldConstants.APRILTAGS[8]),
-        BL2(FieldConstants.APRILTAGS[17], FieldConstants.APRILTAGS[8]),
-        L1(FieldConstants.APRILTAGS[18], FieldConstants.APRILTAGS[7]),
-        L2(FieldConstants.APRILTAGS[18], FieldConstants.APRILTAGS[7]),
-        TL1(FieldConstants.APRILTAGS[19], FieldConstants.APRILTAGS[6]),
-        TL2(FieldConstants.APRILTAGS[19], FieldConstants.APRILTAGS[6]);
+        TR1(FieldConstants.APRILTAGS[tagToArrayIndex(20)], FieldConstants.APRILTAGS[tagToArrayIndex(11)]),
+        TR2(FieldConstants.APRILTAGS[tagToArrayIndex(20)], FieldConstants.APRILTAGS[tagToArrayIndex(11)]),
+        R1(FieldConstants.APRILTAGS[tagToArrayIndex(21)], FieldConstants.APRILTAGS[tagToArrayIndex(10)]),
+        R2(FieldConstants.APRILTAGS[tagToArrayIndex(21)], FieldConstants.APRILTAGS[tagToArrayIndex(10)]),
+        BR1(FieldConstants.APRILTAGS[tagToArrayIndex(22)], FieldConstants.APRILTAGS[tagToArrayIndex(9)]),
+        BR2(FieldConstants.APRILTAGS[tagToArrayIndex(22)], FieldConstants.APRILTAGS[tagToArrayIndex(9)]),
+        BL1(FieldConstants.APRILTAGS[tagToArrayIndex(17)], FieldConstants.APRILTAGS[tagToArrayIndex(8)]),
+        BL2(FieldConstants.APRILTAGS[tagToArrayIndex(17)], FieldConstants.APRILTAGS[tagToArrayIndex(8)]),
+        L1(FieldConstants.APRILTAGS[tagToArrayIndex(18)], FieldConstants.APRILTAGS[tagToArrayIndex(7)]),
+        L2(FieldConstants.APRILTAGS[tagToArrayIndex(18)], FieldConstants.APRILTAGS[tagToArrayIndex(7)]),
+        TL1(FieldConstants.APRILTAGS[tagToArrayIndex(19)], FieldConstants.APRILTAGS[tagToArrayIndex(6)]),
+        TL2(FieldConstants.APRILTAGS[tagToArrayIndex(19)], FieldConstants.APRILTAGS[tagToArrayIndex(6)]);
 
         private final AprilTag blueTag;
         private final AprilTag redTag;
