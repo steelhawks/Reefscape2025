@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
 
-    public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(36.0);
-
     public static final double ENDGAME_PERIOD = 20;
     public static final double MATCH_TIME_SECONDS = 150;
 
@@ -94,22 +92,20 @@ public final class Constants {
         };
     }
 
-    /**
-     * Constants for the operator interface.
-     */
+    public static final class RobotConstants {
+        public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(36.0);
+
+        // for distance between robot center and claw
+        public static final double CLAW_OFFSET = -Units.inchesToMeters(9.836467);
+        public static final double CLAW_OFFSET_SMALL_COMPONENT = 0.1249231309;
+        public static final double CLAW_OFFSET_BIG_COMPONENT = 0.21637320975937756890536690206266;
+    }
+
     public static final class OIConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
     }
 
-    /**
-     * Constants for the physical auton selector.
-     */
-    public static final class SelectorConstants {}
-
-    /**
-     * Constants for controller deadbands.
-     */
     public static final class Deadbands {
         public static final double DRIVE_DEADBAND = 0.3;
         public static final double ELEVATOR_DEADBAND = 0.05;
@@ -135,17 +131,7 @@ public final class Constants {
         }
     }
 
-    /**
-     * Constants for autonomous driving functions.
-     */
     public static final class AutonConstants {
-        // Distance between coral intake and robot center
-        public static final double coralOffset = 0.2498462618; // Units.inchesToMeters(9.836467); 
-        public static final double coralOffsetSmallComponent = 0.1249231309;
-        public static final double coralOffsetBigComponent = 0.21637320975937756890536690206266;
-
-        // RC2 to BR2, BR2 to Lower Source, Lower Source to BR1, BR1 to Lower Source, Lower Source to BL2
-
         public static final AutonConstants OMEGA =
             new AutonConstants(
                 5.0,

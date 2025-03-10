@@ -4,9 +4,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
+import org.steelhawks.Constants.AutonConstants;
+import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.AprilTag;
+import org.steelhawks.util.autonbuilder.BuilderConstants;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -67,8 +71,8 @@ public class ReefUtil {
 
             return getAprilTagPose().transformBy(
                 new Transform2d(
-                    Constants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
-                    FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1),
+                    RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
+                    FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1) + RobotConstants.CLAW_OFFSET,
                     new Rotation2d(Math.PI)));
         }
     }
