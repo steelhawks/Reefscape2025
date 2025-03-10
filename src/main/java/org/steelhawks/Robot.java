@@ -25,6 +25,7 @@ import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
@@ -159,7 +160,7 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
-        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestReefName(RobotContainer.s_Swerve.getPose()));
+        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().name());
     }
 
     @Override
@@ -190,7 +191,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-        autonomousCommand = Autos.getAuto();
+//        autonomousCommand = Autos.getAuto();
+        autonomousCommand = RobotContainer.s_Align.alignToClosestReef(ElevatorConstants.State.L4);
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();

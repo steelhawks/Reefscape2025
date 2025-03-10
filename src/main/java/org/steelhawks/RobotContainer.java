@@ -372,59 +372,7 @@ public class RobotContainer {
         /* ------------- Pathfinding Poses ------------- */
         driver.leftBumper()
             .whileTrue(
-                getAlign(true));
-
-        driver.rightBumper()
-            .whileTrue(getAlign(false));
-    }
-
-    private Command getAlign(boolean isAligningLeft) {
-        return switch (ReefUtil.getClosestReefName(s_Swerve.getPose())) {
-            case "LEFT_SECTION" -> {
-                if (isAligningLeft) {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.L1.getPose()));
-                } else {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.L2.getPose()));
-                }
-            }
-            case "TOP_LEFT_SECTION" -> {
-                if (isAligningLeft) {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TL1.getPose()));
-                } else {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TL2.getPose()));
-                }
-            }
-            case "BOTTOM_LEFT_SECTION" -> {
-                if (isAligningLeft) {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BL1.getPose()));
-                } else {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BL2.getPose()));
-                }
-            }
-            case "RIGHT_SECTION" -> {
-                if (isAligningLeft) {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.R1.getPose()));
-                } else {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.R2.getPose()));
-                }
-            }
-            case "TOP_RIGHT_SECTION" -> {
-                if (isAligningLeft) {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TR1.getPose()));
-                } else {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.TR2.getPose()));
-                }
-            }
-            case "BOTTOM_RIGHT_SECTION" -> {
-                if (isAligningLeft) {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BR1.getPose()));
-                } else {
-                    yield Align.directPathFollow(AllianceFlip.apply(StartEndPosition.BR2.getPose()));
-                }
-            }
-            default ->
-                throw new IllegalStateException("Unexpected value: " + ReefUtil.getClosestReefName(s_Swerve.getPose()));
-        };
+                s_Align.alignToClosestReef(State.L4));
     }
 
     private void configureDefaultCommands() {}

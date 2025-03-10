@@ -322,7 +322,6 @@ public class Align extends VirtualSubsystem {
     }
 
     public Command alignToClosestReef(ElevatorConstants.State level) {
-        return new SwerveDriveAlignment(
-            () -> ReefUtil.getClosestCoralBranch().getScorePose(level));
+        return directPathFollow(ReefUtil.getClosestCoralBranch().getScorePose(level));
     }
 }
