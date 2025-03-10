@@ -69,7 +69,7 @@ public class ReefUtil {
                 new Transform2d(
                     Constants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
                     FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1),
-                    new Rotation2d()));
+                    new Rotation2d(Math.PI)));
         }
     }
 

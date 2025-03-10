@@ -170,8 +170,8 @@ public class Robot extends LoggedRobot {
         if (Constants.getMode() == Mode.SIM) {
             robotContainer.s_Swerve.resetSimulation(
                 new Pose2d(
-                    3,
-                    3,
+                    6,
+                    1.5,
                     new Rotation2d()));
         }
     }
@@ -191,8 +191,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-//        autonomousCommand = Autos.getAuto();
-        autonomousCommand = RobotContainer.s_Align.alignToClosestReef(ElevatorConstants.State.L4);
+        autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
