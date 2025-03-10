@@ -3,7 +3,7 @@ package org.steelhawks.subsystems.climb;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
 
-public final class ClimbConstants {
+public class ClimbConstants {
 
     public enum DeepClimbState {
         HOME(0, 0, 0),
@@ -34,115 +34,93 @@ public final class ClimbConstants {
         }
     }
 
-    public static final ClimbConstants DEFAULT =
-        new ClimbConstants(
-            21,
-            1,
-            8,
-            0.005,
-            0.5,
-            Units.rotationsToRadians(3),
-            30,
-            36,
-            -1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0);
+    // -------------------- SHALLOW --------------------
+    public static final int SHALLOW_MOTOR_ID;
 
-    public static final ClimbConstants OMEGA = DEFAULT;
+    public static final double SHALLOW_GEAR_RATIO;
 
-    public static final ClimbConstants ALPHA =
-        new ClimbConstants(
-            21,
-            1,
-            8,
-            0.005,
-            0.5,
-            Units.rotationsToRadians(3),
-            30,
-            36,
-            22,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0);
+    public static final double SHALLOW_MAX_VELOCITY_PER_SEC;
+    public static final double SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED;
 
-    public static final ClimbConstants HAWKRIDER = DEFAULT;
+    public static final double SHALLOW_TOLERANCE;
 
-    public final int SHALLOW_MOTOR_ID;
+    public static final double SHALLOW_MAX_RADIANS;
 
-    public final double SHALLOW_GEAR_RATIO;
+    // -------------------- DEEP --------------------
+    public static final int DEEP_TOP_MOTOR_ID;
+    public static final int DEEP_BOTTOM_MOTOR_ID;
+    public static final int DEEP_CANCODER_ID;
 
-    public final double SHALLOW_MAX_VELOCITY_PER_SEC;
-    public final double SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED;
+    public static final double DEEP_KP;
+    public static final double DEEP_KI;
+    public static final double DEEP_KD;
 
-    public final double SHALLOW_TOLERANCE;
+    public static final double DEEP_KS;
+    public static final double DEEP_KG;
+    public static final double DEEP_KV;
 
-    public final double SHALLOW_MAX_RADIANS;
+    public static final double DEEP_MAX_VELO_PER_SECOND;
+    public static final double DEEP_MAX_ACCEL_PER_SECOND;
 
-    public final int DEEP_TOP_MOTOR_ID;
-    public final int DEEP_BOTTOM_MOTOR_ID;
-    public final int DEEP_CANCODER_ID;
-
-    public final double DEEP_KP;
-    public final double DEEP_KI;
-    public final double DEEP_KD;
-
-    public final double DEEP_KS;
-    public final double DEEP_KG;
-    public final double DEEP_KV;
-
-    public final double DEEP_MAX_VELO_PER_SECOND;
-    public final double DEEP_MAX_ACCEL_PER_SECOND;
-
-    public ClimbConstants(
-        int shallow_motorId,
-        double shallow_gearRatio,
-        double shallow_maxVelocityPerSec,
-        double shallow_maxAccelerationPerSecSquared,
-        double shallow_tolerance,
-        double shallow_maxRadians,
-        int deep_topMotorId,
-        int deep_bottomMotorId,
-        int deep_cancoderId,
-        double deep_kP,
-        double deep_kI,
-        double deep_kD,
-        double deep_kS,
-        double deep_kG,
-        double deep_kV,
-        double deep_maxVelocityPerSecond,
-        double deep_maxAccelerationPerSecond
-    ) {
-        SHALLOW_MOTOR_ID = shallow_motorId;
-        SHALLOW_GEAR_RATIO = shallow_gearRatio;
-        SHALLOW_MAX_VELOCITY_PER_SEC = shallow_maxVelocityPerSec;
-        SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED = shallow_maxAccelerationPerSecSquared;
-        SHALLOW_TOLERANCE = shallow_tolerance;
-        SHALLOW_MAX_RADIANS = shallow_maxRadians;
-
-        DEEP_TOP_MOTOR_ID = deep_topMotorId;
-        DEEP_BOTTOM_MOTOR_ID = deep_bottomMotorId;
-        DEEP_CANCODER_ID = deep_cancoderId;
-
-        DEEP_KP = deep_kP;
-        DEEP_KI = deep_kI;
-        DEEP_KD = deep_kD;
-
-        DEEP_KS = deep_kS;
-        DEEP_KG = deep_kG;
-        DEEP_KV = deep_kV;
-
-        DEEP_MAX_VELO_PER_SECOND = deep_maxVelocityPerSecond;
-        DEEP_MAX_ACCEL_PER_SECOND = deep_maxAccelerationPerSecond;
+    static {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> {
+                SHALLOW_MOTOR_ID = 21;
+                SHALLOW_GEAR_RATIO = 1;
+                SHALLOW_MAX_VELOCITY_PER_SEC = 8;
+                SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED = 0.005;
+                SHALLOW_TOLERANCE = 0.5;
+                SHALLOW_MAX_RADIANS = Units.rotationsToRadians(3);
+                DEEP_TOP_MOTOR_ID = 30;
+                DEEP_BOTTOM_MOTOR_ID = 36;
+                DEEP_CANCODER_ID = 22;
+                DEEP_KP = 0.0;
+                DEEP_KI = 0.0;
+                DEEP_KD = 0.0;
+                DEEP_KS = 0.0;
+                DEEP_KG = 0.0;
+                DEEP_KV = 0.0;
+                DEEP_MAX_VELO_PER_SECOND = 0.0;
+                DEEP_MAX_ACCEL_PER_SECOND = 0.0;
+            }
+            case HAWKRIDER -> {
+                SHALLOW_MOTOR_ID = 21;
+                SHALLOW_GEAR_RATIO = 0.0;
+                SHALLOW_MAX_VELOCITY_PER_SEC = 0.0;
+                SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED = 0.0;
+                SHALLOW_TOLERANCE = 0.0;
+                SHALLOW_MAX_RADIANS = 0.0;
+                DEEP_TOP_MOTOR_ID = 0;
+                DEEP_BOTTOM_MOTOR_ID = 0;
+                DEEP_CANCODER_ID = 0;
+                DEEP_KP = 0.0;
+                DEEP_KI = 0.0;
+                DEEP_KD = 0.0;
+                DEEP_KS = 0.0;
+                DEEP_KG = 0.0;
+                DEEP_KV = 0.0;
+                DEEP_MAX_VELO_PER_SECOND = 0.0;
+                DEEP_MAX_ACCEL_PER_SECOND = 0.0;
+            }
+            default -> {
+                SHALLOW_MOTOR_ID = 21;
+                SHALLOW_GEAR_RATIO = 1.0;
+                SHALLOW_MAX_VELOCITY_PER_SEC = 8.0;
+                SHALLOW_MAX_ACCELERATION_PER_SEC_SQUARED = 12.0;
+                SHALLOW_TOLERANCE = 0.05;
+                SHALLOW_MAX_RADIANS = Units.rotationsToRadians(3.0);
+                DEEP_TOP_MOTOR_ID = 30;
+                DEEP_BOTTOM_MOTOR_ID = 36;
+                DEEP_CANCODER_ID = -1;
+                DEEP_KP = 0.0;
+                DEEP_KI = 0.0;
+                DEEP_KD = 0.0;
+                DEEP_KS = 0.0;
+                DEEP_KG = 0.0;
+                DEEP_KV = 0.0;
+                DEEP_MAX_VELO_PER_SECOND = 0.0;
+                DEEP_MAX_ACCEL_PER_SECOND = 0.0;
+            }
+        }
     }
 }

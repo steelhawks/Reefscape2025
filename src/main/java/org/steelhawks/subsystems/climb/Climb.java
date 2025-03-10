@@ -31,7 +31,6 @@ public class Climb extends SubsystemBase {
     private final ShallowClimbIOInputsAutoLogged shallowInputs = new ShallowClimbIOInputsAutoLogged();
     private final DeepClimbIOInputsAutoLogged deepInputs = new DeepClimbIOInputsAutoLogged();
     private OperatorLock mOperatorLock = OperatorLock.LOCKED;
-    private final ClimbConstants constants;
     private final ShallowClimbIO shallowIO;
     private final DeepClimbIO deepIO;
 
@@ -59,26 +58,20 @@ public class Climb extends SubsystemBase {
         this.shallowIO = shallowIO;
         this.deepIO = deepIO;
 
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = ClimbConstants.ALPHA;
-            case HAWKRIDER -> constants = ClimbConstants.HAWKRIDER;
-            default -> constants = ClimbConstants.OMEGA;
-        }
-
         mDeepController =
             new ProfiledPIDController(
-                constants.DEEP_KP,
-                constants.DEEP_KI,
-                constants.DEEP_KD,
+                ClimbConstants.DEEP_KP,
+                ClimbConstants.DEEP_KI,
+                ClimbConstants.DEEP_KD,
                 new TrapezoidProfile.Constraints(
-                    constants.DEEP_MAX_VELO_PER_SECOND,
-                    constants.DEEP_MAX_ACCEL_PER_SECOND));
+                    ClimbConstants.DEEP_MAX_VELO_PER_SECOND,
+                    ClimbConstants.DEEP_MAX_ACCEL_PER_SECOND));
 
         mDeepFeedforward =
             new ArmFeedforward(
-                constants.DEEP_KS,
-                constants.DEEP_KG,
-                constants.DEEP_KV);
+                ClimbConstants.DEEP_KS,
+                ClimbConstants.DEEP_KG,
+                ClimbConstants.DEEP_KV);
 
         shallowMotorDisconnected =
             new Alert("Shallow Climb Motor is Disconnected", AlertType.kError);

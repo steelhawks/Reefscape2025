@@ -132,123 +132,88 @@ public final class Constants {
     }
 
     public static final class AutonConstants {
-        public static final AutonConstants OMEGA =
-            new AutonConstants(
-                5.0,
-                0.0,
-                0.0,
-                5.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                15,
-                20,
-                3,
-                4,
-                5,
-                8);
+        public static final double TRANSLATION_KP;
+        public static final double TRANSLATION_KI;
+        public static final double TRANSLATION_KD;
 
-        public static final AutonConstants ALPHA = new AutonConstants(
-            5,
-            0.0,
-            0.0,
-            5,
-            0.0,
-            0.0,
-            3,
-            0.0,
-            0.0,
-            15,
-            20,
-            4,
-            5,
-            5,
-            8);
+        public static final double ROTATION_KP;
+        public static final double ROTATION_KI;
+        public static final double ROTATION_KD;
 
-        public static final AutonConstants HAWKRIDER = new AutonConstants(
-            10,
-            5.0,
-            0.0,
-            5,
-            0.0,
-            0.0,
-            3,
-            0.0,
-            0.0,
-            15,
-            20,
-            1,
-            2,
-            5,
-            8);
-
-        public final double TRANSLATION_KP;
-        public final double TRANSLATION_KI;
-        public final double TRANSLATION_KD;
-
-        public final double ROTATION_KP;
-        public final double ROTATION_KI;
-        public final double ROTATION_KD;
-
-        public final double AUTO_ALIGN_KP;
-        public final double AUTO_ALIGN_KI;
-        public final double AUTO_ALIGN_KD;
-        public final double ANGLE_MAX_VELOCITY;
-        public final double ANGLE_MAX_ACCELERATION;
+        public static final double AUTO_ALIGN_KP;
+        public static final double AUTO_ALIGN_KI;
+        public static final double AUTO_ALIGN_KD;
+        public static final double ANGLE_MAX_VELOCITY;
+        public static final double ANGLE_MAX_ACCELERATION;
 
         // Pathfinder
-        public final double MAX_VELOCITY_METERS_PER_SECOND;
-        public final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
-        public final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-        public final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND;
+        public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
+        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+        public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED;
 
-        public final PathConstraints CONSTRAINTS;
+        public static final PathConstraints CONSTRAINTS;
 
-        public AutonConstants(
-            double translationKp,
-            double translationKi,
-            double translationKd,
-            double rotationKp,
-            double rotationKi,
-            double rotationKd,
-            double autoAlignKp,
-            double autoAlignKi,
-            double autoAlignKd,
-            double angleMaxVelocity,
-            double angleMaxAcceleration,
-            double maxVelocityMetersPerSecond,
-            double maxAccelerationMetersPerSecondSquared,
-            double maxAngularVelocityRadiansPerSecond,
-            double maxAngularAccelerationRadiansPerSecondSquared
-        ) {
-            TRANSLATION_KP = translationKp;
-            TRANSLATION_KI = translationKi;
-            TRANSLATION_KD = translationKd;
+        static {
+            switch (getRobot()) {
+                case ALPHABOT -> {
+                    TRANSLATION_KP = 5.0;
+                    TRANSLATION_KI = 0.0;
+                    TRANSLATION_KD = 0.0;
+                    ROTATION_KP = 5.0;
+                    ROTATION_KI = 0.0;
+                    ROTATION_KD = 0.0;
+                    AUTO_ALIGN_KP = 3.0;
+                    AUTO_ALIGN_KI = 0.0;
+                    AUTO_ALIGN_KD = 0.0;
+                    ANGLE_MAX_VELOCITY = 15.0;
+                    ANGLE_MAX_ACCELERATION = 20.0;
+                    MAX_VELOCITY_METERS_PER_SECOND = 4.0;
+                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
+                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
+                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
+                }
+                case HAWKRIDER -> {
+                    TRANSLATION_KP = 10.0;
+                    TRANSLATION_KI = 0.0;
+                    TRANSLATION_KD = 0.0;
+                    ROTATION_KP = 5.0;
+                    ROTATION_KI = 0.0;
+                    ROTATION_KD = 0.0;
+                    AUTO_ALIGN_KP = 3.0;
+                    AUTO_ALIGN_KI = 0.0;
+                    AUTO_ALIGN_KD = 0.0;
+                    ANGLE_MAX_VELOCITY = 15.0;
+                    ANGLE_MAX_ACCELERATION = 20.0;
+                    MAX_VELOCITY_METERS_PER_SECOND = 1.0;
+                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
+                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
+                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
+                }
+                default -> {
+                    TRANSLATION_KP = 5.0;
+                    TRANSLATION_KI = 0.0;
+                    TRANSLATION_KD = 0.0;
+                    ROTATION_KP = 5.0;
+                    ROTATION_KI = 0.0;
+                    ROTATION_KD = 0.0;
+                    AUTO_ALIGN_KP = 0.0;
+                    AUTO_ALIGN_KI = 0.0;
+                    AUTO_ALIGN_KD = 0.0;
+                    ANGLE_MAX_VELOCITY = 15.0;
+                    ANGLE_MAX_ACCELERATION = 20.0;
+                    MAX_VELOCITY_METERS_PER_SECOND = 4.0;
+                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
+                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
+                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
+                }
+            }
 
-            ROTATION_KP = rotationKp;
-            ROTATION_KI = rotationKi;
-            ROTATION_KD = rotationKd;
-
-            AUTO_ALIGN_KP = autoAlignKp;
-            AUTO_ALIGN_KI = autoAlignKi;
-            AUTO_ALIGN_KD = autoAlignKd;
-
-            ANGLE_MAX_VELOCITY = angleMaxVelocity;
-            ANGLE_MAX_ACCELERATION = angleMaxAcceleration;
-
-            MAX_VELOCITY_METERS_PER_SECOND = maxVelocityMetersPerSecond;
-            MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = maxAccelerationMetersPerSecondSquared;
-            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = maxAngularVelocityRadiansPerSecond;
-            MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = maxAngularAccelerationRadiansPerSecondSquared;
-
-            CONSTRAINTS =
-                new PathConstraints(
-                    MAX_VELOCITY_METERS_PER_SECOND,
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
-                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
+            CONSTRAINTS = new PathConstraints(
+                MAX_VELOCITY_METERS_PER_SECOND,
+                MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
+                MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
         }
     }
 }

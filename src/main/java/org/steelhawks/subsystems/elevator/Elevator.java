@@ -17,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
-import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
+
 import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -25,7 +25,6 @@ import static edu.wpi.first.units.Units.Volts;
 public class Elevator extends SubsystemBase {
 
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
-    private final ElevatorConstants constants;
     private OperatorLock mOperatorLock;
     private final SysIdRoutine mSysId;
     private boolean mEnabled = false;
@@ -55,26 +54,20 @@ public class Elevator extends SubsystemBase {
     }
 
     public Elevator(ElevatorIO io) {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = ElevatorConstants.ALPHA;
-            case HAWKRIDER -> constants = ElevatorConstants.HAWKRIDER;
-            default -> constants = ElevatorConstants.OMEGA;
-        }
-
         mController =
             new ProfiledPIDController(
-                constants.KP,
-                constants.KI,
-                constants.KD,
+                ElevatorConstants.KP,
+                ElevatorConstants.KI,
+                ElevatorConstants.KD,
                 new TrapezoidProfile.Constraints(
-                    constants.MAX_VELOCITY_PER_SEC,
-                    constants.MAX_ACCELERATION_PER_SEC_SQUARED));
-        mController.setTolerance(constants.TOLERANCE);
+                    ElevatorConstants.MAX_VELOCITY_PER_SEC,
+                    ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED));
+        mController.setTolerance(ElevatorConstants.TOLERANCE);
         mFeedforward =
             new ElevatorFeedforward(
-                constants.KS,
-                constants.KG,
-                constants.KV);
+                ElevatorConstants.KS,
+                ElevatorConstants.KG,
+                ElevatorConstants.KV);
 
         mSysId =
             new SysIdRoutine(
@@ -161,9 +154,9 @@ public class Elevator extends SubsystemBase {
         return new Trigger(mController::atGoal);
     }
 
-    public Trigger atThisGoal(State state) {
+    public Trigger atThisGoal(ElevatorConstants.State state) {
         return new Trigger(
-            () -> Math.abs(getPosition() - state.getRadians()) <= constants.TOLERANCE);
+            () -> Math.abs(getPosition() - state.getRadians()) <= ElevatorConstants.TOLERANCE);
     }
 
     public Trigger atLimit() {
@@ -188,11 +181,11 @@ public class Elevator extends SubsystemBase {
             .finallyDo(io::stop);
     }
 
-    public Command setDesiredState(State state) {
+    public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.getRadians(), 0, constants.MAX_RADIANS);
+                    MathUtil.clamp(state.getRadians(), 0, ElevatorConstants.MAX_RADIANS);
                 inputs.goal = goal;
                 mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
@@ -215,8 +208,8 @@ public class Elevator extends SubsystemBase {
                         elevatorManual(
                             () -> MathUtil.clamp(
                                 MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.ELEVATOR_DEADBAND),
-                                -constants.MANUAL_ELEVATOR_INCREMENT,
-                                constants.MANUAL_ELEVATOR_INCREMENT)));
+                                -ElevatorConstants.MANUAL_ELEVATOR_INCREMENT,
+                                ElevatorConstants.MANUAL_ELEVATOR_INCREMENT)));
                     mOperatorLock = OperatorLock.UNLOCKED;
                 } else {
                     if (getDefaultCommand() != null) {
@@ -239,8 +232,8 @@ public class Elevator extends SubsystemBase {
                     () -> {
                         double appliedSpeed = speed.getAsDouble();
 
-                        if (appliedSpeed == 0.0) {
-                            appliedSpeed = constants.KG / 12.0;
+                        if (speed.getAsDouble() == 0.0) {
+                            appliedSpeed = ElevatorConstants.KG / 12.0;
                         }
 
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
@@ -255,7 +248,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(this::disable)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(-constants.MANUAL_ELEVATOR_INCREMENT / 2.0), this))
+                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT / 2.0), this))
         .until(() -> inputs.limitSwitchPressed)
         .finallyDo(() -> {
             io.stop();
@@ -265,9 +258,9 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command noSlamCommand() {
-        return setDesiredState(State.HOME_ABOVE_BAR)
+        return setDesiredState(ElevatorConstants.State.HOME_ABOVE_BAR)
             .andThen(
-                Commands.waitUntil(atThisGoal(State.HOME_ABOVE_BAR)), 
+                Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME_ABOVE_BAR)),
                 Commands.runOnce(() -> disable()),
                 Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
             .until(() -> inputs.limitSwitchPressed)
@@ -279,7 +272,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command homeCommand() {
-        return setDesiredState(State.HOME)
+        return setDesiredState(ElevatorConstants.State.HOME)
             .until(() -> inputs.limitSwitchPressed)
             .finallyDo(() -> {
                 io.zeroEncoders();
@@ -290,20 +283,20 @@ public class Elevator extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runElevator(constants.KS), this)
+            () -> io.runElevator(ElevatorConstants.KS), this)
             .finallyDo(io::stop);
     }
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runElevator(constants.KG), this)
+            () -> io.runElevator(ElevatorConstants.KG), this)
             .finallyDo(io::stop);
     }
 
     public Command applykV() {
         return Commands.run(
             () -> {
-                double volts = constants.KS + constants.KV;
+                double volts = ElevatorConstants.KS + ElevatorConstants.KV;
                 io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);

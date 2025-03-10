@@ -13,18 +13,10 @@ import java.util.function.DoubleSupplier;
 
 public class Intake {
 
-    private final IntakeConstants constants;
-
     public final AlgaeIntake mAlgaeIntake;
     public final CoralIntake mCoralIntake;
 
     public Intake(AlgaeIntakeIO algaeIO, CoralIntakeIO coralIO) {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = IntakeConstants.ALPHA;
-            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
-            default -> constants = IntakeConstants.OMEGA;
-        }
-
         mAlgaeIntake = new AlgaeIntake(algaeIO);
         mCoralIntake = new CoralIntake(coralIO);
     }

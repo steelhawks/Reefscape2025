@@ -9,7 +9,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.Autos;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class AutonBuilder extends VirtualSubsystem {
     private static ArrayList<LoggedDashboardChooser<ChoreoPaths>> mPathChoosers = new ArrayList<>();
     private static ArrayList<ChoreoPaths> previousPaths = new ArrayList<>();
 
-    private static ArrayList<LoggedDashboardChooser<State>> elevatorChoosers = new ArrayList<>();
+    private static ArrayList<LoggedDashboardChooser<ElevatorConstants.State>> elevatorChoosers = new ArrayList<>();
 
     private static final ChoreoPaths[] paths = ChoreoPaths.values();
 
@@ -53,11 +53,11 @@ public class AutonBuilder extends VirtualSubsystem {
 
         ReefZones[] zoneList = ReefZones.values();
         for (int i = 0; i < BuilderConstants.NUMBER_OF_REEF_ZONES; i++) {
-            LoggedDashboardChooser<State> selector = new LoggedDashboardChooser<>(key + "/Elevator Zone " + zoneList[i].longName);
-            selector.addDefaultOption("No Elevator (Return Home)", State.HOME);
-            selector.addOption("L2", State.L2);
-            selector.addOption("L3", State.L3);
-            selector.addOption("L4", State.L4);
+            LoggedDashboardChooser<ElevatorConstants.State> selector = new LoggedDashboardChooser<>(key + "/Elevator Zone " + zoneList[i].longName);
+            selector.addDefaultOption("No Elevator (Return Home)", ElevatorConstants.State.HOME);
+            selector.addOption("L2", ElevatorConstants.State.L2);
+            selector.addOption("L3", ElevatorConstants.State.L3);
+            selector.addOption("L4", ElevatorConstants.State.L4);
             elevatorChoosers.add(selector);
         }
 
@@ -84,10 +84,10 @@ public class AutonBuilder extends VirtualSubsystem {
         .andThen(Autos.followTrajectory(currentPath.name));
         
         ReefZones assignedZone = currentPath.assignedZone;
-        State elevatorDesiredState = getDesiredElevatorState(assignedZone);
+        ElevatorConstants.State elevatorDesiredState = getDesiredElevatorState(assignedZone);
 
         // if current path is a reef path, score
-        if (!assignedZone.equals(ReefZones.UNDEFINED) && !elevatorDesiredState.equals(State.HOME)) {
+        if (!assignedZone.equals(ReefZones.UNDEFINED) && !elevatorDesiredState.equals(ElevatorConstants.State.HOME)) {
             autoCommand = 
                 autoCommand
                     .andThen(
@@ -113,8 +113,8 @@ public class AutonBuilder extends VirtualSubsystem {
         }
     }
 
-    private State getDesiredElevatorState(ReefZones zone) {
-        State elevState = State.HOME;
+    private ElevatorConstants.State getDesiredElevatorState(ReefZones zone) {
+        ElevatorConstants.State elevState = ElevatorConstants.State.HOME;
         if (zone != ReefZones.UNDEFINED) {
             int selectorNumber = zone.ordinal();
             elevState = elevatorChoosers.get(selectorNumber).get();

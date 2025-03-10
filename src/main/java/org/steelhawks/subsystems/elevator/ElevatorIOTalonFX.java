@@ -19,8 +19,6 @@ import org.steelhawks.Constants.RobotType;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
-    private final ElevatorConstants constants;
-
     private final TalonFX mLeftMotor;
     private final TalonFX mRightMotor;
     private CANcoder mCANcoder = null;
@@ -47,22 +45,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private boolean atBottomLimit = false;
 
     public ElevatorIOTalonFX() {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = ElevatorConstants.ALPHA;
-            case HAWKRIDER -> constants = ElevatorConstants.HAWKRIDER;
-            default -> constants = ElevatorConstants.OMEGA;
-        }
-
-        mLeftMotor = new TalonFX(constants.LEFT_ID, Constants.getCANBus());
-        mRightMotor = new TalonFX(constants.RIGHT_ID, Constants.getCANBus());
-        if (constants.CANCODER_ID != -1)
-            mCANcoder = new CANcoder(constants.CANCODER_ID, Constants.getCANBus());
-        mLimitSwitch = new DigitalInput(constants.LIMIT_SWITCH_ID);
+        mLeftMotor = new TalonFX(ElevatorConstants.LEFT_ID, Constants.getCANBus());
+        mRightMotor = new TalonFX(ElevatorConstants.RIGHT_ID, Constants.getCANBus());
+        if (ElevatorConstants.CANCODER_ID != -1)
+            mCANcoder = new CANcoder(ElevatorConstants.CANCODER_ID, Constants.getCANBus());
+        mLimitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
 
         var leftConfig =
             new TalonFXConfiguration()
                 .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(constants.GEAR_RATIO))
+                    .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(
                         Constants.getRobot() == RobotType.OMEGABOT
@@ -74,7 +66,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         var rightConfig =
             new TalonFXConfiguration()
                 .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(constants.GEAR_RATIO))
+                    .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(
                         Constants.getRobot() == RobotType.OMEGABOT
@@ -180,9 +172,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             inputs.encoderVelocityRadPerSec = Units.rotationsToRadians((inputs.leftVelocityRadPerSec + inputs.rightVelocityRadPerSec) / 2.0);
         }
 
-        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == constants.LIMIT_SWITCH_ID;
+        inputs.limitSwitchConnected = mLimitSwitch.getChannel() == ElevatorConstants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atTopLimit = inputs.encoderPositionRad >= constants.MAX_RADIANS;
+        inputs.atTopLimit = inputs.encoderPositionRad >= ElevatorConstants.MAX_RADIANS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;

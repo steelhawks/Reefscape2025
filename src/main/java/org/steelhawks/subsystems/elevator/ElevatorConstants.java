@@ -5,12 +5,12 @@ import org.steelhawks.Constants;
 
 import java.util.Arrays;
 
-public final class ElevatorConstants {
+public class ElevatorConstants {
 
     public enum State {
-        L4(59.905784718904, 23.299634187195004, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21 
-        L3(35.3237425930366, 13.956157208183564, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687 
-        L2(19.376478322177476, 8.308039947188632, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128 
+        L4(59.905784718904, 23.299634187195004, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21
+        L3(35.3237425930366, 13.956157208183564, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687
+        L2(19.376478322177476, 8.308039947188632, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128
         L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
         HOME(0, 0, 0),
 
@@ -45,142 +45,87 @@ public final class ElevatorConstants {
         }
     }
 
-    public static final ElevatorConstants DEFAULT =
-        new ElevatorConstants(
-            0,
-            20,
-            21,
-            22,
-            1,
-            0,
-            0.15,
-            2.6,
-            3.9,
-            0,
-            0.001,
-            5.2,
-            8,
-            0.005,
-            0.5,
-            Units.rotationsToRadians(3));
+    public static final int LIMIT_SWITCH_ID;
+    public static final int LEFT_ID;
+    public static final int RIGHT_ID;
+    public static final int CANCODER_ID;
 
-    public static final ElevatorConstants OMEGA =
-        new ElevatorConstants(
-            0,
-            13,
-            14,
-            16,
-            25,
-            0.23,
-            0.175,
-            (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0,
-            5.5, // 2.75
-            0,
-            0.2, //0.15
-            35,
-            70,
-            0.02,
-            0.55,
-            // 24.21235275598696);
-            // 24.435);
-            24.663);
+    public static final double GEAR_RATIO;
 
-    public static final ElevatorConstants ALPHA =
-        new ElevatorConstants(
-            0,
-            14,
-            15,
-            -1,
-            10,
-            0.18,
-            0.18625,
-            Arrays.stream(new double[]{
-                (2.0 - 1) / (10.593671321138238 - 4.652870525814727),
-            }).average().orElse(0.0),
-            2.6,
-            0,
-            0.01, // 0.126
-            100,
-            110,
-            Units.rotationsToRadians(0.005),
-            0.65, // 0.55
-            60); // 60
+    public static final double KS;
+    public static final double KG;
+    public static final double KV;
 
-    public static final ElevatorConstants HAWKRIDER =
-        new ElevatorConstants(
-        0,
-        20,
-        21,
-        22,
-        1,
-        0.15,
-        0.09,
-        0.6,
-        9.1,
-        0,
-        0.002,
-        5.2,
-        8,
-        Units.rotationsToRadians(.005),
-        0.5,
-        18.5);
+    public static final double KP;
+    public static final double KI;
+    public static final double KD;
 
-    public final int LIMIT_SWITCH_ID;
-    public final int LEFT_ID;
-    public final int RIGHT_ID;
-    public final int CANCODER_ID;
+    public static final double MAX_VELOCITY_PER_SEC;
+    public static final double MAX_ACCELERATION_PER_SEC_SQUARED;
 
-    public final double GEAR_RATIO;
+    public static final double TOLERANCE;
+    public static final double MANUAL_ELEVATOR_INCREMENT;
 
-    public final double KS;
-    public final double KG;
-    public final double KV;
+    public static final double MAX_RADIANS;
 
-    public final double KP;
-    public final double KI;
-    public final double KD;
-
-    public final double MAX_VELOCITY_PER_SEC;
-    public final double MAX_ACCELERATION_PER_SEC_SQUARED;
-
-    public final double TOLERANCE;
-    public final double MANUAL_ELEVATOR_INCREMENT;
-
-    public final double MAX_RADIANS;
-
-    public ElevatorConstants(
-        int limitSwitchId,
-        int leftMotorId,
-        int rightMotorId,
-        int canCoderId,
-        double gearRatio,
-        double kS,
-        double kG,
-        double kV,
-        double kP,
-        double kI,
-        double kD,
-        double maxVelocityPerSec,
-        double maxAccelerationPerSecSquared,
-        double tolerance,
-        double manualElevatorIncrement,
-        double maxRadians
-    ) {
-        LIMIT_SWITCH_ID = limitSwitchId;
-        LEFT_ID = leftMotorId;
-        RIGHT_ID = rightMotorId;
-        CANCODER_ID = canCoderId;
-        GEAR_RATIO = gearRatio;
-        KS = kS;
-        KG = kG;
-        KV = kV;
-        KP = kP;
-        KI = kI;
-        KD = kD;
-        MAX_VELOCITY_PER_SEC = maxVelocityPerSec;
-        MAX_ACCELERATION_PER_SEC_SQUARED = maxAccelerationPerSecSquared;
-        TOLERANCE = tolerance;
-        MANUAL_ELEVATOR_INCREMENT = manualElevatorIncrement;
-        MAX_RADIANS = maxRadians;
+    static {
+        switch (Constants.getRobot()) {
+            case ALPHABOT -> {
+                LIMIT_SWITCH_ID = 0;
+                LEFT_ID = 14;
+                RIGHT_ID = 15;
+                CANCODER_ID = -1;
+                GEAR_RATIO = 10.0;
+                KS = 0.18;
+                KG = 0.18625;
+                KV = Arrays.stream(new double[]{
+                    (2.0 - 1) / (10.593671321138238 - 4.652870525814727),
+                }).average().orElse(0.0);
+                KP = 2.6;
+                KI = 0.0;
+                KD = 0.01;
+                MAX_VELOCITY_PER_SEC = 100.0;
+                MAX_ACCELERATION_PER_SEC_SQUARED = 110.0;
+                TOLERANCE = Units.rotationsToRadians(0.005);
+                MANUAL_ELEVATOR_INCREMENT = 0.65;
+                MAX_RADIANS = 60;
+            }
+            case HAWKRIDER -> {
+                LIMIT_SWITCH_ID = 0;
+                LEFT_ID = 20;
+                RIGHT_ID = 21;
+                CANCODER_ID = 22;
+                GEAR_RATIO = 1.0;
+                KS = 0.15;
+                KG = 0.09;
+                KV = 0.6;
+                KP = 9.1;
+                KI = 0.0;
+                KD = 0.002;
+                MAX_VELOCITY_PER_SEC = 5.2;
+                MAX_ACCELERATION_PER_SEC_SQUARED = 8.0;
+                TOLERANCE = Units.rotationsToRadians(0.005);
+                MANUAL_ELEVATOR_INCREMENT = 0.5;
+                MAX_RADIANS = 18.5;
+            }
+            default -> {
+                LIMIT_SWITCH_ID = 0;
+                LEFT_ID = 13;
+                RIGHT_ID = 14;
+                CANCODER_ID = 16;
+                GEAR_RATIO = 25;
+                KS = 0.23;
+                KG = 0.176;
+                KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
+                KP = 5.5;
+                KI = 0.0;
+                KD = 0.2;
+                MAX_VELOCITY_PER_SEC = 35;
+                MAX_ACCELERATION_PER_SEC_SQUARED = 70;
+                TOLERANCE = 0.02;
+                MANUAL_ELEVATOR_INCREMENT = 0.55;
+                MAX_RADIANS = 24.663;
+            }
+        }
     }
 }

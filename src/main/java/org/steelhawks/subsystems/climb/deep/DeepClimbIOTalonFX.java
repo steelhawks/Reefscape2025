@@ -18,8 +18,6 @@ import org.steelhawks.subsystems.climb.ClimbConstants;
 
 public class DeepClimbIOTalonFX implements DeepClimbIO {
 
-    private final ClimbConstants constants;
-
     private final TalonFX mTopMotor;
     private final TalonFX mBottomMotor;
     private CANcoder mPivotEncoder = null;
@@ -43,16 +41,10 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
     private StatusSignal<Voltage> pivotVoltage = null;
 
     public DeepClimbIOTalonFX() {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = ClimbConstants.ALPHA;
-            case HAWKRIDER -> constants = ClimbConstants.HAWKRIDER;
-            default -> constants = ClimbConstants.OMEGA;
-        }
-
-        mTopMotor = new TalonFX(constants.DEEP_TOP_MOTOR_ID, Constants.getCANBus());
-        mBottomMotor = new TalonFX(constants.DEEP_BOTTOM_MOTOR_ID, Constants.getCANBus());
-        if (constants.DEEP_CANCODER_ID != -1)
-            mPivotEncoder = new CANcoder(constants.DEEP_CANCODER_ID, Constants.getCANBus());
+        mTopMotor = new TalonFX(ClimbConstants.DEEP_TOP_MOTOR_ID, Constants.getCANBus());
+        mBottomMotor = new TalonFX(ClimbConstants.DEEP_BOTTOM_MOTOR_ID, Constants.getCANBus());
+        if (ClimbConstants.DEEP_CANCODER_ID != -1)
+            mPivotEncoder = new CANcoder(ClimbConstants.DEEP_CANCODER_ID, Constants.getCANBus());
 
         var topConfig =
             new TalonFXConfiguration()

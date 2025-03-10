@@ -120,7 +120,7 @@ public class DriveCommands {
      * @return The command to drive to the target position.
      */
     public static Command driveToPosition(Pose2d target, BooleanSupplier emergencyStop) {
-        return AutoBuilder.pathfindToPose(target, AutonConstants.HAWKRIDER.CONSTRAINTS)
+        return AutoBuilder.pathfindToPose(target, AutonConstants.CONSTRAINTS)
             .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
                 .beforeStarting(() -> s_Swerve.setPathfinding(true))
                     .finallyDo(() -> s_Swerve.setPathfinding(false))
@@ -135,7 +135,7 @@ public class DriveCommands {
      * @return The command to drive to the target path.
      */
     public static Command driveToPath(PathPlannerPath path, BooleanSupplier emergencyStop) {
-        return AutoBuilder.pathfindThenFollowPath(path, AutonConstants.HAWKRIDER.CONSTRAINTS)
+        return AutoBuilder.pathfindThenFollowPath(path, AutonConstants.CONSTRAINTS)
             .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
                 .beforeStarting(() -> s_Swerve.setPathfinding(true))
                     .finallyDo(() -> s_Swerve.setPathfinding(false))

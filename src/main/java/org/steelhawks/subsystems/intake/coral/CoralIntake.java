@@ -1,16 +1,12 @@
 package org.steelhawks.subsystems.intake.coral;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.intake.IntakeConstants;
-
-import java.util.function.DoubleSupplier;
 
 public class CoralIntake extends SubsystemBase {
 
@@ -20,7 +16,6 @@ public class CoralIntake extends SubsystemBase {
     boolean isIntaking = false;
 
     private final CoralIntakeIOInputsAutoLogged inputs = new CoralIntakeIOInputsAutoLogged();
-    private final IntakeConstants constants;
     private final Debouncer beamDebounce;
     private final CoralIntakeIO io;
 
@@ -37,11 +32,6 @@ public class CoralIntake extends SubsystemBase {
     public CoralIntake(CoralIntakeIO io) {
         this.io = io;
         beamDebounce = new Debouncer(.3, DebounceType.kBoth);
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = IntakeConstants.ALPHA;
-            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
-            default -> constants = IntakeConstants.OMEGA;
-        }
     }
 
     @Override
@@ -58,17 +48,17 @@ public class CoralIntake extends SubsystemBase {
 
     public void shootCoral() {
         isIntaking = true;
-        io.runIntake(constants.CORAL_SHOOT_SPEED);
+        io.runIntake(IntakeConstants.CORAL_SHOOT_SPEED);
     }
 
     public void reverseCoral() {
         isIntaking = true;
-        io.runIntake(-constants.CORAL_INTAKE_SPEED);
+        io.runIntake(-IntakeConstants.CORAL_INTAKE_SPEED);
     }
 
     public void shootSlowCoral() {
         isIntaking = true;
-        io.runIntake(constants.CORAL_SECONDARY_SHOOT_SPEED);
+        io.runIntake(IntakeConstants.CORAL_SECONDARY_SHOOT_SPEED);
     }
 
     public void stop() {

@@ -19,6 +19,7 @@ import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.intake.IntakeConstants;
+
 import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -26,7 +27,6 @@ import static edu.wpi.first.units.Units.Volts;
 public class AlgaeIntake extends SubsystemBase {
 
     private final AlgaeIntakeIOInputsAutoLogged inputs = new AlgaeIntakeIOInputsAutoLogged();
-    private final IntakeConstants constants;
     private final SysIdRoutine mAlgaeSysId;
     private boolean mEnabled = false;
     private final AlgaeIntakeIO io;
@@ -54,12 +54,6 @@ public class AlgaeIntake extends SubsystemBase {
     public AlgaeIntake(AlgaeIntakeIO io) {
         this.io = io;
 
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = IntakeConstants.ALPHA;
-            case HAWKRIDER -> constants = IntakeConstants.HAWKRIDER;
-            default -> constants = IntakeConstants.OMEGA;
-        }
-
         intakeMotorDisconnected =
             new Alert("Intake Motor is Disconnected", AlertType.kError);
         pivotMotorDisconnected =
@@ -83,22 +77,22 @@ public class AlgaeIntake extends SubsystemBase {
 
         mController =
             new ProfiledPIDController(
-                constants.ALGAE_KP,
-                constants.ALGAE_KI,
-                constants.ALGAE_KD,
+                IntakeConstants.ALGAE_KP,
+                IntakeConstants.ALGAE_KI,
+                IntakeConstants.ALGAE_KD,
                 new TrapezoidProfile.Constraints(
-                    constants.ALGAE_MAX_VELOCITY_PER_SEC,
-                    constants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED));
+                    IntakeConstants.ALGAE_MAX_VELOCITY_PER_SEC,
+                    IntakeConstants.ALGAE_MAX_ACCELERATION_PER_SEC_SQUARED));
 
-        mController.setTolerance(constants.ALGAE_TOLERANCE);
+        mController.setTolerance(IntakeConstants.ALGAE_TOLERANCE);
         mController.enableContinuousInput(0, 2 * Math.PI);
         mController.setGoal(inputs.encoderPositionRad);
 
         mFeedforward =
             new ArmFeedforward(
-                constants.ALGAE_KS,
-                constants.ALGAE_KG,
-                constants.ALGAE_KV);
+                IntakeConstants.ALGAE_KS,
+                IntakeConstants.ALGAE_KG,
+                IntakeConstants.ALGAE_KV);
 
         enable();
     }
@@ -136,7 +130,7 @@ public class AlgaeIntake extends SubsystemBase {
 
     @AutoLogOutput(key = "Algae/AdjustedPosition")
     private double getPosition() {
-        return inputs.encoderPositionRad + constants.ALGAE_PIVOT_ZERO_OFFSET;
+        return inputs.encoderPositionRad + IntakeConstants.ALGAE_PIVOT_ZERO_OFFSET;
         // return Math.floor((inputs.encoderPositionRad + constants.ALGAE_PIVOT_ZERO_OFFSET) * 100) / 100;
 
     }
@@ -174,9 +168,9 @@ public class AlgaeIntake extends SubsystemBase {
                         pivotManual(
                             () -> MathUtil.clamp(
                                     MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.PIVOT_DEADBAND)
-                                    * constants.ALGAE_SPEED_MULTIPLIER,
-                                -constants.ALGAE_MANUAL_PIVOT_INCREMENT,
-                                constants.ALGAE_MANUAL_PIVOT_INCREMENT)));
+                                    * IntakeConstants.ALGAE_SPEED_MULTIPLIER,
+                                -IntakeConstants.ALGAE_MANUAL_PIVOT_INCREMENT,
+                                IntakeConstants.ALGAE_MANUAL_PIVOT_INCREMENT)));
                     mOperatorLock = OperatorLock.UNLOCKED;
                 } else {
                     if (getDefaultCommand() != null) {
@@ -203,7 +197,7 @@ public class AlgaeIntake extends SubsystemBase {
 
                         if (appliedSpeed == 0.0) {
                             // convert to percentoutput
-                            appliedSpeed = (Math.cos(getPosition()) * constants.ALGAE_KG) / 12.0;
+                            appliedSpeed = (Math.cos(getPosition()) * IntakeConstants.ALGAE_KG) / 12.0;
                         }
 
                         io.runPivotWithSpeed(appliedSpeed);
@@ -235,7 +229,7 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(constants.ALGAE_KS), this)
+            () -> io.runPivotWithVoltage(IntakeConstants.ALGAE_KS), this)
             .finallyDo(() -> io.stopPivot());
     }
 
@@ -260,13 +254,13 @@ public class AlgaeIntake extends SubsystemBase {
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(Math.cos(getPosition()) * constants.ALGAE_KG), this)
+            () -> io.runPivotWithVoltage(Math.cos(getPosition()) * IntakeConstants.ALGAE_KG), this)
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(constants.ALGAE_KS + (Math.cos(getPosition()) * constants.ALGAE_KG) + constants.ALGAE_KV))
+            () -> io.runPivotWithVoltage(IntakeConstants.ALGAE_KS + (Math.cos(getPosition()) * IntakeConstants.ALGAE_KG) + IntakeConstants.ALGAE_KV))
             .finallyDo(() -> io.stopPivot());
     }
 
@@ -282,7 +276,7 @@ public class AlgaeIntake extends SubsystemBase {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.getRadians(), 0, constants.ALGAE_MAX_RADIANS);
+                    MathUtil.clamp(state.getRadians(), 0, IntakeConstants.ALGAE_MAX_RADIANS);
                 inputs.goal = goal;
                 // mController.setGoal(goal);
                 mController.setGoal(new TrapezoidProfile.State(goal, 0));
