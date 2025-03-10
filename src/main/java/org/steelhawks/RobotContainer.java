@@ -396,7 +396,7 @@ public class RobotContainer {
             .onTrue(
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
             .whileFalse(
-                s_LED.setColorCommand(LEDColor.WHITE));
+                s_LED.setColorCommand(LEDColor.WHITE).repeatedly());
 
         s_Intake.algaeAtLimit()
             .onTrue(
@@ -492,7 +492,7 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
-        operator.x()
+        operator.y()
             .and(modifierTrigger)
             .onTrue(
                 s_Elevator.setDesiredState(State.KNOCK_L3));

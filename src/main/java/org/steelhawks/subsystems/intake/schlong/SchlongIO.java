@@ -45,7 +45,7 @@ public interface SchlongIO {
 
     default void runPivotWithSpeed(double speed) {}
 
-    default void runPivotWithVoltage(String runningHere, double volts) {}
+    default void runPivotWithVoltage(double volts) {}
 
     default void stopPivot() {}
 

@@ -78,7 +78,7 @@ public class Schlong extends SubsystemBase {
                     null,
                     (state) -> Logger.recordOutput("Schlong/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
-                    (voltage) -> io.runPivotWithVoltage("SYSID", voltage.in(Volts)), null, this));
+                    (voltage) -> io.runPivotWithVoltage(voltage.in(Volts)), null, this));
 
         pivotMotorDisconnected = 
             new Alert(
@@ -197,7 +197,7 @@ public class Schlong extends SubsystemBase {
 
     public Command applyPivotVolts(double volts) {
         return Commands.run(
-            () -> io.runPivotWithVoltage("Volts testing linear", volts))
+            () -> io.runPivotWithVoltage(volts))
             .finallyDo(()-> io.stopPivot());
     }
 
@@ -223,7 +223,7 @@ public class Schlong extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runPivotWithVoltage("Apply Ks", IntakeConstants.SCHLONG_KS))
+            () -> io.runPivotWithVoltage(IntakeConstants.SCHLONG_KS))
             .finallyDo(() -> io.stopPivot());
     }
 
@@ -233,15 +233,14 @@ public class Schlong extends SubsystemBase {
                double volts = IntakeConstants.SCHLONG_KG * Math.cos(getPivotPosition());
                 // double volts = mFeedforward.calculate(getPivotPosition(), 0);
                 Logger.recordOutput("Schlong/GravityCompensation", volts);
-                io.runPivotWithVoltage("Apply KG", volts);
+                io.runPivotWithVoltage(volts);
             }, this)
             .finallyDo(() -> io.stopPivot());
     }
     
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivotWithVoltage("Apply KV",
-                IntakeConstants.SCHLONG_KS * Math.signum(getPivotPosition()) + IntakeConstants.SCHLONG_KG * Math.cos(getPivotPosition()) + IntakeConstants.SCHLONG_KV))
+            () -> io.runPivotWithVoltage(IntakeConstants.SCHLONG_KS * Math.signum(getPivotPosition()) + IntakeConstants.SCHLONG_KG * Math.cos(getPivotPosition()) + IntakeConstants.SCHLONG_KV))
                 .finallyDo(() -> io.stopPivot());
     }
 }

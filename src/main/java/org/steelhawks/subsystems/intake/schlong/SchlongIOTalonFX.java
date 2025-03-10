@@ -176,8 +176,7 @@ public class SchlongIOTalonFX implements SchlongIO {
     }
 
     @Override
-    public void runPivotWithVoltage(String runningHere, double volts) {
-        System.out.println(runningHere);
+    public void runPivotWithVoltage(double volts) {
         mPivotMotor.setVoltage(volts);
     }
 
