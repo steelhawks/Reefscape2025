@@ -1,4 +1,4 @@
-package org.steelhawks.subsystems.intake.coral;
+package org.steelhawks.subsystems.claw;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.CANrange;
@@ -13,9 +13,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
-import org.steelhawks.subsystems.intake.IntakeConstants;
 
-public class CoralIntakeIOTalonFX implements CoralIntakeIO {
+public class ClawIOTalonFX implements ClawIO {
 
     private final TalonFX mIntakeMotor;
     private CANrange mBeamBreak = null;
@@ -28,10 +27,10 @@ public class CoralIntakeIOTalonFX implements CoralIntakeIO {
 
     private StatusSignal<Distance> distance = null;
 
-    public CoralIntakeIOTalonFX() {
-        mIntakeMotor = new TalonFX(IntakeConstants.CORAL_INTAKE_MOTOR_ID, Constants.getCANBus());
+    public ClawIOTalonFX() {
+        mIntakeMotor = new TalonFX(ClawConstants.CLAW_INTAKE_MOTOR_ID, Constants.getCANBus());
         if (Constants.getRobot() == RobotType.OMEGABOT) {
-            mBeamBreak = new CANrange(IntakeConstants.CAN_RANGE_ID_OMEGA, Constants.getCANBus());
+            mBeamBreak = new CANrange(ClawConstants.CAN_RANGE_ID_OMEGA, Constants.getCANBus());
             distance = mBeamBreak.getDistance();
             distance.setUpdateFrequency(50);
         }

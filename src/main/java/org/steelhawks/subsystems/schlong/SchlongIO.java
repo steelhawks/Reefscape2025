@@ -1,19 +1,19 @@
-package org.steelhawks.subsystems.intake.algae;
+package org.steelhawks.subsystems.schlong;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface AlgaeIntakeIO {
+public interface SchlongIO {
 
     @AutoLog
-    class AlgaeIntakeIOInputs {
+    class SchlongIOInputs {
         public double goal = 0;
 
-        public boolean intakeConnected = false;
-        public double intakePositionRad = 0;
-        public double intakeVelocityRadPerSec = 0;
-        public double intakeAppliedVolts = 0;
-        public double intakeCurrentAmps = 0;
-        public double intakeTempCelsius = 0;
+        public boolean spinConnected = false;
+        public double spinPositionRad = 0;
+        public double spinVelocityRadPerSec = 0;
+        public double spinAppliedVolts = 0;
+        public double spinCurrentAmps = 0;
+        public double spinTempCelsius = 0;
 
         public boolean pivotConnected = false;
         public double pivotPositionRad = 0;
@@ -35,29 +35,19 @@ public interface AlgaeIntakeIO {
     /**
      * Updates the set of loggable inputs.
      */
-    default void updateInputs(AlgaeIntakeIOInputs inputs)  {}
+    default void updateInputs(SchlongIOInputs inputs) {}
 
-    /**
-     * Runs the pivot at a given voltage.
-     */
-    default void runPivotWithVoltage(double volts) {}
+    default void runSpinWithSpeed(double speed) {}
+
+    default void runSpinWithVoltage(double volts) {}
+
+    default void stopSpin() {}
 
     default void runPivotWithSpeed(double speed) {}
 
-    default void zeroEncoders() {}
+    default void runPivotWithVoltage(double volts) {}
 
-    /**
-     * Stops the pivot
-     */
     default void stopPivot() {}
 
-    /**
-     * Runs the intake
-     */
-    default void runIntake(double speed) {}
-
-    /**
-     * Stops the intake
-     */
-    default void stopIntake() {}
+    default void zeroEncoders() {}
 }

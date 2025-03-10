@@ -1,4 +1,4 @@
-package org.steelhawks.subsystems.intake.algae;
+package org.steelhawks.subsystems.algae;
 
 public class AlgaeIntakeIOSim implements AlgaeIntakeIO {
 }

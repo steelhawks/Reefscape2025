@@ -1,8 +1,8 @@
-package org.steelhawks.subsystems.intake.coral;
+package org.steelhawks.subsystems.claw;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface CoralIntakeIO {
+public interface ClawIO {
 
     @AutoLog
     class CoralIntakeIOInputs {

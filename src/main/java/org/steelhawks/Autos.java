@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
 import org.steelhawks.util.autonbuilder.StartEndPosition;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.Elevator;
-import org.steelhawks.subsystems.intake.Intake;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public final class Autos {
 
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
-    private static final Intake s_Intake = RobotContainer.s_Intake;
+    private static final Claw s_Claw = RobotContainer.s_Claw;
 
     private static final LoggedDashboardChooser<Command> autoChooser =
         new LoggedDashboardChooser<>("Auto Chooser");
@@ -72,8 +72,8 @@ public final class Autos {
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
              Commands.either(
-                 s_Intake.shootPulsatingCoral().withTimeout(0.6),
-                 s_Intake.shootCoral().withTimeout(0.6),
+                 s_Claw.shootPulsatingCoral().withTimeout(0.6),
+                 s_Claw.shootCoral().withTimeout(0.6),
                  () -> (state == ElevatorConstants.State.L1)),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .withName("Elevator and Shoot in Auton");
@@ -92,7 +92,7 @@ public final class Autos {
             if (endsWithSource(trajectory)) {
                 commands.add(
                     Commands.race(
-                        Commands.waitSeconds(3.5), Commands.waitUntil(s_Intake.hasCoral())));
+                        Commands.waitSeconds(3.5), Commands.waitUntil(s_Claw.hasCoral())));
             } else {
                 commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
             }
@@ -115,7 +115,7 @@ public final class Autos {
                 Commands.race(
                     Commands.waitSeconds(1),
                     Commands.waitUntil(s_Elevator.atGoal())),
-                s_Intake.shootCoralSlow().withTimeout(1.0),
+                s_Claw.shootCoralSlow().withTimeout(1.0),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .andThen(followTrajectory("TR2 to Upper Source"));
     }                                            
@@ -215,7 +215,7 @@ public final class Autos {
             elevatorAndShoot(ElevatorConstants.State.L4),
             followPathPlannerTrajectory("BR2 to Lower Source"),
             Commands.race(
-                Commands.waitSeconds(3.5), Commands.waitUntil(s_Intake.hasCoral())),
+                Commands.waitSeconds(3.5), Commands.waitUntil(s_Claw.hasCoral())),
             followPathPlannerTrajectory("Lower Source to BR1"),
             elevatorAndShoot(ElevatorConstants.State.L4));
     }
@@ -246,7 +246,7 @@ public final class Autos {
                 Commands.race(
                     Commands.waitSeconds(3),
                     Commands.waitUntil(s_Elevator.atGoal())),
-                s_Intake.shootPulsatingCoral().withTimeout(1.0),
+                s_Claw.shootPulsatingCoral().withTimeout(1.0),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
     }
 

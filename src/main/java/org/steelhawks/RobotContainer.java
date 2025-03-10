@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -28,23 +27,22 @@ import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
+import org.steelhawks.subsystems.claw.Claw;
+import org.steelhawks.subsystems.claw.ClawIO;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
-import org.steelhawks.subsystems.intake.Intake;
-import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIO;
-import org.steelhawks.subsystems.intake.algae.AlgaeIntakeIOSim;
-import org.steelhawks.subsystems.intake.coral.CoralIntakeIO;
-import org.steelhawks.subsystems.intake.coral.CoralIntakeIOSim;
-import org.steelhawks.subsystems.intake.coral.CoralIntakeIOTalonFX;
-import org.steelhawks.subsystems.intake.schlong.Schlong;
-import org.steelhawks.subsystems.intake.schlong.SchlongIO;
-import org.steelhawks.subsystems.intake.schlong.SchlongIOTalonFX;
+import org.steelhawks.subsystems.algae.AlgaeIntakeIO;
+import org.steelhawks.subsystems.algae.AlgaeIntakeIOSim;
+import org.steelhawks.subsystems.claw.ClawIOSim;
+import org.steelhawks.subsystems.claw.ClawIOTalonFX;
+import org.steelhawks.subsystems.schlong.Schlong;
+import org.steelhawks.subsystems.schlong.SchlongIO;
+import org.steelhawks.subsystems.schlong.SchlongIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.DashboardTrigger;
 import org.steelhawks.util.FieldBoundingBox;
-import org.steelhawks.util.autonbuilder.StartEndPosition;
 
 public class RobotContainer {
 
@@ -62,7 +60,7 @@ public class RobotContainer {
     public static Swerve s_Swerve;
     public static Vision s_Vision;
     public static Elevator s_Elevator;
-    public static Intake s_Intake;
+    public static Claw s_Claw;
     public static Align s_Align;
     public static Climb s_Climb;
     public static Schlong s_Schlong;
@@ -143,10 +141,9 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
-                    s_Intake =
-                        new Intake(
-                            new AlgaeIntakeIO() {},
-                            new CoralIntakeIOTalonFX());
+                    s_Claw =
+                        new Claw(
+                            new ClawIOTalonFX());
                     s_Align =
                         new Align(
                             new AlignIOCANrange());
@@ -175,10 +172,9 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
-                    s_Intake =
-                        new Intake(
-                            new AlgaeIntakeIO() {},
-                            new CoralIntakeIOTalonFX());
+                    s_Claw =
+                        new Claw(
+                            new ClawIOTalonFX());
                     s_Align =
                         new Align(
                             new AlignIO() {});
@@ -208,10 +204,9 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
-                    s_Intake =
-                        new Intake(
-                            new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {});
+                    s_Claw =
+                        new Claw(
+                            new ClawIO() {});
                     s_Align =
                         new Align(
                             new AlignIO() {});
@@ -265,10 +260,9 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim());
-                    s_Intake =
-                        new Intake(
-                            new AlgaeIntakeIOSim(),
-                            new CoralIntakeIOSim());
+                    s_Claw =
+                        new Claw(
+                            new ClawIOSim());
                     s_Align =
                         new Align(
                             new AlignIOSim());
@@ -298,10 +292,9 @@ public class RobotContainer {
                         new Vision(
                             s_Swerve::accept,
                             new VisionIO() {});
-                    s_Intake =
-                        new Intake(
-                            new AlgaeIntakeIO() {},
-                            new CoralIntakeIO() {});
+                    s_Claw =
+                        new Claw(
+                            new ClawIO() {});
                     s_Align =
                         new Align(
                             new AlignIO() {});
@@ -398,11 +391,7 @@ public class RobotContainer {
             .whileFalse(
                 s_LED.setColorCommand(LEDColor.WHITE).repeatedly());
 
-        s_Intake.algaeAtLimit()
-            .onTrue(
-                s_LED.flashCommand(LEDColor.BLUE, 0.1, 1));
-
-        s_Intake.hasCoral()
+        s_Claw.hasCoral()
             .onTrue(
                 Commands.parallel(
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 3),
@@ -435,7 +424,7 @@ public class RobotContainer {
             0.0, 2.0, 6.2, 8.0,
             s_Swerve::getPose)
             .whileTrue(
-                s_Intake.intakeCoral());
+                s_Claw.intakeCoral());
     }
 
     private void configureDriver() {
@@ -519,8 +508,8 @@ public class RobotContainer {
             .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
                 Commands.either(
-                    s_Intake.shootPulsatingCoral(),
-                    s_Intake.shootCoral(),
+                    s_Claw.shootPulsatingCoral(),
+                        s_Claw.shootCoral(),
                     () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
@@ -528,12 +517,12 @@ public class RobotContainer {
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
-                s_Intake.reverseCoral()
+                s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
 
         operator.povRight()
             .whileTrue(
-                s_Intake.intakeCoral()
+                s_Claw.intakeCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2)));
     }
 }
