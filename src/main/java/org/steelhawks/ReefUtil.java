@@ -4,17 +4,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
-import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.AprilTag;
-import org.steelhawks.util.autonbuilder.BuilderConstants;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import static org.steelhawks.util.AprilTag.tagToArrayIndex;
 
 public class ReefUtil {
 
@@ -24,18 +20,18 @@ public class ReefUtil {
             .toList();
 
     public enum CoralBranch {
-        TR1(FieldConstants.APRILTAGS[tagToArrayIndex(20)], FieldConstants.APRILTAGS[tagToArrayIndex(11)]),
-        TR2(FieldConstants.APRILTAGS[tagToArrayIndex(20)], FieldConstants.APRILTAGS[tagToArrayIndex(11)]),
-        R1(FieldConstants.APRILTAGS[tagToArrayIndex(21)], FieldConstants.APRILTAGS[tagToArrayIndex(10)]),
-        R2(FieldConstants.APRILTAGS[tagToArrayIndex(21)], FieldConstants.APRILTAGS[tagToArrayIndex(10)]),
-        BR1(FieldConstants.APRILTAGS[tagToArrayIndex(22)], FieldConstants.APRILTAGS[tagToArrayIndex(9)]),
-        BR2(FieldConstants.APRILTAGS[tagToArrayIndex(22)], FieldConstants.APRILTAGS[tagToArrayIndex(9)]),
-        BL1(FieldConstants.APRILTAGS[tagToArrayIndex(17)], FieldConstants.APRILTAGS[tagToArrayIndex(8)]),
-        BL2(FieldConstants.APRILTAGS[tagToArrayIndex(17)], FieldConstants.APRILTAGS[tagToArrayIndex(8)]),
-        L1(FieldConstants.APRILTAGS[tagToArrayIndex(18)], FieldConstants.APRILTAGS[tagToArrayIndex(7)]),
-        L2(FieldConstants.APRILTAGS[tagToArrayIndex(18)], FieldConstants.APRILTAGS[tagToArrayIndex(7)]),
-        TL1(FieldConstants.APRILTAGS[tagToArrayIndex(19)], FieldConstants.APRILTAGS[tagToArrayIndex(6)]),
-        TL2(FieldConstants.APRILTAGS[tagToArrayIndex(19)], FieldConstants.APRILTAGS[tagToArrayIndex(6)]);
+        TR1(FieldConstants.getAprilTag(20), FieldConstants.getAprilTag(11)),
+        TR2(FieldConstants.getAprilTag(20), FieldConstants.getAprilTag(11)),
+        R1(FieldConstants.getAprilTag(21), FieldConstants.getAprilTag(10)),
+        R2(FieldConstants.getAprilTag(21), FieldConstants.getAprilTag(10)),
+        BR1(FieldConstants.getAprilTag(22), FieldConstants.getAprilTag(9)),
+        BR2(FieldConstants.getAprilTag(22), FieldConstants.getAprilTag(9)),
+        BL1(FieldConstants.getAprilTag(17), FieldConstants.getAprilTag(8)),
+        BL2(FieldConstants.getAprilTag(17), FieldConstants.getAprilTag(8)),
+        L1(FieldConstants.getAprilTag(18), FieldConstants.getAprilTag(7)),
+        L2(FieldConstants.getAprilTag(18), FieldConstants.getAprilTag(7)),
+        TL1(FieldConstants.getAprilTag(19), FieldConstants.getAprilTag(6)),
+        TL2(FieldConstants.getAprilTag(19), FieldConstants.getAprilTag(6));
 
         private final AprilTag blueTag;
         private final AprilTag redTag;
@@ -65,7 +61,7 @@ public class ReefUtil {
                 switch (level) {
                 case L2 -> 1.0; // find the distance from the reef to the branch
                 case L3 -> 1.0;
-                case L4 -> 1.0;
+                case L4 -> 5.0;
                 default -> throw new IllegalArgumentException("Invalid level: " + level);
             });
 

@@ -368,14 +368,21 @@ public class RobotContainer {
                 s_Align.alignToClosestReef(State.L4));
     }
 
-    private void configureDefaultCommands() {}
+    private void configureDefaultCommands() {
+        s_Swerve.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX()));
+    }
 
     private void configureTestBindings() {}
 
     private void configureShallowClimbEndgame() {}
 
     private void configureDeepClimbEndgame() {
-        operator.leftStick()
+        operator.rightStick()
+            .and(isDeepEndgame)
             .onTrue(
                 s_Climb.toggleManualControl(() -> -operator.getRightY()));
     }
@@ -383,7 +390,7 @@ public class RobotContainer {
     private void configureTriggers() {
         s_Swerve.isPathfinding()
             .whileTrue(
-                s_LED.fadeCommand(LEDColor.PURPLE));
+                s_LED.rainbowFlashCommand());
 
         s_Elevator.atLimit()
             .onTrue(
@@ -429,12 +436,6 @@ public class RobotContainer {
 
     private void configureDriver() {
         /* ------------- Swerve Controls ------------- */
-        s_Swerve.setDefaultCommand(
-            DriveCommands.joystickDrive(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> -driver.getRightX()));
-
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(
