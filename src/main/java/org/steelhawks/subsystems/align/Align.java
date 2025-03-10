@@ -27,6 +27,7 @@ import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
 import java.util.List;
+import java.util.Set;
 
 public class Align extends VirtualSubsystem {
 
@@ -123,19 +124,12 @@ public class Align extends VirtualSubsystem {
     }
 
     public static Command directPathFollow(Pose2d goal) { // fix this
-//         return Commands.defer(
-//             () ->
-//                 AutoBuilder.followPath(directPath(goal))
-//                     .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf),
-// //                    .andThen(
-// //                        Commands.run(() -> s_Swerve.runVelocity(
-// //                            ChassisSpeeds.fromFieldRelativeSpeeds(
-// //                                HolonomicController.calculate(goal),
-// //                                AllianceFlip.shouldFlip()
-// //                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-// //                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
-//             Set.of(s_Swerve));
-        return DriveCommands.driveToPosition(goal);
+         return Commands.defer(
+             () -> DriveCommands.followPath(directPath(goal))
+                 .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
+                 .andThen(
+                     new SwerveDriveAlignment(() -> goal)),
+             Set.of(s_Swerve));
     }
 
     //    public static Command alignRobotToAprilTag(Camera... cameras) {
