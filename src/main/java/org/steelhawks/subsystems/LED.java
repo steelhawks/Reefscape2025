@@ -127,19 +127,11 @@ public class LED extends SubsystemBase {
     }
 
     private LED() {
-        LEDConstants constants;
+        strip2Start = LEDConstants.LENGTH / 2;
+        stripLength = LEDConstants.LENGTH / 2;
 
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = LEDConstants.ALPHA;
-            case HAWKRIDER -> constants = LEDConstants.HAWKRIDER;
-            default -> constants = LEDConstants.OMEGA;
-        }
-
-        strip2Start = constants.LENGTH / 2;
-        stripLength = constants.LENGTH / 2;
-
-        LEDStrip = new AddressableLED(constants.PORT);
-        LEDBuffer = new AddressableLEDBuffer(constants.LENGTH);
+        LEDStrip = new AddressableLED(LEDConstants.PORT);
+        LEDBuffer = new AddressableLEDBuffer(LEDConstants.LENGTH);
 
         LEDStrip.setLength(LEDBuffer.getLength());
 

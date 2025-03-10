@@ -118,23 +118,20 @@ public final class Constants {
     }
 
     public static final class LEDConstants {
+        public static final int PORT;
+        public static final int LENGTH;
 
-        public static final LEDConstants DEFAULT =
-            new LEDConstants(0, 40);
-
-        public static final LEDConstants OMEGA =
-            new LEDConstants(0, 41);
-        public static final LEDConstants ALPHA = DEFAULT;
-        public static final LEDConstants HAWKRIDER = DEFAULT;
-
-        public final int PORT;
-        public final int LENGTH;
-
-        private LEDConstants(
-            int port, int length
-        ) {
-            PORT = port;
-            LENGTH = length;
+        static {
+            switch (getRobot()) {
+                case ALPHABOT, HAWKRIDER -> {
+                    PORT = 0;
+                    LENGTH = 40;
+                }
+                default -> {
+                    PORT = 0;
+                    LENGTH = 42;
+                }
+            }
         }
     }
 
