@@ -9,14 +9,13 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.AprilTag;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 public class ReefUtil {
 
     private static final List<FieldConstants.Position> reefPositions =
         Arrays.stream(FieldConstants.Position.values())
-            .limit(6) // only take the first 6 positions for the reef
+            .limit(6)
             .toList();
 
     public enum CoralBranch {
@@ -53,7 +52,11 @@ public class ReefUtil {
         }
 
         public Pose2d getBranchPoseProjectedToReefFace() {
-            return getAprilTagPose().transformBy(new Transform2d(0, FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1), new Rotation2d()));
+            return getAprilTagPose().transformBy(
+                new Transform2d(
+                    0.0,
+                    FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1),
+                    new Rotation2d()));
         }
 
         public Pose2d getScorePose(ElevatorConstants.State level) {
@@ -88,12 +91,8 @@ public class ReefUtil {
         return nearestBranch;
     }
 
-    public static String getClosestReefName(Pose2d currentPose) {
-        return reefPositions.stream()
-            .min(Comparator.comparingDouble(reef ->
-                AllianceFlip.apply(reef.getPose()).getTranslation().getDistance(currentPose.getTranslation())))
-            .map(FieldConstants.Position::name)
-            .orElse(null);
+    public static String getClosestCoralBranchName() {
+        return getClosestCoralBranch().name();
     }
 
     public static Rotation2d getRotationFromTagId(int tagId) {

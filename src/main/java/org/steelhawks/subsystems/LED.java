@@ -55,6 +55,7 @@ public class LED extends SubsystemBase {
         public final int g;
         public final int b;
 
+        @Override
         public String toString() {
             return switch (this) {
                 case PURPLE -> "PURPLE";
