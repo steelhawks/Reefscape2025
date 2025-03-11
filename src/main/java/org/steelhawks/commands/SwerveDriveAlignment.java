@@ -4,12 +4,15 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
+import org.steelhawks.util.AllianceFlip;
+
 import java.util.function.Supplier;
 
 public class SwerveDriveAlignment extends Command {
@@ -50,7 +53,12 @@ public class SwerveDriveAlignment extends Command {
 
     @Override
     public void execute() {
-        s_Swerve.runVelocity(mController.calculate(s_Swerve.getPose(), targetPose.get(), MAX_VELOCITY, targetPose.get().getRotation()));
+        s_Swerve.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                mController.calculate(s_Swerve.getPose(), targetPose.get(), MAX_VELOCITY, targetPose.get().getRotation()),
+                AllianceFlip.shouldFlip()
+                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                    : s_Swerve.getRotation()));
 
         Logger.recordOutput("Align/TargetX", targetPose.get().getX());
         Logger.recordOutput("Align/TargetY", targetPose.get().getY());
