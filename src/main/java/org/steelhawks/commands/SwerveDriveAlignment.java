@@ -19,6 +19,10 @@ import java.util.function.Supplier;
 
 public class SwerveDriveAlignment extends Command {
 
+    private static final double X_TOLERANCE = 0.1;
+    private static final double Y_TOLERANCE = 0.1;
+    private static final double THETA_TOLERANCE = 5;
+
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
     private final HolonomicDriveController mController;
@@ -48,15 +52,15 @@ public class SwerveDriveAlignment extends Command {
     }
 
     private boolean isXAligned() {
-        return Math.abs(targetPose.get().getX() - s_Swerve.getPose().getX()) < 0.1;
+        return Math.abs(targetPose.get().getX() - s_Swerve.getPose().getX()) < X_TOLERANCE;
     }
 
     private boolean isYAligned() {
-        return Math.abs(targetPose.get().getY() - s_Swerve.getPose().getY()) < 0.1;
+        return Math.abs(targetPose.get().getY() - s_Swerve.getPose().getY()) < Y_TOLERANCE;
     }
 
     private boolean isThetaAligned() {
-        return Math.abs(targetPose.get().getRotation().getDegrees() - s_Swerve.getPose().getRotation().getDegrees()) < 5;
+        return Math.abs(targetPose.get().getRotation().getDegrees() - s_Swerve.getPose().getRotation().getDegrees()) < THETA_TOLERANCE;
     }
 
     @Override
