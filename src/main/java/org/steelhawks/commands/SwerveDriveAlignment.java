@@ -9,6 +9,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
+import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
@@ -18,7 +20,6 @@ import java.util.function.Supplier;
 public class SwerveDriveAlignment extends Command {
 
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
-    private static final double MAX_VELOCITY = 4.0; // m/s
 
     private final HolonomicDriveController mController;
     private final Supplier<Pose2d> targetPose;
@@ -29,9 +30,21 @@ public class SwerveDriveAlignment extends Command {
         this.targetPose = targetPose;
 
         mController = new HolonomicDriveController(
-            new PIDController(0.1, 0, 0),
-            new PIDController(0.1, 0, 0),
-            new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(6, 8)));
+            new PIDController(
+                AutonConstants.TRANSLATION_KP,
+                AutonConstants.TRANSLATION_KI,
+                AutonConstants.TRANSLATION_KD),
+            new PIDController(
+                AutonConstants.TRANSLATION_KP,
+                AutonConstants.TRANSLATION_KI,
+                AutonConstants.TRANSLATION_KD),
+            new ProfiledPIDController(
+                AutonConstants.ROTATION_KP,
+                AutonConstants.ROTATION_KI,
+                AutonConstants.ROTATION_KD,
+                new TrapezoidProfile.Constraints(
+                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)));
     }
 
     private boolean isXAligned() {
@@ -55,7 +68,7 @@ public class SwerveDriveAlignment extends Command {
     public void execute() {
         s_Swerve.runVelocity(
             ChassisSpeeds.fromFieldRelativeSpeeds(
-                mController.calculate(s_Swerve.getPose(), targetPose.get(), MAX_VELOCITY, targetPose.get().getRotation()),
+                mController.calculate(s_Swerve.getPose(), targetPose.get(), AutonConstants.MAX_VELOCITY_METERS_PER_SECOND, targetPose.get().getRotation()),
                 AllianceFlip.shouldFlip()
                     ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
                     : s_Swerve.getRotation()));

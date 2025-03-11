@@ -19,6 +19,7 @@ import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.swerve.Swerve;
@@ -119,6 +120,7 @@ public class Align extends VirtualSubsystem {
         return Commands.sequence(
             Commands.runOnce(() -> s_Swerve.setPathfinding(true)),
             DriveCommands.driveToPosition(goal.get()),
+            new SwerveDriveAlignment(goal),
             Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
     }
 

@@ -140,12 +140,6 @@ public final class Constants {
         public static final double ROTATION_KI;
         public static final double ROTATION_KD;
 
-        public static final double AUTO_ALIGN_KP;
-        public static final double AUTO_ALIGN_KI;
-        public static final double AUTO_ALIGN_KD;
-        public static final double ANGLE_MAX_VELOCITY;
-        public static final double ANGLE_MAX_ACCELERATION;
-
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND;
         public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
@@ -163,11 +157,6 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
-                    AUTO_ALIGN_KP = 3.0;
-                    AUTO_ALIGN_KI = 0.0;
-                    AUTO_ALIGN_KD = 0.0;
-                    ANGLE_MAX_VELOCITY = 15.0;
-                    ANGLE_MAX_ACCELERATION = 20.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 4.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
@@ -180,11 +169,6 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
-                    AUTO_ALIGN_KP = 3.0;
-                    AUTO_ALIGN_KI = 0.0;
-                    AUTO_ALIGN_KD = 0.0;
-                    ANGLE_MAX_VELOCITY = 15.0;
-                    ANGLE_MAX_ACCELERATION = 20.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 1.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
@@ -197,11 +181,6 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
-                    AUTO_ALIGN_KP = 0.0;
-                    AUTO_ALIGN_KI = 0.0;
-                    AUTO_ALIGN_KD = 0.0;
-                    ANGLE_MAX_VELOCITY = 15.0;
-                    ANGLE_MAX_ACCELERATION = 20.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 3.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 3.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
