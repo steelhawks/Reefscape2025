@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,12 +23,14 @@ public class SwerveDriveAlignment extends Command {
     private static final double X_TOLERANCE = 0.1;
     private static final double Y_TOLERANCE = 0.1;
     private static final double THETA_TOLERANCE = 5;
+    private static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
 
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
     private final HolonomicDriveController mController;
     private final Supplier<Pose2d> targetPose;
     private Pose2d startingPose;
+    private double velocityError;
 
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose) {
         addRequirements(s_Swerve);
@@ -63,6 +66,10 @@ public class SwerveDriveAlignment extends Command {
         return Math.abs(targetPose.get().getRotation().getDegrees() - s_Swerve.getPose().getRotation().getDegrees()) < THETA_TOLERANCE;
     }
 
+    private boolean isAligned() {
+        return isXAligned() && isYAligned() && isThetaAligned() && velocityError < MAX_VELOCITY_ERROR_TOLERANCE;
+    }
+
     @Override
     public void initialize() {
         startingPose = s_Swerve.getPose();
@@ -76,6 +83,12 @@ public class SwerveDriveAlignment extends Command {
                 AllianceFlip.shouldFlip()
                     ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
                     : s_Swerve.getRotation()));
+
+        velocityError =
+            new Translation2d(
+                mController.getXController().getErrorDerivative(),
+                mController.getYController().getErrorDerivative()).getNorm();
+        Logger.recordOutput("Align/VelocityError", velocityError);
 
         Logger.recordOutput("Align/TargetX", targetPose.get().getX());
         Logger.recordOutput("Align/TargetY", targetPose.get().getY());
@@ -95,7 +108,7 @@ public class SwerveDriveAlignment extends Command {
 
     @Override
     public boolean isFinished() {
-        return isXAligned() && isYAligned() && isThetaAligned();
+        return isAligned();
     }
 
     @Override
