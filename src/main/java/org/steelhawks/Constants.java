@@ -40,7 +40,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
@@ -202,8 +202,8 @@ public final class Constants {
                     AUTO_ALIGN_KD = 0.0;
                     ANGLE_MAX_VELOCITY = 15.0;
                     ANGLE_MAX_ACCELERATION = 20.0;
-                    MAX_VELOCITY_METERS_PER_SECOND = 4.0;
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
+                    MAX_VELOCITY_METERS_PER_SECOND = 3.0;
+                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 3.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
                 }

@@ -59,9 +59,9 @@ public class ReefUtil {
         public Pose2d getScorePose(ElevatorConstants.State level) {
             double distFromReef = Units.inchesToMeters(
                 switch (level) {
-                case L2 -> 1.0; // find the distance from the reef to the branch
-                case L3 -> 1.0;
-                case L4 -> 5.0;
+                case L2 -> 2.0; // find the distance from the reef to the branch
+                case L3 -> 2.0;
+                case L4 -> 2.0;
                 default -> throw new IllegalArgumentException("Invalid level: " + level);
             });
 

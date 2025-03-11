@@ -509,7 +509,7 @@ public class RobotContainer {
             .whileTrue(
                 Commands.either(
                     s_Claw.shootPulsatingCoral(),
-                        s_Claw.shootCoral(),
+                    s_Claw.shootCoral(),
                     () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));

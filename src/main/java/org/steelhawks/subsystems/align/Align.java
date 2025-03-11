@@ -28,6 +28,7 @@ import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class Align extends VirtualSubsystem {
 
@@ -116,13 +117,11 @@ public class Align extends VirtualSubsystem {
         return path;
     }
 
-    public static Command directPathFollow(Pose2d goal) { // fix this
-         return Commands.defer(
-             () -> DriveCommands.followPath(directPath(goal))
-                 .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
-                 .andThen(
-                     new SwerveDriveAlignment(() -> goal)),
-             Set.of(s_Swerve));
+    public static Command directPathFollow(Supplier<Pose2d> goal) { // fix this
+        return Commands.sequence(
+            Commands.runOnce(() -> s_Swerve.setPathfinding(true)),
+            DriveCommands.driveToPosition(goal.get()),
+            Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
     }
 
     //    public static Command alignRobotToAprilTag(Camera... cameras) {
@@ -315,8 +314,10 @@ public class Align extends VirtualSubsystem {
     }
 
     public Command alignToClosestReef(ElevatorConstants.State level) {
-        return Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(true))
-            .andThen(directPathFollow(ReefUtil.getClosestCoralBranch().getScorePose(level)))
-            .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false)));
+        return Commands.defer(
+            () -> Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(true))
+                .andThen(directPathFollow(() -> ReefUtil.getClosestCoralBranch().getScorePose(level)))
+                .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false))),
+            Set.of(s_Swerve));
     }
 }
