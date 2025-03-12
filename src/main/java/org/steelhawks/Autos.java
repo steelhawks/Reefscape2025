@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public final class Autos {
+    private static final ElevatorConstants.State desiredScoreLevel = ElevatorConstants.State.L4;
     private static final AutonBuilder s_Builder = new AutonBuilder("Auto Selector");
 
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
@@ -84,18 +86,26 @@ public final class Autos {
         return words[words.length - 1].equals("Source");
     }
 
-    private static Command buildTrajectorySequence(String[] trajectories) {
+    private static Pose2d getScorePoseFromTrajectoryName(String trajectory) {
+        String[] words = trajectory.split(" ");
+        return ReefUtil.CoralBranch.valueOf(words[words.length - 1]).getScorePose(desiredScoreLevel);
+    }
+
+    private static Command buildTrajectorySequence(String... trajectories) {
         ArrayList<Command> commands = new ArrayList<>();
 
         for (String trajectory : trajectories) {
-            commands.add(followTrajectory(trajectory));
-            if (endsWithSource(trajectory)) {
-                commands.add(
-                    Commands.race(
-                        Commands.waitSeconds(3.5), Commands.waitUntil(s_Claw.hasCoral())));
-            } else {
-                commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
-            }
+            boolean atReef = !endsWithSource(trajectory);
+            commands.add(
+                followTrajectory(trajectory)
+                .andThen(
+                    Commands.either(
+                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)),
+                        Commands.none(),
+                        () -> atReef)));
+            commands.add(atReef
+                ? elevatorAndShoot(desiredScoreLevel)
+                : Commands.waitUntil(s_Claw.hasCoral()));
         }
 
         return Commands.sequence(commands.toArray(new Command[commands.size()]));
