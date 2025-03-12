@@ -14,6 +14,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotConstants;
+import org.steelhawks.FieldConstants;
+import org.steelhawks.ReefUtil;
+import org.steelhawks.RobotContainer;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
+
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -91,6 +98,7 @@ public class Schlong extends SubsystemBase {
 
         this.io = io;
 
+        home().schedule();
         disable();
     }
 
@@ -118,9 +126,9 @@ public class Schlong extends SubsystemBase {
 //            return;
 //        }
 
-//        if (mEnabled) {
-//            runPivot(mController.calculate(getPivotPosition()), mController.getSetpoint());
-//        }
+        if (mEnabled) {
+            runPivot(mController.calculate(getPivotPosition()), mController.getSetpoint());
+        }
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
@@ -134,7 +142,7 @@ public class Schlong extends SubsystemBase {
             return;
         }
 
-        // io.runPivotWithVoltage("Subsystem", volts);
+         io.runPivotWithVoltage(volts);
     }
 
     @AutoLogOutput(key = "Schlong/AdjustedPosition")
@@ -156,6 +164,14 @@ public class Schlong extends SubsystemBase {
 
     public Trigger atLimit() {
         return new Trigger(() -> getPivotPosition() >= SchlongConstants.SCHLONG_MAX_RADIANS);
+    }
+
+    public Trigger armClearFromReef() {
+        return new Trigger(
+            () -> FieldConstants.REEF_CENTER.getDistance(RobotContainer.s_Swerve.getPose().getTranslation())
+                > (RobotConstants.DIST_CLEAR_FROM_REEF
+                + FieldConstants.CENTER_OF_REEF_TO_REEF_FACE
+                + RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0));
     }
 
 
@@ -183,6 +199,14 @@ public class Schlong extends SubsystemBase {
                 enable();
             }, this)
             .withName("Set Desired State");
+    }
+
+    public Command home() {
+        return setDesiredState(SchlongConstants.SchlongState.HOME);
+    }
+
+    public Command erect() {
+        return setDesiredState(SchlongConstants.SchlongState.ERECT);
     }
 
     public Command applyPivotSpeed(double speed) {
