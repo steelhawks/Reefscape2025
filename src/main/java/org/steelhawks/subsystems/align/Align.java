@@ -320,4 +320,12 @@ public class Align extends VirtualSubsystem {
                 .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false))),
             Set.of(s_Swerve));
     }
+
+    public Command alignToClosestAlgae() {
+        return Commands.defer(
+            () -> Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(true))
+                .andThen(directPathFollow(() -> ReefUtil.getClosestAlgae().getScorePose()))
+                .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false))),
+            Set.of(s_Swerve));
+    }
 }

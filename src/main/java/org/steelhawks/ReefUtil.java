@@ -95,6 +95,61 @@ public class ReefUtil {
         return getClosestCoralBranch().name();
     }
 
+    public enum Algae {
+        TR(FieldConstants.getAprilTag(20), FieldConstants.getAprilTag(11)),
+        R(FieldConstants.getAprilTag(21), FieldConstants.getAprilTag(10)),
+        BR(FieldConstants.getAprilTag(22), FieldConstants.getAprilTag(9)),
+        BL(FieldConstants.getAprilTag(17), FieldConstants.getAprilTag(8)),
+        L(FieldConstants.getAprilTag(18), FieldConstants.getAprilTag(7)),
+        TL(FieldConstants.getAprilTag(19), FieldConstants.getAprilTag(6));
+
+        private final AprilTag blueTag;
+        private final AprilTag redTag;
+
+        Algae(AprilTag blueTag, AprilTag redTag) {
+            this.blueTag = blueTag;
+            this.redTag = redTag;
+        }
+
+        public boolean isOnL3() {
+            return switch (this) {
+                case TR, BR, L -> true;
+                default -> false;
+            };
+        }
+
+        public Pose2d getAprilTagPose() {
+            return AllianceFlip.shouldFlip() ? redTag.pose().toPose2d() : blueTag.pose().toPose2d();
+        }
+
+        public Pose2d getScorePose() {
+            return getAprilTagPose().transformBy(
+                new Transform2d(
+                    RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
+                    RobotConstants.SCHLONG_OFFSET,
+                    new Rotation2d(Math.PI / 2)));
+        }
+    }
+
+    public static Algae getClosestAlgae() {
+        Algae nearestAlgae = Algae.TR;
+        double closestDistance = Double.MAX_VALUE;
+
+        for (Algae algae : Algae.values()) {
+            double distance = RobotContainer.s_Swerve.getPose().minus(algae.getScorePose()).getTranslation().getNorm();
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                nearestAlgae = algae;
+            }
+        }
+
+        return nearestAlgae;
+    }
+
+    public static String getClosestAlgaeName() {
+        return getClosestAlgae().name();
+    }
+
     public static Rotation2d getRotationFromTagId(int tagId) {
         if (AllianceFlip.shouldFlip()) { // red alliance
             return switch (tagId) {
