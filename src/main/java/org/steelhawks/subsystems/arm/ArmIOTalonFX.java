@@ -1,4 +1,4 @@
-package org.steelhawks.subsystems.schlong;
+package org.steelhawks.subsystems.arm;
 
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -18,9 +18,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
-import org.steelhawks.subsystems.algae.AlgaeIntakeConstants;
 
-public class SchlongIOTalonFX implements SchlongIO {
+public class ArmIOTalonFX implements ArmIO {
     private final TalonFX mSpinMotor;
     private final TalonFX mPivotMotor;
     private final CANcoder mPivotEncoder;
@@ -45,16 +44,16 @@ public class SchlongIOTalonFX implements SchlongIO {
     private StatusSignal<AngularVelocity> canCoderVelocity = null;
 
 
-    public SchlongIOTalonFX() {
-        mSpinMotor = new TalonFX(SchlongConstants.SCHLONG_SPIN_MOTOR_ID, Constants.getCANBus());
-        mPivotMotor = new TalonFX(SchlongConstants.SCHLONG_PIVOT_MOTOR_ID, Constants.getCANBus());
-        if (SchlongConstants.SCHLONG_LIMIT_SWITCH_ID != -1) {
-            mLimitSwitch = new DigitalInput(SchlongConstants.SCHLONG_LIMIT_SWITCH_ID);
+    public ArmIOTalonFX() {
+        mSpinMotor = new TalonFX(ArmConstants.ARM_SPIN_MOTOR_ID, Constants.getCANBus());
+        mPivotMotor = new TalonFX(ArmConstants.ARM_PIVOT_MOTOR_ID, Constants.getCANBus());
+        if (ArmConstants.ARM_LIMIT_SWITCH_ID != -1) {
+            mLimitSwitch = new DigitalInput(ArmConstants.ARM_LIMIT_SWITCH_ID);
         } else {
             mLimitSwitch = null;
         }
-        if (SchlongConstants.SCHLONG_CANCODER_ID != -1) {
-            mPivotEncoder = new CANcoder(SchlongConstants.SCHLONG_CANCODER_ID, Constants.getCANBus());
+        if (ArmConstants.ARM_CANCODER_ID != -1) {
+            mPivotEncoder = new CANcoder(ArmConstants.ARM_CANCODER_ID, Constants.getCANBus());
 
             magnetFault = mPivotEncoder.getFault_BadMagnet();
             canCoderPosition = mPivotEncoder.getPosition();
@@ -79,14 +78,14 @@ public class SchlongIOTalonFX implements SchlongIO {
 
         var spinConfig = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs()
-                .withSensorToMechanismRatio(SchlongConstants.SCHLONG_SPIN_GEAR_RATIO))
+                .withSensorToMechanismRatio(ArmConstants.ARM_SPIN_GEAR_RATIO))
             .withMotorOutput(new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake));
 
         var pivotConfig = new TalonFXConfiguration()
             .withFeedback(new FeedbackConfigs()
-                .withSensorToMechanismRatio(SchlongConstants.SCHLONG_PIVOT_GEAR_RATIO))
+                .withSensorToMechanismRatio(ArmConstants.ARM_PIVOT_GEAR_RATIO))
             .withMotorOutput(new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake));
@@ -124,7 +123,7 @@ public class SchlongIOTalonFX implements SchlongIO {
     }
 
     @Override
-    public void updateInputs(SchlongIOInputs inputs) {
+    public void updateInputs(ArmIOInputs inputs) {
         inputs.spinConnected =
             BaseStatusSignal.refreshAll(
                 spinPosition,
@@ -165,7 +164,7 @@ public class SchlongIOTalonFX implements SchlongIO {
         }
 
         if (mLimitSwitch != null) {
-            inputs.limitSwitchConnected = mLimitSwitch.getChannel() == SchlongConstants.SCHLONG_LIMIT_SWITCH_ID;
+            inputs.limitSwitchConnected = mLimitSwitch.getChannel() == ArmConstants.ARM_LIMIT_SWITCH_ID;
             inputs.limitSwitchPressed = !mLimitSwitch.get();    
         }
     }

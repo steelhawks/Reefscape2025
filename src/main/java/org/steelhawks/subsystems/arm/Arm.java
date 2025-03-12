@@ -1,4 +1,4 @@
-package org.steelhawks.subsystems.schlong;
+package org.steelhawks.subsystems.arm;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -14,23 +14,20 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.FieldConstants;
-import org.steelhawks.ReefUtil;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
 
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 
-public class Schlong extends SubsystemBase {
-    private final SchlongIOInputsAutoLogged inputs = new SchlongIOInputsAutoLogged();
+public class Arm extends SubsystemBase {
+    private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     // private final Trigger shouldEStop;
     private final SysIdRoutine mSysId;
     private boolean mEnabled = false;
-    private final SchlongIO io;
+    private final ArmIO io;
 
     private final ProfiledPIDController mController;
     private ArmFeedforward mFeedforward;
@@ -49,7 +46,7 @@ public class Schlong extends SubsystemBase {
         runPivot(0, new TrapezoidProfile.State());
     }
 
-    public Schlong(SchlongIO io) {
+    public Arm(ArmIO io) {
 //        shouldEStop = new Trigger(
 //            () -> !RobotContainer.s_Elevator.atGoal().getAsBoolean()
 //                && getPivotPosition() >= constants.SCHLONG_MAX_RADIANS);
@@ -60,19 +57,19 @@ public class Schlong extends SubsystemBase {
 
         mController = 
             new ProfiledPIDController(
-                SchlongConstants.SCHLONG_KP,
-                SchlongConstants.SCHLONG_KI,
-                SchlongConstants.SCHLONG_KD,
+                ArmConstants.ARM_KP,
+                ArmConstants.ARM_KI,
+                ArmConstants.ARM_KD,
                 new TrapezoidProfile.Constraints(
-                    SchlongConstants.SCHLONG_MAX_VELOCITY_PER_SEC,
-                    SchlongConstants.SCHLONG_MAX_ACCELERATION_PER_SEC_SQUARED));
-        mController.setTolerance(SchlongConstants.SCHLONG_TOLERANCE);
+                    ArmConstants.ARM_MAX_VELOCITY_PER_SEC,
+                    ArmConstants.ARM_MAX_ACCELERATION_PER_SEC_SQUARED));
+        mController.setTolerance(ArmConstants.ARM_TOLERANCE);
         
         mFeedforward = 
             new ArmFeedforward(
-                SchlongConstants.SCHLONG_KS,
-                SchlongConstants.SCHLONG_KG,
-                SchlongConstants.SCHLONG_KV);
+                ArmConstants.ARM_KS,
+                ArmConstants.ARM_KG,
+                ArmConstants.ARM_KV);
 
         mSysId = 
             new SysIdRoutine(
@@ -110,7 +107,7 @@ public class Schlong extends SubsystemBase {
 
         pivotMotorDisconnected.set(!inputs.pivotConnected);
         spinMotorDisconnected.set(!inputs.spinConnected);
-        limitSwitchDisconnected.set(!inputs.limitSwitchConnected && SchlongConstants.SCHLONG_LIMIT_SWITCH_ID != -1);
+        limitSwitchDisconnected.set(!inputs.limitSwitchConnected && ArmConstants.ARM_LIMIT_SWITCH_ID != -1);
 
         // stop adding up pid error while disabled
         if (DriverStation.isDisabled()) {
@@ -157,13 +154,13 @@ public class Schlong extends SubsystemBase {
         return new Trigger(mController::atGoal);
     }
 
-    public Trigger atThisGoal(SchlongConstants.SchlongState state) {
+    public Trigger atThisGoal(ArmConstants.ArmState state) {
         return new Trigger(
-            () -> Math.abs(getPivotPosition() - state.getRadians()) <= SchlongConstants.SCHLONG_TOLERANCE);
+            () -> Math.abs(getPivotPosition() - state.getRadians()) <= ArmConstants.ARM_TOLERANCE);
     }
 
     public Trigger atLimit() {
-        return new Trigger(() -> getPivotPosition() >= SchlongConstants.SCHLONG_MAX_RADIANS);
+        return new Trigger(() -> getPivotPosition() >= ArmConstants.ARM_MAX_RADIANS);
     }
 
     public Trigger armClearFromReef() {
@@ -173,7 +170,6 @@ public class Schlong extends SubsystemBase {
                 + FieldConstants.CENTER_OF_REEF_TO_REEF_FACE
                 + RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0));
     }
-
 
     ///////////////////////
     /* COMMAND FACTORIES */
@@ -189,11 +185,11 @@ public class Schlong extends SubsystemBase {
             .finallyDo(() -> io.stopPivot());
     }
 
-    public Command setDesiredState(SchlongConstants.SchlongState state) {
+    public Command setDesiredState(ArmConstants.ArmState state) {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.getRadians(), 0, SchlongConstants.SCHLONG_MAX_RADIANS);
+                    MathUtil.clamp(state.getRadians(), 0, ArmConstants.ARM_MAX_RADIANS);
                 inputs.goal = goal;
                 mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
@@ -202,11 +198,11 @@ public class Schlong extends SubsystemBase {
     }
 
     public Command home() {
-        return setDesiredState(SchlongConstants.SchlongState.HOME);
+        return setDesiredState(ArmConstants.ArmState.HOME);
     }
 
     public Command erect() {
-        return setDesiredState(SchlongConstants.SchlongState.ERECT);
+        return setDesiredState(ArmConstants.ArmState.ERECT);
     }
 
     public Command applyPivotSpeed(double speed) {
@@ -244,14 +240,14 @@ public class Schlong extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(SchlongConstants.SCHLONG_KS))
+            () -> io.runPivotWithVoltage(ArmConstants.ARM_KS))
             .finallyDo(() -> io.stopPivot());
     }
 
     public Command applykG() {
         return Commands.run(
             () -> {
-               double volts = SchlongConstants.SCHLONG_KG * Math.cos(getPivotPosition());
+               double volts = ArmConstants.ARM_KG * Math.cos(getPivotPosition());
                 // double volts = mFeedforward.calculate(getPivotPosition(), 0);
                 Logger.recordOutput("Schlong/GravityCompensation", volts);
                 io.runPivotWithVoltage(volts);
@@ -261,7 +257,7 @@ public class Schlong extends SubsystemBase {
     
     public Command applykV() {
         return Commands.run(
-            () -> io.runPivotWithVoltage(SchlongConstants.SCHLONG_KS * Math.signum(getPivotPosition()) + SchlongConstants.SCHLONG_KG * Math.cos(getPivotPosition()) + SchlongConstants.SCHLONG_KV))
+            () -> io.runPivotWithVoltage(ArmConstants.ARM_KS * Math.signum(getPivotPosition()) + ArmConstants.ARM_KG * Math.cos(getPivotPosition()) + ArmConstants.ARM_KV))
                 .finallyDo(() -> io.stopPivot());
     }
 }

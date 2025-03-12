@@ -23,6 +23,7 @@ import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
+import org.steelhawks.subsystems.arm.*;
 import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
@@ -33,10 +34,8 @@ import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.claw.ClawIOSim;
 import org.steelhawks.subsystems.claw.ClawIOTalonFX;
-import org.steelhawks.subsystems.schlong.Schlong;
-import org.steelhawks.subsystems.schlong.SchlongIO;
-import org.steelhawks.subsystems.schlong.SchlongIOSim;
-import org.steelhawks.subsystems.schlong.SchlongIOTalonFX;
+import org.steelhawks.subsystems.arm.ArmIO;
+import org.steelhawks.subsystems.arm.ArmIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -62,7 +61,7 @@ public class RobotContainer {
     public static Claw s_Claw;
     public static Align s_Align;
     public static Climb s_Climb;
-    public static Schlong s_Schlong;
+    public static Arm s_Arm;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -150,9 +149,9 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIO() {});
-                    s_Schlong =
-                        new Schlong(
-                            new SchlongIOTalonFX());
+                    s_Arm =
+                        new Arm(
+                            new ArmIOTalonFX());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -181,9 +180,9 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIOTalonFX());
-                    s_Schlong =
-                        new Schlong(
-                            new SchlongIOTalonFX());
+                    s_Arm =
+                        new Arm(
+                            new ArmIOTalonFX());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -213,9 +212,9 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIO() {});
-                    s_Schlong =
-                        new Schlong(
-                            new SchlongIO() {});
+                    s_Arm =
+                        new Arm(
+                            new ArmIO() {});
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
@@ -269,9 +268,9 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIO() {});
-                    s_Schlong =
-                        new Schlong(
-                            new SchlongIOSim());
+                    s_Arm =
+                        new Arm(
+                            new ArmIOSim());
                 }
             }
         }
@@ -301,9 +300,9 @@ public class RobotContainer {
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIO() {});
-                    s_Schlong =
-                        new Schlong(
-                            new SchlongIO() {});
+                    s_Arm =
+                        new Arm(
+                            new ArmIO() {});
                 }
 
                 case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
@@ -500,8 +499,8 @@ public class RobotContainer {
         operator.rightBumper()
             .whileTrue(
                 Commands.parallel(
-                    s_Schlong.applySpinSpeed(-0.2),
-                    s_Schlong.applyPivotSpeed(0.15)));
+                    s_Arm.applySpinSpeed(-0.2),
+                    s_Arm.applyPivotSpeed(0.15)));
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
