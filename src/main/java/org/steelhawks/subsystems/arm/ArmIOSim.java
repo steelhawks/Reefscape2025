@@ -18,7 +18,7 @@ public class ArmIOSim implements ArmIO {
         mechanism = new LoggedMechanism2d(2, 2);
         root = mechanism.getRoot("Base", 1, 1);
         pivotArm = root.append(new LoggedMechanismLigament2d("PivotArm", 0.5, 0));
-        Logger.recordOutput("Schlong/Mechanism", mechanism);
+        Logger.recordOutput("Arm/Mechanism", mechanism);
     }
 
     @Override

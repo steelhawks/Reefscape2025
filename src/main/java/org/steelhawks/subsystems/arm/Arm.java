@@ -77,21 +77,21 @@ public class Arm extends SubsystemBase {
                     Volts.of(.25).per(Second),
                     Volts.of(.5),
                     null,
-                    (state) -> Logger.recordOutput("Schlong/SysIdState", state.toString())),
+                    (state) -> Logger.recordOutput("Arm/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runPivotWithVoltage(voltage.in(Volts)), null, this));
 
         pivotMotorDisconnected = 
             new Alert(
-                "Schlong Pivot Motor Disconnected", AlertType.kError);
+                "Arm Pivot Motor Disconnected", AlertType.kError);
         
         spinMotorDisconnected =
             new Alert(
-                "Schlong Spin Motor Disconnected", AlertType.kError);
+                "Arm Spin Motor Disconnected", AlertType.kError);
 
         limitSwitchDisconnected =
             new Alert(
-                "Schlong Limit Switch Disconnected", AlertType.kError);
+                "Arm Limit Switch Disconnected", AlertType.kError);
 
         this.io = io;
 
@@ -102,8 +102,8 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Schlong", inputs);
-        Logger.recordOutput("Schlong/Enabled", mEnabled);
+        Logger.processInputs("Arm", inputs);
+        Logger.recordOutput("Arm/Enabled", mEnabled);
 
         pivotMotorDisconnected.set(!inputs.pivotConnected);
         spinMotorDisconnected.set(!inputs.spinConnected);
@@ -115,7 +115,7 @@ public class Arm extends SubsystemBase {
         }
 
         if (getCurrentCommand() != null) {
-            Logger.recordOutput("Schlong/CurrentCommand", getCurrentCommand().getName());
+            Logger.recordOutput("Arm/CurrentCommand", getCurrentCommand().getName());
         }
 //
 //        if (shouldEStop.getAsBoolean()) {
@@ -130,8 +130,8 @@ public class Arm extends SubsystemBase {
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
         double ff = mFeedforward.calculate(setpoint.position, setpoint.velocity);
-        Logger.recordOutput("Schlong/Feedback", fb);
-        Logger.recordOutput("Schlong/Feedforward", ff);
+        Logger.recordOutput("Arm/Feedback", fb);
+        Logger.recordOutput("Arm/Feedforward", ff);
         double volts = fb + ff;
 
         if ((atLimit().getAsBoolean() && volts <= 0)) {
@@ -142,7 +142,7 @@ public class Arm extends SubsystemBase {
          io.runPivotWithVoltage(volts);
     }
 
-    @AutoLogOutput(key = "Schlong/AdjustedPosition")
+    @AutoLogOutput(key = "Arm/AdjustedPosition")
     public double getPivotPosition() {
        final double armOffsetToZero = -6.270913460876501 - 0.15646604036433587;
        return ((inputs.pivotPositionRad + armOffsetToZero) * ((-Math.PI / 2) / (-4.3933209765044765)));
@@ -258,7 +258,7 @@ public class Arm extends SubsystemBase {
             () -> {
                double volts = ArmConstants.ARM_KG * Math.cos(getPivotPosition());
                 // double volts = mFeedforward.calculate(getPivotPosition(), 0);
-                Logger.recordOutput("Schlong/GravityCompensation", volts);
+                Logger.recordOutput("Arm/GravityCompensation", volts);
                 io.runPivotWithVoltage(volts);
             }, this)
             .finallyDo(() -> io.stopPivot());
