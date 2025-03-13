@@ -11,7 +11,7 @@ public enum StartEndPosition {
     BC3(7.58, 5.0812, Math.PI),
 
     RC1(7.58, 3, Math.PI),
-    RC2(7.58, 1.9068, Math.PI),
+    RC2(7.58, 1.9068, (2 * Math.PI) / 3.0),
     RC3(7.58, 0.8137, Math.PI),
 
     TR1(5.46030758, 5.16840642, -2.0956),
