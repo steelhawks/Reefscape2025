@@ -150,6 +150,10 @@ public class Arm extends SubsystemBase {
         // return Units.degreesToRadians(Conversions.convert360To180(inputs.pivotPositionRad + armOffsetToZero));
     }
 
+    public double getDesiredState() {
+        return inputs.goal;
+    }
+
     public Trigger atGoal() {
         return new Trigger(mController::atGoal);
     }
@@ -169,6 +173,15 @@ public class Arm extends SubsystemBase {
                 > (RobotConstants.DIST_CLEAR_FROM_REEF
                 + FieldConstants.CENTER_OF_REEF_TO_REEF_FACE
                 + RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0));
+    }
+
+    // TEST THIS
+    public Trigger armClearFromElevator() {
+        return new Trigger(
+            () -> RobotContainer.s_Elevator.isEnabled() && !RobotContainer.s_Elevator.atGoal().getAsBoolean()
+                && getPivotPosition() >= ArmConstants.ARM_MIN_RADIANS
+                && getPivotPosition() <= ArmConstants.ARM_MAX_RADIANS
+                && Math.abs(getPivotPosition() - ArmConstants.ArmState.AVOID_ELEVATOR.getRadians()) <= ArmConstants.ARM_TOLERANCE);
     }
 
     ///////////////////////
@@ -232,10 +245,6 @@ public class Arm extends SubsystemBase {
                 io.runSpinWithVoltage(speed);
             }, this)
             .finallyDo(() -> io.stopSpin());
-    }
-
-    public double getDesiredState() {
-        return inputs.goal;
     }
 
     public Command applykS() {
