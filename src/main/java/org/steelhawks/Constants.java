@@ -178,9 +178,9 @@ public final class Constants {
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
                 }
                 default -> {
-                    TRANSLATION_KP = 3.0;
+                    TRANSLATION_KP = 3.5;
                     TRANSLATION_KI = 0.0;
-                    TRANSLATION_KD = 0.3;
+                    TRANSLATION_KD = 0.2;
                     ROTATION_KP = 3.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.1;

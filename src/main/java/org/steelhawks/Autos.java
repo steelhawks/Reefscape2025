@@ -219,25 +219,27 @@ public final class Autos {
 //    }
 
     public static Command getRC2Auton() {
-        return createAuto(StartEndPosition.RC2,
-            "RC2 to BR2",
-            "BR2 to Lower Source",
-            "Lower Source to BL2",
-            "BL2 to Lower Source",
-            "Lower Source to BL1",
-            "BL1 to Lower Source",
-            "Lower Source to L2");
+//        return createAuto(StartEndPosition.RC2,
+//            "RC2 to BR2",
+//            "BR2 to Lower Source",
+//            "Lower Source to BL2",
+//            "BL2 to Lower Source",
+//            "Lower Source to BL1",
+//            "BL1 to Lower Source",
+//            "Lower Source to L2");
+        return Commands.none();
     }
 
     public static Command getBC1AutonRefactor(){ //PUSH AND TEST (3/15)
-        return createAuto(StartEndPosition.BC1,
-            new String[]{
-                "BC1 to TL1",
-                "TL1 to Upper Source",
-                "Upper Source to TL2"
+//        return createAuto(StartEndPosition.BC1,
+//            new String[]{
+//                "BC1 to TL1",
+//                "TL1 to Upper Source",
+//                "Upper Source to TL2"
 //                "TL2 to Upper Source",
 //                "Upper Source to L2" | If we can fit in more cycles
-            }).withName("BC1 Auto Refactor");
+//            }).withName("BC1 Auto Refactor");
+        return Commands.none();
     }
 
     public static Command getRC2AutonPathPlanner() {
