@@ -3,7 +3,6 @@ package org.steelhawks.util;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class SwerveDriveController {
@@ -16,6 +15,7 @@ public class SwerveDriveController {
         this.xController = xController;
         this.yController = yController;
         this.thetaController = thetaController;
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     public SwerveDriveController withXTolerance(double xTolerance) {
@@ -38,18 +38,16 @@ public class SwerveDriveController {
         double yOutput = yController.calculate(measurement.getY(), setpoint.getY());
         double thetaOutput = thetaController.calculate(measurement.getRotation().getRadians(), setpoint.getRotation().getRadians());
 
-        return ChassisSpeeds.fromFieldRelativeSpeeds(
+        return new ChassisSpeeds(
             xOutput,
             yOutput,
-            thetaOutput,
-            measurement.getRotation());
+            thetaOutput);
     }
 
     public ChassisSpeeds getError() {
-        return ChassisSpeeds.fromFieldRelativeSpeeds(
+        return new ChassisSpeeds(
             xController.getErrorDerivative(),
             yController.getErrorDerivative(),
-            thetaController.getVelocityError(),
-            new Rotation2d());
+            thetaController.getVelocityError());
     }
 }

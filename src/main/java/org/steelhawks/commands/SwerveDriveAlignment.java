@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -12,14 +13,15 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
+import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.SwerveDriveController;
 
 import java.util.function.Supplier;
 
 public class SwerveDriveAlignment extends Command {
 
-    private static final double X_TOLERANCE = 0.1;
-    private static final double Y_TOLERANCE = 0.1;
+    private static final double X_TOLERANCE = Units.inchesToMeters(2.0);
+    private static final double Y_TOLERANCE = Units.inchesToMeters(2.0);
     private static final double THETA_TOLERANCE = Units.degreesToRadians(5);
     private static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
 
@@ -102,7 +104,12 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void execute() {
         ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
-        s_Swerve.runVelocity(speeds);
+        s_Swerve.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                speeds,
+                AllianceFlip.shouldFlip()
+                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
+                    : s_Swerve.getRotation()));
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
@@ -137,6 +144,6 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void end(boolean interrupted) {
         s_Swerve.runVelocity(new ChassisSpeeds());
-        s_Swerve.stopWithX();
+//        s_Swerve.stopWithX();
     }
 }

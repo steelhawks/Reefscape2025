@@ -123,9 +123,9 @@ public class Arm extends SubsystemBase {
 //            return;
 //        }
 
-        if (mEnabled) {
-            runPivot(mController.calculate(getPivotPosition()), mController.getSetpoint());
-        }
+//        if (mEnabled) {
+//            runPivot(mController.calculate(getPivotPosition()), mController.getSetpoint());
+//        }
     }
 
     private void runPivot(double fb, TrapezoidProfile.State setpoint) {
@@ -139,7 +139,7 @@ public class Arm extends SubsystemBase {
             return;
         }
 
-         io.runPivotWithVoltage(volts);
+//         io.runPivotWithVoltage(volts);
     }
 
     @AutoLogOutput(key = "Arm/AdjustedPosition")
