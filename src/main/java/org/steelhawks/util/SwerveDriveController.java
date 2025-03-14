@@ -49,7 +49,7 @@ public class SwerveDriveController {
         return ChassisSpeeds.fromFieldRelativeSpeeds(
             xController.getErrorDerivative(),
             yController.getErrorDerivative(),
-            thetaController.getPositionError(),
+            thetaController.getVelocityError(),
             new Rotation2d());
     }
 }
