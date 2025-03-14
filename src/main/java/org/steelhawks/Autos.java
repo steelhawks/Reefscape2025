@@ -40,6 +40,7 @@ public final class Autos {
         autoChooser.addOption("RC2 Auton PATHPLANNER", getRC2AutonPathPlanner());
         autoChooser.addOption("RC3 Auton", getRC3Auton());
         autoChooser.addOption("RC2 Auton Skip", getRC2AutonSkip());
+        autoChooser.addOption("BC1 Auton Refactor", getBC1AutonRefactor());
     }
 
     public static Command followTrajectory(String choreo) {
@@ -205,6 +206,17 @@ public final class Autos {
 //                "BL1 to Lower Source",
                 "Lower Source to BL2"
             }).withName("RC2 Auto");
+    }
+
+    public static Command getBC1AutonRefactor(){ //PUSH AND TEST (3/15)
+        return createAuto(StartEndPosition.BC1,
+            new String[]{
+                "BC1 to TL1",
+                "TL1 to Upper Source",
+                "Upper Source to TL2"
+//                "TL2 to Upper Source",
+//                "Upper Source to L2" | If we can fit in more cycles
+            }).withName("BC1 Auto Refactor");
     }
 
     public static Command getRC2AutonPathPlanner() {
