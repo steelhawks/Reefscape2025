@@ -48,9 +48,7 @@ public final class Autos {
         try {
             PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(choreo);
             return DriveCommands.followPath(path).withName("Following " + choreo);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
@@ -59,9 +57,7 @@ public final class Autos {
         try {
             PathPlannerPath path = PathPlannerPath.fromPathFile(pathPlanner);
             return DriveCommands.followPath(path).withName("Following " + pathPlanner);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
