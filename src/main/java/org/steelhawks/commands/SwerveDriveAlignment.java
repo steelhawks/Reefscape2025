@@ -5,12 +5,10 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
@@ -85,9 +83,9 @@ public class SwerveDriveAlignment extends Command {
                     : s_Swerve.getRotation()));
 
         velocityError =
-            new Translation2d(
+            Math.hypot(
                 mController.getXController().getErrorDerivative(),
-                mController.getYController().getErrorDerivative()).getNorm();
+                mController.getYController().getErrorDerivative());
         Logger.recordOutput("Align/VelocityError", velocityError);
 
         Logger.recordOutput("Align/TargetX", targetPose.get().getX());

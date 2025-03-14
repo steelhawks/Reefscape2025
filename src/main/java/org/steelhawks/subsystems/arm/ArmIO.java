@@ -1,11 +1,11 @@
-package org.steelhawks.subsystems.schlong;
+package org.steelhawks.subsystems.arm;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface SchlongIO {
+public interface ArmIO {
 
     @AutoLog
-    class SchlongIOInputs {
+    class ArmIOInputs {
         public double goal = 0;
 
         public boolean spinConnected = false;
@@ -35,7 +35,7 @@ public interface SchlongIO {
     /**
      * Updates the set of loggable inputs.
      */
-    default void updateInputs(SchlongIOInputs inputs) {}
+    default void updateInputs(ArmIOInputs inputs) {}
 
     default void runSpinWithSpeed(double speed) {}
 

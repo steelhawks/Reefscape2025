@@ -40,7 +40,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -99,6 +99,9 @@ public final class Constants {
         public static final double CLAW_OFFSET = -Units.inchesToMeters(9.836467);
         public static final double CLAW_OFFSET_SMALL_COMPONENT = 0.1249231309;
         public static final double CLAW_OFFSET_BIG_COMPONENT = 0.21637320975937756890536690206266;
+
+        public static final double SCHLONG_OFFSET = -Units.inchesToMeters(9.836467);
+        public static final double DIST_CLEAR_FROM_REEF = Units.inchesToMeters(4);
     }
 
     public static final class OIConstants {
