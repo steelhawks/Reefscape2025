@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.187,
-        "y": 2.928
+        "x": 5.104,
+        "y": 2.847
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.752349421260796,
-        "y": 2.9622764409131803
+        "x": 4.940132185748944,
+        "y": 2.6581949697370817
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.207,
-        "y": 1.00859375
+        "x": 1.5829911747685173,
+        "y": 0.7153226273148141
       },
       "prevControl": {
-        "x": 1.4562262492770668,
-        "y": 0.9889398274580387
+        "x": 2.03069373422441,
+        "y": 1.0707781642131873
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 54.222
+    "rotation": 55.0
   },
   "reversed": false,
-  "folder": "Event Hudson Valley",
+  "folder": "RC2",
   "idealStartingState": {
-    "velocity": 0.0,
-    "rotation": 120.41601879000001
+    "velocity": 0,
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

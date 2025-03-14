@@ -81,7 +81,7 @@ public class AutonBuilder extends VirtualSubsystem {
                             new Rotation2d(currentPath.startingPosition.rotRadians))))),
             Commands.none(),
             () -> currentPath.name.startsWith("BC") || currentPath.name.startsWith("RC")) // if starting position is Blue Cage or Red Cage, set the pose to that
-        .andThen(Autos.followTrajectory(currentPath.name));
+        .andThen(Autos.followChoreoTrajectory(currentPath.name));
         
         ReefZones assignedZone = currentPath.assignedZone;
         ElevatorConstants.State elevatorDesiredState = getDesiredElevatorState(assignedZone);
