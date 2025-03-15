@@ -1,7 +1,9 @@
 package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -135,13 +137,15 @@ public final class Constants {
     }
 
     public static final class AutonConstants {
-        public static final double TRANSLATION_KP;
-        public static final double TRANSLATION_KI;
-        public static final double TRANSLATION_KD;
+        private static final double TRANSLATION_KP;
+        private static final double TRANSLATION_KI;
+        private static final double TRANSLATION_KD;
+        public static final PIDConstants TRANSLATION_PID;
 
-        public static final double ROTATION_KP;
-        public static final double ROTATION_KI;
-        public static final double ROTATION_KD;
+        private static final double ROTATION_KP;
+        private static final double ROTATION_KI;
+        private static final double ROTATION_KD;
+        public static final PIDConstants ROTATION_PID;
 
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND;
@@ -196,6 +200,8 @@ public final class Constants {
                 MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
                 MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                 MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
+            TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
+            ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
         }
     }
 }

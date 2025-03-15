@@ -3,45 +3,53 @@ package org.steelhawks.util;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import org.steelhawks.Constants.AutonConstants;
 
 public class SwerveDriveController {
     private final PIDController xController;
     private final PIDController yController;
     private final ProfiledPIDController thetaController;
+    private boolean firstRun = true;
 
     public SwerveDriveController(
         PIDController xController, PIDController yController, ProfiledPIDController thetaController) {
         this.xController = xController;
         this.yController = yController;
         this.thetaController = thetaController;
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI); // see if changing to zero to two pi helps
     }
 
-    public SwerveDriveController withXTolerance(double xTolerance) {
+    public SwerveDriveController withLinearTolerance(double xTolerance) {
         xController.setTolerance(xTolerance);
         return this;
     }
 
-    public SwerveDriveController withYTolerance(double yTolerance) {
-        yController.setTolerance(yTolerance);
-        return this;
-    }
-
-    public SwerveDriveController withThetaTolerance(double thetaTolerance) {
+    public SwerveDriveController withRotationalTolerance(double thetaTolerance) {
         thetaController.setTolerance(thetaTolerance);
         return this;
     }
 
     public ChassisSpeeds getOutput(Pose2d measurement, Pose2d setpoint) {
+        if (firstRun) {
+            thetaController.reset(measurement.getRotation().getRadians());
+            firstRun = false;
+        }
+
+        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(measurement.getRotation().getRadians());
+        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(measurement.getRotation().getRadians());
+
         double xOutput = xController.calculate(measurement.getX(), setpoint.getX());
         double yOutput = yController.calculate(measurement.getY(), setpoint.getY());
         double thetaOutput = thetaController.calculate(measurement.getRotation().getRadians(), setpoint.getRotation().getRadians());
 
-        return new ChassisSpeeds(
-            xOutput,
-            yOutput,
-            thetaOutput);
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+            xOutput + xFF,
+            yOutput + yFF,
+            thetaOutput,
+            measurement.getRotation()
+                .plus(new Rotation2d(AllianceFlip.shouldFlip() ? Math.PI : 0)));
     }
 
     public ChassisSpeeds getError() {

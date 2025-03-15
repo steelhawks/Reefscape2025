@@ -324,12 +324,8 @@ public class Swerve extends SubsystemBase {
             this::getChassisSpeeds,
             this::runVelocity,
             new PPHolonomicDriveController(
-                new PIDConstants(
-                    AutonConstants.TRANSLATION_KP,
-                    AutonConstants.TRANSLATION_KI, AutonConstants.TRANSLATION_KD),
-                new PIDConstants(
-                    AutonConstants.ROTATION_KP,
-                    AutonConstants.ROTATION_KI, AutonConstants.ROTATION_KD)),
+                AutonConstants.TRANSLATION_PID,
+                AutonConstants.ROTATION_PID),
             PP_CONFIG,
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
             this);

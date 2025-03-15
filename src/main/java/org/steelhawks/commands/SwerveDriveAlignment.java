@@ -1,11 +1,9 @@
 package org.steelhawks.commands;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -14,15 +12,13 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
-import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.SwerveDriveController;
 
 import java.util.function.Supplier;
 
 public class SwerveDriveAlignment extends Command {
 
-    private static final double X_TOLERANCE = Units.inchesToMeters(2.0);
-    private static final double Y_TOLERANCE = Units.inchesToMeters(2.0);
+    private static final double XY_TOLERANCE = Units.inchesToMeters(2.0);
     private static final double THETA_TOLERANCE = Units.degreesToRadians(5);
     private static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
 
@@ -38,7 +34,7 @@ public class SwerveDriveAlignment extends Command {
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose) {
         addRequirements(s_Swerve);
         this.targetPose = targetPose;
-        this.debouncer = new Debouncer(0.5, Debouncer.DebounceType.kRising);
+        this.debouncer = new Debouncer(0.2, Debouncer.DebounceType.kRising);
 
 //        mController = new HolonomicDriveController(
 //            new PIDController(
@@ -62,31 +58,30 @@ public class SwerveDriveAlignment extends Command {
         mController =
             new SwerveDriveController(
                 new PIDController(
-                    AutonConstants.TRANSLATION_KP,
-                    AutonConstants.TRANSLATION_KI,
-                    AutonConstants.TRANSLATION_KD),
+                    AutonConstants.TRANSLATION_PID.kP,
+                    AutonConstants.TRANSLATION_PID.kI,
+                    AutonConstants.TRANSLATION_PID.kD),
                 new PIDController(
-                    AutonConstants.TRANSLATION_KP,
-                    AutonConstants.TRANSLATION_KI,
-                    AutonConstants.TRANSLATION_KD),
+                    AutonConstants.ROTATION_PID.kP,
+                    AutonConstants.ROTATION_PID.kI,
+                    AutonConstants.ROTATION_PID.kD),
                 new ProfiledPIDController(
-                    AutonConstants.ROTATION_KP,
-                    AutonConstants.ROTATION_KI,
-                    AutonConstants.ROTATION_KD,
+                    AutonConstants.ROTATION_PID.kP,
+                    AutonConstants.ROTATION_PID.kI,
+                    AutonConstants.ROTATION_PID.kD,
                     new TrapezoidProfile.Constraints(
                         AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)))
-            .withXTolerance(X_TOLERANCE)
-            .withYTolerance(Y_TOLERANCE)
-            .withThetaTolerance(THETA_TOLERANCE);
+            .withLinearTolerance(XY_TOLERANCE)
+            .withRotationalTolerance(THETA_TOLERANCE);
     }
 
     private boolean isXAligned() {
-        return Math.abs(targetPose.get().getX() - s_Swerve.getPose().getX()) < X_TOLERANCE;
+        return Math.abs(targetPose.get().getX() - s_Swerve.getPose().getX()) < XY_TOLERANCE;
     }
 
     private boolean isYAligned() {
-        return Math.abs(targetPose.get().getY() - s_Swerve.getPose().getY()) < Y_TOLERANCE;
+        return Math.abs(targetPose.get().getY() - s_Swerve.getPose().getY()) < XY_TOLERANCE;
     }
 
     private boolean isThetaAligned() {
@@ -104,14 +99,8 @@ public class SwerveDriveAlignment extends Command {
 
     @Override
     public void execute() {
-//        new HolonomicDriveController().calculate()
         ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
-        s_Swerve.runVelocity(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                speeds,
-                AllianceFlip.shouldFlip()
-                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-                    : s_Swerve.getRotation()));
+        s_Swerve.runVelocity(speeds);
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
@@ -130,7 +119,6 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/CurrentTheta", s_Swerve.getPose().getRotation().getDegrees());
 
         Logger.recordOutput("Align/TargetPose", targetPose.get());
-        Logger.recordOutput("Align/CurrentPose", s_Swerve.getPose());
         Logger.recordOutput("Align/StartingPose", startingPose);
 
         Logger.recordOutput("Align/AlignedX", isXAligned());
