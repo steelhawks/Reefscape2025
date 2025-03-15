@@ -21,8 +21,9 @@ public class SwerveDriveController {
         thetaController.enableContinuousInput(-Math.PI, Math.PI); // see if changing to zero to two pi helps
     }
 
-    public SwerveDriveController withLinearTolerance(double xTolerance) {
-        xController.setTolerance(xTolerance);
+    public SwerveDriveController withLinearTolerance(double xyTolerance) {
+        xController.setTolerance(xyTolerance);
+        yController.setTolerance(xyTolerance);
         return this;
     }
 
