@@ -165,33 +165,33 @@ public class VisionConstants {
 //                            Units.degreesToRadians(-45),
 //                            Units.degreesToRadians(0))),
 
-                    // BRIDGE MOUNT, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
-                    new Transform3d(
-                        // Left-Right: 2.000679
-                        // Front-Back: 10.862403
-                        // Up-Down: 8.312102
-                        Units.inchesToMeters(-10.862403),
-                        Units.inchesToMeters(-2.000679),
-                        Units.inchesToMeters(8.312102),
-                        new Rotation3d(
-                            Units.degreesToRadians(8.5),
-                            Units.degreesToRadians(-15),
-                            Units.degreesToRadians(-150))),
+                    // // BRIDGE MOUNT, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
+                    // new Transform3d(
+                    //     // Left-Right: 2.000679
+                    //     // Front-Back: 10.862403
+                    //     // Up-Down: 8.312102
+                    //     Units.inchesToMeters(-10.862403),
+                    //     Units.inchesToMeters(-2.000679),
+                    //     Units.inchesToMeters(8.312102),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(8.5),
+                    //         Units.degreesToRadians(-15),
+                    //         Units.degreesToRadians(-150))),
 
-                    // BEAM MOUNT, the arducam that's hanging off of the beam supporting the funnel
-                    new Transform3d(
-                        // Left-Right: 2.312500
-                        // Front-Back: 14.622078
-                        // Up-Down: 24.062500 
-                            // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                            // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                        Units.inchesToMeters(-14.622078),
-                        Units.inchesToMeters(2.312500),
-                        Units.inchesToMeters(24.062500),
-                        new Rotation3d(
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(-180))),
+                    // // BEAM MOUNT, the arducam that's hanging off of the beam supporting the funnel
+                    // new Transform3d(
+                    //     // Left-Right: 2.312500
+                    //     // Front-Back: 14.622078
+                    //     // Up-Down: 24.062500 
+                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                    //     Units.inchesToMeters(-14.622078),
+                    //     Units.inchesToMeters(2.312500),
+                    //     Units.inchesToMeters(24.062500),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(-180))),
 
                     // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)  
                     new Transform3d(
