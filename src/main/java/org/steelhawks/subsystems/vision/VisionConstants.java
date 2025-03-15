@@ -191,7 +191,40 @@ public class VisionConstants {
                         new Rotation3d(
                             Units.degreesToRadians(0),
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(-180)))
+                            Units.degreesToRadians(-180))),
+
+                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)  
+                    new Transform3d(
+                        // Left-Right: 0
+                        // Front-Back: 4.150 - 1.00 = 3.15
+                        // Up-Down: 5.5 + 1.25 = 6.75
+                            // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                            // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                        Units.inchesToMeters(3.15),
+                        Units.inchesToMeters(0),
+                        Units.inchesToMeters(6.75),
+                        new Rotation3d(
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0)))
+
+                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)  
+                    // new Transform3d(
+                    //     // Left-Right: 0
+                    //     // Front-Back: 2.337
+                    //     // Up-Down: 6.625
+                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                    //     Units.inchesToMeters(),
+                    //     Units.inchesToMeters(),
+                    //     Units.inchesToMeters(),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(-15),
+                    //         Units.degreesToRadians(0)))
+                    
+
+                    // Hello This Is Rahman Arssath FRC 2601 2025 
                 };
         };
     }

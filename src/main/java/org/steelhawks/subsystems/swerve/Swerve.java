@@ -371,9 +371,9 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                AutonConstants.ROTATION_KP,
-                AutonConstants.ROTATION_KI,
-                AutonConstants.ROTATION_KD,
+                AutonConstants.ROTATION_PID.kP,
+                AutonConstants.ROTATION_PID.kI,
+                AutonConstants.ROTATION_PID.kD,
                 new TrapezoidProfile.Constraints(
                     AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
