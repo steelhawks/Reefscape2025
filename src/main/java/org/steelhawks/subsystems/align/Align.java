@@ -120,7 +120,7 @@ public class Align extends VirtualSubsystem {
         return Commands.sequence(
             Commands.runOnce(() -> s_Swerve.setPathfinding(true)),
             DriveCommands.driveToPosition(goal.get()),
-            new SwerveDriveAlignment(goal),
+//            new SwerveDriveAlignment(goal),
             Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
     }
 

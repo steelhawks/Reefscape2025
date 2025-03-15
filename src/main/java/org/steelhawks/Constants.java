@@ -1,7 +1,9 @@
 package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -40,7 +42,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
@@ -93,7 +95,7 @@ public final class Constants {
     }
 
     public static final class RobotConstants {
-        public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(36.0);
+        public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(30.0 + (3.125 * 2.0));
 
         // for distance between robot center and claw
         public static final double CLAW_OFFSET = -Units.inchesToMeters(9.836467);
@@ -135,13 +137,15 @@ public final class Constants {
     }
 
     public static final class AutonConstants {
-        public static final double TRANSLATION_KP;
-        public static final double TRANSLATION_KI;
-        public static final double TRANSLATION_KD;
+        private static final double TRANSLATION_KP;
+        private static final double TRANSLATION_KI;
+        private static final double TRANSLATION_KD;
+        public static final PIDConstants TRANSLATION_PID;
 
-        public static final double ROTATION_KP;
-        public static final double ROTATION_KI;
-        public static final double ROTATION_KD;
+        private static final double ROTATION_KP;
+        private static final double ROTATION_KI;
+        private static final double ROTATION_KD;
+        public static final PIDConstants ROTATION_PID;
 
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND;
@@ -178,16 +182,16 @@ public final class Constants {
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
                 }
                 default -> {
-                    TRANSLATION_KP = 5.0;
+                    TRANSLATION_KP = 3.5;
                     TRANSLATION_KI = 0.0;
-                    TRANSLATION_KD = 0.0;
-                    ROTATION_KP = 5.0;
+                    TRANSLATION_KD = 0.2;
+                    ROTATION_KP = 3.0;
                     ROTATION_KI = 0.0;
-                    ROTATION_KD = 0.0;
+                    ROTATION_KD = 0.1;
                     MAX_VELOCITY_METERS_PER_SECOND = 3.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 3.5;
-                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
-                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
+                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 6.0;
+                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 15.0;
                 }
             }
 
@@ -196,6 +200,8 @@ public final class Constants {
                 MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
                 MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                 MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
+            TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
+            ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
         }
     }
 }
