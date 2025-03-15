@@ -36,8 +36,7 @@ public class VisionConstants {
                 new String[] {
                     "arducam-front-left",
                     "arducam-front-right",
-                    "arducam-bridge-mount",
-                    "arducam-beam-mount"
+                    "arducam-center-mount"                
                 };
         };
     }
