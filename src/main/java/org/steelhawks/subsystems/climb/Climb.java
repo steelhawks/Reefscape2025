@@ -85,11 +85,11 @@ public class Climb extends SubsystemBase {
 
     @Override
     public void periodic() {
-        shallowIO.updateInputs(shallowInputs);
+//        shallowIO.updateInputs(shallowInputs);
         deepIO.updateInputs(deepInputs);
-        Logger.processInputs("ShallowClimb", shallowInputs);
-        Logger.recordOutput("DeepClimb/Enabled", mEnabled);
-        Logger.processInputs("DeepClimb", deepInputs);
+//        Logger.processInputs("ShallowClimb", shallowInputs);
+        Logger.recordOutput("Climb/Enabled", mEnabled);
+        Logger.processInputs("Climb", deepInputs);
 
         shallowMotorDisconnected.set(!shallowInputs.motorConnected);
         topDeepMotorDisconnected.set(!deepInputs.topConnected);
@@ -173,7 +173,7 @@ public class Climb extends SubsystemBase {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
-                    setDesiredState(DeepClimbState.HOME);
+                    setDesiredState(DeepClimbState.HOME).schedule();
                     enable();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
@@ -199,8 +199,7 @@ public class Climb extends SubsystemBase {
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
                         deepIO.runClimbViaSpeed(appliedSpeed);
                     }, this))
-            .finallyDo(
-                deepIO::stop)
+            .finallyDo(deepIO::stop)
             .withName("Manual Climb Pivot");
     }
 
@@ -216,28 +215,24 @@ public class Climb extends SubsystemBase {
     public Command runDeepClimbViaSpeed(double speed) {
         return Commands.run(
             () -> deepIO.runClimbViaSpeed(speed))
-        .finallyDo(() -> deepIO.stop());
+        .finallyDo(deepIO::stop);
     }
 
     public Command runDeepClimb(double volts) {
         return Commands.run(
             () -> deepIO.runClimb(volts))
-        .finallyDo(() -> deepIO.stop());
+        .finallyDo(deepIO::stop);
     }
 
     public Command prepareDeepClimb() {
-        return Commands.runOnce(
-            () -> {
-                enable();
-                setDesiredState(DeepClimbState.PREPARE);
-            }).ignoringDisable(true);
+        return Commands.runOnce(this::enable)
+            .andThen(setDesiredState(DeepClimbState.PREPARE))
+            .ignoringDisable(true);
     }
 
     public Command goHome() {
-        return Commands.runOnce(
-            () -> {
-                enable();
-                setDesiredState(DeepClimbState.HOME);
-            }).ignoringDisable(true);
+        return Commands.runOnce(this::enable)
+            .andThen(setDesiredState(DeepClimbState.HOME))
+            .ignoringDisable(true);
     }
 }

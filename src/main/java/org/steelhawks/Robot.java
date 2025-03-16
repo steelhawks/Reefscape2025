@@ -54,8 +54,8 @@ public class Robot extends LoggedRobot {
     @SuppressWarnings("resource")
     public Robot() {
         for (int i = 5800; i < 5810; i++) {
-            PortForwarder.add(5800, "10.26.1.11", 5800);
-            PortForwarder.add(5800, "10.26.1.12", 5800);
+            PortForwarder.add(i, "10.26.1.11", i);
+            PortForwarder.add(i, "10.26.1.12", i);
         }
 
         // record GIT data

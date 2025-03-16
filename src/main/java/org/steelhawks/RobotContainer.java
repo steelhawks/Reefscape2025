@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
@@ -44,14 +45,12 @@ import org.steelhawks.util.FieldBoundingBox;
 
 public class RobotContainer {
 
-    public static final boolean useVision = false;
+    public static final boolean useVision = true;
 
-    private final Trigger interruptPathfinding;
-    private final Trigger isShallowEndgame;
+    private final Trigger unlockAngleControl;
     private final Trigger notifyAtEndgame;
     private final Trigger isDeepEndgame;
     private final Trigger modifierTrigger;
-    private boolean shallowClimbMode = false;
     private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
@@ -79,12 +78,8 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        interruptPathfinding =
-            new Trigger(() ->
-                Math.abs(driver.getLeftY()) > Deadbands.DRIVE_DEADBAND ||
-                    Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
-                    Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
-        isShallowEndgame = new Trigger(() -> shallowClimbMode);
+        unlockAngleControl =
+            new Trigger(() ->Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isDeepEndgame = new Trigger(() -> deepClimbMode);
         notifyAtEndgame = new Trigger(() -> {
 //            When connected to the real field, this number only changes in full integer increments, and always counts down.
@@ -132,10 +127,7 @@ public class RobotContainer {
                                 VisionConstants.robotToCamera()[1]),
                             new VisionIOPhoton(
                                 VisionConstants.cameraNames()[2],
-                                VisionConstants.robotToCamera()[2]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[3],
-                                VisionConstants.robotToCamera()[3]));
+                                VisionConstants.robotToCamera()[2]));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -250,10 +242,6 @@ public class RobotContainer {
                             new VisionIOPhotonSim(
                                 VisionConstants.cameraNames()[2],
                                 VisionConstants.robotToCamera()[2],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[3],
-                                VisionConstants.robotToCamera()[3],
                                 Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
@@ -329,14 +317,11 @@ public class RobotContainer {
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
+        new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
         Autos.init();
 
-        configureShallowClimbEndgame();
-        configurePathfindingCommands();
         configureDeepClimbEndgame();
-        configureDefaultCommands();
         checkIfDevicesConnected();
-        configureTestBindings();
         configureTriggers();
         configureOperator();
         configureDriver();
@@ -359,25 +344,6 @@ public class RobotContainer {
         new Alert("Orange Pi 2 is not connected", AlertType.kError).set(orangePi2Connected);
     }
 
-    private void configurePathfindingCommands() {
-        /* ------------- Pathfinding Poses ------------- */
-        driver.leftBumper()
-            .whileTrue(
-                s_Align.alignToClosestReef(State.L4));
-    }
-
-    private void configureDefaultCommands() {
-        s_Swerve.setDefaultCommand(
-            DriveCommands.joystickDrive(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> -driver.getRightX()));
-    }
-
-    private void configureTestBindings() {}
-
-    private void configureShallowClimbEndgame() {}
-
     private void configureDeepClimbEndgame() {
         operator.rightStick()
             .and(isDeepEndgame)
@@ -399,14 +365,8 @@ public class RobotContainer {
         s_Claw.hasCoral()
             .onTrue(
                 Commands.parallel(
-                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 3),
-                    new VibrateController(1.0, 2, driver, operator)));
-
-        isShallowEndgame
-            .onTrue(
-                Commands.runOnce(() ->
-                    s_LED.setDefaultLighting(
-                        s_LED.rainbowFlashCommand())));
+                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 3.0),
+                    new VibrateController(1.0, 2.0, driver, operator)));
 
         isDeepEndgame
             .onTrue(
@@ -434,6 +394,20 @@ public class RobotContainer {
 
     private void configureDriver() {
         /* ------------- Swerve Controls ------------- */
+        s_Swerve.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX()));
+
+        driver.leftBumper()
+            .whileTrue(
+                s_Align.alignToClosestReef(State.L4));
+
+        driver.rightBumper()
+            .whileTrue(
+                s_Align.alignToClosestAlgae());
+
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(
@@ -457,6 +431,13 @@ public class RobotContainer {
         operator.leftStick().onTrue(
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
+
+        operator.povUp()
+            .onTrue(
+                s_Elevator.setDesiredState(
+                    ReefUtil.getClosestAlgae().isOnL3()
+                        ? ElevatorConstants.State.KNOCK_L3
+                        : ElevatorConstants.State.KNOCK_L2));
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
@@ -511,17 +492,25 @@ public class RobotContainer {
                     s_Claw.shootCoral(),
                     () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
-                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
+                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0)));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
                 s_Claw.reverseCoral()
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0)));
 
         operator.povRight()
             .whileTrue(
                 s_Claw.intakeCoral()
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2)));
+                    .alongWith(DriveCommands.joystickDriveAtAngle(
+                        () -> -driver.getLeftY(),
+                        () -> -driver.getLeftX(),
+                        () -> s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation())
+                            > s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation())
+                        ? FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI))
+                        : FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI)))
+                    .until(unlockAngleControl))
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0)));
     }
 }

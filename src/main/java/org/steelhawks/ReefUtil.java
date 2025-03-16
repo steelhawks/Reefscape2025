@@ -126,8 +126,8 @@ public class ReefUtil {
             return getAprilTagPose().transformBy(
                 new Transform2d(
                     RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
-                    RobotConstants.SCHLONG_OFFSET,
-                    new Rotation2d(Math.PI / 2)));
+                    RobotConstants.ARM_OFFSET,
+                    new Rotation2d(Math.PI / 2.0)));
         }
     }
 
