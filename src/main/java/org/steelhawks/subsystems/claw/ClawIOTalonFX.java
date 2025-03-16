@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.claw;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.CANrange;
 import edu.wpi.first.units.measure.*;
@@ -28,11 +29,15 @@ public class ClawIOTalonFX implements ClawIO {
     private StatusSignal<Distance> distance = null;
 
     public ClawIOTalonFX() {
-        mIntakeMotor = new TalonFX(ClawConstants.CLAW_INTAKE_MOTOR_ID, Constants.getCANBus());
+        CANBus canBus = Constants.getCANBus();
+        if (Constants.getRobot() == RobotType.OMEGABOT) // claw is on the rio bus on omega
+            canBus = new CANBus();
+        mIntakeMotor = new TalonFX(ClawConstants.CLAW_INTAKE_MOTOR_ID, canBus);
         if (Constants.getRobot() == RobotType.OMEGABOT) {
-            mBeamBreak = new CANrange(ClawConstants.CAN_RANGE_ID_OMEGA, Constants.getCANBus());
+            mBeamBreak = new CANrange(ClawConstants.CAN_RANGE_ID_OMEGA, canBus);
             distance = mBeamBreak.getDistance();
             distance.setUpdateFrequency(50);
+            mBeamBreak.optimizeBusUtilization();
         }
 
 
