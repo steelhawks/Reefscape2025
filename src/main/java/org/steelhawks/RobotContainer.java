@@ -44,7 +44,7 @@ import org.steelhawks.util.FieldBoundingBox;
 
 public class RobotContainer {
 
-    public static final boolean useVision = false;
+    public static final boolean useVision = true;
 
     private final Trigger interruptPathfinding;
     private final Trigger isShallowEndgame;
@@ -132,10 +132,7 @@ public class RobotContainer {
                                 VisionConstants.robotToCamera()[1]),
                             new VisionIOPhoton(
                                 VisionConstants.cameraNames()[2],
-                                VisionConstants.robotToCamera()[2]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[3],
-                                VisionConstants.robotToCamera()[3]));
+                                VisionConstants.robotToCamera()[2]));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
