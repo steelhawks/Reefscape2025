@@ -1,11 +1,12 @@
 package org.steelhawks.subsystems.vision;
 
+import org.steelhawks.Constants;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
-import org.steelhawks.Constants;
 
 public class VisionConstants {
     // AprilTag layout
@@ -84,17 +85,30 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(60.036534))), // Z is from the top of the belly pan
 
-                    // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
+                    // // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
+                    // new Transform3d(
+                    //     // Left-Right: 11.315133
+                    //     // Front-Back: 12.192615    
+                    //     // Up-Down: 6.657998
+                    //     Units.inchesToMeters(12.192615),
+                    //     Units.inchesToMeters(11.315133),
+                    //     Units.inchesToMeters(6.657998),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
+
+                    // FRONT LEFT GEARBOX MOUNT 20250316
                     new Transform3d(
-                        // Left-Right: 11.315133
-                        // Front-Back: 12.192615    
-                        // Up-Down: 6.657998
-                        Units.inchesToMeters(12.192615),
-                        Units.inchesToMeters(11.315133),
-                        Units.inchesToMeters(6.657998),
+                        // Left-Right: 6.841572
+                        // Front-Back: 13.851222
+                        // Up-Down: 10.527559
+                        Units.inchesToMeters(13.851222),
+                        Units.inchesToMeters(6.841572),
+                        Units.inchesToMeters(10.527559),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(10),
                             Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
 
