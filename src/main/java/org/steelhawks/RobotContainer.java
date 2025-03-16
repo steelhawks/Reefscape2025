@@ -323,6 +323,7 @@ public class RobotContainer {
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
+        new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
         Autos.init();
 
         configureShallowClimbEndgame();
