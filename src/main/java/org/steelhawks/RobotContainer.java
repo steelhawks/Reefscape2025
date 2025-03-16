@@ -247,10 +247,6 @@ public class RobotContainer {
                             new VisionIOPhotonSim(
                                 VisionConstants.cameraNames()[2],
                                 VisionConstants.robotToCamera()[2],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[3],
-                                VisionConstants.robotToCamera()[3],
                                 Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
                     s_Elevator =
                         new Elevator(
