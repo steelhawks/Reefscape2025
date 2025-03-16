@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
@@ -392,8 +393,8 @@ public class RobotContainer {
         s_Claw.hasCoral()
             .onTrue(
                 Commands.parallel(
-                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 3),
-                    new VibrateController(1.0, 2, driver, operator)));
+                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 3.0),
+                    new VibrateController(1.0, 2.0, driver, operator)));
 
         isShallowEndgame
             .onTrue(
@@ -451,6 +452,13 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
+        operator.povUp()
+            .onTrue(
+                s_Elevator.setDesiredState(
+                    ReefUtil.getClosestAlgae().isOnL3()
+                        ? ElevatorConstants.State.KNOCK_L3
+                        : ElevatorConstants.State.KNOCK_L2));
+
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .onTrue(
@@ -504,17 +512,24 @@ public class RobotContainer {
                     s_Claw.shootCoral(),
                     () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
                         s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
-                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2)));
+                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0)));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
                 s_Claw.reverseCoral()
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2)));
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0)));
 
         operator.povRight()
             .whileTrue(
                 s_Claw.intakeCoral()
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2)));
+                    .alongWith(DriveCommands.joystickDriveAtAngle(
+                        () -> -driver.getLeftY(),
+                        () -> -driver.getLeftX(),
+                        () -> s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation())
+                            > s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation())
+                        ? FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI))
+                        : FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI))))
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0)));
     }
 }
