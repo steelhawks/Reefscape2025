@@ -388,8 +388,15 @@ public class RobotContainer {
             "Top Coral Station",
             0.0, 2.0, 6.2, 8.0,
             s_Swerve::getPose)
+        .or(
+            new FieldBoundingBox(
+                "Bottom Coral Station",
+                0.0, 2.0, 6.2 - 6.0, 8.0 - 6.0,
+                s_Swerve::getPose)
+        )
             .whileTrue(
-                s_Claw.intakeCoral());
+                s_Claw.intakeCoral()
+            .until(s_Claw.hasCoral()));
     }
 
     private void configureDriver() {
@@ -490,8 +497,8 @@ public class RobotContainer {
                 Commands.either(
                     s_Claw.shootPulsatingCoral(),
                     s_Claw.shootCoral(),
-                    () -> (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians() ||
-                        s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
+                    () ->
+                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0)));
 
         operator.povLeft()

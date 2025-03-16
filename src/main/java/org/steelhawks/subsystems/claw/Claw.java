@@ -46,7 +46,7 @@ public class Claw extends SubsystemBase {
         return Commands.run(
             () -> {
                 isIntaking = true;
-                io.runIntake(INTAKE_SPEED);
+                io.runIntake(-INTAKE_SPEED);
             }, this)
             .finallyDo(stop()::schedule);
     }

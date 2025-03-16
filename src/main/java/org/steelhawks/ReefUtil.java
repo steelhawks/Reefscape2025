@@ -64,7 +64,7 @@ public class ReefUtil {
                 switch (level) {
                 case L2 -> 0.0; // find the distance from the reef to the branch
                 case L3 -> 0.0;
-                case L4 -> 0.0;
+                case L4 -> 1.0;
                 default -> throw new IllegalArgumentException("Invalid level: " + level);
             });
 
