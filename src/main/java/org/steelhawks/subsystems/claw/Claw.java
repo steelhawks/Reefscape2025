@@ -38,8 +38,8 @@ public class Claw extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("CoralIntake", inputs);
-        Logger.recordOutput("CoralIntake/HasCoral", hasCoral().getAsBoolean());
+        Logger.processInputs("Claw", inputs);
+        Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
     }
 
     public Command intakeCoral() {

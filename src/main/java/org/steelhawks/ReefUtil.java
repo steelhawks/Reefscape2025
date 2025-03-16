@@ -71,7 +71,7 @@ public class ReefUtil {
             return getAprilTagPose().transformBy(
                 new Transform2d(
                     RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
-                    FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1) + RobotConstants.CLAW_OFFSET,
+                    FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1) + RobotConstants.CLAW_X_OFFSET,
                     new Rotation2d(Math.PI)));
         }
     }
