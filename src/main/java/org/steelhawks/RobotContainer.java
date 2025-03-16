@@ -47,12 +47,10 @@ public class RobotContainer {
 
     public static final boolean useVision = true;
 
-    private final Trigger interruptPathfinding;
-    private final Trigger isShallowEndgame;
+    private final Trigger unlockAngleControl;
     private final Trigger notifyAtEndgame;
     private final Trigger isDeepEndgame;
     private final Trigger modifierTrigger;
-    private boolean shallowClimbMode = false;
     private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
@@ -80,12 +78,8 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        interruptPathfinding =
-            new Trigger(() ->
-                Math.abs(driver.getLeftY()) > Deadbands.DRIVE_DEADBAND ||
-                    Math.abs(driver.getLeftX()) > Deadbands.DRIVE_DEADBAND ||
-                    Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
-        isShallowEndgame = new Trigger(() -> shallowClimbMode);
+        unlockAngleControl =
+            new Trigger(() ->Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isDeepEndgame = new Trigger(() -> deepClimbMode);
         notifyAtEndgame = new Trigger(() -> {
 //            When connected to the real field, this number only changes in full integer increments, and always counts down.
@@ -374,12 +368,6 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 3.0),
                     new VibrateController(1.0, 2.0, driver, operator)));
 
-        isShallowEndgame
-            .onTrue(
-                Commands.runOnce(() ->
-                    s_LED.setDefaultLighting(
-                        s_LED.rainbowFlashCommand())));
-
         isDeepEndgame
             .onTrue(
                 Commands.runOnce(() ->
@@ -521,7 +509,8 @@ public class RobotContainer {
                         () -> s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation())
                             > s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation())
                         ? FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI))
-                        : FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI))))
+                        : FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI)))
+                    .until(unlockAngleControl))
                     .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0)));
     }
 }
