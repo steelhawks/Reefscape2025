@@ -326,12 +326,8 @@ public class RobotContainer {
         new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
         Autos.init();
 
-        configureShallowClimbEndgame();
-        configurePathfindingCommands();
         configureDeepClimbEndgame();
-        configureDefaultCommands();
         checkIfDevicesConnected();
-        configureTestBindings();
         configureTriggers();
         configureOperator();
         configureDriver();
@@ -353,25 +349,6 @@ public class RobotContainer {
         new Alert("Orange Pi 1 is not connected", AlertType.kError).set(orangePi1Connected);
         new Alert("Orange Pi 2 is not connected", AlertType.kError).set(orangePi2Connected);
     }
-
-    private void configurePathfindingCommands() {
-        /* ------------- Pathfinding Poses ------------- */
-        driver.leftBumper()
-            .whileTrue(
-                s_Align.alignToClosestReef(State.L4));
-    }
-
-    private void configureDefaultCommands() {
-        s_Swerve.setDefaultCommand(
-            DriveCommands.joystickDrive(
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> -driver.getRightX()));
-    }
-
-    private void configureTestBindings() {}
-
-    private void configureShallowClimbEndgame() {}
 
     private void configureDeepClimbEndgame() {
         operator.rightStick()
@@ -429,6 +406,20 @@ public class RobotContainer {
 
     private void configureDriver() {
         /* ------------- Swerve Controls ------------- */
+        s_Swerve.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX()));
+
+        driver.leftBumper()
+            .whileTrue(
+                s_Align.alignToClosestReef(State.L4));
+
+        driver.rightBumper()
+            .whileTrue(
+                s_Align.alignToClosestAlgae());
+
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(
