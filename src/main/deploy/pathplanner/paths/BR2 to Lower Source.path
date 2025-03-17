@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.104,
-        "y": 2.847
+        "x": 5.173230613425925,
+        "y": 2.9095066550925925
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.940132185748944,
-        "y": 2.6581949697370817
+        "x": 5.00936279917487,
+        "y": 2.7207016248296743
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BR2"
     },
     {
       "anchor": {
@@ -25,7 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Lower Source"
     }
   ],
   "rotationTargets": [],

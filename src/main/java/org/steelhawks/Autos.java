@@ -235,15 +235,38 @@ public final class Autos {
 //            }).withName("RC2 Auto");
 //    }
 
+//    public static Command getRC2Auton() {
+//        return createAuto(StartEndPosition.RC2,
+//            "RC2 to BR2",
+//            "BR2 to Lower Source",
+//            "Lower Source to BL2",
+//            "BL2 to Lower Source",
+//            "Lower Source to BL1",
+//            "BL1 to Lower Source",
+//            "Lower Source to L2");
+//    }
     public static Command getRC2Auton() {
-        return createAuto(StartEndPosition.RC2,
-            "RC2 to BR2",
-            "BR2 to Lower Source",
-            "Lower Source to BL2",
-            "BL2 to Lower Source",
-            "Lower Source to BL1",
-            "BL1 to Lower Source",
-            "Lower Source to L2");
+        return Commands.runOnce(
+                () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose())))
+            .andThen(
+                followTrajectory("RC2 to BR2"),
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                Commands.race(
+                    Commands.waitSeconds(1),
+                    Commands.waitUntil(s_Elevator.atGoal())),
+                s_Claw.shootSlowCoral().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
+            .andThen(
+                followTrajectory("BR2 to Lower Source"),
+                Commands.waitUntil(s_Claw.hasCoral()))
+            .andThen(
+                followTrajectory("Lower Source to BL2"),
+                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                Commands.race(
+                    Commands.waitSeconds(1),
+                    Commands.waitUntil(s_Elevator.atGoal())),
+                s_Claw.shootCoral().withTimeout(1.0),
+                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
     }
 
     public static Command getBC1AutonRefactor(){ //PUSH AND TEST (3/15)

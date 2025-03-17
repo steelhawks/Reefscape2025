@@ -33,7 +33,6 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Claw\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.3,\"y\":-0.23},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
     "{\"name\":\"Claw (Post HVR)\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.1899661809,\"y\":-0.107},\"size\":{\"width\":0.1778,\"length\":0.29845},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }
