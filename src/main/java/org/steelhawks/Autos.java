@@ -88,21 +88,38 @@ public final class Autos {
         return ReefUtil.CoralBranch.valueOf(words[words.length - 1]).getScorePose(desiredScoreLevel);
     }
 
-    private static Command buildTrajectorySequence(String... trajectories) {
+//    private static Command buildTrajectorySequence(String... trajectories) {
+//        ArrayList<Command> commands = new ArrayList<>();
+//
+//        for (String trajectory : trajectories) {
+//            boolean atReef = !endsWithSource(trajectory);
+//            commands.add(
+//                followTrajectory(trajectory)
+//                .andThen(
+//                    Commands.either(
+//                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
+//                        Commands.none(),
+//                        () -> atReef)));
+//            commands.add(atReef
+//                ? elevatorAndShoot(desiredScoreLevel)
+//                : Commands.waitUntil(s_Claw.hasCoral()));
+//        }
+//
+//        return Commands.sequence(commands.toArray(new Command[commands.size()]));
+//    }
+
+    private static Command buildTrajectorySequence(String[] trajectories) {
         ArrayList<Command> commands = new ArrayList<>();
 
         for (String trajectory : trajectories) {
-            boolean atReef = !endsWithSource(trajectory);
-            commands.add(
-                followTrajectory(trajectory)
-                .andThen(
-                    Commands.either(
-                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
-                        Commands.none(),
-                        () -> atReef)));
-            commands.add(atReef
-                ? elevatorAndShoot(desiredScoreLevel)
-                : Commands.waitUntil(s_Claw.hasCoral()));
+            commands.add(followTrajectory(trajectory));
+            if (endsWithSource(trajectory)) {
+                commands.add(
+                    Commands.race(
+                        Commands.waitSeconds(3.5), Commands.waitUntil(s_Claw.hasCoral())));
+            } else {
+                commands.add(elevatorAndShoot(ElevatorConstants.State.L4));
+            }
         }
 
         return Commands.sequence(commands.toArray(new Command[commands.size()]));
