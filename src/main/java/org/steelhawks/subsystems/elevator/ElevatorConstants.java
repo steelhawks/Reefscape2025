@@ -18,7 +18,7 @@ public class ElevatorConstants {
         HOME_ABOVE_BAR(0, 1, 0),
 
         // Algae Knockout Positions
-        KNOCK_L2(0, 0, 0),
+        KNOCK_L2(0, 5, 0),
         KNOCK_L3(0, 12.038681223326511, 0);
 
         private final double alphaRadians;

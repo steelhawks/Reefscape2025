@@ -126,9 +126,9 @@ public class Elevator extends SubsystemBase {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
         }
 
-//        if (mEnabled) {
-//            runElevator(mController.calculate(getPosition()), mController.getSetpoint());
-//        }
+        if (mEnabled) {
+            runElevator(mController.calculate(getPosition()), mController.getSetpoint());
+        }
     }
 
     private void runElevator(double fb, TrapezoidProfile.State setpoint) {
@@ -142,7 +142,7 @@ public class Elevator extends SubsystemBase {
             return;
         }
 
-//        io.runElevator(volts);
+        io.runElevator(volts);
     }
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")

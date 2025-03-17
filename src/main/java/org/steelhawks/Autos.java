@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -39,10 +38,7 @@ public final class Autos {
         autoChooser.addOption("BC3 Auton", getBC3Auton());
         autoChooser.addOption("RC1 Auton", getRC1Auton());
         autoChooser.addOption("RC2 Auton", getRC2Auton());
-        autoChooser.addOption("RC2 Auton PATHPLANNER", getRC2AutonPathPlanner());
         autoChooser.addOption("RC3 Auton", getRC3Auton());
-        autoChooser.addOption("RC2 Auton Skip", getRC2AutonSkip());
-        autoChooser.addOption("BC1 Auton Refactor", getBC1AutonRefactor());
     }
 
     public static Command followChoreoTrajectory(String choreo) {
@@ -62,7 +58,6 @@ public final class Autos {
             throw new RuntimeException(e);
         }
     }
-
 
     public static Command elevatorAndShoot(ElevatorConstants.State state) {
         return Commands.sequence(
@@ -97,7 +92,8 @@ public final class Autos {
                 followTrajectory(trajectory)
                 .andThen(
                     Commands.either(
-                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
+//                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
+                        Commands.none(),
                         Commands.none(),
                         () -> atReef)));
             commands.add(atReef
@@ -125,13 +121,6 @@ public final class Autos {
                 s_Claw.shootCoralSlow().withTimeout(1.0),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .andThen(followChoreoTrajectory("TR2 to Upper Source"));
-    }
-    
-    public static Command getPIDAutonTest() {
-        return Commands.runOnce(
-            () -> s_Swerve.setPose(new Pose2d(2.0, 1.0, new Rotation2d())))
-            .andThen(
-                followChoreoTrajectory("PID Auton Test"));
     }
 
     public static Command getStraightTestPath() {
@@ -202,57 +191,15 @@ public final class Autos {
         return Commands.none();
     }
 
-//    public static Command getRC2Auton() {
-//        return createAuto(StartEndPosition.RC2,
-//            new String[]{
-//                // "RC2 to BR2",
-//                "RC2 to BR2 (Version 2)",
-//                "(Version 2) BR2 to Lower Source",
-//                "Lower Source to BR1 (Version 2)",
-//                "BR1 to Lower Source",
-////                "Lower Source to BL1",
-////                "BL1 to Lower Source",
-////                "Lower Source to BL1",
-////                "BL1 to Lower Source",
-//                "Lower Source to BL2"
-//            }).withName("RC2 Auto");
-//    }
-
     public static Command getRC2Auton() {
-//        return createAuto(StartEndPosition.RC2,
-//            "RC2 to BR2",
-//            "BR2 to Lower Source",
-//            "Lower Source to BL2",
-//            "BL2 to Lower Source",
-//            "Lower Source to BL1",
-//            "BL1 to Lower Source",
-//            "Lower Source to L2");
-        return Commands.none();
-    }
-
-    public static Command getBC1AutonRefactor(){ //PUSH AND TEST (3/15)
-//        return createAuto(StartEndPosition.BC1,
-//            new String[]{
-//                "BC1 to TL1",
-//                "TL1 to Upper Source",
-//                "Upper Source to TL2"
-//                "TL2 to Upper Source",
-//                "Upper Source to L2" | If we can fit in more cycles
-//            }).withName("BC1 Auto Refactor");
-        return Commands.none();
-    }
-
-    public static Command getRC2AutonPathPlanner() {
-        return Commands.runOnce(
-            () -> s_Swerve.setPose(AllianceFlip.apply(new Pose2d(7.580, 1.907, new Rotation2d()))))
-        .andThen(
-            followTrajectory("RC2 to BR2"),
-            elevatorAndShoot(ElevatorConstants.State.L4),
-            followTrajectory("BR2 to Lower Source"),
-            Commands.race(
-                Commands.waitSeconds(3.5), Commands.waitUntil(s_Claw.hasCoral())),
-            followTrajectory("Lower Source to BR1"),
-            elevatorAndShoot(ElevatorConstants.State.L4));
+        return createAuto(StartEndPosition.RC2,
+            "RC2 to BR2",
+            "BR2 to Lower Source",
+            "Lower Source to BL2",
+            "BL2 to Lower Source",
+            "Lower Source to BL1",
+            "BL1 to Lower Source",
+            "Lower Source to L2");
     }
 
     public static Command getRC3Auton() {
@@ -267,23 +214,6 @@ public final class Autos {
 //                "Lower Source to BL2"
 //            }).withName("RC3 Auto");
         return Commands.none();
-    }
-
-    public static Command getRC2AutonSkip() {
-        return Commands.runOnce(
-                () -> s_Swerve.setPose(AllianceFlip.apply(new Pose2d(7.58, 1.9068, new Rotation2d(Math.PI)))))
-            .andThen(
-                followChoreoTrajectory("RC2 to BR2"), //Switch to version 2 if bad vision
-                Commands.waitSeconds(1),
-                followChoreoTrajectory("BR2 to Lower Source"),
-                Commands.waitSeconds(1),
-                followChoreoTrajectory("Lower Source to BR1"),
-                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-                Commands.race(
-                    Commands.waitSeconds(3),
-                    Commands.waitUntil(s_Elevator.atGoal())),
-                s_Claw.shootPulsatingCoral().withTimeout(1.0),
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
     }
 
     public static Command getAuto() {

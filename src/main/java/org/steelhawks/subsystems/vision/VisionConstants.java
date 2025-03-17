@@ -1,11 +1,12 @@
 package org.steelhawks.subsystems.vision;
 
+import org.steelhawks.Constants;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
-import org.steelhawks.Constants;
 
 public class VisionConstants {
     // AprilTag layout
@@ -84,17 +85,30 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(60.036534))), // Z is from the top of the belly pan
 
-                    // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
+                    // // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
+                    // new Transform3d(
+                    //     // Left-Right: 11.315133
+                    //     // Front-Back: 12.192615    
+                    //     // Up-Down: 6.657998
+                    //     Units.inchesToMeters(12.192615),
+                    //     Units.inchesToMeters(11.315133),
+                    //     Units.inchesToMeters(6.657998),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
+
+                    // FRONT LEFT GEARBOX MOUNT 20250316
                     new Transform3d(
-                        // Left-Right: 11.315133
-                        // Front-Back: 12.192615    
-                        // Up-Down: 6.657998
-                        Units.inchesToMeters(12.192615),
-                        Units.inchesToMeters(11.315133),
-                        Units.inchesToMeters(6.657998),
+                        // Left-Right: 6.841572
+                        // Front-Back: 13.851222
+                        // Up-Down: 10.527559
+                        Units.inchesToMeters(13.851222),
+                        Units.inchesToMeters(6.841572),
+                        Units.inchesToMeters(10.527559),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(10),
                             Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
 
@@ -192,35 +206,35 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(-180))),
 
-                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)  
-                    new Transform3d(
-                        // Left-Right: 0
-                        // Front-Back: 4.150 - 1.00 = 3.15
-                        // Up-Down: 5.5 + 1.25 = 6.75
-                            // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                            // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                        Units.inchesToMeters(3.15),
-                        Units.inchesToMeters(0),
-                        Units.inchesToMeters(6.75),
-                        new Rotation3d(
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(0)))
-
-                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)  
+                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)  
                     // new Transform3d(
                     //     // Left-Right: 0
-                    //     // Front-Back: 2.337
-                    //     // Up-Down: 6.625
+                    //     // Front-Back: 4.150 - 1.00 = 3.15
+                    //     // Up-Down: 5.5 + 1.25 = 6.75
                     //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
                     //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                    //     Units.inchesToMeters(),
-                    //     Units.inchesToMeters(),
-                    //     Units.inchesToMeters(),
+                    //     Units.inchesToMeters(3.15),
+                    //     Units.inchesToMeters(0),
+                    //     Units.inchesToMeters(6.75),
                     //     new Rotation3d(
                     //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(-15),
+                    //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(0)))
+
+                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)  
+                    new Transform3d(
+                        // Left-Right: 0
+                        // Front-Back: 2.932785
+                        // Up-Down: 6.886101
+                            // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                            // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                        Units.inchesToMeters(2.932785),
+                        Units.inchesToMeters(0),
+                        Units.inchesToMeters(6.886101),
+                        new Rotation3d(
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(-15),
+                            Units.degreesToRadians(0)))
                     
 
                     // Hello This Is Rahman Arssath FRC 2601 2025 
