@@ -195,10 +195,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-//        autonomousCommand = Autos.getAuto();
-//        autonomousCommand = new PathPlannerAuto("Test RC2");
-//        autonomousCommand = new PathPlannerAuto("Curvy Line");
-        autonomousCommand = Autos.getRC2Auton();
+        autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
