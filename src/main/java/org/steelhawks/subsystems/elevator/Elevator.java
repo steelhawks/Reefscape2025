@@ -3,6 +3,8 @@ package org.steelhawks.subsystems.elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -32,6 +34,7 @@ public class Elevator extends SubsystemBase {
 
     private final ProfiledPIDController mController;
     private final ElevatorFeedforward mFeedforward;
+    private final Debouncer mDebouncer;
 
     private final Alert leftMotorDisconnected;
     private final Alert rightMotorDisconnected;
@@ -68,6 +71,7 @@ public class Elevator extends SubsystemBase {
                 ElevatorConstants.KS,
                 ElevatorConstants.KG,
                 ElevatorConstants.KV);
+        mDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
         mSysId =
             new SysIdRoutine(
@@ -105,6 +109,10 @@ public class Elevator extends SubsystemBase {
         disable();
     }
 
+    private boolean limitPressed() {
+        return mDebouncer.calculate(inputs.limitSwitchPressed);
+    }
+
     @Override
     public void periodic() {
         io.updateInputs(inputs);
@@ -137,7 +145,7 @@ public class Elevator extends SubsystemBase {
         Logger.recordOutput("Elevator/Feedforward", ff);
         double volts = fb + ff;
 
-        if ((inputs.atTopLimit && volts >= 0) || (inputs.limitSwitchPressed && volts <= 0)) {
+        if ((inputs.atTopLimit && volts >= 0) || (limitPressed() && volts <= 0))
             io.stop();
             return;
         }
@@ -160,11 +168,11 @@ public class Elevator extends SubsystemBase {
     }
 
     public Trigger atLimit() {
-        return new Trigger(() -> inputs.atTopLimit || inputs.limitSwitchPressed);
+        return new Trigger(() -> inputs.atTopLimit || limitPressed());
     }
 
     public Trigger atHome() {
-        return new Trigger(() -> inputs.limitSwitchPressed);
+        return new Trigger(() -> limitPressed());
     }
 
     ///////////////////////
@@ -249,7 +257,7 @@ public class Elevator extends SubsystemBase {
             .andThen(
                 Commands.run(
                     () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT / 2.0), this))
-        .until(() -> inputs.limitSwitchPressed)
+        .until(() -> limitPressed())
         .finallyDo(() -> {
             io.stop();
             io.zeroEncoders();
@@ -263,7 +271,7 @@ public class Elevator extends SubsystemBase {
                 Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME_ABOVE_BAR)),
                 Commands.runOnce(() -> disable()),
                 Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
-            .until(() -> inputs.limitSwitchPressed)
+            .until(() -> limitPressed())
             .finallyDo(() -> {
                 io.stop();
                 io.zeroEncoders();
@@ -273,7 +281,7 @@ public class Elevator extends SubsystemBase {
 
     public Command homeCommand() {
         return setDesiredState(ElevatorConstants.State.HOME)
-            .until(() -> inputs.limitSwitchPressed)
+            .until(() -> limitPressed())
             .finallyDo(() -> {
                 io.zeroEncoders();
                 io.stop();

@@ -202,6 +202,30 @@ public final class Autos {
             "Lower Source to L2");
     }
 
+    // public static Command getRC2Auton() {
+    //     return Commands.runOnce(
+    //             () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose())))
+    //         .andThen(
+    //             followTrajectory("RC2 to BR2"),
+    //             s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+    //             Commands.race(
+    //                 Commands.waitSeconds(1),
+    //                 Commands.waitUntil(s_Elevator.atGoal())),
+    //             s_Claw.shootSlowCoral().withTimeout(1.0),
+    //             s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
+    //         .andThen(
+    //             followTrajectory("BR2 to Lower Source"),
+    //             Commands.waitUntil(s_Claw.hasCoral()))
+    //         .andThen(
+    //             followTrajectory("Lower Source to BL2"),
+    //             s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+    //             Commands.race(
+    //                 Commands.waitSeconds(1),
+    //                 Commands.waitUntil(s_Elevator.atGoal())),
+    //             s_Claw.shootCoral().withTimeout(1.0),
+    //             s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+    // }
+
     public static Command getRC3Auton() {
 //        return createAuto(StartEndPosition.RC3,
 //            new String[]{

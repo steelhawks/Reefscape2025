@@ -47,7 +47,6 @@ import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
-import org.steelhawks.Constants.Mode;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -195,7 +194,7 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                             Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-                ROBOT_MASS_KG = Units.lbsToKilograms(138.1);
+                ROBOT_MASS_KG = Units.lbsToKilograms(124.8);
                 ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
                 WHEEL_COF = COTS.WHEELS.COLSONS.cof;
                 PP_CONFIG =

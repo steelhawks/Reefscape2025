@@ -148,6 +148,9 @@ public final class Constants {
     }
 
     public static final class AutonConstants {
+
+        private static final double WEIGHT_WITH_BUMPERS_AND_BATTERY = 124.8; // 20250317
+        private static final double WEIGHT_WITHOUT_BUMPERS_OR_BATTERY = 102.25; // 20250317
         private static final double TRANSLATION_KP;
         private static final double TRANSLATION_KI;
         private static final double TRANSLATION_KD;
