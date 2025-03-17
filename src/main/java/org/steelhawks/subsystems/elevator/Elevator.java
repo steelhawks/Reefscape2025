@@ -145,7 +145,7 @@ public class Elevator extends SubsystemBase {
         Logger.recordOutput("Elevator/Feedforward", ff);
         double volts = fb + ff;
 
-        if ((inputs.atTopLimit && volts >= 0) || (limitPressed() && volts <= 0))
+        if ((inputs.atTopLimit && volts >= 0) || (limitPressed() && volts <= 0)) {
             io.stop();
             return;
         }
