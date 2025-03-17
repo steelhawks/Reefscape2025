@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.swerve;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -338,6 +339,7 @@ public class Swerve extends SubsystemBase {
         PathPlannerLogging.setLogTargetPoseCallback(
             (targetPose) ->
                 Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
+        PathfindingCommand.warmupCommand().schedule();
 
         driveSysId =
             new SysIdRoutine(
