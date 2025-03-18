@@ -34,7 +34,6 @@ public class Elevator extends SubsystemBase {
 
     private final ProfiledPIDController mController;
     private final ElevatorFeedforward mFeedforward;
-    private final Debouncer mDebouncer;
 
     private final Alert leftMotorDisconnected;
     private final Alert rightMotorDisconnected;
@@ -71,7 +70,6 @@ public class Elevator extends SubsystemBase {
                 ElevatorConstants.KS,
                 ElevatorConstants.KG,
                 ElevatorConstants.KV);
-        mDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
         mSysId =
             new SysIdRoutine(
@@ -110,7 +108,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private boolean limitPressed() {
-        return mDebouncer.calculate(inputs.limitSwitchPressed);
+        return inputs.limitSwitchPressed;
     }
 
     @Override
