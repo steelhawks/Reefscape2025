@@ -415,7 +415,7 @@ public class RobotContainer {
 
         driver.leftBumper()
             .whileTrue(
-                s_Align.alignToClosestReef(State.L4));
+                s_Align.alignToClosestReefWithFusedInput(State.L4, () -> -driver.getLeftX()));
 
         driver.rightBumper()
             .whileTrue(

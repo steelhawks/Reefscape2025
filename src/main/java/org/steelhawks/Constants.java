@@ -127,6 +127,7 @@ public final class Constants {
         public static final double ELEVATOR_DEADBAND = 0.05;
         public static final double PIVOT_DEADBAND = 0.1;
         public static final double REVERSE_CORAL_DEADBAND = 0.1;
+        public static final double BRANCH_OVERRIDE_DEADBAND = 0.3;
     }
 
     public static final class LEDConstants {

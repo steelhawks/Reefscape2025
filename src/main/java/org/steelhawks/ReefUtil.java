@@ -4,12 +4,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
+import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.AprilTag;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class ReefUtil {
 
@@ -89,6 +92,32 @@ public class ReefUtil {
         }
 
         return nearestBranch;
+    }
+
+    public static Supplier<CoralBranch> getCoralBranchWithFusedDriverInput(DoubleSupplier joystickAxis) {
+        return () -> {
+            if (joystickAxis.getAsDouble() > Deadbands.BRANCH_OVERRIDE_DEADBAND) {
+                return switch (ReefUtil.getClosestCoralBranch()) {
+                    case TR1, TR2 -> CoralBranch.TR2;
+                    case R1, R2 -> CoralBranch.R2;
+                    case BR1, BR2 -> CoralBranch.BR2;
+                    case BL1, BL2 -> CoralBranch.BL2;
+                    case L1, L2 -> CoralBranch.L2;
+                    case TL1, TL2 -> CoralBranch.TL2;
+                };
+            } else if (joystickAxis.getAsDouble() < -Deadbands.BRANCH_OVERRIDE_DEADBAND) {
+                return switch (ReefUtil.getClosestCoralBranch()) {
+                    case TR1, TR2 -> CoralBranch.TR1;
+                    case R1, R2 -> CoralBranch.R1;
+                    case BR1, BR2 -> CoralBranch.BR1;
+                    case BL1, BL2 -> CoralBranch.BL1;
+                    case L1, L2 -> CoralBranch.L1;
+                    case TL1, TL2 -> CoralBranch.TL1;
+                };
+            } else {
+                return ReefUtil.getClosestCoralBranch();
+            }
+        };
     }
 
     public static String getClosestCoralBranchName() {
