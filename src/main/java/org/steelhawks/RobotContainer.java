@@ -332,7 +332,7 @@ public class RobotContainer {
         bottomCoralStationTrigger =
             new FieldBoundingBox(
                 "Bottom Coral Station",
-                0.0, 2.0, 6.2 - 6.0, 8.0 - 6.0,
+                0.0, 2.0, 0.0, 8.0 - 6.2,
                 s_Swerve::getPose);
 
         configureDeepClimbEndgame();

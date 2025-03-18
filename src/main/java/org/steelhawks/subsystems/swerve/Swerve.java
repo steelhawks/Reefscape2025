@@ -211,21 +211,6 @@ public class Swerve extends SubsystemBase {
                             1),
                         getModuleTranslations());
                 MAPLE_SIM_CONFIG =
-//                    DriveTrainSimulationConfig.Default()
-//                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
-//                        .withCustomModuleTranslations(getModuleTranslations())
-//                        .withGyro(COTS.ofPigeon2())
-//                        .withSwerveModule(
-//                            new SwerveModuleSimulationConfig(
-//                                DCMotor.getKrakenX60(1),
-//                                DCMotor.getKrakenX60(1),
-//                                TunerConstants.FrontLeft.DriveMotorGearRatio,
-//                                TunerConstants.FrontLeft.SteerMotorGearRatio,
-//                                Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
-//                                Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-//                                Meters.of(TunerConstants.FrontLeft.WheelRadius),
-//                                KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
-//                                WHEEL_COF));
                     DriveTrainSimulationConfig.Default()
                     // Specify gyro type (for realistic gyro drifting and error simulation)
                     .withGyro(COTS.ofPigeon2())
@@ -372,9 +357,9 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                AutonConstants.ROTATION_PID.kP,
-                AutonConstants.ROTATION_PID.kI,
-                AutonConstants.ROTATION_PID.kD,
+                AutonConstants.ALIGN_PID.kP,
+                AutonConstants.ALIGN_PID.kI,
+                AutonConstants.ALIGN_PID.kD,
                 new TrapezoidProfile.Constraints(
                     AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));

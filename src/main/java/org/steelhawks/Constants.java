@@ -41,7 +41,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -148,9 +148,6 @@ public final class Constants {
     }
 
     public static final class AutonConstants {
-
-        private static final double WEIGHT_WITH_BUMPERS_AND_BATTERY = 124.8; // 20250317
-        private static final double WEIGHT_WITHOUT_BUMPERS_OR_BATTERY = 102.25; // 20250317
         private static final double TRANSLATION_KP;
         private static final double TRANSLATION_KI;
         private static final double TRANSLATION_KD;
@@ -160,6 +157,11 @@ public final class Constants {
         private static final double ROTATION_KI;
         private static final double ROTATION_KD;
         public static final PIDConstants ROTATION_PID;
+
+        private static final double ALIGN_KP;
+        private static final double ALIGN_KI;
+        private static final double ALIGN_KD;
+        public static final PIDConstants ALIGN_PID;
 
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND;
@@ -178,6 +180,9 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
+                    ALIGN_KP = 5.0;
+                    ALIGN_KI = 0.0;
+                    ALIGN_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 4.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
@@ -190,6 +195,9 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
+                    ALIGN_KP = 5.0;
+                    ALIGN_KI = 0.0;
+                    ALIGN_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 1.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
@@ -202,6 +210,9 @@ public final class Constants {
                     ROTATION_KP = 3.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.1;
+                    ALIGN_KP = 3.0;
+                    ALIGN_KI = 0.0;
+                    ALIGN_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 3.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 3.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 6.0;
@@ -216,6 +227,7 @@ public final class Constants {
                 MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
             TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
             ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
+            ALIGN_PID = new PIDConstants(ALIGN_KP, ALIGN_KI, ALIGN_KD);
         }
     }
 }
