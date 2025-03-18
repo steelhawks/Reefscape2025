@@ -124,7 +124,7 @@ public class ElevatorConstants {
                 MAX_ACCELERATION_PER_SEC_SQUARED = 70;
                 TOLERANCE = 0.02;
                 MANUAL_ELEVATOR_INCREMENT = 0.55;
-                MAX_RADIANS = 24.663;
+                MAX_RADIANS = 24; // 24.663
             }
         }
     }
