@@ -41,7 +41,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -103,12 +103,12 @@ public final class Constants {
         // public static final double CLAW_OFFSET_SMALL_COMPONENT = 0.1249231309;
         // public static final double CLAW_OFFSET_BIG_COMPONENT = 0.21637320975937756890536690206266;
 
+        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(-4.204645);
         // AFTER HVR CHANGES. X and Y axes are based on Onshape coordinate system, NOT WPIlib coordinate system
-        public static final double CLAW_X_OFFSET = -Units.inchesToMeters(3.6); // OLD 4.204645
             // This was found by taking the average of:
             // 0.649976 (the width-wise distance between the left hex shaft of the claw, and the center of the robot)
 	        // 7.759314 (the width-wise distance between the right hex shaft of the claw, and the center of the robot)
-        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(7.4789835);
+//        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(7.4789835);
             // This was found by taking the average of:
             // 10.783720 (the length-wise distance between the bottom front lip of the coral in the coral intake, and the center of the robot)
             // 4.174247 (the length-wise distance between the top back lip of the coral in the coral intake, and the center of the robot)
