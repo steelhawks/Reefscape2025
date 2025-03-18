@@ -197,9 +197,9 @@ public final class Autos {
             "BR2 to Lower Source",
             "Lower Source to BL2",
             "BL2 to Lower Source",
-            "Lower Source to BL1",
-            "BL1 to Lower Source",
-            "Lower Source to L2");
+            "Lower Source to BL1");
+            // "BL1 to Lower Source",
+            // "Lower Source to L2");
     }
 
     // public static Command getRC2Auton() {
