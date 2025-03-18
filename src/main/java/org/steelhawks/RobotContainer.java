@@ -22,7 +22,6 @@ import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
-import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.arm.*;
 import org.steelhawks.subsystems.climb.Climb;
@@ -140,14 +139,14 @@ public class RobotContainer {
                             new ClawIOTalonFX());
                     s_Align =
                         new Align(
-                            new AlignIOCANrange());
+                            new AlignIO() {});
                     s_Climb =
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIO() {});
                     s_Arm =
                         new Arm(
-                            new ArmIOTalonFX());
+                            new ArmIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -507,7 +506,8 @@ public class RobotContainer {
                     s_Claw.shootPulsatingCoral(),
                     s_Claw.shootCoral(),
                     () ->
-                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
+                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() ||
+                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0)));
 
         operator.povLeft()
