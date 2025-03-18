@@ -32,7 +32,7 @@ public class Claw extends SubsystemBase {
 
     public Claw(ClawIO io) {
         this.io = io;
-        beamDebounce = new Debouncer(.3, DebounceType.kBoth);
+        beamDebounce = new Debouncer(0.15, DebounceType.kBoth);
     }
 
     @Override
