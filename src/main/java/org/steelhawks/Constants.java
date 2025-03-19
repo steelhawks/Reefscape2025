@@ -128,6 +128,9 @@ public final class Constants {
         public static final double PIVOT_DEADBAND = 0.1;
         public static final double REVERSE_CORAL_DEADBAND = 0.1;
         public static final double BRANCH_OVERRIDE_DEADBAND = 0.3;
+
+        // auto align deadbands
+        public static final double SWERVE_DEADBAND = 0.1;
     }
 
     public static final class LEDConstants {

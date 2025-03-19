@@ -5,9 +5,11 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
 
 public class SwerveDriveController {
+
     private final PIDController xController;
     private final PIDController yController;
     private final ProfiledPIDController thetaController;
@@ -40,10 +42,15 @@ public class SwerveDriveController {
 
         double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(measurement.getRotation().getRadians());
         double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(measurement.getRotation().getRadians());
+        Logger.recordOutput("SwerveDriveController/FeedforwardX", xFF);
+        Logger.recordOutput("SwerveDriveController/FeedforwardY", yFF);
 
         double xOutput = xController.calculate(measurement.getX(), setpoint.getX());
         double yOutput = yController.calculate(measurement.getY(), setpoint.getY());
         double thetaOutput = thetaController.calculate(measurement.getRotation().getRadians(), setpoint.getRotation().getRadians());
+        Logger.recordOutput("SwerveDriveController/OutputX", xOutput);
+        Logger.recordOutput("SwerveDriveController/OutputY", yOutput);
+        Logger.recordOutput("SwerveDriveController/OutputTheta", thetaOutput);
 
         return ChassisSpeeds.fromFieldRelativeSpeeds(
             xOutput + xFF,

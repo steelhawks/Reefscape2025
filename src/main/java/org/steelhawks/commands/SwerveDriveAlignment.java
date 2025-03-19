@@ -1,5 +1,6 @@
 package org.steelhawks.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
@@ -9,7 +10,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
 import org.steelhawks.Constants.AutonConstants;
+import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.SwerveDriveController;
@@ -100,7 +103,11 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void execute() {
         ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
-        s_Swerve.runVelocity(speeds);
+        s_Swerve.runVelocity(
+            new ChassisSpeeds(
+                MathUtil.applyDeadband(speeds.vxMetersPerSecond, Deadbands.SWERVE_DEADBAND),
+                MathUtil.applyDeadband(speeds.vyMetersPerSecond, Deadbands.SWERVE_DEADBAND),
+                MathUtil.applyDeadband(speeds.omegaRadiansPerSecond, Deadbands.SWERVE_DEADBAND)));
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
