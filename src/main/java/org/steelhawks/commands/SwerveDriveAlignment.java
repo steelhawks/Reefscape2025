@@ -1,6 +1,7 @@
 package org.steelhawks.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
@@ -21,7 +22,7 @@ import java.util.function.Supplier;
 
 public class SwerveDriveAlignment extends Command {
 
-    private static final double XY_TOLERANCE = Units.inchesToMeters(2.0);
+    private static final double XY_TOLERANCE = Units.inchesToMeters(1.0);
     private static final double THETA_TOLERANCE = Units.degreesToRadians(5);
     private static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
 
@@ -41,22 +42,22 @@ public class SwerveDriveAlignment extends Command {
 
 //        mController = new HolonomicDriveController(
 //            new PIDController(
-//                AutonConstants.TRANSLATION_KP,
-//                AutonConstants.TRANSLATION_KI,
-//                AutonConstants.TRANSLATION_KD),
+//                AutonConstants.TRANSLATION_PID.kP,
+//                AutonConstants.TRANSLATION_PID.kI,
+//                AutonConstants.TRANSLATION_PID.kD),
 //            new PIDController(
-//                AutonConstants.TRANSLATION_KP,
-//                AutonConstants.TRANSLATION_KI,
-//                AutonConstants.TRANSLATION_KD),
+//                AutonConstants.TRANSLATION_PID.kP,
+//                AutonConstants.TRANSLATION_PID.kI,
+//                AutonConstants.TRANSLATION_PID.kD),
 //            new ProfiledPIDController(
-//                AutonConstants.ROTATION_KP,
-//                AutonConstants.ROTATION_KI,
-//                AutonConstants.ROTATION_KD,
+//                AutonConstants.ROTATION_PID.kP,
+//                AutonConstants.ROTATION_PID.kI,
+//                AutonConstants.ROTATION_PID.kD,
 //                new TrapezoidProfile.Constraints(
 //                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
 //                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)));
-//        mController.getXController().setTolerance(X_TOLERANCE);
-//        mController.getYController().setTolerance(Y_TOLERANCE);
+//        mController.getXController().setTolerance(XY_TOLERANCE);
+//        mController.getYController().setTolerance(XY_TOLERANCE);
 //        mController.getThetaController().setTolerance(THETA_TOLERANCE);
         mController =
             new SwerveDriveController(
@@ -88,7 +89,7 @@ public class SwerveDriveAlignment extends Command {
     }
 
     private boolean isThetaAligned() {
-        return Math.abs(targetPose.get().getRotation().getDegrees() - s_Swerve.getPose().getRotation().getDegrees()) < THETA_TOLERANCE;
+        return Math.abs(targetPose.get().getRotation().getRadians() - s_Swerve.getPose().getRotation().getRadians()) < THETA_TOLERANCE;
     }
 
     private boolean isAligned() {
@@ -103,14 +104,16 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void execute() {
         ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
-        s_Swerve.runVelocity(
-            new ChassisSpeeds(
-                MathUtil.applyDeadband(speeds.vxMetersPerSecond, Deadbands.SWERVE_DEADBAND),
-                MathUtil.applyDeadband(speeds.vyMetersPerSecond, Deadbands.SWERVE_DEADBAND),
-                MathUtil.applyDeadband(speeds.omegaRadiansPerSecond, Deadbands.SWERVE_DEADBAND)));
+//        s_Swerve.runVelocity(
+//            new ChassisSpeeds(
+//                MathUtil.applyDeadband(speeds.vxMetersPerSecond, Deadbands.SWERVE_DEADBAND),
+//                MathUtil.applyDeadband(speeds.vyMetersPerSecond, Deadbands.SWERVE_DEADBAND),
+//                MathUtil.applyDeadband(speeds.omegaRadiansPerSecond, Deadbands.SWERVE_DEADBAND)));
+//        ChassisSpeeds speeds = mController.calculate(s_Swerve.getPose(), targetPose.get(), 3.5, targetPose.get().getRotation());
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
+        s_Swerve.runVelocity(speeds);
 
         velocityError =
             Math.hypot(

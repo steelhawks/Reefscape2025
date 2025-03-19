@@ -40,8 +40,9 @@ public class SwerveDriveController {
             firstRun = false;
         }
 
-        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(measurement.getRotation().getRadians());
-        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(measurement.getRotation().getRadians());
+//        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(measurement.getRotation().getRadians());
+//        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(measurement.getRotation().getRadians());
+        double xFF = 0, yFF = 0;
         Logger.recordOutput("SwerveDriveController/FeedforwardX", xFF);
         Logger.recordOutput("SwerveDriveController/FeedforwardY", yFF);
 
@@ -56,8 +57,7 @@ public class SwerveDriveController {
             xOutput + xFF,
             yOutput + yFF,
             thetaOutput,
-            measurement.getRotation()
-                .plus(new Rotation2d(AllianceFlip.shouldFlip() ? Math.PI : 0)));
+            measurement.getRotation());
     }
 
     public ChassisSpeeds getError() {

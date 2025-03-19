@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
+import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.commands.VibrateController;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -415,7 +417,10 @@ public class RobotContainer {
 
         driver.leftBumper()
             .whileTrue(
-                s_Align.alignToClosestReefWithFusedInput(State.L4, () -> -driver.getLeftX()));
+                s_Align.alignToClosestReefWithFusedInput(State.L4, driver::getLeftX));
+//        driver.leftBumper()
+//            .whileTrue(
+//                new SwerveDriveAlignment(() -> new Pose2d(3, 1, new Rotation2d())));fu
 
         driver.rightBumper()
             .whileTrue(
