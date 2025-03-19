@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.Constants.Deadbands;
+import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.SwerveDriveController;
@@ -93,7 +94,8 @@ public class SwerveDriveAlignment extends Command {
     }
 
     private boolean isAligned() {
-        return isXAligned() && isYAligned() && isThetaAligned() && velocityError < MAX_VELOCITY_ERROR_TOLERANCE;
+        // added auton check so command keeps running if the driver wants to switch the branch to score on, this doesnt interrupt auton scoring sequence
+        return isXAligned() && isYAligned() && isThetaAligned() && velocityError < MAX_VELOCITY_ERROR_TOLERANCE && Robot.getState() == Robot.RobotState.AUTON;
     }
 
     @Override
