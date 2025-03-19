@@ -26,6 +26,7 @@ public class Claw extends SubsystemBase {
                 new Trigger(
                     () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
+            case SIMBOT -> new Trigger(() -> true);
             default -> new Trigger(() -> beamDebounce.calculate(inputs.beamBroken));
         };
     }

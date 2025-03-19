@@ -3,11 +3,11 @@ package org.steelhawks;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -65,12 +65,12 @@ public final class Autos {
             Commands.deadline(
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
-             Commands.either(
-                 s_Claw.shootPulsatingCoral().withTimeout(0.6),
-                 s_Claw.shootCoral().withTimeout(0.6),
-                 () -> (state == ElevatorConstants.State.L1)),
+            Commands.either(
+                s_Claw.shootPulsatingCoral().withTimeout(0.6),
+                s_Claw.shootCoral().withTimeout(0.6),
+                () -> (state == ElevatorConstants.State.L1)),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
-            .withName("Elevator and Shoot in Auton");
+        .withName("Elevator and Shoot in Auton");
     }
 
     private static boolean endsWithSource(String trajectory) {
@@ -92,13 +92,14 @@ public final class Autos {
                 followTrajectory(trajectory)
                 .andThen(
                     Commands.either(
-//                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
-                        Commands.none(),
+                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
                         Commands.none(),
                         () -> atReef)));
             commands.add(atReef
                 ? elevatorAndShoot(desiredScoreLevel)
-                : Commands.waitUntil(s_Claw.hasCoral()));
+                : Commands.race(
+                    Commands.waitSeconds(1.0),
+                    Commands.waitUntil(s_Claw.hasCoral())));
         }
 
         return Commands.sequence(commands.toArray(new Command[commands.size()]));
@@ -198,33 +199,7 @@ public final class Autos {
             "Lower Source to BL2",
             "BL2 to Lower Source",
             "Lower Source to BL1");
-            // "BL1 to Lower Source",
-            // "Lower Source to L2");
     }
-
-    // public static Command getRC2Auton() {
-    //     return Commands.runOnce(
-    //             () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose())))
-    //         .andThen(
-    //             followTrajectory("RC2 to BR2"),
-    //             s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-    //             Commands.race(
-    //                 Commands.waitSeconds(1),
-    //                 Commands.waitUntil(s_Elevator.atGoal())),
-    //             s_Claw.shootSlowCoral().withTimeout(1.0),
-    //             s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
-    //         .andThen(
-    //             followTrajectory("BR2 to Lower Source"),
-    //             Commands.waitUntil(s_Claw.hasCoral()))
-    //         .andThen(
-    //             followTrajectory("Lower Source to BL2"),
-    //             s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-    //             Commands.race(
-    //                 Commands.waitSeconds(1),
-    //                 Commands.waitUntil(s_Elevator.atGoal())),
-    //             s_Claw.shootCoral().withTimeout(1.0),
-    //             s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
-    // }
 
     public static Command getRC3Auton() {
 //        return createAuto(StartEndPosition.RC3,
