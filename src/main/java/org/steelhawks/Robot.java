@@ -3,7 +3,6 @@ package org.steelhawks;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -165,6 +164,7 @@ public class Robot extends LoggedRobot {
 
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L4));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
+        Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStationPose());
     }
 
     @Override

@@ -62,7 +62,7 @@ public final class Constants {
 
     public static final String ROBOT_NAME =
         switch (ROBOT) {
-            case OMEGABOT -> "Omega";
+            case OMEGABOT -> "Chimera";
             case ALPHABOT -> "Alpha";
             case HAWKRIDER -> "Hawk Rider";
             case SIMBOT -> "Simulation";

@@ -422,6 +422,10 @@ public class RobotContainer {
             .whileTrue(
                 s_Align.alignToClosestAlgae());
 
+        driver.leftTrigger()
+            .whileTrue(
+                s_Align.alignToClosestCoralStation());
+
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(

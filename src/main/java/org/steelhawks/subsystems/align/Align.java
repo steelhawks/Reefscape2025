@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
+import org.steelhawks.FieldConstants;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
@@ -210,5 +211,9 @@ public class Align extends VirtualSubsystem {
                 .andThen(directPathFollow(() -> ReefUtil.getClosestAlgae().getScorePose()))
                 .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false))),
             Set.of(s_Swerve));
+    }
+
+    public Command alignToClosestCoralStation() {
+        return DriveCommands.driveToPosition(FieldConstants.getClosestCoralStationPose());
     }
 }

@@ -1,8 +1,11 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
+import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.AprilTag;
 
 public class FieldConstants {
@@ -70,5 +73,65 @@ public class FieldConstants {
 
     public static AprilTag getAprilTag(int id) {
         return new AprilTag(id, VisionConstants.APRIL_TAG_LAYOUT.getTagPose(id).get());
+    }
+
+    public enum CoralStation {
+        TOP(getAprilTag(13), getAprilTag(1)),
+        BOTTOM(getAprilTag(12), getAprilTag(2));
+
+        private final AprilTag blueTag;
+        private final AprilTag redTag;
+
+        CoralStation(AprilTag blueTag, AprilTag redTag) {
+            this.blueTag = blueTag;
+            this.redTag = redTag;
+        }
+
+        public Pose2d getAprilTagPose() {
+            return AllianceFlip.shouldFlip() ? redTag.pose().toPose2d() : blueTag.pose().toPose2d();
+        }
+
+        public Pose2d getIntakePose(double yOffset) {
+            return getAprilTagPose().transformBy(
+                new Transform2d(
+                    RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
+                    yOffset,
+                    new Rotation2d()));
+        }
+
+        public Pose2d getIntakePose() {
+            return getIntakePose(0.0);
+        }
+    }
+
+    public static CoralStation getClosestCoralStation() {
+        double distanceToTop =
+            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.TOP.getAprilTagPose().getTranslation());
+        double distanceToBottom =
+            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.BOTTOM.getAprilTagPose().getTranslation());
+
+        return distanceToTop < distanceToBottom ? CoralStation.TOP : CoralStation.BOTTOM;
+    }
+
+    public static Pose2d getClosestCoralStationPose() {
+        CoralStation closestStation = getClosestCoralStation();
+        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
+
+        double[] offsets = {-0.5, -0.25, 0, 0.5, 0.25};
+
+        Pose2d bestPose = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (double offset : offsets) {
+            Pose2d intakePose = closestStation.getIntakePose(offset);
+            double distance = robotPose.getTranslation().getDistance(intakePose.getTranslation());
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestPose = intakePose;
+            }
+        }
+
+        return bestPose;
     }
 }
