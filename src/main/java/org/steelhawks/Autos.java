@@ -97,9 +97,7 @@ public final class Autos {
                         () -> atReef)));
             commands.add(atReef
                 ? elevatorAndShoot(desiredScoreLevel)
-                : Commands.race(
-                    Commands.waitSeconds(1.0),
-                    Commands.waitUntil(s_Claw.hasCoral())));
+                : Commands.waitUntil(s_Claw.hasCoral()));
         }
 
         return Commands.sequence(commands.toArray(new Command[commands.size()]));
