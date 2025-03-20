@@ -14,35 +14,6 @@ public class FieldConstants {
     public static final double FIELD_LENGTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldLength();
     public static final double FIELD_WIDTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldWidth();
 
-    /*
-     * To properly use the auto flip feature, the poses MUST be for the blue alliance.
-     * The auto flip feature will automatically flip the poses for the red alliance.
-     */
-    public static final Pose2d BLUE_STARTING_POSE =
-        new Pose2d(new Translation2d(0, 0), new Rotation2d());
-
-    public enum Position {
-        LEFT_SECTION(new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI))),
-        TOP_LEFT_SECTION(new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3))),
-        BOTTOM_LEFT_SECTION(new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3))),
-        RIGHT_SECTION(new Pose2d(5.321046, 4.025900, new Rotation2d())),
-        TOP_RIGHT_SECTION(new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3))),
-        BOTTOM_RIGHT_SECTION(new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3))),
-        PROCESSOR(new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2))),
-        CORAL_STATION_BOTTOM(new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI))),
-        CORAL_STATION_TOP(new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI)));
-
-        private final Pose2d pose;
-
-        Position(Pose2d pose) {
-            this.pose = pose;
-        }
-
-        public Pose2d getPose() {
-            return pose;
-        }
-    }
-
     public static Translation2d REEF_CENTER = new Translation2d(Units.inchesToMeters(144.0 + (93.5 - 14.0 * 2) / 2), FIELD_WIDTH / 2);
     public static double CENTER_OF_REEF_TO_REEF_FACE = Units.inchesToMeters(32.75);
     public static double CENTER_OF_TROUGH_TO_BRANCH = Units.inchesToMeters(13.0 / 2.0);
@@ -74,6 +45,35 @@ public class FieldConstants {
 
     public static AprilTag getAprilTag(int id) {
         return new AprilTag(id, VisionConstants.APRIL_TAG_LAYOUT.getTagPose(id).get());
+    }
+
+    /*
+     * To properly use the auto flip feature, the poses MUST be for the blue alliance.
+     * The auto flip feature will automatically flip the poses for the red alliance.
+     */
+    public static final Pose2d BLUE_STARTING_POSE =
+        new Pose2d(new Translation2d(0, 0), new Rotation2d());
+
+    public enum Position {
+        LEFT_SECTION(new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI))),
+        TOP_LEFT_SECTION(new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3))),
+        BOTTOM_LEFT_SECTION(new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3))),
+        RIGHT_SECTION(new Pose2d(5.321046, 4.025900, new Rotation2d())),
+        TOP_RIGHT_SECTION(new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3))),
+        BOTTOM_RIGHT_SECTION(new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3))),
+        PROCESSOR(new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2))),
+        CORAL_STATION_BOTTOM(new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI))),
+        CORAL_STATION_TOP(new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI)));
+
+        private final Pose2d pose;
+
+        Position(Pose2d pose) {
+            this.pose = pose;
+        }
+
+        public Pose2d getPose() {
+            return pose;
+        }
     }
 
     public enum CoralStation {
@@ -130,7 +130,7 @@ public class FieldConstants {
             double lineLengthSquared = lineVector.dot(lineVector);
             double dotProduct = pointVector.dot(pointVector);
 
-            double t = dotProduct / lineLengthSquared;
+            double t = dotProduct / lineLengthSquared; // projection of point onto line
             double stationLength = startLine.getDistance(endLine);
             double percentToIgnoreFromEachSide = (RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0) / stationLength;
 
