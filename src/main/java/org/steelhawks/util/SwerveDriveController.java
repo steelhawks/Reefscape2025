@@ -3,10 +3,8 @@ package org.steelhawks.util;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants.AutonConstants;
 
 public class SwerveDriveController {
 
