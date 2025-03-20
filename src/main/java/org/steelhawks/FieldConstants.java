@@ -7,6 +7,7 @@ import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.AprilTag;
+import org.steelhawks.util.Conversions;
 
 public class FieldConstants {
 
@@ -109,11 +110,9 @@ public class FieldConstants {
         }
 
         public double getDistanceToStation() {
-            Vector2 A = new Vector2(getLineStart().getX(), getLineStart().getY());
-            Vector2 B = new Vector2(getLineEnd().getX(), getLineEnd().getY());
-            Vector2 C = new Vector2(
-                RobotContainer.s_Swerve.getPose().getTranslation().getX(),
-                RobotContainer.s_Swerve.getPose().getTranslation().getY());
+            Vector2 A = Conversions.toVector2(getLineStart());
+            Vector2 B = Conversions.toVector2(getLineEnd());
+            Vector2 C = Conversions.toVector2(RobotContainer.s_Swerve.getPose());
 
             return Math.abs((C.x - A.x) * (-B.y + A.y) + (C.y - A.y) * (B.x - A.x))
                 / Math.sqrt(Math.pow((-B.y + A.y), 2) + Math.pow((B.x - A.x), 2));
