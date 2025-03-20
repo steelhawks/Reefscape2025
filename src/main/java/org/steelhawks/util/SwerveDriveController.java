@@ -8,6 +8,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class SwerveDriveController {
 
+    private static int instanceCount = 0;
+
     private final PIDController xController;
     private final PIDController yController;
     private final ProfiledPIDController thetaController;
@@ -19,6 +21,7 @@ public class SwerveDriveController {
         this.yController = yController;
         this.thetaController = thetaController;
         thetaController.enableContinuousInput(-Math.PI, Math.PI); // see if changing to zero to two pi helps
+        instanceCount++;
     }
 
     public SwerveDriveController withLinearTolerance(double xyTolerance) {
@@ -41,15 +44,15 @@ public class SwerveDriveController {
 //        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(measurement.getRotation().getRadians());
 //        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(measurement.getRotation().getRadians());
         double xFF = 0, yFF = 0;
-        Logger.recordOutput("SwerveDriveController/FeedforwardX", xFF);
-        Logger.recordOutput("SwerveDriveController/FeedforwardY", yFF);
+        Logger.recordOutput("SwerveDriveController/FeedforwardX/" + instanceCount, xFF);
+        Logger.recordOutput("SwerveDriveController/FeedforwardY/" + instanceCount, yFF);
 
         double xOutput = xController.calculate(measurement.getX(), setpoint.getX());
         double yOutput = yController.calculate(measurement.getY(), setpoint.getY());
         double thetaOutput = thetaController.calculate(measurement.getRotation().getRadians(), setpoint.getRotation().getRadians());
-        Logger.recordOutput("SwerveDriveController/OutputX", xOutput);
-        Logger.recordOutput("SwerveDriveController/OutputY", yOutput);
-        Logger.recordOutput("SwerveDriveController/OutputTheta", thetaOutput);
+        Logger.recordOutput("SwerveDriveController/OutputX/" + instanceCount, xOutput);
+        Logger.recordOutput("SwerveDriveController/OutputY/" + instanceCount, yOutput);
+        Logger.recordOutput("SwerveDriveController/OutputTheta/" + instanceCount, thetaOutput);
 
         return ChassisSpeeds.fromFieldRelativeSpeeds(
             xOutput + xFF,
