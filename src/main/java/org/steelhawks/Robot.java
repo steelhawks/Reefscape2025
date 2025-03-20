@@ -164,7 +164,7 @@ public class Robot extends LoggedRobot {
 
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L4));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
-        Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStationPose());
+        Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
     }
 
     @Override

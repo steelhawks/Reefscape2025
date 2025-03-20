@@ -1,8 +1,8 @@
 package org.steelhawks;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import org.dyn4j.geometry.Vector2;
 import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.AllianceFlip;
@@ -76,15 +76,20 @@ public class FieldConstants {
     }
 
     public enum CoralStation {
-        TOP(getAprilTag(13), getAprilTag(1)),
-        BOTTOM(getAprilTag(12), getAprilTag(2));
+        TOP(getAprilTag(13), getAprilTag(1), new Translation2d(0, FIELD_WIDTH / 2 + Units.inchesToMeters(109.13)), new Translation2d(Units.inchesToMeters(65.84), FIELD_WIDTH)),
+        BOTTOM(getAprilTag(12), getAprilTag(2), new Translation2d(0, FIELD_WIDTH / 2 - Units.inchesToMeters(109.13)), new Translation2d(Units.inchesToMeters(65.84), 0));
 
         private final AprilTag blueTag;
         private final AprilTag redTag;
+        private final Translation2d lineStart;
+        private final Translation2d lineEnd;
 
-        CoralStation(AprilTag blueTag, AprilTag redTag) {
+        CoralStation(
+            AprilTag blueTag, AprilTag redTag, Translation2d lineStart, Translation2d lineEnd) {
             this.blueTag = blueTag;
             this.redTag = redTag;
+            this.lineStart = lineStart;
+            this.lineEnd = lineEnd;
         }
 
         public Pose2d getAprilTagPose() {
@@ -102,15 +107,63 @@ public class FieldConstants {
         public Pose2d getIntakePose() {
             return getIntakePose(0.0);
         }
+
+        public double getDistanceToStation() {
+            Vector2 A = new Vector2(getLineStart().getX(), getLineStart().getY());
+            Vector2 B = new Vector2(getLineEnd().getX(), getLineEnd().getY());
+            Vector2 C = new Vector2(
+                RobotContainer.s_Swerve.getPose().getTranslation().getX(),
+                RobotContainer.s_Swerve.getPose().getTranslation().getY());
+
+            return Math.abs((C.x - A.x) * (-B.y + A.y) + (C.y - A.y) * (B.x - A.x))
+                / Math.sqrt(Math.pow((-B.y + A.y), 2) + Math.pow((B.x - A.x), 2));
+        }
+
+        // https://www.youtube.com/watch?v=KHuI9bXZS74
+        public Pose2d getIntakePoseViaPointToLine() {
+            Translation2d startLine = getLineStart();
+            Translation2d endLine = getLineEnd();
+            Translation2d robotPoint = RobotContainer.s_Swerve.getPose().getTranslation();
+
+            Vector2 lineVector = new Vector2(endLine.getX() - startLine.getX(), endLine.getY() - startLine.getY());
+            Vector2 pointVector = new Vector2(robotPoint.getX() - startLine.getX(), robotPoint.getY() - startLine.getY());
+
+            double lineLengthSquared = lineVector.dot(lineVector);
+            double dotProduct = pointVector.dot(pointVector);
+
+            double t = dotProduct / lineLengthSquared;
+            double stationLength = startLine.getDistance(endLine);
+            double percentToIgnoreFromEachSide = (RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0) / stationLength;
+
+            t = Math.max(percentToIgnoreFromEachSide, Math.min(1 - percentToIgnoreFromEachSide, t));
+            Translation2d closestPointOnCoralStation = new Translation2d(startLine.getX() + t * lineVector.x, startLine.getY() + t * lineVector.y);
+
+            return new Pose2d(
+                closestPointOnCoralStation,
+                getAprilTagPose().getRotation())
+            .transformBy(
+                new Transform2d(
+                    RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
+                    0,
+                    new Rotation2d()));
+        }
+
+        public Translation2d getLineStart() {
+            return AllianceFlip.apply(lineStart);
+        }
+
+        public Translation2d getLineEnd() {
+            return AllianceFlip.apply(lineEnd);
+        }
     }
 
     public static CoralStation getClosestCoralStation() {
-        double distanceToTop =
-            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.TOP.getAprilTagPose().getTranslation());
-        double distanceToBottom =
-            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.BOTTOM.getAprilTagPose().getTranslation());
+//        double distanceToTop =
+//            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.TOP.getAprilTagPose().getTranslation());
+//        double distanceToBottom =
+//            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.BOTTOM.getAprilTagPose().getTranslation());
 
-        return distanceToTop < distanceToBottom ? CoralStation.TOP : CoralStation.BOTTOM;
+        return CoralStation.BOTTOM.getDistanceToStation() > CoralStation.TOP.getDistanceToStation() ? CoralStation.TOP : CoralStation.BOTTOM;
     }
 
     public static Pose2d getClosestCoralStationPose() {
