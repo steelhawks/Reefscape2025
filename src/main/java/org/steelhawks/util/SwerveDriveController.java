@@ -5,8 +5,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants;
-import org.steelhawks.Constants.AutonConstants;
 
 public class SwerveDriveController {
 
@@ -40,9 +38,9 @@ public class SwerveDriveController {
             firstRun = false;
         }
 
-        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(setpoint.getRotation().getRadians());
-        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(setpoint.getRotation().getRadians());
-//        double xFF = 0, yFF = 0;
+//        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(measurement.getRotation().getRadians());
+//        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(measurement.getRotation().getRadians());
+        double xFF = 0, yFF = 0;
         Logger.recordOutput("SwerveDriveController/FeedforwardX", xFF);
         Logger.recordOutput("SwerveDriveController/FeedforwardY", yFF);
 
