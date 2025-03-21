@@ -84,6 +84,7 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void initialize() {
         startingPose = s_Swerve.getPose();
+        s_Swerve.setPathfinding(true);
     }
 
     @Override
@@ -124,5 +125,6 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void end(boolean interrupted) {
         s_Swerve.runVelocity(new ChassisSpeeds());
+        s_Swerve.setPathfinding(false);
     }
 }

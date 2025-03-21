@@ -118,12 +118,9 @@ public class Align extends VirtualSubsystem {
         return path;
     }
 
-    public static Command directPathFollow(Supplier<Pose2d> goal) { // fix this
-        return Commands.sequence(
-            Commands.runOnce(() -> s_Swerve.setPathfinding(true)),
-            DriveCommands.driveToPosition(goal.get()),
-            new SwerveDriveAlignment(goal),
-            Commands.runOnce(() -> s_Swerve.setPathfinding(false)));
+    public static Command directPathFollow(Supplier<Pose2d> goal) {
+        return DriveCommands.driveToPosition(goal.get())
+            .andThen(new SwerveDriveAlignment(goal));
     }
 
     public Command forwardUntil(Rotation2d angle) {
@@ -191,25 +188,19 @@ public class Align extends VirtualSubsystem {
 
     public Command alignToClosestReef(ElevatorConstants.State level) {
         return Commands.defer(
-            () -> Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(true))
-                .andThen(directPathFollow(() -> ReefUtil.getClosestCoralBranch().getScorePose(level)))
-                .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false))),
+            () -> directPathFollow(() -> ReefUtil.getClosestCoralBranch().getScorePose(level)),
             Set.of(s_Swerve));
     }
 
     public Command alignToClosestReefWithFusedInput(ElevatorConstants.State level, DoubleSupplier joystickAxis) {
         return Commands.defer(
-            () -> Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(true))
-                .andThen(directPathFollow(() -> ReefUtil.getCoralBranchWithFusedDriverInput(joystickAxis).get().getScorePose(level)))
-                .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false))),
+            () -> directPathFollow(() -> ReefUtil.getCoralBranchWithFusedDriverInput(joystickAxis).get().getScorePose(level)),
             Set.of(s_Swerve));
     }
 
     public Command alignToClosestAlgae() {
         return Commands.defer(
-            () -> Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(true))
-                .andThen(directPathFollow(() -> ReefUtil.getClosestAlgae().getScorePose()))
-                .andThen(Commands.runOnce(() -> RobotContainer.s_Swerve.setPathfinding(false))),
+            () -> directPathFollow(() -> ReefUtil.getClosestAlgae().getScorePose()),
             Set.of(s_Swerve));
     }
 
