@@ -3,11 +3,11 @@ package org.steelhawks;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 public final class Autos {
     private static final ElevatorConstants.State desiredScoreLevel = ElevatorConstants.State.L4;
-    private static final AutonBuilder s_Builder = new AutonBuilder("Auto Selector");
+    private static final AutonBuilder s_Builder = new AutonBuilder("Auton Builder");
 
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
@@ -65,12 +65,12 @@ public final class Autos {
             Commands.deadline(
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
-             Commands.either(
-                 s_Claw.shootPulsatingCoral().withTimeout(0.6),
-                 s_Claw.shootCoral().withTimeout(0.6),
-                 () -> (state == ElevatorConstants.State.L1)),
+            Commands.either(
+                s_Claw.shootPulsatingCoral().withTimeout(0.6),
+                s_Claw.shootCoral().withTimeout(0.6),
+                () -> (state == ElevatorConstants.State.L1)),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
-            .withName("Elevator and Shoot in Auton");
+        .withName("Elevator and Shoot in Auton");
     }
 
     private static boolean endsWithSource(String trajectory) {
@@ -92,13 +92,16 @@ public final class Autos {
                 followTrajectory(trajectory)
                 .andThen(
                     Commands.either(
-//                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
-                        Commands.none(),
-                        Commands.none(),
+                        s_Elevator.setDesiredState(desiredScoreLevel)
+                        .andThen(
+                            new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
+                            Commands.either(
+                                s_Claw.shootPulsatingCoral().withTimeout(0.6),
+                                s_Claw.shootCoral().withTimeout(0.3),
+                                () -> (desiredScoreLevel == ElevatorConstants.State.L1)),
+                            s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
+                        Commands.waitUntil(s_Claw.hasCoral()),
                         () -> atReef)));
-            commands.add(atReef
-                ? elevatorAndShoot(desiredScoreLevel)
-                : Commands.waitUntil(s_Claw.hasCoral()));
         }
 
         return Commands.sequence(commands.toArray(new Command[commands.size()]));
@@ -197,9 +200,7 @@ public final class Autos {
             "BR2 to Lower Source",
             "Lower Source to BL2",
             "BL2 to Lower Source",
-            "Lower Source to BL1",
-            "BL1 to Lower Source",
-            "Lower Source to L2");
+            "Lower Source to BL1");
     }
 
     public static Command getRC3Auton() {

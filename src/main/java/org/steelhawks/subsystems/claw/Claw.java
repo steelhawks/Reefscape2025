@@ -13,7 +13,7 @@ public class Claw extends SubsystemBase {
 
     private static final double CURRENT_THRESHOLD = 30;
     private static final double INTAKE_SPEED = 0.05;
-    private static final double DIST_TO_HAVE_CORAL = 0.075;
+    public static final double DIST_TO_HAVE_CORAL = 0.075;
     private boolean isIntaking = false;
 
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
@@ -26,13 +26,14 @@ public class Claw extends SubsystemBase {
                 new Trigger(
                     () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
-            default -> new Trigger(() -> beamDebounce.calculate(inputs.beamDistance < DIST_TO_HAVE_CORAL));
+            case SIMBOT -> new Trigger(() -> true);
+            default -> new Trigger(() -> beamDebounce.calculate(inputs.beamBroken));
         };
     }
 
     public Claw(ClawIO io) {
         this.io = io;
-        beamDebounce = new Debouncer(.3, DebounceType.kBoth);
+        beamDebounce = new Debouncer(0.15, DebounceType.kBoth);
     }
 
     @Override

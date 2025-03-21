@@ -22,7 +22,6 @@ import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
-import org.steelhawks.subsystems.align.AlignIOCANrange;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.arm.*;
 import org.steelhawks.subsystems.climb.Climb;
@@ -43,6 +42,8 @@ import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.DashboardTrigger;
 import org.steelhawks.util.FieldBoundingBox;
 
+import java.util.Set;
+
 public class RobotContainer {
 
     public static final boolean useVision = true;
@@ -51,6 +52,8 @@ public class RobotContainer {
     private final Trigger notifyAtEndgame;
     private final Trigger isDeepEndgame;
     private final Trigger modifierTrigger;
+    private final Trigger topCoralStationTrigger;
+    private final Trigger bottomCoralStationTrigger;
     private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
@@ -79,7 +82,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         unlockAngleControl =
-            new Trigger(() ->Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
+            new Trigger(() -> Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
         isDeepEndgame = new Trigger(() -> deepClimbMode);
         notifyAtEndgame = new Trigger(() -> {
 //            When connected to the real field, this number only changes in full integer increments, and always counts down.
@@ -136,14 +139,14 @@ public class RobotContainer {
                             new ClawIOTalonFX());
                     s_Align =
                         new Align(
-                            new AlignIOCANrange());
+                            new AlignIO() {});
                     s_Climb =
                         new Climb(
                             new ShallowClimbIO() {},
                             new DeepClimbIO() {});
                     s_Arm =
                         new Arm(
-                            new ArmIOTalonFX());
+                            new ArmIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -320,6 +323,17 @@ public class RobotContainer {
         new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
         Autos.init();
 
+        topCoralStationTrigger =
+            new FieldBoundingBox(
+                "Top Coral Station",
+                0.0, 2.0, 6.2, 8.0,
+                s_Swerve::getPose);
+        bottomCoralStationTrigger =
+            new FieldBoundingBox(
+                "Bottom Coral Station",
+                0.0, 2.0, 0.0, 8.0 - 6.2,
+                s_Swerve::getPose);
+
         configureDeepClimbEndgame();
         checkIfDevicesConnected();
         configureTriggers();
@@ -384,16 +398,9 @@ public class RobotContainer {
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver, operator));
 
-        new FieldBoundingBox(
-            "Top Coral Station",
-            0.0, 2.0, 6.2, 8.0,
-            s_Swerve::getPose)
-        .or(
-            new FieldBoundingBox(
-                "Bottom Coral Station",
-                0.0, 2.0, 6.2 - 6.0, 8.0 - 6.0,
-                s_Swerve::getPose)
-        )
+        topCoralStationTrigger
+        .or(bottomCoralStationTrigger)
+        .and(() -> Robot.getState() != RobotState.AUTON) // AUTON WILL BREAK IF IT RUNS THIS
             .whileTrue(
                 s_Claw.intakeCoral()
             .until(s_Claw.hasCoral()));
@@ -409,11 +416,15 @@ public class RobotContainer {
 
         driver.leftBumper()
             .whileTrue(
-                s_Align.alignToClosestReef(State.L4));
+                s_Align.alignToClosestReefWithFusedInput(State.L4, driver::getLeftX));
 
         driver.rightBumper()
             .whileTrue(
                 s_Align.alignToClosestAlgae());
+
+        driver.leftTrigger()
+            .whileTrue(
+                s_Align.alignToClosestCoralStation());
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
@@ -441,15 +452,19 @@ public class RobotContainer {
 
         operator.povUp()
             .onTrue(
-                s_Elevator.setDesiredState(
-                    ReefUtil.getClosestAlgae().isOnL3()
-                        ? ElevatorConstants.State.KNOCK_L3
-                        : ElevatorConstants.State.KNOCK_L2));
+                Commands.defer(
+                    () -> s_Elevator.setDesiredState(
+                        ReefUtil.getClosestAlgae().isOnL3()
+                            ? ElevatorConstants.State.KNOCK_L3
+                            : ElevatorConstants.State.KNOCK_L2),
+                    Set.of(s_Elevator)));
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+                s_Elevator.setDesiredState(ElevatorConstants.State.L1))
+            .whileTrue(
+                s_Align.alignToClosestReef(State.L1));
 
         operator.x()
             .and(modifierTrigger.negate())
@@ -498,8 +513,9 @@ public class RobotContainer {
                     s_Claw.shootPulsatingCoral(),
                     s_Claw.shootCoral(),
                     () ->
-                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians()) && s_Elevator.isEnabled())
-                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0)));
+                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() ||
+                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians()) && s_Elevator.isEnabled())
+                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
@@ -510,14 +526,19 @@ public class RobotContainer {
         operator.povRight()
             .whileTrue(
                 s_Claw.intakeCoral()
-                    .alongWith(DriveCommands.joystickDriveAtAngle(
-                        () -> -driver.getLeftY(),
-                        () -> -driver.getLeftX(),
-                        () -> s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_TOP.getPose()).getTranslation())
-                            > s_Swerve.getPose().getTranslation().getDistance(AllianceFlip.apply(FieldConstants.Position.CORAL_STATION_BOTTOM.getPose()).getTranslation())
-                        ? FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI))
-                        : FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI)))
-                    .until(unlockAngleControl))
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0)));
+                    .alongWith(
+                        Commands.either(
+                            Commands.defer(
+                                () -> DriveCommands.joystickDriveAtAngle(
+                                    () -> -driver.getLeftY(),
+                                    () -> -driver.getLeftX(),
+                                    () -> topCoralStationTrigger.getAsBoolean()
+                                        ? FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI))
+                                        : FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI)))
+                                .until(unlockAngleControl),
+                            Set.of(s_Swerve)),
+                            Commands.none(),
+                            () -> topCoralStationTrigger.getAsBoolean() || bottomCoralStationTrigger.getAsBoolean())
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0).repeatedly())));
     }
 }

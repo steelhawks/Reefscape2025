@@ -37,7 +37,7 @@ public class VisionConstants {
                 new String[] {
                     "arducam-front-left",
                     "arducam-front-right",
-                    "arducam-center-mount"                
+                    "arducam-center-mount"
                 };
         };
     }
@@ -88,7 +88,7 @@ public class VisionConstants {
                     // // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
                     // new Transform3d(
                     //     // Left-Right: 11.315133
-                    //     // Front-Back: 12.192615    
+                    //     // Front-Back: 12.192615
                     //     // Up-Down: 6.657998
                     //     Units.inchesToMeters(12.192615),
                     //     Units.inchesToMeters(11.315133),
@@ -150,7 +150,7 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
-                    
+
 
                     // BACK LEFT
 //                    new Transform3d(
@@ -195,7 +195,7 @@ public class VisionConstants {
                     // new Transform3d(
                     //     // Left-Right: 2.312500
                     //     // Front-Back: 14.622078
-                    //     // Up-Down: 24.062500 
+                    //     // Up-Down: 24.062500
                     //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
                     //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
                     //     Units.inchesToMeters(-14.622078),
@@ -206,7 +206,7 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(-180))),
 
-                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)  
+                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)
                     // new Transform3d(
                     //     // Left-Right: 0
                     //     // Front-Back: 4.150 - 1.00 = 3.15
@@ -221,7 +221,7 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(0)))
 
-                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)  
+                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)
                     new Transform3d(
                         // Left-Right: 0
                         // Front-Back: 2.932785
@@ -235,9 +235,8 @@ public class VisionConstants {
                             Units.degreesToRadians(0),
                             Units.degreesToRadians(-15),
                             Units.degreesToRadians(0)))
-                    
 
-                    // Hello This Is Rahman Arssath FRC 2601 2025 
+                    // Hello This Is Rahman Arssath FRC 2601 2025
                 };
         };
     }
@@ -268,9 +267,7 @@ public class VisionConstants {
                 new double[] {
                     3.0, // arducam-front-left
                     1.5, // arducam-front-right
-                    1.3, // arducam-back-left
-                    1.5, // arducam-bridge-mount
-                    1.0, // arducam-beam-mount
+                    1.3 // arducam-center-mount
                 };
         };
 

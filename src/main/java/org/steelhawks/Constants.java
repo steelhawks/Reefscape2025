@@ -41,7 +41,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -62,7 +62,7 @@ public final class Constants {
 
     public static final String ROBOT_NAME =
         switch (ROBOT) {
-            case OMEGABOT -> "Omega";
+            case OMEGABOT -> "Chimera";
             case ALPHABOT -> "Alpha";
             case HAWKRIDER -> "Hawk Rider";
             case SIMBOT -> "Simulation";
@@ -103,12 +103,12 @@ public final class Constants {
         // public static final double CLAW_OFFSET_SMALL_COMPONENT = 0.1249231309;
         // public static final double CLAW_OFFSET_BIG_COMPONENT = 0.21637320975937756890536690206266;
 
+        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(-4.204645);
         // AFTER HVR CHANGES. X and Y axes are based on Onshape coordinate system, NOT WPIlib coordinate system
-        public static final double CLAW_X_OFFSET = -Units.inchesToMeters(3.6); // OLD 4.204645
             // This was found by taking the average of:
             // 0.649976 (the width-wise distance between the left hex shaft of the claw, and the center of the robot)
 	        // 7.759314 (the width-wise distance between the right hex shaft of the claw, and the center of the robot)
-        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(7.4789835);
+//        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(7.4789835);
             // This was found by taking the average of:
             // 10.783720 (the length-wise distance between the bottom front lip of the coral in the coral intake, and the center of the robot)
             // 4.174247 (the length-wise distance between the top back lip of the coral in the coral intake, and the center of the robot)
@@ -127,6 +127,10 @@ public final class Constants {
         public static final double ELEVATOR_DEADBAND = 0.05;
         public static final double PIVOT_DEADBAND = 0.1;
         public static final double REVERSE_CORAL_DEADBAND = 0.1;
+        public static final double BRANCH_OVERRIDE_DEADBAND = 0.3;
+
+        // auto align deadbands
+        public static final double SWERVE_DEADBAND = 0.05;
     }
 
     public static final class LEDConstants {
@@ -158,6 +162,11 @@ public final class Constants {
         private static final double ROTATION_KD;
         public static final PIDConstants ROTATION_PID;
 
+        private static final double ALIGN_KP;
+        private static final double ALIGN_KI;
+        private static final double ALIGN_KD;
+        public static final PIDConstants ALIGN_PID;
+
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND;
         public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
@@ -175,6 +184,9 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
+                    ALIGN_KP = 5.0;
+                    ALIGN_KI = 0.0;
+                    ALIGN_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 4.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
@@ -187,18 +199,24 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
+                    ALIGN_KP = 5.0;
+                    ALIGN_KI = 0.0;
+                    ALIGN_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 1.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
                 }
                 default -> {
-                    TRANSLATION_KP = 3.5;
+                    TRANSLATION_KP = 5.0;
                     TRANSLATION_KI = 0.0;
-                    TRANSLATION_KD = 0.2;
+                    TRANSLATION_KD = 0.1;
                     ROTATION_KP = 3.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.1;
+                    ALIGN_KP = 3.0;
+                    ALIGN_KI = 0.0;
+                    ALIGN_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 3.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 3.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 6.0;
@@ -213,6 +231,7 @@ public final class Constants {
                 MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
             TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
             ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
+            ALIGN_PID = new PIDConstants(ALIGN_KP, ALIGN_KI, ALIGN_KD);
         }
     }
 }
