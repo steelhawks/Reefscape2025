@@ -13,7 +13,7 @@ public class Claw extends SubsystemBase {
 
     private static final double CURRENT_THRESHOLD = 30;
     private static final double INTAKE_SPEED = 0.05;
-    private static final double DIST_TO_HAVE_CORAL = 0.075;
+    public static final double DIST_TO_HAVE_CORAL = 0.075;
     private boolean isIntaking = false;
 
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
@@ -26,29 +26,30 @@ public class Claw extends SubsystemBase {
                 new Trigger(
                     () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
-            default -> new Trigger(() -> beamDebounce.calculate(inputs.beamDistance < DIST_TO_HAVE_CORAL));
+            case SIMBOT -> new Trigger(() -> true);
+            default -> new Trigger(() -> beamDebounce.calculate(inputs.beamBroken));
         };
     }
 
     public Claw(ClawIO io) {
         this.io = io;
-        beamDebounce = new Debouncer(.3, DebounceType.kBoth);
+        beamDebounce = new Debouncer(0.15, DebounceType.kBoth);
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("CoralIntake", inputs);
-        Logger.recordOutput("CoralIntake/HasCoral", hasCoral().getAsBoolean());
+        Logger.processInputs("Claw", inputs);
+        Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
     }
 
     public Command intakeCoral() {
         return Commands.run(
             () -> {
                 isIntaking = true;
-                io.runIntake(INTAKE_SPEED);
+                io.runIntake(-INTAKE_SPEED);
             }, this)
-            .finallyDo(stop()::schedule);
+            .finallyDo(this::stop);
     }
 
     public Command shootCoral() {
@@ -57,20 +58,14 @@ public class Claw extends SubsystemBase {
                 isIntaking = true;
                 io.runIntake(ClawConstants.CLAW_SHOOT_SPEED);
             }, this)
-            .finallyDo(stop()::schedule);
-    }
-
-    public Command shootCoralSlow() {
-        return Commands.run(
-                () -> shootSlowCoral(), this)
-            .finallyDo(stop()::schedule);
+            .finallyDo(this::stop);
     }
 
     public Command shootPulsatingCoral() {
         return Commands.sequence(
-            shootSlowCoral().withTimeout(0.025),
+            shootCoralSlow().withTimeout(0.025),
             Commands.run(io::stop).withTimeout(0.025)).repeatedly()
-        .finallyDo(stop()::schedule);
+        .finallyDo(this::stop);
     }
 
     public Command reverseCoral() {
@@ -79,24 +74,20 @@ public class Claw extends SubsystemBase {
                 isIntaking = true;
                 io.runIntake(-ClawConstants.CLAW_INTAKE_SPEED);
             }, this)
-            .finallyDo(stop()::schedule);
+            .finallyDo(this::stop);
     }
 
-    public Command shootSlowCoral() {
+    public Command shootCoralSlow() {
         return Commands.run(
             () -> {
                 isIntaking = true;
                 io.runIntake(ClawConstants.CLAW_SECONDARY_SHOOT_SPEED);
             }, this)
-            .finallyDo(stop()::schedule);
+            .finallyDo(this::stop);
     }
 
-    public Command stop() {
-        return Commands.runOnce(
-            () -> {
-                isIntaking = false;
-                io.stop();
-            }, this);
-
+    public void stop() {
+        isIntaking = false;
+        io.stop();
     }
 }

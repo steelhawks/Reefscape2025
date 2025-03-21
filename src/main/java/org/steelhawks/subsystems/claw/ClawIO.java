@@ -15,6 +15,7 @@ public interface ClawIO {
 
         public boolean beamConnected = false;
         public double beamDistance = 0.0;
+        public boolean beamBroken = false;
     }
 
     /**

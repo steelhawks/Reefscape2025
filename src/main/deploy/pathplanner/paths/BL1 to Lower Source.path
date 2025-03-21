@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.173230613425925,
-        "y": 2.9095066550925925
+        "x": 3.5818066406249986,
+        "y": 2.9926620370370363
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.992175098974827,
-        "y": 2.737114947963601
+        "x": 3.7671011916281585,
+        "y": 3.1604891187864887
       },
       "isLocked": false,
-      "linkedName": "BR2"
+      "linkedName": "BL1"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 0.8349895109953696
       },
       "prevControl": {
-        "x": 1.687339678113703,
-        "y": 1.0495053348527696
+        "x": 2.058646934118886,
+        "y": 1.502436976610582
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "RC2",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }

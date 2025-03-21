@@ -18,7 +18,7 @@ public class ElevatorConstants {
         HOME_ABOVE_BAR(0, 1, 0),
 
         // Algae Knockout Positions
-        KNOCK_L2(0, 0, 0),
+        KNOCK_L2(0, 5, 0),
         KNOCK_L3(0, 12.038681223326511, 0);
 
         private final double alphaRadians;
@@ -120,11 +120,11 @@ public class ElevatorConstants {
                 KP = 5.5;
                 KI = 0.0;
                 KD = 0.2;
-                MAX_VELOCITY_PER_SEC = 35;
+                MAX_VELOCITY_PER_SEC = 40; // 35
                 MAX_ACCELERATION_PER_SEC_SQUARED = 70;
                 TOLERANCE = 0.02;
                 MANUAL_ELEVATOR_INCREMENT = 0.55;
-                MAX_RADIANS = 24.663;
+                MAX_RADIANS = 24; // 24.663
             }
         }
     }

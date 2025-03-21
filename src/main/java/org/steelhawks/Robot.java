@@ -25,6 +25,7 @@ import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
@@ -52,8 +53,10 @@ public class Robot extends LoggedRobot {
 
     @SuppressWarnings("resource")
     public Robot() {
-        PortForwarder.add(5800, "10.26.1.11", 5800);
-        PortForwarder.add(5800, "10.26.1.12", 5800);
+        for (int i = 5800; i < 5810; i++) {
+            PortForwarder.add(i, "10.26.1.11", i);
+            PortForwarder.add(i, "10.26.1.12", i);
+        }
 
         // record GIT data
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -159,7 +162,9 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
-        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranchName());
+        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
+        Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
+        Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
     }
 
     @Override
@@ -167,7 +172,7 @@ public class Robot extends LoggedRobot {
         setState(RobotState.DISABLED);
 
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.s_Swerve.resetSimulation(
+            RobotContainer.s_Swerve.resetSimulation(
                 new Pose2d(
                     6,
                     1.5,
@@ -190,7 +195,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-        autonomousCommand = Autos.getAuto();
+        autonomousCommand = Autos.getRC2Auton();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
@@ -223,14 +228,14 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationInit() {
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.s_Swerve.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
+            RobotContainer.s_Swerve.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
         }
     }
 
     @Override
     public void simulationPeriodic() {
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.s_Swerve.updatePhysicsSimulation();
+            RobotContainer.s_Swerve.updatePhysicsSimulation();
         }
     }
 }

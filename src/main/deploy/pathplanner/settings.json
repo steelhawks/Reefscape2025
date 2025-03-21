@@ -1,9 +1,11 @@
 {
-  "robotWidth": 0.9,
-  "robotLength": 0.9,
+  "robotWidth": 0.91,
+  "robotLength": 0.91,
   "holonomicMode": true,
   "pathFolders": [
-    "Event Hudson Valley"
+    "Event Hudson Valley",
+    "RC2",
+    "Tests"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
@@ -11,15 +13,15 @@
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
-  "robotMass": 62.641106,
+  "robotMass": 56.608328,
   "robotMOI": 4.27,
   "robotTrackwidth": 0.546,
-  "driveWheelRadius": 0.048,
+  "driveWheelRadius": 0.051,
   "driveGearing": 5.143,
   "maxDriveSpeed": 5.45,
   "driveMotorType": "krakenX60",
-  "driveCurrentLimit": 60.0,
-  "wheelCOF": 1.2,
+  "driveCurrentLimit": 80.0,
+  "wheelCOF": 0.899,
   "flModuleX": 0.273,
   "flModuleY": 0.273,
   "frModuleX": 0.273,
@@ -30,5 +32,7 @@
   "brModuleY": -0.273,
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
-  "robotFeatures": []
+  "robotFeatures": [
+    "{\"name\":\"Claw (Post HVR)\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.1899661809,\"y\":-0.107},\"size\":{\"width\":0.1778,\"length\":0.29845},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
+  ]
 }

@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RC2 to BR2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BR2 to Lower Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Source to BL2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BL2 to Lower Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Source to BL1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BL1 to Lower Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Source to L2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

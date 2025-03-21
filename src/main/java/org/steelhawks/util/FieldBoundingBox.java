@@ -30,7 +30,7 @@ public class FieldBoundingBox extends Trigger {
         if (Constants.getRobot() != Constants.RobotType.SIMBOT)
             return;
 
-        new VirtualSubsystem() {
+        new VirtualSubsystem("FieldBoundingBox/" + name) {
             @Override
             public void periodic() {
                 double dynamicMinX = AllianceFlip.applyX(minX);

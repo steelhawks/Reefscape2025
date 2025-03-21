@@ -1,11 +1,12 @@
 package org.steelhawks.subsystems.vision;
 
+import org.steelhawks.Constants;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
-import org.steelhawks.Constants;
 
 public class VisionConstants {
     // AprilTag layout
@@ -36,8 +37,7 @@ public class VisionConstants {
                 new String[] {
                     "arducam-front-left",
                     "arducam-front-right",
-                    "arducam-bridge-mount",
-                    "arducam-beam-mount"
+                    "arducam-center-mount"
                 };
         };
     }
@@ -85,17 +85,30 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(60.036534))), // Z is from the top of the belly pan
 
-                    // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
+                    // // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
+                    // new Transform3d(
+                    //     // Left-Right: 11.315133
+                    //     // Front-Back: 12.192615
+                    //     // Up-Down: 6.657998
+                    //     Units.inchesToMeters(12.192615),
+                    //     Units.inchesToMeters(11.315133),
+                    //     Units.inchesToMeters(6.657998),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
+
+                    // FRONT LEFT GEARBOX MOUNT 20250316
                     new Transform3d(
-                        // Left-Right: 11.315133
-                        // Front-Back: 12.192615    
-                        // Up-Down: 6.657998
-                        Units.inchesToMeters(12.192615),
-                        Units.inchesToMeters(11.315133),
-                        Units.inchesToMeters(6.657998),
+                        // Left-Right: 6.841572
+                        // Front-Back: 13.851222
+                        // Up-Down: 10.527559
+                        Units.inchesToMeters(13.851222),
+                        Units.inchesToMeters(6.841572),
+                        Units.inchesToMeters(10.527559),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(10),
                             Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
 
@@ -137,7 +150,7 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
-                    
+
 
                     // BACK LEFT
 //                    new Transform3d(
@@ -165,33 +178,65 @@ public class VisionConstants {
 //                            Units.degreesToRadians(-45),
 //                            Units.degreesToRadians(0))),
 
-                    // BRIDGE MOUNT, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
-                    new Transform3d(
-                        // Left-Right: 2.000679
-                        // Front-Back: 10.862403
-                        // Up-Down: 8.312102
-                        Units.inchesToMeters(-10.862403),
-                        Units.inchesToMeters(-2.000679),
-                        Units.inchesToMeters(8.312102),
-                        new Rotation3d(
-                            Units.degreesToRadians(8.5),
-                            Units.degreesToRadians(-15),
-                            Units.degreesToRadians(-150))),
+                    // // BRIDGE MOUNT, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
+                    // new Transform3d(
+                    //     // Left-Right: 2.000679
+                    //     // Front-Back: 10.862403
+                    //     // Up-Down: 8.312102
+                    //     Units.inchesToMeters(-10.862403),
+                    //     Units.inchesToMeters(-2.000679),
+                    //     Units.inchesToMeters(8.312102),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(8.5),
+                    //         Units.degreesToRadians(-15),
+                    //         Units.degreesToRadians(-150))),
 
-                    // BEAM MOUNT, the arducam that's hanging off of the beam supporting the funnel
+                    // // BEAM MOUNT, the arducam that's hanging off of the beam supporting the funnel
+                    // new Transform3d(
+                    //     // Left-Right: 2.312500
+                    //     // Front-Back: 14.622078
+                    //     // Up-Down: 24.062500
+                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                    //     Units.inchesToMeters(-14.622078),
+                    //     Units.inchesToMeters(2.312500),
+                    //     Units.inchesToMeters(24.062500),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(-180))),
+
+                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)
+                    // new Transform3d(
+                    //     // Left-Right: 0
+                    //     // Front-Back: 4.150 - 1.00 = 3.15
+                    //     // Up-Down: 5.5 + 1.25 = 6.75
+                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                    //     Units.inchesToMeters(3.15),
+                    //     Units.inchesToMeters(0),
+                    //     Units.inchesToMeters(6.75),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(0)))
+
+                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)
                     new Transform3d(
-                        // Left-Right: 2.312500
-                        // Front-Back: 14.622078
-                        // Up-Down: 24.062500 
+                        // Left-Right: 0
+                        // Front-Back: 2.932785
+                        // Up-Down: 6.886101
                             // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
                             // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                        Units.inchesToMeters(-14.622078),
-                        Units.inchesToMeters(2.312500),
-                        Units.inchesToMeters(24.062500),
+                        Units.inchesToMeters(2.932785),
+                        Units.inchesToMeters(0),
+                        Units.inchesToMeters(6.886101),
                         new Rotation3d(
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(-180)))
+                            Units.degreesToRadians(-15),
+                            Units.degreesToRadians(0)))
+
+                    // Hello This Is Rahman Arssath FRC 2601 2025
                 };
         };
     }
@@ -222,9 +267,7 @@ public class VisionConstants {
                 new double[] {
                     3.0, // arducam-front-left
                     1.5, // arducam-front-right
-                    1.3, // arducam-back-left
-                    1.5, // arducam-bridge-mount
-                    1.0, // arducam-beam-mount
+                    1.3 // arducam-center-mount
                 };
         };
 
