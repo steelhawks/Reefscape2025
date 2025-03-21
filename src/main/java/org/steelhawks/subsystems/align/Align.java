@@ -214,6 +214,6 @@ public class Align extends VirtualSubsystem {
     }
 
     public Command alignToClosestCoralStation() {
-        return DriveCommands.driveToPosition(FieldConstants.getClosestCoralStationPose());
+        return DriveCommands.driveToPosition(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
     }
 }
