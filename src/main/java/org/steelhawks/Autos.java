@@ -92,7 +92,7 @@ public final class Autos {
                 followTrajectory(trajectory)
                 .andThen(
                     Commands.either(
-                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(5.0),
+                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
                         Commands.none(),
                         () -> atReef)));
             commands.add(atReef

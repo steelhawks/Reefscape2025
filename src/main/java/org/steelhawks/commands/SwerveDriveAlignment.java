@@ -25,7 +25,6 @@ public class SwerveDriveAlignment extends Command {
 
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
-//    private final HolonomicDriveController mController;
     private final SwerveDriveController mController;
     private final Supplier<Pose2d> targetPose;
     private final Debouncer debouncer;
@@ -37,25 +36,6 @@ public class SwerveDriveAlignment extends Command {
         this.targetPose = targetPose;
         this.debouncer = new Debouncer(0.2, Debouncer.DebounceType.kRising);
 
-//        mController = new HolonomicDriveController(
-//            new PIDController(
-//                AutonConstants.TRANSLATION_PID.kP,
-//                AutonConstants.TRANSLATION_PID.kI,
-//                AutonConstants.TRANSLATION_PID.kD),
-//            new PIDController(
-//                AutonConstants.TRANSLATION_PID.kP,
-//                AutonConstants.TRANSLATION_PID.kI,
-//                AutonConstants.TRANSLATION_PID.kD),
-//            new ProfiledPIDController(
-//                AutonConstants.ROTATION_PID.kP,
-//                AutonConstants.ROTATION_PID.kI,
-//                AutonConstants.ROTATION_PID.kD,
-//                new TrapezoidProfile.Constraints(
-//                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-//                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)));
-//        mController.getXController().setTolerance(XY_TOLERANCE);
-//        mController.getYController().setTolerance(XY_TOLERANCE);
-//        mController.getThetaController().setTolerance(THETA_TOLERANCE);
         mController =
             new SwerveDriveController(
                 new PIDController(
@@ -89,9 +69,13 @@ public class SwerveDriveAlignment extends Command {
         return Math.abs(targetPose.get().getRotation().getRadians() - s_Swerve.getPose().getRotation().getRadians()) < THETA_TOLERANCE;
     }
 
+    private boolean velocityInTolerance() {
+        return Math.abs(velocityError) < MAX_VELOCITY_ERROR_TOLERANCE;
+    }
+
     private boolean isAligned() {
         // added auton check so command keeps running if the driver wants to switch the branch to score on, this doesnt interrupt auton scoring sequence
-        return isXAligned() && isYAligned() && isThetaAligned() && velocityError < MAX_VELOCITY_ERROR_TOLERANCE && Robot.getState() == Robot.RobotState.AUTON;
+        return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance() && Robot.getState() == Robot.RobotState.AUTON;
     }
 
     @Override
@@ -102,12 +86,6 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void execute() {
         ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
-//        s_Swerve.runVelocity(
-//            new ChassisSpeeds(
-//                MathUtil.applyDeadband(speeds.vxMetersPerSecond, Deadbands.SWERVE_DEADBAND),
-//                MathUtil.applyDeadband(speeds.vyMetersPerSecond, Deadbands.SWERVE_DEADBAND),
-//                MathUtil.applyDeadband(speeds.omegaRadiansPerSecond, Deadbands.SWERVE_DEADBAND)));
-//        ChassisSpeeds speeds = mController.calculate(s_Swerve.getPose(), targetPose.get(), 3.5, targetPose.get().getRotation());
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
@@ -132,6 +110,7 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/AlignedX", isXAligned());
         Logger.recordOutput("Align/AlignedY", isYAligned());
         Logger.recordOutput("Align/AlignedTheta", isThetaAligned());
+        Logger.recordOutput("Align/VelocityInTolerance", velocityInTolerance());
     }
 
     @Override
@@ -142,6 +121,5 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void end(boolean interrupted) {
         s_Swerve.runVelocity(new ChassisSpeeds());
-//        s_Swerve.stopWithX();
     }
 }

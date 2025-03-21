@@ -41,7 +41,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
@@ -130,7 +130,7 @@ public final class Constants {
         public static final double BRANCH_OVERRIDE_DEADBAND = 0.3;
 
         // auto align deadbands
-        public static final double SWERVE_DEADBAND = 0.1;
+        public static final double SWERVE_DEADBAND = 0.05;
     }
 
     public static final class LEDConstants {
@@ -208,9 +208,9 @@ public final class Constants {
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
                 }
                 default -> {
-                    TRANSLATION_KP = 3.5;
+                    TRANSLATION_KP = 5.0;
                     TRANSLATION_KI = 0.0;
-                    TRANSLATION_KD = 0.2;
+                    TRANSLATION_KD = 0.1;
                     ROTATION_KP = 3.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.1;
