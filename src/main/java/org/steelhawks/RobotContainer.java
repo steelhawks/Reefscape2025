@@ -462,7 +462,9 @@ public class RobotContainer {
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+                s_Elevator.setDesiredState(ElevatorConstants.State.L1))
+            .whileTrue(
+                s_Align.alignToClosestReef(State.L1));
 
         operator.x()
             .and(modifierTrigger.negate())
@@ -513,7 +515,7 @@ public class RobotContainer {
                     () ->
                         (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() ||
                             s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians()) && s_Elevator.isEnabled())
-                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0)));
+                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
@@ -537,6 +539,6 @@ public class RobotContainer {
                             Set.of(s_Swerve)),
                             Commands.none(),
                             () -> topCoralStationTrigger.getAsBoolean() || bottomCoralStationTrigger.getAsBoolean())
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0))));
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0).repeatedly())));
     }
 }

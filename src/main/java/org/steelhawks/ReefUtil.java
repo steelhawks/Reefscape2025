@@ -65,17 +65,24 @@ public class ReefUtil {
         public Pose2d getScorePose(ElevatorConstants.State level) {
             double distFromReef = Units.inchesToMeters(
                 switch (level) {
-                case L2 -> 0.0; // find the distance from the reef to the branch
-                case L3 -> 0.0;
-                case L4 -> 0.0;
-                default -> throw new IllegalArgumentException("Invalid level: " + level);
+                    case L1 -> 0.0;
+                    case L2 -> 0.0; // find the distance from the reef to the branch
+                    case L3 -> 0.0;
+                    case L4 -> 0.0;
+                    default -> throw new IllegalArgumentException("Invalid level: " + level);
             });
 
-            return getAprilTagPose().transformBy(
+            return level != ElevatorConstants.State.L1
+                ? getAprilTagPose().transformBy(
                 new Transform2d(
                     RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
-                    (FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1 : 1)) + RobotConstants.CLAW_Y_OFFSET,
-                    new Rotation2d(Math.PI)));
+                    (FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1.0 : 1.0)) + RobotConstants.CLAW_Y_OFFSET,
+                    new Rotation2d(Math.PI)))
+                : getAprilTagPose().transformBy(
+                    new Transform2d( // fix when i get a chance get measurements irl
+                        RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
+                        FieldConstants.ROBOT_PERPENDICULAR_TO_NEXT_REEF * (isLeftBranch() ? 1.0 : -1.0) + RobotConstants.CLAW_Y_OFFSET * (isLeftBranch() ? 1.0 : -1.0),
+                        new Rotation2d(Math.PI)));
         }
     }
 

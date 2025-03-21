@@ -162,7 +162,7 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
-        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L4));
+        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
         Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
     }
