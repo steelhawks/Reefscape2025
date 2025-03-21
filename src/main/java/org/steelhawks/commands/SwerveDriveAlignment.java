@@ -3,6 +3,7 @@ package org.steelhawks.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -28,6 +29,7 @@ public class SwerveDriveAlignment extends Command {
     private final SwerveDriveController mController;
     private final Supplier<Pose2d> targetPose;
     private final Debouncer debouncer;
+    private final LinearFilter filter;
     private Pose2d startingPose;
     private double velocityError;
 
@@ -35,6 +37,7 @@ public class SwerveDriveAlignment extends Command {
         addRequirements(s_Swerve);
         this.targetPose = targetPose;
         this.debouncer = new Debouncer(0.2, Debouncer.DebounceType.kRising);
+        this.filter = LinearFilter.movingAverage(5);
 
         mController =
             new SwerveDriveController(
@@ -70,7 +73,7 @@ public class SwerveDriveAlignment extends Command {
     }
 
     private boolean velocityInTolerance() {
-        return Math.abs(velocityError) < MAX_VELOCITY_ERROR_TOLERANCE;
+        return Math.abs(filter.calculate(velocityError)) < MAX_VELOCITY_ERROR_TOLERANCE;
     }
 
     private boolean isAligned() {
