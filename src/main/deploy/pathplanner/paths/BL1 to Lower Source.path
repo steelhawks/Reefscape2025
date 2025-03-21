@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5631141493055547,
-        "y": 3.0645203993055548
+        "x": 3.5818066406249986,
+        "y": 2.9926620370370363
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.7299545553466555,
-        "y": 3.282679351853241
+        "x": 3.7486470466660995,
+        "y": 3.2108209895847226
       },
       "isLocked": false,
       "linkedName": "BL1"
@@ -48,7 +48,7 @@
   "folder": "RC2",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 55.0
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }
