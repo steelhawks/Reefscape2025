@@ -33,6 +33,18 @@
           "data": {
             "pathName": "Upper Source to L1"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L1 to Upper Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Source to TL2"
+          }
         }
       ]
     }
