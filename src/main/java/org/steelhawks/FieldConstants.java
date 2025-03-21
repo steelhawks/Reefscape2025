@@ -118,7 +118,6 @@ public class FieldConstants {
                 / Math.sqrt(Math.pow((-B.y + A.y), 2) + Math.pow((B.x - A.x), 2));
         }
 
-        // https://www.youtube.com/watch?v=KHuI9bXZS74
         public Pose2d getIntakePoseViaPointToLine() {
             Translation2d startLine = getLineStart();
             Translation2d endLine = getLineEnd();

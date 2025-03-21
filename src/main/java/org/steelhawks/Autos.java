@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 public final class Autos {
     private static final ElevatorConstants.State desiredScoreLevel = ElevatorConstants.State.L4;
-    private static final AutonBuilder s_Builder = new AutonBuilder("Auto Selector");
+    private static final AutonBuilder s_Builder = new AutonBuilder("Auton Builder");
 
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
@@ -92,12 +92,16 @@ public final class Autos {
                 followTrajectory(trajectory)
                 .andThen(
                     Commands.either(
-                        new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
-                        Commands.none(),
+                        s_Elevator.setDesiredState(desiredScoreLevel)
+                        .andThen(
+                            new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
+                            Commands.either(
+                                s_Claw.shootPulsatingCoral().withTimeout(0.6),
+                                s_Claw.shootCoral().withTimeout(0.3),
+                                () -> (desiredScoreLevel == ElevatorConstants.State.L1)),
+                            s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
+                        Commands.waitUntil(s_Claw.hasCoral()),
                         () -> atReef)));
-            commands.add(atReef
-                ? elevatorAndShoot(desiredScoreLevel)
-                : Commands.waitUntil(s_Claw.hasCoral()));
         }
 
         return Commands.sequence(commands.toArray(new Command[commands.size()]));
