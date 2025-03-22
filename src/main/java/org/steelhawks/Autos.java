@@ -95,6 +95,9 @@ public final class Autos {
                         s_Elevator.setDesiredState(desiredScoreLevel)
                         .andThen(
                             new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
+                            Commands.deadline(
+                                Commands.waitSeconds(2.0),
+                                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
                             Commands.either(
                                 s_Claw.shootPulsatingCoral().withTimeout(0.6),
                                 s_Claw.shootCoral().withTimeout(0.3),
