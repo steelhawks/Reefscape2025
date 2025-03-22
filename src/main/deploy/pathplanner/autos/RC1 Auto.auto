@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RC2 to BR2"
+            "pathName": "RC1 to BR1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BR2 to Lower Source"
+            "pathName": "BR1 to Lower Source"
           }
         },
         {
