@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BC1 to TR1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TR1 to Upper Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Source to TR2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TR2 to Upper Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Source to TL1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TL1 to Upper Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Source to TL2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
