@@ -92,15 +92,14 @@ public final class Autos {
                 followTrajectory(trajectory)
                 .andThen(
                     Commands.either(
-                        s_Elevator.setDesiredState(desiredScoreLevel)
                         .andThen(
                             new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
                             Commands.deadline(
-                                Commands.waitSeconds(2.0),
+                                Commands.waitSeconds(0.5),
                                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
                             Commands.either(
                                 s_Claw.shootPulsatingCoral().withTimeout(0.6),
-                                s_Claw.shootCoral().withTimeout(0.3),
+                                s_Claw.shootCoral().withTimeout(0.2),
                                 () -> (desiredScoreLevel == ElevatorConstants.State.L1)),
                             s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
                         Commands.waitUntil(s_Claw.hasCoral()),
@@ -111,7 +110,9 @@ public final class Autos {
     }
 
     private static Command createAuto(StartEndPosition pose, String... trajectories) {
-        return Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(pose.getPose())))
+        return Commands.runOnce(
+            () -> s_Swerve.setPose(AllianceFlip.apply(pose.getPose())))
+            .andThen(s_Elevator.setDesiredState(desiredScoreLevel))
             .andThen(buildTrajectorySequence(trajectories));
     }
 
