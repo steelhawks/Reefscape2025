@@ -19,18 +19,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Upper Source to TR2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "TR2 to Upper Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "Upper Source to TL1"
           }
         },

@@ -195,7 +195,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-        autonomousCommand = Autos.getRC2Auton();
+//        autonomousCommand = Autos.getRC2Auton();
+        autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
