@@ -2,6 +2,8 @@ package org.steelhawks.util.autonbuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+
 import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 
 public enum StartEndPosition {
@@ -11,7 +13,7 @@ public enum StartEndPosition {
     BC3(7.58, 5.0812, Math.PI),
 
     RC1(7.58, 3, Math.PI),
-    RC2(7.58, 1.9068, Math.PI),
+    RC2(7.58, 1.9068, Units.degreesToRadians(120)),
     RC3(7.58, 0.8137, Math.PI),
 
     TR1(5.46030758, 5.16840642, -2.0956),

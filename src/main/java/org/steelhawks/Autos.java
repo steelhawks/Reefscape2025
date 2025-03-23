@@ -222,7 +222,7 @@ public final class Autos {
     public static boolean robotReadyForAuton() {
         String autoName = getAuto().getName();
         double radiansTolerance = Units.degreesToRadians(5);
-        double xyTolerance = 0.3;
+        double xyTolerance = 0.6;
 
         switch (autoName) {
             case "BC2 Auto" -> {
