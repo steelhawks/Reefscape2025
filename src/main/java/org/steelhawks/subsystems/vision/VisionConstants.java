@@ -72,36 +72,20 @@ public class VisionConstants {
                             Units.degreesToRadians(10),
                             Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
-
-                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)
+                    // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH, 15 DEGREE YAW RIGHT) 20250323
                     new Transform3d(
-                        // Left-Right: 0
-                        // Front-Back: 2.932785
-                        // Up-Down: 6.886101
+                        // Left-Right: 0.098023
+                        // Front-Back: 3.174653
+                        // Up-Down: 6.950909
                             // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
                             // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                        Units.inchesToMeters(2.932785),
-                        Units.inchesToMeters(0),
-                        Units.inchesToMeters(6.886101),
+                        Units.inchesToMeters(3.174653),
+                        Units.inchesToMeters(-0.098023),
+                        Units.inchesToMeters(6.950909),
                         new Rotation3d(
-                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0.058),
                             Units.degreesToRadians(-15),
-                            Units.degreesToRadians(0))),
-
-                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH, 15 DEGREE YAW RIGHT) 20250323
-                    // new Transform3d(
-                    //     // Left-Right: 0.098023
-                    //     // Front-Back: 3.174653
-                    //     // Up-Down: 6.950909
-                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                    //     Units.inchesToMeters(3.174653),
-                    //     Units.inchesToMeters(-0.098023),
-                    //     Units.inchesToMeters(6.950909),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0.058),
-                    //         Units.degreesToRadians(-15),
-                    //         Units.degreesToRadians(-15))),
+                            Units.degreesToRadians(-15))),
 
                     // CENTER RIGHT MOUNT, the arducam that's placed on the right side of the beam inside the robot (30 DEGREE YAW) 20250323
                     new Transform3d(
@@ -337,5 +321,21 @@ public class VisionConstants {
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(0)))
+
+                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)
+                    // new Transform3d(
+                    //     // Left-Right: 0
+                    //     // Front-Back: 2.932785
+                    //     // Up-Down: 6.886101
+                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                    //     Units.inchesToMeters(2.932785),
+                    //     Units.inchesToMeters(0),
+                    //     Units.inchesToMeters(6.886101),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(-15),
+                    //         Units.degreesToRadians(0))),
+
 
 }
