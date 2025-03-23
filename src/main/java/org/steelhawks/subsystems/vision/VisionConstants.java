@@ -236,6 +236,22 @@ public class VisionConstants {
                             Units.degreesToRadians(-15),
                             Units.degreesToRadians(0)))
 
+                    // // CENTER RIGHT MOUNT, the arducam that's placed on the right side of the beam inside the robot (30 DEGREE YAW)
+                    // new Transform3d(
+                    //     // Left-Right: 9.062338
+                    //     // Front-Back: 3.134462
+                    //     // Up-Down: 6.900835
+                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                    //     Units.inchesToMeters(3.134462),
+                    //     Units.inchesToMeters(-9.062338),
+                    //     Units.inchesToMeters(6.900835),
+                    //     new Rotation3d(
+                    //         Units.degreesToRadians(0),
+                    //         Units.degreesToRadians(-15),
+                    //         Units.degreesToRadians(30)))
+                    
+
                     // Hello This Is Rahman Arssath FRC 2601 2025
                 };
         };
