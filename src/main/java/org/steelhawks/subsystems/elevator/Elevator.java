@@ -162,7 +162,7 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atThisGoal(ElevatorConstants.State state) {
         return new Trigger(
-            () -> Math.abs(getPosition() - state.getRadians()) <= ElevatorConstants.TOLERANCE);
+            () -> Math.abs(getPosition() - state.getRadians()) <= ElevatorConstants.TOLERANCE * 1.5);
     }
 
     public Trigger atLimit() {

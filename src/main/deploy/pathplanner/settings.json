@@ -3,11 +3,17 @@
   "robotLength": 0.91,
   "holonomicMode": true,
   "pathFolders": [
+    "BC2",
+    "BC3",
     "Event Hudson Valley",
+    "BC1",
+    "RC1",
     "RC2",
     "Tests"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "2025 Reefscape Autonomous"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,

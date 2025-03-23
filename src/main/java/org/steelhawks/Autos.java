@@ -92,14 +92,15 @@ public final class Autos {
                 followTrajectory(trajectory)
                 .andThen(
                     Commands.either(
+                        s_Elevator.setDesiredState(desiredScoreLevel)
                         .andThen(
                             new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
                             Commands.deadline(
-                                Commands.waitSeconds(0.5),
+                                Commands.waitSeconds(1.0),
                                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
                             Commands.either(
                                 s_Claw.shootPulsatingCoral().withTimeout(0.6),
-                                s_Claw.shootCoral().withTimeout(0.2),
+                                s_Claw.shootCoral().withTimeout(0.3),
                                 () -> (desiredScoreLevel == ElevatorConstants.State.L1)),
                             s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
                         Commands.waitUntil(s_Claw.hasCoral()),
@@ -157,31 +158,25 @@ public final class Autos {
     }
 
     public static Command getBC2Auton() {
-//        return createAuto(StartEndPosition.BC2,
-//            new String[]{
-//                "BC2 to TR1",
-//                "TR1 to Upper Source",
-//                "Upper Source to TR2",
-//                "TR2 to Upper Source",
-//                "Upper Source to L1",
-//                "L1 to Upper Source",
-//                "Upper Source to L1"
-//            }).withName("BC2 Auto");
-        return Commands.none();
+        return createAuto(StartEndPosition.BC2,
+            "BC2 to TR1",
+            "TR1 to Upper Source",
+            "Upper Source to TL1",
+            "TL1 to Upper Source",
+            "Upper Source to TL2")
+            .withName("BC2 Auto");
     }
 
     public static Command getBC3Auton() {
-//        return createAuto(StartEndPosition.BC3,
-//            new String[]{
-//                "BC3 to TR1",
-//                "TR1 to Upper Source",
-//                "Upper Source to TR2",
-//                "TR2 to Upper Source",
-//                "Upper Source to L1",
-//                "L1 to Upper Source",
-//                "Upper Source to L1"
-//            }).withName("BC3 Auto");
-        return Commands.none();
+        return createAuto(StartEndPosition.BC3,
+            "BC3 to R2",
+            "R2 to Upper Source",
+            "Upper Source to L2",
+            "L2 to Upper Source",
+            "Upper Source to L1",
+            "L1 to Upper Source",
+            "Upper Source to TL2")
+            .withName("BC3 Auto");
     }
 
     public static Command getRC1Auton() {

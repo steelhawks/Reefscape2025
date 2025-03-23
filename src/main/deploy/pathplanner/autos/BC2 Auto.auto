@@ -7,43 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RC2 to BR2"
+            "pathName": "BC2 to TR1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BR2 to Lower Source"
+            "pathName": "TR1 to Upper Source"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Source to BL2"
+            "pathName": "Upper Source to TL1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BL2 to Lower Source"
+            "pathName": "TL1 to Upper Source"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Source to BL1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BL1 to Lower Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Lower Source to L2"
+            "pathName": "Upper Source to TL2"
           }
         }
       ]
