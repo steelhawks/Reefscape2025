@@ -65,7 +65,7 @@ public class ReefUtil {
         public Pose2d getScorePose(ElevatorConstants.State level) {
             double distFromReef = Units.inchesToMeters(
                 switch (level) {
-                    case L1 -> 0.0;
+                    case L1 -> 0.5;
                     case L2 -> 0.0; // find the distance from the reef to the branch
                     case L3 -> 0.0;
                     case L4 -> 0.0;
@@ -79,9 +79,10 @@ public class ReefUtil {
                     (FieldConstants.CENTER_OF_TROUGH_TO_BRANCH * (isLeftBranch() ? -1.0 : 1.0)) + RobotConstants.CLAW_Y_OFFSET,
                     new Rotation2d(Math.PI)))
                 : getAprilTagPose().transformBy(
-                    new Transform2d( // fix when i get a chance get measurements irl
+                    new Transform2d(
                         RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
-                        FieldConstants.ROBOT_PERPENDICULAR_TO_NEXT_REEF * (isLeftBranch() ? 1.0 : -1.0) + RobotConstants.CLAW_Y_OFFSET * (isLeftBranch() ? 1.0 : -1.0),
+                        FieldConstants.ROBOT_PERPENDICULAR_TO_NEXT_REEF * (isLeftBranch() ? 1.0 : -1.0)
+                            + RobotConstants.CLAW_Y_OFFSET * (isLeftBranch() ? 1.0 : -1.0),
                         new Rotation2d(Math.PI)));
         }
     }
@@ -91,7 +92,10 @@ public class ReefUtil {
         double closestDistance = Double.MAX_VALUE;
 
         for (CoralBranch branch : CoralBranch.values()) {
-            double distance = RobotContainer.s_Swerve.getPose().minus(branch.getBranchPoseProjectedToReefFace()).getTranslation().getNorm();
+            double distance = RobotContainer.s_Swerve.getPose()
+                .minus(branch.getBranchPoseProjectedToReefFace())
+                .getTranslation()
+                .getNorm();
             if (distance < closestDistance) {
                 closestDistance = distance;
                 nearestBranch = branch;
