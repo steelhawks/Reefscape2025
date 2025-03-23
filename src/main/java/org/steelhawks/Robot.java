@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -25,9 +26,12 @@ import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
+import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
+
+import java.util.Set;
 
 public class Robot extends LoggedRobot {
 
@@ -182,7 +186,16 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        LED.getInstance().rainbow();
+//        Commands.defer(
+//            () -> LED.getInstance().setColorCommand(
+//            Autos.robotReadyForAuton()
+//                ? LED.LEDColor.GREEN
+//                : LED.LEDColor.RED),
+//            Set.of(LED.getInstance())).schedule();
+        LED.getInstance().setColor(
+            Autos.robotReadyForAuton()
+                ? LEDColor.GREEN
+                : LEDColor.RED);
     }
 
     @Override
@@ -204,7 +217,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() {
+        LED.getInstance().rainbow();
+    }
 
     @Override
     public void teleopInit() {
