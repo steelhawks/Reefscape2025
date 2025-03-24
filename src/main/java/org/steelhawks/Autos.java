@@ -94,25 +94,30 @@ public final class Autos {
             boolean atReef = !endsWithSource(trajectory);
             commands.add(
                 followTrajectory(trajectory)
-                .andThen(
-                    Commands.either(
-                        s_Elevator.setDesiredState(desiredScoreLevel)
-                        .andThen(
-                            new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
-                            Commands.deadline(
-                                Commands.waitSeconds(1.0),
-                                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-                            Commands.either(
-                                s_Claw.shootPulsatingCoral().withTimeout(0.6),
-                                s_Claw.shootCoral().withTimeout(0.3),
-                                () -> (desiredScoreLevel == ElevatorConstants.State.L1)),
-                            s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
-                        Commands.waitUntil(s_Claw.hasCoral()),
-                        () -> atReef)));
+                    .andThen(
+                        Commands.either(
+                            Commands.sequence(
+                                Commands.waitUntil(s_Claw.hasCoral()), // wait until coral is grabbed
+                                followTrajectory(trajectory), // follow next trajectory
+                                Commands.waitSeconds(0.5), // wait 0.5s before moving elevator
+                                s_Elevator.setDesiredState(desiredScoreLevel), // move elevator up
+                                new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
+                                Commands.deadline(
+                                    Commands.waitSeconds(1.0),
+                                    Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
+                                Commands.either(
+                                    s_Claw.shootPulsatingCoral().withTimeout(0.6),
+                                    s_Claw.shootCoral().withTimeout(0.3),
+                                    () -> (desiredScoreLevel == ElevatorConstants.State.L1)),
+                                s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
+                            ),
+                            Commands.waitUntil(s_Claw.hasCoral()),
+                            () -> atReef)));
         }
 
-        return Commands.sequence(commands.toArray(new Command[commands.size()]));
+        return Commands.sequence(commands.toArray(new Command[0]));
     }
+
 
     private static Command createAuto(StartEndPosition pose, String... trajectories) {
         return Commands.runOnce(
