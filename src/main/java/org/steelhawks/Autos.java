@@ -3,9 +3,11 @@ package org.steelhawks;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.claw.Claw;
@@ -199,7 +201,8 @@ public final class Autos {
             "BR2 to Lower Source",
             "Lower Source to BL2",
             "BL2 to Lower Source",
-            "Lower Source to BL1");
+            "Lower Source to BL1")
+            .withName("RC2 Auto");
     }
 
     public static Command getRC3Auton() {
@@ -214,6 +217,34 @@ public final class Autos {
 //                "Lower Source to BL2"
 //            }).withName("RC3 Auto");
         return Commands.none();
+    }
+
+    public static boolean robotReadyForAuton() {
+        String autoName = getAuto().getName();
+        double radiansTolerance = Units.degreesToRadians(5);
+        double xyTolerance = 0.6;
+
+        switch (autoName) {
+            case "BC2 Auto" -> {
+                return Math.abs(StartEndPosition.BC2.rotRadians - s_Swerve.getRotation().getRadians()) <= radiansTolerance
+                    && Math.abs(StartEndPosition.BC2.x - s_Swerve.getPose().getX()) <= xyTolerance
+                    && Math.abs(StartEndPosition.BC2.y - s_Swerve.getPose().getY()) <= xyTolerance;
+            }
+            case "BC3 Auto" -> {
+                return Math.abs(StartEndPosition.BC3.rotRadians - s_Swerve.getRotation().getRadians()) <= radiansTolerance
+                    && Math.abs(StartEndPosition.BC3.x - s_Swerve.getPose().getX()) <= xyTolerance
+                    && Math.abs(StartEndPosition.BC3.y - s_Swerve.getPose().getY()) <= xyTolerance;
+            }
+            case "RC2 Auto" -> {
+                Logger.recordOutput("RC2/OmegaAligned", Math.abs(StartEndPosition.RC2.rotRadians - s_Swerve.getRotation().getRadians()) <= radiansTolerance);
+                Logger.recordOutput("RC2/XAligned", Math.abs(StartEndPosition.RC2.x - s_Swerve.getPose().getX()) <= xyTolerance);
+                Logger.recordOutput("RC2/YAligned", Math.abs(StartEndPosition.RC2.y - s_Swerve.getPose().getY()) <= xyTolerance);
+                return Math.abs(StartEndPosition.RC2.rotRadians - s_Swerve.getRotation().getRadians()) <= radiansTolerance
+                    && Math.abs(StartEndPosition.RC2.x - s_Swerve.getPose().getX()) <= xyTolerance
+                    && Math.abs(StartEndPosition.RC2.y - s_Swerve.getPose().getY()) <= xyTolerance;
+            }
+        }
+        return true;
     }
 
     public static Command getAuto() {

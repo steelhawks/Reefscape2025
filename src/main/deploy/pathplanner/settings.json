@@ -3,10 +3,11 @@
   "robotLength": 0.91,
   "holonomicMode": true,
   "pathFolders": [
+    "BC1",
     "BC2",
     "BC3",
     "Event Hudson Valley",
-    "BC1",
+    "RC3",
     "RC1",
     "RC2",
     "Tests"

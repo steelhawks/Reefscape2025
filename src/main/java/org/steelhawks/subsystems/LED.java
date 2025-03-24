@@ -155,7 +155,7 @@ public class LED extends SubsystemBase {
         setDefaultCommand(defaultCommand);
     }
 
-    private void setColor(LEDColor color) {
+    public void setColor(LEDColor color) {
         for (int i = 0; i < LEDBuffer.getLength(); i++) {
             LEDBuffer.setRGB(i, color.r, color.g, color.b);
         }
