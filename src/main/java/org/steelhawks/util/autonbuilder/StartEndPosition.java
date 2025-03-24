@@ -9,11 +9,11 @@ import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 public enum StartEndPosition {
     DEFAULT_POSITION(3, 3, 0),
     BC1(7.58, 7.2524, Math.PI),
-    BC2(7.58, 6.17105, Math.PI),
+    BC2(7.000, 6.024, Units.degreesToRadians(-120)),
     BC3(7.58, 5.0812, Math.PI),
 
     RC1(7.58, 3, Math.PI),
-    RC2(7.58, 1.9068, Units.degreesToRadians(120)),
+    RC2(7.000, 1.907, Units.degreesToRadians(120)),
     RC3(7.58, 0.8137, Math.PI),
 
     TR1(5.46030758, 5.16840642, -2.0956),
