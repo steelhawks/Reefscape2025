@@ -184,13 +184,16 @@ public class Robot extends LoggedRobot {
                     new Rotation2d()));
         }
     }
-
+    boolean isFirstRun = true;
     private Misalignment lastState = Misalignment.NONE;
     @Override
     public void disabledPeriodic() {
         Misalignment currentState = Autos.getMisalignment();
 
-        if (currentState != lastState) {
+        if (!isFirstRun)
+            LED.getInstance().rainbow();
+
+        if (currentState != lastState && isFirstRun) {
             lastState = currentState;
             LED.getInstance().stop();
             if (LED.getInstance().getCurrentCommand() != null)
@@ -256,6 +259,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+        isFirstRun = true;
     }
 
     @Override
