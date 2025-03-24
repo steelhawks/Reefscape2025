@@ -42,17 +42,17 @@ public class SwerveDriveAlignment extends Command {
         mController =
             new SwerveDriveController(
                 new PIDController(
-                    AutonConstants.TRANSLATION_PID.kP,
-                    AutonConstants.TRANSLATION_PID.kI,
-                    AutonConstants.TRANSLATION_PID.kD),
+                    AutonConstants.ALIGN_PID.kP,
+                    AutonConstants.ALIGN_PID.kI,
+                    AutonConstants.ALIGN_PID.kD),
                 new PIDController(
-                    AutonConstants.ROTATION_PID.kP,
-                    AutonConstants.ROTATION_PID.kI,
-                    AutonConstants.ROTATION_PID.kD),
+                    AutonConstants.ALIGN_PID.kP,
+                    AutonConstants.ALIGN_PID.kI,
+                    AutonConstants.ALIGN_PID.kD),
                 new ProfiledPIDController(
-                    AutonConstants.ROTATION_PID.kP,
-                    AutonConstants.ROTATION_PID.kI,
-                    AutonConstants.ROTATION_PID.kD,
+                    AutonConstants.ALIGN_ANGLE_PID.kP,
+                    AutonConstants.ALIGN_ANGLE_PID.kI,
+                    AutonConstants.ALIGN_ANGLE_PID.kD,
                     new TrapezoidProfile.Constraints(
                         AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)))
