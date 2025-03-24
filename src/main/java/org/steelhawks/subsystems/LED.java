@@ -328,7 +328,8 @@ public class LED extends SubsystemBase {
      */
     public Command flashCommand(LEDColor color, double interval, double time) {
         return new ParallelDeadlineGroup(
-            new WaitCommand(time), Commands.run(() -> this.pulse(color, interval), this));
+            new WaitCommand(time), Commands.run(() -> this.pulse(color, interval), this))
+            .ignoringDisable(true);
     }
 
     /**
@@ -353,7 +354,8 @@ public class LED extends SubsystemBase {
      */
     public Command flashUntilCommand(LEDColor color, double interval, BooleanSupplier condition) {
         return new ParallelDeadlineGroup(
-            new WaitUntilCommand(condition), Commands.run(() -> this.pulse(color, interval), this));
+            new WaitUntilCommand(condition), Commands.run(() -> this.pulse(color, interval), this))
+            .ignoringDisable(true);
     }
 
     /**

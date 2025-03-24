@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class AutonBuilder extends VirtualSubsystem {
-    private static StartEndPosition previousStartingPose = StartEndPosition.DEFAULT_POSITION;
+    private static StartEndPosition previousStartingPose = StartEndPosition.NOTHING_AUTO;
 
     private record AutoRoutine(
         String name, Command runPath, StartEndPosition endingPosition) {}
@@ -36,7 +36,7 @@ public class AutonBuilder extends VirtualSubsystem {
         startingPositionChooser =
             new LoggedDashboardChooser<>(key + "/StartPosition?");
 
-        startingPositionChooser.addDefaultOption("No position", StartEndPosition.DEFAULT_POSITION);
+        startingPositionChooser.addDefaultOption("No position", StartEndPosition.NOTHING_AUTO);
         startingPositionChooser.addOption("BC1", StartEndPosition.BC1);
         startingPositionChooser.addOption("BC2", StartEndPosition.BC2);
         startingPositionChooser.addOption("BC3", StartEndPosition.BC3);

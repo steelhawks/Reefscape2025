@@ -7,7 +7,7 @@ import edu.wpi.first.math.util.Units;
 import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 
 public enum StartEndPosition {
-    DEFAULT_POSITION(3, 3, 0),
+    NOTHING_AUTO(3, 3, 0),
     BC1(7.58, 7.2524, Math.PI),
     BC2(7.000, 6.024, Units.degreesToRadians(-120)),
     BC3(7.58, 5.0812, Math.PI),

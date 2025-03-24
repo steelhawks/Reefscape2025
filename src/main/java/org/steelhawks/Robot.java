@@ -21,6 +21,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.steelhawks.Autos.Misalignment;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -184,19 +185,47 @@ public class Robot extends LoggedRobot {
         }
     }
 
+    private Misalignment lastState = Misalignment.NONE;
     @Override
     public void disabledPeriodic() {
-//        Commands.defer(
-//            () -> LED.getInstance().setColorCommand(
-//            Autos.robotReadyForAuton()
-//                ? LED.LEDColor.GREEN
-//                : LED.LEDColor.RED),
-//            Set.of(LED.getInstance())).schedule();
-        LED.getInstance().setColor(
-            Autos.robotReadyForAuton()
-                ? LEDColor.GREEN
-                : LEDColor.RED);
+        Misalignment currentState = Autos.getMisalignment();
+
+        if (currentState != lastState) {
+            lastState = currentState;
+            LED.getInstance().stop();
+            if (LED.getInstance().getCurrentCommand() != null)
+                LED.getInstance().getCurrentCommand().cancel();
+
+            switch (currentState) {
+                case NONE:
+                    LED.getInstance().setColor(LEDColor.GREEN);
+                    break;
+                case ROTATION_CW:
+                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
+                    break;
+                case ROTATION_CCW:
+                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.6, () -> false).schedule();
+                    break;
+                case X_RIGHT:
+                    LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 0.3, () -> false).schedule();
+                    break;
+                case X_LEFT:
+                    LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 0.6, () -> false).schedule();
+                    break;
+                case Y_FORWARD:
+                    LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 0.3, () -> false).schedule();
+                    break;
+                case Y_BACKWARD:
+                    LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 0.6, () -> false).schedule();
+                    break;
+                case MULTIPLE:
+                    LED.getInstance().flashUntilCommand(LEDColor.RED, 0.2, () -> false).schedule();
+                    break;
+            }
+        }
     }
+
+
 
     @Override
     public void disabledExit() {
