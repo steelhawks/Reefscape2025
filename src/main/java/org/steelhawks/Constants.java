@@ -162,10 +162,10 @@ public final class Constants {
         private static final double ROTATION_KD;
         public static final PIDConstants ROTATION_PID;
 
-        private static final double ALIGN_KP;
-        private static final double ALIGN_KI;
-        private static final double ALIGN_KD;
-        public static final PIDConstants ALIGN_PID;
+        private static final double ANGLE_KP;
+        private static final double ANGLE_KI;
+        private static final double ANGLE_KD;
+        public static final PIDConstants ANGLE_PID;
 
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND;
@@ -184,9 +184,9 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
-                    ALIGN_KP = 5.0;
-                    ALIGN_KI = 0.0;
-                    ALIGN_KD = 0.0;
+                    ANGLE_KP = 5.0;
+                    ANGLE_KI = 0.0;
+                    ANGLE_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 4.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
@@ -199,9 +199,9 @@ public final class Constants {
                     ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.0;
-                    ALIGN_KP = 5.0;
-                    ALIGN_KI = 0.0;
-                    ALIGN_KD = 0.0;
+                    ANGLE_KP = 5.0;
+                    ANGLE_KI = 0.0;
+                    ANGLE_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 1.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
@@ -214,9 +214,9 @@ public final class Constants {
                     ROTATION_KP = 3.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.1;
-                    ALIGN_KP = 3.0;
-                    ALIGN_KI = 0.0;
-                    ALIGN_KD = 0.0;
+                    ANGLE_KP = 3.0;
+                    ANGLE_KI = 0.0;
+                    ANGLE_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 3.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 3.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 6.0;
@@ -231,7 +231,7 @@ public final class Constants {
                 MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
             TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
             ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
-            ALIGN_PID = new PIDConstants(ALIGN_KP, ALIGN_KI, ALIGN_KD);
+            ANGLE_PID = new PIDConstants(ANGLE_KP, ANGLE_KI, ANGLE_KD);
         }
     }
 }

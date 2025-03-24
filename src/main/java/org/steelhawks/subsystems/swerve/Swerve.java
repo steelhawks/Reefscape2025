@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -357,9 +356,9 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                AutonConstants.ALIGN_PID.kP,
-                AutonConstants.ALIGN_PID.kI,
-                AutonConstants.ALIGN_PID.kD,
+                AutonConstants.ANGLE_PID.kP,
+                AutonConstants.ANGLE_PID.kI,
+                AutonConstants.ANGLE_PID.kD,
                 new TrapezoidProfile.Constraints(
                     AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
