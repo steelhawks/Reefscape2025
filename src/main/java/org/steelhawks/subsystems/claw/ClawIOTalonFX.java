@@ -46,7 +46,7 @@ public class ClawIOTalonFX implements ClawIO {
             distance = mBeamBreak.getDistance();
             beamBroken = mBeamBreak.getIsDetected();
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50,
+                100,
                 distance,
                 beamBroken);
             mBeamBreak.optimizeBusUtilization();
