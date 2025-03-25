@@ -78,7 +78,7 @@ public class SwerveDriveAlignment extends Command {
 
     private boolean isAligned() {
         // added auton check so command keeps running if the driver wants to switch the branch to score on, this doesnt interrupt auton scoring sequence
-        return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance() && Robot.getState() == Robot.RobotState.AUTON;
+        return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class SwerveDriveAlignment extends Command {
 
     @Override
     public boolean isFinished() {
-        return debouncer.calculate(isAligned());
+        return debouncer.calculate(isAligned() && Robot.getState() == Robot.RobotState.AUTON);
     }
 
     @Override
