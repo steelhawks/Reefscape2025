@@ -10,8 +10,6 @@ import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.SwerveDriveAlignment;
-import org.steelhawks.subsystems.LED;
-import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -23,6 +21,7 @@ import org.steelhawks.util.AllianceFlip;
 import java.io.IOException;
 import java.util.ArrayList;
 
+@SuppressWarnings("unused")
 public final class Autos {
     private static final ElevatorConstants.State desiredScoreLevel = ElevatorConstants.State.L4;
     private static final AutonBuilder s_Builder = new AutonBuilder("Auton Builder");
@@ -34,6 +33,17 @@ public final class Autos {
     private static final LoggedDashboardChooser<Command> autoChooser =
         new LoggedDashboardChooser<>("Auto Chooser");
 
+    public enum Misalignment {
+        NONE,
+        ROTATION_CW,
+        ROTATION_CCW,
+        X_LEFT,
+        X_RIGHT,
+        Y_FORWARD,
+        Y_BACKWARD,
+        MULTIPLE
+    }
+
     public static void init() {
         autoChooser.addDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
         autoChooser.addOption("Use Auton Builder", Commands.none().withName("Use Auton Builder"));
@@ -43,6 +53,37 @@ public final class Autos {
         autoChooser.addOption("RC1", getRC1Auton());
         autoChooser.addOption("RC2", getRC2Auton());
         autoChooser.addOption("RC3", getRC3Auton());
+    }
+
+    public static Misalignment getMisalignment() {
+        String autoName = getAuto().getName();
+        double radiansTolerance = Units.degreesToRadians(5);
+        double xyTolerance = 0.6;
+
+        double rotError = StartEndPosition.valueOf(autoName).rotRadians - s_Swerve.getRotation().getRadians();
+        double xError = StartEndPosition.valueOf(autoName).x - s_Swerve.getPose().getX();
+        double yError = StartEndPosition.valueOf(autoName).y - s_Swerve.getPose().getY();
+
+        boolean rotAligned = Math.abs(rotError) <= radiansTolerance;
+        boolean xAligned = Math.abs(xError) <= xyTolerance;
+        boolean yAligned = Math.abs(yError) <= xyTolerance;
+
+        Logger.recordOutput(autoName + "/OmegaAligned", rotAligned);
+        Logger.recordOutput(autoName + "/XAligned", xAligned);
+        Logger.recordOutput(autoName + "/YAligned", yAligned);
+
+        if (rotAligned && xAligned && yAligned) {
+            return Misalignment.NONE;
+        }
+
+        if (!xAligned) {
+            return (xError > 0) ? Misalignment.X_RIGHT : Misalignment.X_LEFT;
+        }
+        if (!yAligned) {
+            return (yError > 0) ? Misalignment.Y_FORWARD : Misalignment.Y_BACKWARD;
+        }
+
+        return (rotError > 0) ? Misalignment.ROTATION_CW : Misalignment.ROTATION_CCW; // omega not being aligned is final scenario
     }
 
     public static Command followChoreoTrajectory(String choreo) {
@@ -225,42 +266,6 @@ public final class Autos {
 //            }).withName("RC3 Auto");
         return Commands.none();
     }
-
-    public enum Misalignment {
-        NONE, ROTATION_CW, ROTATION_CCW, X_LEFT, X_RIGHT, Y_FORWARD, Y_BACKWARD, MULTIPLE
-    }
-
-    public static Misalignment getMisalignment() {
-        String autoName = getAuto().getName();
-        double radiansTolerance = Units.degreesToRadians(5);
-        double xyTolerance = 0.6;
-
-        double rotError = StartEndPosition.valueOf(autoName).rotRadians - s_Swerve.getRotation().getRadians();
-        double xError = StartEndPosition.valueOf(autoName).x - s_Swerve.getPose().getX();
-        double yError = StartEndPosition.valueOf(autoName).y - s_Swerve.getPose().getY();
-
-        boolean rotAligned = Math.abs(rotError) <= radiansTolerance;
-        boolean xAligned = Math.abs(xError) <= xyTolerance;
-        boolean yAligned = Math.abs(yError) <= xyTolerance;
-
-        Logger.recordOutput(autoName + "/OmegaAligned", rotAligned);
-        Logger.recordOutput(autoName + "/XAligned", xAligned);
-        Logger.recordOutput(autoName + "/YAligned", yAligned);
-
-        if (rotAligned && xAligned && yAligned) {
-            return Misalignment.NONE;
-        }
-
-        if (!xAligned) {
-            return (xError > 0) ? Misalignment.X_RIGHT : Misalignment.X_LEFT;
-        }
-        if (!yAligned) {
-            return (yError > 0) ? Misalignment.Y_FORWARD : Misalignment.Y_BACKWARD;
-        }
-
-        return (rotError > 0) ? Misalignment.ROTATION_CW : Misalignment.ROTATION_CCW; // omega not being aligned is final scenario
-    }
-
 
     public static Command getAuto() {
         if (autoChooser.get().getName().equals("Use Auton Builder")) {
