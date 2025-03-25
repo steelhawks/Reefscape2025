@@ -3,8 +3,6 @@ package org.steelhawks.subsystems.elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -16,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
 
@@ -105,6 +102,14 @@ public class Elevator extends SubsystemBase {
 
         this.io = io;
         disable();
+
+        if (inputs.limitSwitchPressed) {
+            io.zeroEncoders();
+        } else {
+            homeCommand()
+                .andThen(io::zeroEncoders)
+                .schedule();
+        }
     }
 
     private boolean limitPressed() {

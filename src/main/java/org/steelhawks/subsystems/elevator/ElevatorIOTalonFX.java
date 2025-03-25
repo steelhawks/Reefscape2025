@@ -95,8 +95,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             mCANcoder.optimizeBusUtilization();
         }
 
-        zeroEncoders();
-
         leftPosition = mLeftMotor.getPosition();
         leftVelocity = mLeftMotor.getVelocity();
         leftVoltage = mLeftMotor.getSupplyVoltage();
