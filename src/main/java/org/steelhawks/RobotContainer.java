@@ -77,7 +77,8 @@ public class RobotContainer {
 
         s_LED.setDefaultLighting(
             s_LED.movingDiscontinuousGradient(
-                c1, c2));
+                c1, c2)
+            .ignoringDisable(false));
     }
 
     public RobotContainer() {
@@ -382,8 +383,9 @@ public class RobotContainer {
         s_Claw.hasCoral()
             .onTrue(
                 Commands.parallel(
-                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 3.0),
-                    new VibrateController(1.0, 2.0, driver, operator)));
+                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
+                    new VibrateController(1.0, 1.0, driver, operator))
+                    .ignoringDisable(false));
 
         isDeepEndgame
             .onTrue(

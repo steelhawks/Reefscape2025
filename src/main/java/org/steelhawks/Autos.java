@@ -250,9 +250,7 @@ public final class Autos {
         if (rotAligned && xAligned && yAligned) {
             return Misalignment.NONE;
         }
-        if (!rotAligned) {
-            return (rotError > 0) ? Misalignment.ROTATION_CW : Misalignment.ROTATION_CCW;
-        }
+
         if (!xAligned) {
             return (xError > 0) ? Misalignment.X_RIGHT : Misalignment.X_LEFT;
         }
@@ -260,7 +258,7 @@ public final class Autos {
             return (yError > 0) ? Misalignment.Y_FORWARD : Misalignment.Y_BACKWARD;
         }
 
-        return Misalignment.MULTIPLE;
+        return (rotError > 0) ? Misalignment.ROTATION_CW : Misalignment.ROTATION_CCW; // omega not being aligned is final scenario
     }
 
 

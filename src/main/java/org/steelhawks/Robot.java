@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -32,13 +31,13 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
-import java.util.Set;
-
 public class Robot extends LoggedRobot {
 
     private static RobotState mState = RobotState.DISABLED;
+    private Misalignment lastState = Misalignment.NONE;
     private final RobotContainer robotContainer;
     private Command autonomousCommand;
+    private boolean isFirstRun = true;
 
     public enum RobotState {
         DISABLED,
@@ -184,8 +183,7 @@ public class Robot extends LoggedRobot {
                     new Rotation2d()));
         }
     }
-    boolean isFirstRun = true;
-    private Misalignment lastState = Misalignment.NONE;
+
     @Override
     public void disabledPeriodic() {
         Misalignment currentState = Autos.getMisalignment();
@@ -200,30 +198,22 @@ public class Robot extends LoggedRobot {
                 LED.getInstance().getCurrentCommand().cancel();
 
             switch (currentState) {
-                case NONE:
+                case NONE ->
                     LED.getInstance().setColor(LEDColor.GREEN);
-                    break;
-                case ROTATION_CW:
+                case ROTATION_CW ->
                     LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
-                    break;
-                case ROTATION_CCW:
+                case ROTATION_CCW ->
                     LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.6, () -> false).schedule();
-                    break;
-                case X_RIGHT:
+                case X_RIGHT ->
                     LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 0.3, () -> false).schedule();
-                    break;
-                case X_LEFT:
+                case X_LEFT ->
                     LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 0.6, () -> false).schedule();
-                    break;
-                case Y_FORWARD:
+                case Y_FORWARD ->
                     LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 0.3, () -> false).schedule();
-                    break;
-                case Y_BACKWARD:
+                case Y_BACKWARD ->
                     LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 0.6, () -> false).schedule();
-                    break;
-                case MULTIPLE:
+                case MULTIPLE ->
                     LED.getInstance().flashUntilCommand(LEDColor.RED, 0.2, () -> false).schedule();
-                    break;
             }
         }
     }
@@ -240,7 +230,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-//        autonomousCommand = Autos.getRC2Auton();
         autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
