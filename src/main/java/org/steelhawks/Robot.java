@@ -231,7 +231,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-        Shuffleboard.selectTab("Autonomous");
         autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
@@ -247,7 +246,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
-        Shuffleboard.selectTab("Teleop");
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
