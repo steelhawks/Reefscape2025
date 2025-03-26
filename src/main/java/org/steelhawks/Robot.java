@@ -189,31 +189,25 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() {
         Misalignment currentState = Autos.getMisalignment();
-
         if (!isFirstRun)
             LED.getInstance().rainbow();
-
-        if (currentState != lastState && isFirstRun) {
-            lastState = currentState;
-            LED.getInstance().stop();
-            if (LED.getInstance().getCurrentCommand() != null)
-                LED.getInstance().getCurrentCommand().cancel();
-
+        Logger.recordOutput("Align/AutonMisalignment", currentState);
+        if (isFirstRun) {
             switch (currentState) {
                 case NONE ->
                     LED.getInstance().setColor(LEDColor.GREEN);
-                case ROTATION_CW ->
-                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
                 case ROTATION_CCW ->
-                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.6, () -> false).schedule();
+                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
+                case ROTATION_CW ->
+                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 1.0, () -> false).schedule();
                 case X_RIGHT ->
                     LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 0.3, () -> false).schedule();
                 case X_LEFT ->
-                    LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 0.6, () -> false).schedule();
+                    LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 1.0, () -> false).schedule();
                 case Y_FORWARD ->
                     LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 0.3, () -> false).schedule();
                 case Y_BACKWARD ->
-                    LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 0.6, () -> false).schedule();
+                    LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 1.0, () -> false).schedule();
                 case MULTIPLE ->
                     LED.getInstance().flashUntilCommand(LEDColor.RED, 0.2, () -> false).schedule();
             }

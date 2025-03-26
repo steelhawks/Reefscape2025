@@ -76,6 +76,10 @@ public final class Autos {
             return Misalignment.NONE;
         }
 
+        if (!rotAligned && !xAligned && !yAligned) {
+            return Misalignment.MULTIPLE;
+        }
+
         if (!xAligned) {
             return (xError > 0) ? Misalignment.X_RIGHT : Misalignment.X_LEFT;
         }
@@ -83,7 +87,7 @@ public final class Autos {
             return (yError > 0) ? Misalignment.Y_FORWARD : Misalignment.Y_BACKWARD;
         }
 
-        return (rotError > 0) ? Misalignment.ROTATION_CW : Misalignment.ROTATION_CCW; // omega not being aligned is final scenario
+        return (rotError > 0) ? Misalignment.ROTATION_CCW : Misalignment.ROTATION_CW; // omega not being aligned is final scenario
     }
 
     public static Command followChoreoTrajectory(String choreo) {
