@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.SwerveDriveController;
 
@@ -115,6 +116,10 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/AlignedY", isYAligned());
         Logger.recordOutput("Align/AlignedTheta", isThetaAligned());
         Logger.recordOutput("Align/VelocityInTolerance", velocityInTolerance());
+
+        if (isAligned()) {
+            LED.getInstance().flashCommand(LED.LEDColor.GREEN, 0.2, 1.0).schedule();
+        }
     }
 
     @Override
