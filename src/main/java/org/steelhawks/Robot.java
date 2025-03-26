@@ -29,6 +29,7 @@ import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.util.Elastic;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
@@ -231,6 +232,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
+        Elastic.selectTab("Auton");
         autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
@@ -246,6 +248,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
+        Elastic.selectTab("Teleop");
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
