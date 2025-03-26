@@ -2,6 +2,7 @@ package org.steelhawks;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.dyn4j.geometry.Vector2;
 import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
@@ -14,6 +15,7 @@ public class FieldConstants {
     public static final double FIELD_LENGTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldLength();
     public static final double FIELD_WIDTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldWidth();
 
+    public static final Field2d FIELD_2D = new Field2d();
     public static Translation2d REEF_CENTER = new Translation2d(Units.inchesToMeters(144.0 + (93.5 - 14.0 * 2) / 2), FIELD_WIDTH / 2);
     public static double CENTER_OF_REEF_TO_REEF_FACE = Units.inchesToMeters(32.75);
     public static double CENTER_OF_TROUGH_TO_BRANCH = Units.inchesToMeters(13.0 / 2.0);

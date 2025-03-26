@@ -46,6 +46,7 @@ import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -430,6 +431,7 @@ public class Swerve extends SubsystemBase {
             mPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
 
+        FieldConstants.FIELD_2D.setRobotPose(getPose());
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
     }
 
