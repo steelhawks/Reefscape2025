@@ -8,7 +8,9 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -59,6 +61,7 @@ public class Robot extends LoggedRobot {
 
     @SuppressWarnings("resource")
     public Robot() {
+        WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
         for (int i = 5800; i < 5810; i++) {
             PortForwarder.add(i, "10.26.1.11", i);
             PortForwarder.add(i, "10.26.1.12", i);
@@ -226,7 +229,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-        Elastic.selectTab("Auton");
+        Elastic.selectTab("Autonomous");
         autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
@@ -242,7 +245,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
-        Elastic.selectTab("Teleop");
+        Elastic.selectTab("Teleoperated");
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
