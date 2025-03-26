@@ -11,6 +11,7 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -230,6 +231,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
+        Shuffleboard.selectTab("Autonomous");
         autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null) {
@@ -245,6 +247,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
+        Shuffleboard.selectTab("Teleop");
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
