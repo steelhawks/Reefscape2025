@@ -159,7 +159,7 @@ public class Elevator extends SubsystemBase {
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")
     public double getPosition() {
-        return inputs.encoderPositionRad + 1.4081943632790186;
+        return inputs.encoderPositionRad + 1.4848934026733007;
     }
 
     public Trigger atGoal() {
