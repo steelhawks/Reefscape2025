@@ -1,5 +1,6 @@
 package org.steelhawks.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
@@ -94,7 +95,13 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
-        s_Swerve.runVelocity(speeds);
+        s_Swerve.runVelocity(
+            new ChassisSpeeds(
+                Math.abs(speeds.vxMetersPerSecond) < 0.05 ? 0 : speeds.vxMetersPerSecond,
+                Math.abs(speeds.vyMetersPerSecond) < 0.05 ? 0 : speeds.vyMetersPerSecond,
+                Math.abs(speeds.omegaRadiansPerSecond) < 0.05 ? 0 : speeds.omegaRadiansPerSecond
+            )
+        );
 
         velocityError =
             Math.hypot(

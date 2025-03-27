@@ -246,7 +246,7 @@ public final class Constants {
                     ROTATION_KD = 0.1;
                     ALIGN_KP = 5.0;
                     ALIGN_KI = 0.0;
-                    ALIGN_KD = 0.0;
+                    ALIGN_KD = 0.1;
                     ALIGN_ANGLE_KP = 3.0;
                     ALIGN_ANGLE_KI = 0.0;
                     ALIGN_ANGLE_KD = 0.0;

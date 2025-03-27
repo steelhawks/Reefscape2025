@@ -275,7 +275,10 @@ public class Elevator extends SubsystemBase {
                 Commands.runOnce(() -> disable()),
                 Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
             .until(() -> limitPressed())
-            .finallyDo(io::stop)
+            .finallyDo(() -> {
+                io.stop();
+                io.zeroEncoders();
+            })
             .withName("No Slam Elevator");
     }
 
