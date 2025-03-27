@@ -124,6 +124,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         ParentDevice.optimizeBusUtilizationForAll(mLeftMotor, mRightMotor);
     }
 
+    boolean encoderOffsetFound = false;
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         inputs.leftConnected =
@@ -161,6 +162,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             inputs.magnetGood = !magnetFault.getValue();
             inputs.encoderPositionRad = Units.rotationsToRadians(canCoderPosition.getValueAsDouble());
             inputs.encoderVelocityRadPerSec = Units.rotationsToRadians(canCoderVelocity.getValueAsDouble());
+
+            if (!encoderOffsetFound) {
+                ElevatorConstants.CANCODER_OFFSET = inputs.encoderPositionRad;
+                encoderOffsetFound = true;
+            }
         }
 
         if (Constants.getRobot() == RobotType.ALPHABOT) {

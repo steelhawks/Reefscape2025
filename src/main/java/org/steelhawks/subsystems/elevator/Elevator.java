@@ -110,8 +110,6 @@ public class Elevator extends SubsystemBase {
                 .andThen(io::zeroEncoders)
                 .schedule();
         }
-
-        ElevatorConstants.CANCODER_OFFSET = inputs.encoderPositionRad;
     }
 
     private boolean limitPressed() {
