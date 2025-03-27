@@ -542,19 +542,19 @@ public class RobotContainer {
         operator.povRight()
             .whileTrue(
                 s_Claw.intakeCoral()
-                    .alongWith(
-                        Commands.either(
-                            Commands.defer(
-                                () -> DriveCommands.joystickDriveAtAngle(
-                                    () -> -driver.getLeftY(),
-                                    () -> -driver.getLeftX(),
-                                    () -> topCoralStationTrigger.getAsBoolean()
-                                        ? FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI))
-                                        : FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI)))
-                                .until(unlockAngleControl),
-                            Set.of(s_Swerve)),
-                            Commands.none(),
-                            () -> topCoralStationTrigger.getAsBoolean() || bottomCoralStationTrigger.getAsBoolean())
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0).repeatedly())));
+//                    .alongWith(
+//                        Commands.either(
+//                            Commands.defer(
+//                                () -> DriveCommands.joystickDriveAtAngle(
+//                                    () -> -driver.getLeftY(),
+//                                    () -> -driver.getLeftX(),
+//                                    () -> topCoralStationTrigger.getAsBoolean()
+//                                        ? FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI))
+//                                        : FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI)))
+//                                .until(unlockAngleControl),
+//                            Set.of(s_Swerve)),
+//                            Commands.none(),
+//                            () -> topCoralStationTrigger.getAsBoolean() || bottomCoralStationTrigger.getAsBoolean())
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0).repeatedly()));
     }
 }
