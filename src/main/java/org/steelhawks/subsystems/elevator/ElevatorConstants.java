@@ -121,7 +121,7 @@ public class ElevatorConstants {
                 KI = 0.0;
                 KD = 0.2;
                 MAX_VELOCITY_PER_SEC = 40; // 35
-                MAX_ACCELERATION_PER_SEC_SQUARED = 70;
+                MAX_ACCELERATION_PER_SEC_SQUARED = 70; // was 70
                 TOLERANCE = 0.02;
                 MANUAL_ELEVATOR_INCREMENT = 0.55;
                 MAX_RADIANS = 24; // 24.663
