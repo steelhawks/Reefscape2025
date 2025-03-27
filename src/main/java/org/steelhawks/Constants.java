@@ -103,7 +103,7 @@ public final class Constants {
         // public static final double CLAW_OFFSET_SMALL_COMPONENT = 0.1249231309;
         // public static final double CLAW_OFFSET_BIG_COMPONENT = 0.21637320975937756890536690206266;
 
-        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(-4.204645);
+        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(-4.22); // -4.204645
         // AFTER HVR CHANGES. X and Y axes are based on Onshape coordinate system, NOT WPIlib coordinate system
             // This was found by taking the average of:
             // 0.649976 (the width-wise distance between the left hex shaft of the claw, and the center of the robot)
@@ -120,6 +120,14 @@ public final class Constants {
     public static final class OIConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
+        public static final int BUTTON_BOARD_PORT = 2;
+
+        public static final int HOME_BUTTON_PORT = 3;
+        public static final int SHOOT_BUTTON_PORT = 12;
+        public static final int L1_BUTTON_PORT = 1;
+        public static final int L2_BUTTON_PORT = 4;
+        public static final int L3_BUTTON_PORT = 7;
+        public static final int L4_BUTTON_PORT = 10;
     }
 
     public static final class Deadbands {

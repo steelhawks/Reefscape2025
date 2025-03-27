@@ -194,8 +194,11 @@ public class Robot extends LoggedRobot {
         Misalignment currentState = Autos.getMisalignment();
         if (!isFirstRun)
             LED.getInstance().rainbow();
-        Logger.recordOutput("Align/AutonMisalignment", currentState);
+
+
         if (isFirstRun) {
+            Logger.recordOutput("Align/AutonMisalignment", currentState);
+
             switch (currentState) {
                 case NONE ->
                     LED.getInstance().setColor(LEDColor.GREEN);
@@ -221,6 +224,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
+        if (LED.getInstance().getCurrentCommand() != null)
+            LED.getInstance().getCurrentCommand().cancel();
         if (DriverStation.isDSAttached()) {
             robotContainer.waitForDs();
         }
@@ -249,7 +254,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        isFirstRun = true;
+        isFirstRun = false;
     }
 
     @Override

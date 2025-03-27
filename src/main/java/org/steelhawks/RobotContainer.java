@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -70,6 +71,8 @@ public class RobotContainer {
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController operator =
         new CommandXboxController(OIConstants.OPERATOR_CONTROLLER_PORT);
+    private final CommandGenericHID buttonBoard
+        = new CommandGenericHID(OIConstants.BUTTON_BOARD_PORT);
 
     public void waitForDs() {
         boolean isRed = AllianceFlip.shouldFlip();
@@ -468,6 +471,7 @@ public class RobotContainer {
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
+            .or(buttonBoard.button(OIConstants.L1_BUTTON_PORT))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1))
             .whileTrue(
@@ -476,6 +480,7 @@ public class RobotContainer {
         operator.x()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l2"))
+            .or(buttonBoard.button(OIConstants.L2_BUTTON_PORT))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
@@ -487,6 +492,7 @@ public class RobotContainer {
         operator.y()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
+            .or(buttonBoard.button(OIConstants.L3_BUTTON_PORT))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
@@ -498,11 +504,13 @@ public class RobotContainer {
         operator.a()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
+            .or(buttonBoard.button(OIConstants.L4_BUTTON_PORT))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
+            .or(buttonBoard.button(OIConstants.HOME_BUTTON_PORT))
             .onTrue(
                 s_Elevator.noSlamCommand());
 
@@ -515,6 +523,7 @@ public class RobotContainer {
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
             .or(new DashboardTrigger("scoreCoral"))
+            .or(buttonBoard.button(OIConstants.SHOOT_BUTTON_PORT))
             .whileTrue(
                 Commands.either(
                     s_Claw.shootCoralSlow(),
