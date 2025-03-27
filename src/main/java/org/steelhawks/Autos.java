@@ -144,14 +144,15 @@ public final class Autos {
                         Commands.either(
                             s_Elevator.setDesiredState(desiredScoreLevel)
                                 .andThen(
-                                    new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(1.5),
+                                    new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(3.0),
                                     Commands.deadline(
-                                        Commands.waitSeconds(0.5),
+                                        Commands.waitSeconds(0.8),
                                         Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
                                     Commands.either(
-                                        s_Claw.shootPulsatingCoral().withTimeout(0.6),
-                                        s_Claw.shootCoral().withTimeout(0.2),
-                                        () -> (desiredScoreLevel == ElevatorConstants.State.L1)),
+                                        s_Claw.shootCoralSlow().withTimeout(0.6),
+                                        s_Claw.shootCoral().withTimeout(0.3),
+                                        () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
+                                            desiredScoreLevel == ElevatorConstants.State.L4),
                                     s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
                             Commands.waitUntil(s_Claw.hasCoral()),
                             () -> atReef)));
