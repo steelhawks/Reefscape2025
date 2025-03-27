@@ -200,8 +200,11 @@ public class Robot extends LoggedRobot {
             Logger.recordOutput("Align/AutonMisalignment", currentState);
 
             switch (currentState) {
-                case NONE ->
+                case NONE -> {
+                    if (LED.getInstance().getCurrentCommand() != null)
+                        LED.getInstance().getCurrentCommand().cancel();
                     LED.getInstance().setColor(LEDColor.GREEN);
+                    }
                 case ROTATION_CCW ->
                     LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
                 case ROTATION_CW ->
