@@ -263,7 +263,7 @@ public class Elevator extends SubsystemBase {
         .until(() -> limitPressed())
         .finallyDo(() -> {
             io.stop();
-            io.zeroEncoders();
+//            io.zeroEncoders();
         })
         .withName("Slam Elevator");
     }
@@ -277,7 +277,7 @@ public class Elevator extends SubsystemBase {
             .until(() -> limitPressed())
             .finallyDo(() -> {
                 io.stop();
-                io.zeroEncoders();
+//                io.zeroEncoders();
             })
             .withName("No Slam Elevator");
     }
@@ -286,7 +286,7 @@ public class Elevator extends SubsystemBase {
         return setDesiredState(ElevatorConstants.State.HOME)
             .until(this::limitPressed)
             .finallyDo(() -> {
-                io.zeroEncoders();
+//                io.zeroEncoders();
                 io.stop();
             })
             .withName("Home Elevator");

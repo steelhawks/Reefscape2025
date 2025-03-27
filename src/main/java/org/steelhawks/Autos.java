@@ -3,6 +3,7 @@ package org.steelhawks;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -60,9 +61,9 @@ public final class Autos {
         double radiansTolerance = Units.degreesToRadians(5);
         double xyTolerance = 0.6;
 
-        double rotError = StartEndPosition.valueOf(autoName).rotRadians - s_Swerve.getRotation().getRadians();
-        double xError = StartEndPosition.valueOf(autoName).x - s_Swerve.getPose().getX();
-        double yError = StartEndPosition.valueOf(autoName).y - s_Swerve.getPose().getY();
+        double rotError = AllianceFlip.apply(new Rotation2d(StartEndPosition.valueOf(autoName).rotRadians)).getRadians()  - s_Swerve.getRotation().getRadians();
+        double xError = AllianceFlip.applyX(StartEndPosition.valueOf(autoName).x) - s_Swerve.getPose().getX();
+        double yError = AllianceFlip.applyY(StartEndPosition.valueOf(autoName).y) - s_Swerve.getPose().getY();
 
         boolean rotAligned = Math.abs(rotError) <= radiansTolerance;
         boolean xAligned = Math.abs(xError) <= xyTolerance;
