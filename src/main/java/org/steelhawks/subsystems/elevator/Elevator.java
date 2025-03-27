@@ -118,6 +118,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        inputs.atTopLimit = getPosition() >= ElevatorConstants.MAX_RADIANS;
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
         Logger.recordOutput("Elevator/Enabled", mEnabled);

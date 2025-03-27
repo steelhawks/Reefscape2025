@@ -172,7 +172,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == ElevatorConstants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-        inputs.atTopLimit = inputs.encoderPositionRad >= ElevatorConstants.MAX_RADIANS;
+//        inputs.atTopLimit = inputs.encoderPositionRad >= ElevatorConstants.MAX_RADIANS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
