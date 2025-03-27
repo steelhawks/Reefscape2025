@@ -110,6 +110,8 @@ public class Elevator extends SubsystemBase {
                 .andThen(io::zeroEncoders)
                 .schedule();
         }
+
+        ElevatorConstants.CANCODER_OFFSET = inputs.encoderPositionRad;
     }
 
     private boolean limitPressed() {
@@ -159,7 +161,7 @@ public class Elevator extends SubsystemBase {
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")
     public double getPosition() {
-        return inputs.encoderPositionRad - 0.5077476407901472;
+        return inputs.encoderPositionRad + ElevatorConstants.CANCODER_OFFSET;
     }
 
     public Trigger atGoal() {

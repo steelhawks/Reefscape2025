@@ -45,6 +45,8 @@ public class ElevatorConstants {
         }
     }
 
+    public static double CANCODER_OFFSET = 0;
+
     public static final int LIMIT_SWITCH_ID;
     public static final int LEFT_ID;
     public static final int RIGHT_ID;
