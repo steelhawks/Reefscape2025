@@ -243,6 +243,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
+        isFirstRun = false;
     }
 
     @Override
@@ -257,7 +258,6 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        isFirstRun = false;
     }
 
     @Override
