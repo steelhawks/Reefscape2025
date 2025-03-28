@@ -538,13 +538,13 @@ public class RobotContainer {
             .and(modifierTrigger)
                 .onTrue(
                     s_Claw.shootCoralSlower().until(s_Claw.hasCoral().negate())
-                        .alongWith(LED.getInstance().flashCommand(LEDColor.CYAN, 0.2, 1.0))
+//                        .alongWith(LED.getInstance().flashCommand(LEDColor.CYAN, 0.2, 1.0))
                     .andThen(
                         Commands.either(
                             s_Elevator.setDesiredState(State.KNOCK_L3),
                             s_Elevator.setDesiredState(State.KNOCK_L2),
-                            () -> (ReefUtil.getClosestAlgae().isOnL3())))
-                        .alongWith(LED.getInstance().flashCommand(LEDColor.CYAN, 0.5, 1.0)));
+                            () -> (ReefUtil.getClosestAlgae().isOnL3()))));
+//                        .alongWith(LED.getInstance().flashCommand(LEDColor.CYAN, 0.5, 1.0)));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
