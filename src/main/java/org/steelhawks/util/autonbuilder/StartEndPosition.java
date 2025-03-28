@@ -12,6 +12,8 @@ public enum StartEndPosition {
     BC2(7.000, 6.024, Units.degreesToRadians(-120)),
     BC3(7.58, 5.0812, Math.PI),
 
+    CENTER(7.58, 4, Math.PI),
+
     RC1(7.58, 3, Math.PI),
     RC2(7.000, 1.907, Units.degreesToRadians(120)),
     RC3(7.58, 0.8137, Math.PI),

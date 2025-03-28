@@ -269,6 +269,12 @@ public final class Autos {
         return Commands.none();
     }
 
+    public static Command getCenterAuton() {
+        return createAuto(StartEndPosition.CENTER,
+            "Center to R2"
+            ).withName("Center Auto");
+    }
+
     public static Command getAuto() {
         if (autoChooser.get().getName().equals("Use Auton Builder")) {
             return s_Builder.getAutonCommand();
