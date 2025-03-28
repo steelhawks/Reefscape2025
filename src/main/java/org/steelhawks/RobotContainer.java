@@ -513,8 +513,10 @@ public class RobotContainer {
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
             .or(buttonBoard.button(OIConstants.HOME_BUTTON_PORT))
-            .onTrue(
-                s_Elevator.noSlamCommand());
+//            .onTrue(
+//                s_Elevator.noSlamCommand());
+        .onTrue(
+            s_Elevator.setDesiredState(State.HOME));
 
         operator.rightBumper()
             .whileTrue(
