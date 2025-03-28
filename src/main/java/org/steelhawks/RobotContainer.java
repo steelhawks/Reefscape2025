@@ -536,7 +536,7 @@ public class RobotContainer {
 
         operator.leftTrigger() //Algae Knockoff (Coral Schlong -> Elevator : Knock from bottom?)
             .and(modifierTrigger)
-                .whileTrue(
+                .onTrue(
                     s_Claw.shootCoralSlower().until(s_Claw.hasCoral().negate())
                         .alongWith(LED.getInstance().flashCommand(LEDColor.CYAN, 0.2, 1.0))
                     .andThen(
