@@ -243,14 +243,14 @@ public final class Autos {
     }
 
     public static Command getRC2Auton() {
-//        return createAuto(StartEndPosition.RC2,
-//            "RC2 to BR2",
-//            "BR2 to Lower Source",
-//            "Lower Source to BL2",
-//            "BL2 to Lower Source",
-//            "Lower Source to BL1")
-//            .withName("RC2");
-        return new RC2();
+        return createAuto(StartEndPosition.RC2,
+            "RC2 to BR2",
+            "BR2 to Lower Source",
+            "Lower Source to BL2",
+            "BL2 to Lower Source",
+            "Lower Source to BL1")
+            .withName("RC2");
+//        return new RC2();
     }
 
     public static Command getRC3Auton() {
