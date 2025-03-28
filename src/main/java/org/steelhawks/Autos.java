@@ -11,6 +11,7 @@ import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.SwerveDriveAlignment;
+import org.steelhawks.commands.autos.RC2;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -242,13 +243,14 @@ public final class Autos {
     }
 
     public static Command getRC2Auton() {
-        return createAuto(StartEndPosition.RC2,
-            "RC2 to BR2",
-            "BR2 to Lower Source",
-            "Lower Source to BL2",
-            "BL2 to Lower Source",
-            "Lower Source to BL1")
-            .withName("RC2");
+//        return createAuto(StartEndPosition.RC2,
+//            "RC2 to BR2",
+//            "BR2 to Lower Source",
+//            "Lower Source to BL2",
+//            "BL2 to Lower Source",
+//            "Lower Source to BL1")
+//            .withName("RC2");
+        return new RC2();
     }
 
     public static Command getRC3Auton() {
