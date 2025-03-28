@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -34,6 +35,8 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
+
+import static org.steelhawks.Constants.RobotType.*;
 
 public class Robot extends LoggedRobot {
 
@@ -170,6 +173,10 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
+
+        if (Constants.getRobot() != ALPHABOT)
+            Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
+        Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
 
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
