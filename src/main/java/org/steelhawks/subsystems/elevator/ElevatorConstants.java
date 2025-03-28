@@ -124,7 +124,7 @@ public class ElevatorConstants {
                 KD = 0.2;
                 MAX_VELOCITY_PER_SEC = 40; // 35
                 MAX_ACCELERATION_PER_SEC_SQUARED = 60; // was 70
-                TOLERANCE = Units.degreesToRadians(5);
+                TOLERANCE = 0.02;
                 MANUAL_ELEVATOR_INCREMENT = 0.55;
                 MAX_RADIANS = 24; // 24.663
             }
