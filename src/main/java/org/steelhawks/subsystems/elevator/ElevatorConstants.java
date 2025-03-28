@@ -115,7 +115,7 @@ public class ElevatorConstants {
                 LEFT_ID = 13;
                 RIGHT_ID = 14;
                 CANCODER_ID = 16; // 16 cancoder
-                GEAR_RATIO = 25;
+                GEAR_RATIO = 10;
                 KS = 0.23;
                 KG = 0.176;
                 KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
