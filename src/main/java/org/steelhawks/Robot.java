@@ -232,6 +232,7 @@ public class Robot extends LoggedRobot {
         if (DriverStation.isDSAttached()) {
             robotContainer.waitForDs();
         }
+        isFirstRun = false;
     }
 
     @Override
@@ -243,7 +244,6 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
-        isFirstRun = false;
     }
 
     @Override
