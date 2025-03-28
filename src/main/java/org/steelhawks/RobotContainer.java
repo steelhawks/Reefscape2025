@@ -138,7 +138,7 @@ public class RobotContainer {
                                 VisionConstants.cameraNames()[2],
                                 VisionConstants.robotToCamera()[2]),
                             new VisionIOPhoton(
-                                VisionConstants.cameraNames()[3], 
+                                VisionConstants.cameraNames()[3],
                                 VisionConstants.robotToCamera()[3]));
                     s_Elevator =
                         new Elevator(
@@ -460,16 +460,16 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        operator.povUp()
-            .onTrue(
-                Commands.defer(
-                    () -> s_Elevator.setDesiredState(
-                        ReefUtil.getClosestAlgae().isOnL3()
-                            ? ElevatorConstants.State.KNOCK_L3
-                            : ElevatorConstants.State.KNOCK_L2),
-                    Set.of(s_Elevator))
-                .andThen(
-                    s_Claw.shootCoralSlower().until(s_Claw.hasCoral().negate())));
+//        operator.povUp()
+//            .onTrue(
+//                Commands.defer(
+//                    () -> s_Elevator.setDesiredState(
+//                        ReefUtil.getClosestAlgae().isOnL3()
+//                            ? ElevatorConstants.State.KNOCK_L3
+//                            : ElevatorConstants.State.KNOCK_L2),
+//                    Set.of(s_Elevator))
+//                .andThen(
+//                    s_Claw.shootCoralSlower().until(s_Claw.hasCoral().negate())));
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
