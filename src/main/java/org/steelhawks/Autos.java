@@ -147,7 +147,7 @@ public final class Autos {
                                 .andThen(
                                     new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(3.0),
                                     Commands.deadline(
-                                        Commands.waitSeconds(0.8),
+                                        Commands.waitSeconds(1.2),
                                         Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
                                     Commands.either(
                                         s_Claw.shootCoralSlow().withTimeout(0.6),
