@@ -196,17 +196,13 @@ public final class Autos {
     }
 
     public static Command getBC1Auton() {
-//        return createAuto(StartEndPosition.BC1,
-//            new String[]{
-//                "BC1 to TL2",
-//                "TL2 to Upper Source",
-//                "Upper Source to TL1",
-//                "TL1 to Upper Source"
-//                // "Upper Source to TL1",
-//                // "TL1 to Upper Source"
-//                // "Upper Source to L2"
-//            }).withName("BC1");
-        return Commands.none();
+        return createAuto(StartEndPosition.BC1,
+            "BC1 to TL2",
+            "TL2 to Upper Source",
+            "Upper Source to L1",
+            "L1 to Upper Source",
+            "Upper Source to L2"
+            ).withName("BC1");
     }
 
     public static Command getBC2Auton() {
@@ -272,7 +268,7 @@ public final class Autos {
     public static Command getCenterAuton() {
         return createAuto(StartEndPosition.CENTER,
             "Center to R2"
-            ).withName("Center Auto");
+            ).withName("Center");
     }
 
     public static Command getAuto() {

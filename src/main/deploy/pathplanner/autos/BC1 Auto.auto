@@ -13,37 +13,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TR1 to Upper Source"
+            "pathName": "TL2 to Upper Source"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Upper Source to TR2"
+            "pathName": "Upper Source to L1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "TR2 to Upper Source"
+            "pathName": "L1 to Upper Source"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Upper Source to TL1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "TL1 to Upper Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Upper Source to TL2"
+            "pathName": "Upper Source to L2"
           }
         }
       ]

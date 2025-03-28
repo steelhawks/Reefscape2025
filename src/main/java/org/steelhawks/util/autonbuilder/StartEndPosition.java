@@ -8,7 +8,7 @@ import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 
 public enum StartEndPosition {
     NOTHING_AUTO(3, 3, 0),
-    BC1(7.58, 7.2524, Math.PI),
+    BC1(7.58, 7.2524, Units.degreesToRadians(-60.0)),
     BC2(7.000, 6.024, Units.degreesToRadians(-120)),
     BC3(7.58, 5.0812, Math.PI),
 
