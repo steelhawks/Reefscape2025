@@ -522,7 +522,7 @@ public class RobotContainer {
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
-//            .and(modifierTrigger.negate())
+            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("scoreCoral"))
             .or(buttonBoard.button(OIConstants.SHOOT_BUTTON_PORT))
             .whileTrue(
