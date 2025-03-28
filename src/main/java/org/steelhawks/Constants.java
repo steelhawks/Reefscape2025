@@ -103,7 +103,7 @@ public final class Constants {
         // public static final double CLAW_OFFSET_SMALL_COMPONENT = 0.1249231309;
         // public static final double CLAW_OFFSET_BIG_COMPONENT = 0.21637320975937756890536690206266;
 
-        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(-4.4); // -4.204645
+        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(-4.5); // -4.204645
         // AFTER HVR CHANGES. X and Y axes are based on Onshape coordinate system, NOT WPIlib coordinate system
             // This was found by taking the average of:
             // 0.649976 (the width-wise distance between the left hex shaft of the claw, and the center of the robot)
