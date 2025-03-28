@@ -166,7 +166,7 @@ public final class Autos {
     private static Command createAuto(StartEndPosition pose, String... trajectories) {
         return Commands.runOnce(
             () -> s_Swerve.setPose(AllianceFlip.apply(pose.getPose())))
-            .andThen(s_Elevator.setDesiredState(desiredScoreLevel))
+//            .andThen(s_Elevator.setDesiredState(desiredScoreLevel))
             .andThen(buildTrajectorySequence(trajectories));
     }
 
