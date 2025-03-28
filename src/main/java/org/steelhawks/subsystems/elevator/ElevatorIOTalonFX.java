@@ -169,8 +169,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             }
         }
 
-        if (Constants.getRobot() == RobotType.ALPHABOT ||
-            Constants.getRobot() == RobotType.OMEGABOT) {
+        if (Constants.getRobot() == RobotType.ALPHABOT) {
             inputs.encoderConnected = inputs.leftConnected && inputs.rightConnected;
             inputs.magnetGood = inputs.encoderConnected;
             inputs.encoderPositionRad = Units.rotationsToRadians((inputs.leftPositionRad + inputs.rightPositionRad) / 2.0);
