@@ -522,6 +522,7 @@ public class RobotContainer {
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
+//            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("scoreCoral"))
             .or(buttonBoard.button(OIConstants.SHOOT_BUTTON_PORT))
             .whileTrue(
@@ -532,6 +533,18 @@ public class RobotContainer {
                         (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() ||
                             (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians()) && s_Elevator.isEnabled()))
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
+
+        operator.leftTrigger() //Algae Knockoff (Coral Schlong -> Elevator : Knock from bottom?)
+            .and(modifierTrigger)
+                .whileTrue(
+                    s_Claw.shootCoralSlower().until(s_Claw.hasCoral().negate())
+                        .alongWith(LED.getInstance().flashCommand(LEDColor.CYAN, 0.2, 1.0))
+                    .andThen(
+                        Commands.either(
+                            s_Elevator.setDesiredState(State.KNOCK_L3),
+                            s_Elevator.setDesiredState(State.KNOCK_L2),
+                            () -> (ReefUtil.getClosestAlgae().isOnL3())))
+                        .alongWith(LED.getInstance().flashCommand(LEDColor.CYAN, 0.5, 1.0)));
 
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app

@@ -12,6 +12,7 @@ public class ClawConstants {
 
     public static final double CLAW_SHOOT_SPEED;
     public static final double CLAW_SECONDARY_SHOOT_SPEED;
+    public static final double CLAW_TERTIARY_SHOOT_SPEED;
     public static final double CLAW_INTAKE_SPEED;
 
     static {
@@ -21,6 +22,7 @@ public class ClawConstants {
                 CLAW_INTAKE_GEAR_RATIO = 1.0;
                 CLAW_SHOOT_SPEED = 0.1;
                 CLAW_SECONDARY_SHOOT_SPEED = 0.135;
+                CLAW_TERTIARY_SHOOT_SPEED = 0.05;
                 CLAW_INTAKE_SPEED = 0.1;
             }
             default -> {
@@ -28,6 +30,7 @@ public class ClawConstants {
                 CLAW_INTAKE_GEAR_RATIO = 1.0;
                 CLAW_SHOOT_SPEED = 0.25;
                 CLAW_SECONDARY_SHOOT_SPEED = 0.225;
+                CLAW_TERTIARY_SHOOT_SPEED = 0.05;
                 CLAW_INTAKE_SPEED = 0.1;
             }
         }
