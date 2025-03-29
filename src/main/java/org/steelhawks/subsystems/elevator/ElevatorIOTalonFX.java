@@ -3,13 +3,12 @@ package org.steelhawks.subsystems.elevator;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -19,8 +18,13 @@ import org.steelhawks.Constants.RobotType;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
+    private final double CTRE_KP = 0.0;
+    private final double CTRE_KI = 0.0;
+    private final double CTRE_KD = 0.0;
+
     private final TalonFX mLeftMotor;
     private final TalonFX mRightMotor;
+    private final MotionMagicVoltage motionMagic;
     private CANcoder mCANcoder = null;
 
     private final DigitalInput mLimitSwitch;
@@ -49,51 +53,30 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         mRightMotor = new TalonFX(ElevatorConstants.RIGHT_ID, Constants.getCANBus());
         if (ElevatorConstants.CANCODER_ID != -1)
             mCANcoder = new CANcoder(ElevatorConstants.CANCODER_ID, Constants.getCANBus());
+        motionMagic = new MotionMagicVoltage(0.0);
         mLimitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
 
-        var leftConfig =
-            new TalonFXConfiguration()
-                .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
-                .withMotorOutput(new MotorOutputConfigs()
-                    .withInverted(
-                        Constants.getRobot() == RobotType.OMEGABOT
-                            ? InvertedValue.CounterClockwise_Positive
-                            : InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake));
+        var leftConfig = new TalonFXConfiguration()
+            .withFeedback(
+                new FeedbackConfigs()
+                    .withFeedbackRemoteSensorID(mCANcoder.getDeviceID())
+                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder))
+            .withSlot0(
+                new Slot0Configs()
+                    .withKS(ElevatorConstants.KS)
+                    .withKG(ElevatorConstants.KG)
+                    .withKV(ElevatorConstants.KV)
+                    .withKP(ElevatorConstants.KP)
+                    .withKI(ElevatorConstants.KI)
+                    .withKD(ElevatorConstants.KD))
+            .withMotionMagic(
+                new MotionMagicConfigs()
+                    .withMotionMagicAcceleration(ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED)
+                    .withMotionMagicJerk(ElevatorConstants.MAX_VELOCITY_PER_SEC));
+
         mLeftMotor.getConfigurator().apply(leftConfig);
 
-        var rightConfig =
-            new TalonFXConfiguration()
-                .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
-                .withMotorOutput(new MotorOutputConfigs()
-                    .withInverted(
-                        Constants.getRobot() == RobotType.OMEGABOT
-                            ? InvertedValue.Clockwise_Positive
-                            : InvertedValue.CounterClockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake));
-        mRightMotor.getConfigurator().apply(rightConfig);
-
-        if (Constants.getRobot() != RobotType.ALPHABOT) {
-            var encoderConfig =
-                new CANcoderConfiguration().MagnetSensor
-                    .withSensorDirection(
-                        Constants.getRobot() == RobotType.OMEGABOT
-                            ? SensorDirectionValue.Clockwise_Positive
-                            : SensorDirectionValue.CounterClockwise_Positive);
-            mCANcoder.getConfigurator().apply(encoderConfig);
-
-            magnetFault = mCANcoder.getFault_BadMagnet();
-            canCoderPosition = mCANcoder.getPosition();
-            canCoderVelocity = mCANcoder.getVelocity();
-            BaseStatusSignal.setUpdateFrequencyForAll(
-                100,
-                magnetFault,
-                canCoderPosition,
-                canCoderVelocity);
-            mCANcoder.optimizeBusUtilization();
-        }
+        mRightMotor.setControl(new Follower(mLeftMotor.getDeviceID(), true));
 
         leftPosition = mLeftMotor.getPosition();
         leftVelocity = mLeftMotor.getVelocity();
@@ -178,7 +161,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == ElevatorConstants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
-//        inputs.atTopLimit = inputs.encoderPositionRad >= ElevatorConstants.MAX_RADIANS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
@@ -212,10 +194,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     @Override
     public void runPosition(double positionRad, double feedforward) {
         mLeftMotor.setControl(
-            new PositionVoltage(positionRad)
+            motionMagic.withPosition(Units.radiansToRotations(positionRad))
                 .withFeedForward(feedforward));
         mRightMotor.setControl(
-            new PositionVoltage(positionRad)
+            motionMagic.withPosition(Units.radiansToRotations(positionRad))
                 .withFeedForward(feedforward));
     }
 
