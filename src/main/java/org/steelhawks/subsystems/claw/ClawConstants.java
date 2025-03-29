@@ -29,7 +29,7 @@ public class ClawConstants {
                 CLAW_INTAKE_MOTOR_ID = 15;
                 CLAW_INTAKE_GEAR_RATIO = 1.0;
                 CLAW_SHOOT_SPEED = 0.15;
-                CLAW_SECONDARY_SHOOT_SPEED = 0.15;
+                CLAW_SECONDARY_SHOOT_SPEED = 0.125;
                 CLAW_TERTIARY_SHOOT_SPEED = 0.03;
                 CLAW_INTAKE_SPEED = 0.1;
             }
