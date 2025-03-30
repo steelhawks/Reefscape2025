@@ -514,7 +514,11 @@ public class RobotContainer {
             .or(new DashboardTrigger("elevatorHome"))
             .or(buttonBoard.button(OIConstants.HOME_BUTTON_PORT))
             .onTrue(
-                s_Elevator.noSlamCommand());
+                Commands.either(
+                    s_Elevator.noSlamCommand(),
+                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
+                        .alongWith(new VibrateController(operator)),
+                    s_Claw.hasCoral().negate()));
 
         operator.rightBumper()
             .whileTrue(
