@@ -23,19 +23,12 @@ import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
-import org.steelhawks.subsystems.arm.*;
-import org.steelhawks.subsystems.climb.Climb;
-import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
-import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
-import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.claw.ClawIO;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.claw.ClawIOSim;
 import org.steelhawks.subsystems.claw.ClawIOTalonFX;
-import org.steelhawks.subsystems.arm.ArmIO;
-import org.steelhawks.subsystems.arm.ArmIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -43,14 +36,14 @@ import org.steelhawks.util.ButtonBoard;
 import org.steelhawks.util.DashboardTrigger;
 import org.steelhawks.util.FieldBoundingBox;
 
+import java.util.Objects;
+
 
 public class RobotContainer {
 
     public static final boolean useVision = true;
 
-    private final Trigger unlockAngleControl;
     private final Trigger notifyAtEndgame;
-    private final Trigger isDeepEndgame;
     private final Trigger modifierTrigger;
     private final Trigger topCoralStationTrigger;
     private final Trigger bottomCoralStationTrigger;
@@ -62,8 +55,6 @@ public class RobotContainer {
     public static Elevator s_Elevator;
     public static Claw s_Claw;
     public static Align s_Align;
-    public static Climb s_Climb;
-    public static Arm s_Arm;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -85,9 +76,6 @@ public class RobotContainer {
 
     public RobotContainer() {
         SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
-        unlockAngleControl =
-            new Trigger(() -> Math.abs(driver.getRightX()) > Deadbands.DRIVE_DEADBAND);
-        isDeepEndgame = new Trigger(() -> deepClimbMode);
         notifyAtEndgame = new Trigger(() -> {
 //            When connected to the real field, this number only changes in full integer increments, and always counts down.
 //                When the DS is in practice mode, this number is a floating point number, and counts down.
@@ -147,13 +135,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
-                    s_Climb =
-                        new Climb(
-                            new ShallowClimbIO() {},
-                            new DeepClimbIO() {});
-                    s_Arm =
-                        new Arm(
-                            new ArmIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -178,13 +159,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
-                    s_Climb =
-                        new Climb(
-                            new ShallowClimbIO() {},
-                            new DeepClimbIOTalonFX());
-                    s_Arm =
-                        new Arm(
-                            new ArmIOTalonFX());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -210,13 +184,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
-                    s_Climb =
-                        new Climb(
-                            new ShallowClimbIO() {},
-                            new DeepClimbIO() {});
-                    s_Arm =
-                        new Arm(
-                            new ArmIO() {});
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
@@ -233,7 +200,7 @@ public class RobotContainer {
 
                     s_Swerve =
                         new Swerve(
-                            new GyroIOSim(Swerve.getDriveSimulation().getGyroSimulation()),
+                            new GyroIOSim(Objects.requireNonNull(Swerve.getDriveSimulation()).getGyroSimulation()),
                             new ModuleIOSim(Swerve.getDriveSimulation().getModules()[0]),
                             new ModuleIOSim(Swerve.getDriveSimulation().getModules()[1]),
                             new ModuleIOSim(Swerve.getDriveSimulation().getModules()[2]),
@@ -262,13 +229,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIOSim());
-                    s_Climb =
-                        new Climb(
-                            new ShallowClimbIO() {},
-                            new DeepClimbIO() {});
-                    s_Arm =
-                        new Arm(
-                            new ArmIOSim());
                 }
             }
         }
@@ -294,13 +254,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
-                    s_Climb =
-                        new Climb(
-                            new ShallowClimbIO() {},
-                            new DeepClimbIO() {});
-                    s_Arm =
-                        new Arm(
-                            new ArmIO() {});
                 }
 
                 case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
@@ -341,7 +294,6 @@ public class RobotContainer {
                 0.0, 2.0, 0.0, 8.0 - 6.2,
                 s_Swerve::getPose);
 
-        configureDeepClimbEndgame();
         checkIfDevicesConnected();
         configureTriggers();
         configureOperator();
@@ -365,13 +317,6 @@ public class RobotContainer {
         new Alert("Orange Pi 2 is not connected", AlertType.kError).set(orangePi2Connected);
     }
 
-    private void configureDeepClimbEndgame() {
-        operator.rightStick()
-            .and(isDeepEndgame)
-            .onTrue(
-                s_Climb.toggleManualControl(() -> -operator.getRightY()));
-    }
-
     private void configureTriggers() {
         s_Swerve.isPathfinding()
             .whileTrue(
@@ -389,18 +334,6 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
                     new VibrateController(1.0, 1.0, driver, operator))
                     .ignoringDisable(false));
-
-        isDeepEndgame
-            .onTrue(
-                Commands.runOnce(() ->
-                    s_LED.setDefaultLighting(
-                        s_LED.fadeCommand(LEDColor.BLUE)))
-                .andThen(
-                    s_Climb.prepareDeepClimb()))
-            .onFalse(
-                s_Climb.goHome()
-                    .andThen(
-                        Commands.runOnce(this::waitForDs)));
 
         notifyAtEndgame
             .whileTrue(
@@ -458,17 +391,6 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-//        operator.povUp()
-//            .onTrue(
-//                Commands.defer(
-//                    () -> s_Elevator.setDesiredState(
-//                        ReefUtil.getClosestAlgae().isOnL3()
-//                            ? ElevatorConstants.State.KNOCK_L3
-//                            : ElevatorConstants.State.KNOCK_L2),
-//                    Set.of(s_Elevator))
-//                .andThen(
-//                    s_Claw.shootCoralSlower().until(s_Claw.hasCoral().negate())));
-
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .or(buttonBoard.getL1())
@@ -518,12 +440,6 @@ public class RobotContainer {
                         .alongWith(new VibrateController(operator)),
                     s_Claw.clearFromReef()));
 
-        operator.rightBumper()
-            .whileTrue(
-                Commands.parallel(
-                    s_Arm.applySpinSpeed(-0.2),
-                    s_Arm.applyPivotSpeed(0.15)));
-
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
             .and(modifierTrigger.negate())
@@ -541,11 +457,6 @@ public class RobotContainer {
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
                 s_Claw.reverseCoral()
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0)));
-
-        operator.povRight()
-            .whileTrue(
-                s_Claw.intakeCoral()
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0).repeatedly()));
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
     }
 }

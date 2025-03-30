@@ -33,7 +33,7 @@ object OperatorDashboard : VirtualSubsystem() {
     fun initialize() {
         for (connection in NetworkTableInstance.getDefault().connections) {
             println("Connection: $connection")
-            Alert("Connected Devices" + connection.remote_ip, AlertType.kInfo).set(true)
+            Alert("Connected Devices " + connection.remote_ip, AlertType.kInfo).set(true)
         }
     }
 
