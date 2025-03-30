@@ -47,6 +47,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         mLeftMotor = new TalonFX(ElevatorConstants.LEFT_ID, Constants.getCANBus());
         mRightMotor = new TalonFX(ElevatorConstants.RIGHT_ID, Constants.getCANBus());
+        mLeftMotor.setPosition(0.0);
+        mRightMotor.setPosition(0.0);
         if (ElevatorConstants.CANCODER_ID != -1) {
             mCANcoder = new CANcoder(ElevatorConstants.CANCODER_ID, Constants.getCANBus());
             magnetFault = mCANcoder.getFault_BadMagnet();
