@@ -211,7 +211,7 @@ public class Robot extends LoggedRobot {
                     if (LED.getInstance().getCurrentCommand() != null)
                         LED.getInstance().getCurrentCommand().cancel();
                     LED.getInstance().setColor(LEDColor.GREEN);
-                    }
+                }
                 case ROTATION_CCW ->
                     LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
                 case ROTATION_CW ->
@@ -234,11 +234,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
-        if (LED.getInstance().getCurrentCommand() != null)
-            LED.getInstance().getCurrentCommand().cancel();
-        if (DriverStation.isDSAttached()) {
-            robotContainer.waitForDs();
-        }
         isFirstRun = false;
     }
 
@@ -248,23 +243,26 @@ public class Robot extends LoggedRobot {
         Elastic.selectTab("Autonomous");
         autonomousCommand = Autos.getAuto();
 
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null)
             autonomousCommand.schedule();
-        }
+        if (LED.getInstance().getCurrentCommand() != null)
+            LED.getInstance().getCurrentCommand().cancel();
+        LED.getInstance().setDefaultLighting(LED.getInstance().getBlockyRainbowCommand());
     }
 
     @Override
-    public void autonomousPeriodic() {
-        LED.getInstance().rainbow();
-    }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
         Elastic.selectTab("Teleoperated");
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null)
             autonomousCommand.cancel();
-        }
+        if (LED.getInstance().getCurrentCommand() != null)
+            LED.getInstance().getCurrentCommand().cancel();
+        if (DriverStation.isDSAttached())
+            robotContainer.waitForDs();
     }
 
     @Override
