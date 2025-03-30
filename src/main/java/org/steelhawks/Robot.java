@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -34,6 +35,8 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
+
+import static org.steelhawks.Constants.RobotType.*;
 
 public class Robot extends LoggedRobot {
 
@@ -171,6 +174,10 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
+        if (Constants.getRobot() != ALPHABOT)
+            Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
+        Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
+
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
         Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
@@ -200,8 +207,11 @@ public class Robot extends LoggedRobot {
             Logger.recordOutput("Align/AutonMisalignment", currentState);
 
             switch (currentState) {
-                case NONE ->
+                case NONE -> {
+                    if (LED.getInstance().getCurrentCommand() != null)
+                        LED.getInstance().getCurrentCommand().cancel();
                     LED.getInstance().setColor(LEDColor.GREEN);
+                    }
                 case ROTATION_CCW ->
                     LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
                 case ROTATION_CW ->
@@ -229,6 +239,7 @@ public class Robot extends LoggedRobot {
         if (DriverStation.isDSAttached()) {
             robotContainer.waitForDs();
         }
+        isFirstRun = false;
     }
 
     @Override
@@ -254,7 +265,6 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        isFirstRun = false;
     }
 
     @Override

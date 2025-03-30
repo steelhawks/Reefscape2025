@@ -138,7 +138,7 @@ public class RobotContainer {
                                 VisionConstants.cameraNames()[2],
                                 VisionConstants.robotToCamera()[2]),
                             new VisionIOPhoton(
-                                VisionConstants.cameraNames()[3], 
+                                VisionConstants.cameraNames()[3],
                                 VisionConstants.robotToCamera()[3]));
                     s_Elevator =
                         new Elevator(
@@ -460,14 +460,16 @@ public class RobotContainer {
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
-        operator.povUp()
-            .onTrue(
-                Commands.defer(
-                    () -> s_Elevator.setDesiredState(
-                        ReefUtil.getClosestAlgae().isOnL3()
-                            ? ElevatorConstants.State.KNOCK_L3
-                            : ElevatorConstants.State.KNOCK_L2),
-                    Set.of(s_Elevator)));
+//        operator.povUp()
+//            .onTrue(
+//                Commands.defer(
+//                    () -> s_Elevator.setDesiredState(
+//                        ReefUtil.getClosestAlgae().isOnL3()
+//                            ? ElevatorConstants.State.KNOCK_L3
+//                            : ElevatorConstants.State.KNOCK_L2),
+//                    Set.of(s_Elevator))
+//                .andThen(
+//                    s_Claw.shootCoralSlower().until(s_Claw.hasCoral().negate())));
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
@@ -522,6 +524,7 @@ public class RobotContainer {
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
+            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("scoreCoral"))
             .or(buttonBoard.button(OIConstants.SHOOT_BUTTON_PORT))
             .whileTrue(
@@ -530,9 +533,8 @@ public class RobotContainer {
                     s_Claw.shootCoral(),
                     () ->
                         (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() ||
-                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians()) && s_Elevator.isEnabled())
+                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians()) && s_Elevator.isEnabled()))
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
-
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
@@ -542,19 +544,6 @@ public class RobotContainer {
         operator.povRight()
             .whileTrue(
                 s_Claw.intakeCoral()
-                    .alongWith(
-                        Commands.either(
-                            Commands.defer(
-                                () -> DriveCommands.joystickDriveAtAngle(
-                                    () -> -driver.getLeftY(),
-                                    () -> -driver.getLeftX(),
-                                    () -> topCoralStationTrigger.getAsBoolean()
-                                        ? FieldConstants.Position.CORAL_STATION_TOP.getPose().getRotation().plus(new Rotation2d(Math.PI))
-                                        : FieldConstants.Position.CORAL_STATION_BOTTOM.getPose().getRotation().plus(new Rotation2d(Math.PI)))
-                                .until(unlockAngleControl),
-                            Set.of(s_Swerve)),
-                            Commands.none(),
-                            () -> topCoralStationTrigger.getAsBoolean() || bottomCoralStationTrigger.getAsBoolean())
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0).repeatedly())));
+                    .alongWith(LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 2.0).repeatedly()));
     }
 }

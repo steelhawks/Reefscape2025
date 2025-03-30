@@ -124,9 +124,9 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/AlignedTheta", isThetaAligned());
         Logger.recordOutput("Align/VelocityInTolerance", velocityInTolerance());
 
-        if (isAligned()) {
-            LED.getInstance().flashCommand(LED.LEDColor.GREEN, 0.2, 1.0).schedule();
-        }
+//        if (isAligned()) {
+//            LED.getInstance().flashCommand(LED.LEDColor.GREEN, 0.2, 1.0).schedule();
+//        }
     }
 
     @Override

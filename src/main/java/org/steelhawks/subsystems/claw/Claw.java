@@ -17,7 +17,7 @@ public class Claw extends SubsystemBase {
     private boolean isIntaking = false;
 
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
-    private final Debouncer beamDebounce;
+    private final Debouncer beamDebounce; //debouncer - returns the value if the value is held for a period of time
     private final ClawIO io;
 
     public Trigger hasCoral() {
@@ -83,6 +83,15 @@ public class Claw extends SubsystemBase {
                 isIntaking = true;
                 io.runIntake(ClawConstants.CLAW_SECONDARY_SHOOT_SPEED);
             }, this)
+            .finallyDo(this::stop);
+    }
+
+    public Command shootCoralSlower() {
+        return Commands.run(
+                () -> {
+                    isIntaking = true;
+                    io.runIntake(ClawConstants.CLAW_TERTIARY_SHOOT_SPEED);
+                }, this)
             .finallyDo(this::stop);
     }
 

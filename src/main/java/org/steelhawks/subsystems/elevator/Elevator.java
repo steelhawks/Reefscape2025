@@ -118,6 +118,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        inputs.atTopLimit = getPosition() >= ElevatorConstants.MAX_RADIANS;
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
         Logger.recordOutput("Elevator/Enabled", mEnabled);
@@ -158,7 +159,7 @@ public class Elevator extends SubsystemBase {
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")
     public double getPosition() {
-        return inputs.encoderPositionRad;
+        return inputs.encoderPositionRad - ElevatorConstants.CANCODER_OFFSET;
     }
 
     public Trigger atGoal() {
@@ -263,7 +264,7 @@ public class Elevator extends SubsystemBase {
         .until(() -> limitPressed())
         .finallyDo(() -> {
             io.stop();
-            io.zeroEncoders();
+//            io.zeroEncoders();
         })
         .withName("Slam Elevator");
     }
@@ -277,7 +278,7 @@ public class Elevator extends SubsystemBase {
             .until(() -> limitPressed())
             .finallyDo(() -> {
                 io.stop();
-                io.zeroEncoders();
+//                io.zeroEncoders();
             })
             .withName("No Slam Elevator");
     }
@@ -286,7 +287,7 @@ public class Elevator extends SubsystemBase {
         return setDesiredState(ElevatorConstants.State.HOME)
             .until(this::limitPressed)
             .finallyDo(() -> {
-                io.zeroEncoders();
+//                io.zeroEncoders();
                 io.stop();
             })
             .withName("Home Elevator");

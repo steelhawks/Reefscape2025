@@ -161,7 +161,7 @@ public class VisionConstants {
                     3.0, // arducam-front-left
                     1.0, // arducam-center-mount
                     1.0, // arducam-center-right
-                    3.0  // arducam-back-right
+                    8.0  // arducam-back-right
                 };
         };
 
