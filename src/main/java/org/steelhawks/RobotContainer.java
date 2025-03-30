@@ -1,6 +1,5 @@
 package org.steelhawks;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
@@ -8,7 +7,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -41,10 +39,10 @@ import org.steelhawks.subsystems.arm.ArmIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
+import org.steelhawks.util.ButtonBoard;
 import org.steelhawks.util.DashboardTrigger;
 import org.steelhawks.util.FieldBoundingBox;
 
-import java.util.Set;
 
 public class RobotContainer {
 
@@ -71,8 +69,8 @@ public class RobotContainer {
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController operator =
         new CommandXboxController(OIConstants.OPERATOR_CONTROLLER_PORT);
-    private final CommandGenericHID buttonBoard
-        = new CommandGenericHID(OIConstants.BUTTON_BOARD_PORT);
+    private final ButtonBoard buttonBoard
+        = new ButtonBoard(OIConstants.BUTTON_BOARD_PORT);
 
     public void waitForDs() {
         boolean isRed = AllianceFlip.shouldFlip();
@@ -410,7 +408,7 @@ public class RobotContainer {
 
         topCoralStationTrigger
         .or(bottomCoralStationTrigger)
-        .and(() -> Robot.getState() != RobotState.AUTON) // AUTON WILL BREAK IF IT RUNS THIS
+        .and(() -> Robot.getState() != RobotState.AUTON) // AUTON WILL BREAK IF IT RUNS THIS COMMAND
             .whileTrue(
                 s_Claw.intakeCoral()
             .until(s_Claw.hasCoral()));
@@ -473,7 +471,7 @@ public class RobotContainer {
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
-            .or(buttonBoard.button(OIConstants.L1_BUTTON_PORT))
+            .or(buttonBoard.getL1())
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1))
             .whileTrue(
@@ -482,7 +480,7 @@ public class RobotContainer {
         operator.x()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l2"))
-            .or(buttonBoard.button(OIConstants.L2_BUTTON_PORT))
+            .or(buttonBoard.getL2())
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
@@ -494,7 +492,7 @@ public class RobotContainer {
         operator.y()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
-            .or(buttonBoard.button(OIConstants.L3_BUTTON_PORT))
+            .or(buttonBoard.getL3())
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
@@ -506,13 +504,13 @@ public class RobotContainer {
         operator.a()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
-            .or(buttonBoard.button(OIConstants.L4_BUTTON_PORT))
+            .or(buttonBoard.getL4())
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
-            .or(buttonBoard.button(OIConstants.HOME_BUTTON_PORT))
+            .or(buttonBoard.getHome())
             .onTrue(
                 Commands.either(
                     s_Elevator.noSlamCommand(),
@@ -530,7 +528,7 @@ public class RobotContainer {
         operator.leftTrigger()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("scoreCoral"))
-            .or(buttonBoard.button(OIConstants.SHOOT_BUTTON_PORT))
+            .or(buttonBoard.getShoot())
             .whileTrue(
                 Commands.either(
                     s_Claw.shootCoralSlow(),
