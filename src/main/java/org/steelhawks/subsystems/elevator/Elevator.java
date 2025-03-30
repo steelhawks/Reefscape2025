@@ -166,9 +166,7 @@ public class Elevator extends SubsystemBase {
         setpoint = profile.calculate(Constants.LOOP_UPDATE_PERIOD, setpoint, new TrapezoidProfile.State(inputs.goal, 0));
 
 //        io.runElevator(volts);
-        io.runPosition(
-            inputs.goal,
-            setpoint.velocity);
+        io.runPosition(inputs.goal);
     }
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")
