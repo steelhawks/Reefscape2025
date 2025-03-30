@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
 
@@ -31,6 +32,9 @@ public class Elevator extends SubsystemBase {
 
     private final ProfiledPIDController mController;
     private final ElevatorFeedforward mFeedforward;
+    private final TrapezoidProfile profile;
+    private TrapezoidProfile.State setpoint;
+    private TrapezoidProfile.State goalState;
 
     private final Alert leftMotorDisconnected;
     private final Alert rightMotorDisconnected;
@@ -67,6 +71,11 @@ public class Elevator extends SubsystemBase {
                 ElevatorConstants.KS,
                 ElevatorConstants.KG,
                 ElevatorConstants.KV);
+        profile =
+            new TrapezoidProfile(
+                new TrapezoidProfile.Constraints(
+                    ElevatorConstants.MAX_VELOCITY_PER_SEC,
+                    ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED));
 
         mSysId =
             new SysIdRoutine(
@@ -154,7 +163,12 @@ public class Elevator extends SubsystemBase {
             return;
         }
 
-        io.runElevator(volts);
+        setpoint = profile.calculate(Constants.LOOP_UPDATE_PERIOD, setpoint, new TrapezoidProfile.State(inputs.goal, 0));
+
+//        io.runElevator(volts);
+        io.runPosition(
+            inputs.goal,
+            setpoint.velocity);
     }
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")
@@ -199,8 +213,8 @@ public class Elevator extends SubsystemBase {
                 double goal =
                     MathUtil.clamp(state.getRadians(), 0, ElevatorConstants.MAX_RADIANS);
                 inputs.goal = goal;
-                mController.setGoal(new TrapezoidProfile.State(goal, 0));
-                enable();
+//                mController.setGoal(new TrapezoidProfile.State(goal, 0));
+//                enable();
             }, this)
             .withName("Set Desired State");
     }

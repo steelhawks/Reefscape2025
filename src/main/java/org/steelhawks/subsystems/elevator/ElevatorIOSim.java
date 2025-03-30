@@ -56,7 +56,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
-        mElevatorSim.update(Constants.SIM_UPDATE_LOOP);
+        mElevatorSim.update(Constants.LOOP_UPDATE_PERIOD);
 
         inputs.leftConnected = true;
         inputs.leftPositionRad =
