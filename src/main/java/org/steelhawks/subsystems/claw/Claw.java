@@ -11,10 +11,13 @@ import org.steelhawks.Constants;
 
 public class Claw extends SubsystemBase {
 
+    public static final double DIST_TO_HAVE_CORAL = 0.1;
     private static final double CURRENT_THRESHOLD = 30;
     private static final double INTAKE_SPEED = 0.05;
-    public static final double DIST_TO_HAVE_CORAL = 0.1;
+    private static final double DEBOUNCE_TIME = 0.15;
+
     private boolean isIntaking = false;
+    private boolean coralFullyOut = false;
 
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
     private final Debouncer beamDebounce; //debouncer - returns the value if the value is held for a period of time
@@ -33,7 +36,7 @@ public class Claw extends SubsystemBase {
 
     public Claw(ClawIO io) {
         this.io = io;
-        beamDebounce = new Debouncer(0.15, DebounceType.kBoth);
+        beamDebounce = new Debouncer(DEBOUNCE_TIME, DebounceType.kBoth);
     }
 
     @Override
@@ -41,6 +44,10 @@ public class Claw extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Claw", inputs);
         Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
+    }
+
+    public Trigger clearFromReef() {
+        return new Trigger(() -> coralFullyOut);
     }
 
     public Command intakeCoral() {
@@ -53,12 +60,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command shootCoral() {
-        return Commands.run(
-            () -> {
-                isIntaking = true;
-                io.runIntake(ClawConstants.CLAW_SHOOT_SPEED);
-            }, this)
-            .finallyDo(this::stop);
+        return shootCoral(ClawConstants.CLAW_SHOOT_SPEED);
     }
 
     public Command shootPulsatingCoral() {
@@ -69,33 +71,25 @@ public class Claw extends SubsystemBase {
     }
 
     public Command reverseCoral() {
-        return Commands.run(
-            () -> {
-                isIntaking = true;
-                io.runIntake(-ClawConstants.CLAW_INTAKE_SPEED);
-            }, this)
-            .finallyDo(this::stop);
+        return shootCoral(-ClawConstants.CLAW_INTAKE_SPEED);
     }
 
     public Command shootCoralSlow() {
-        return Commands.run(
-            () -> {
-                isIntaking = true;
-                io.runIntake(ClawConstants.CLAW_SECONDARY_SHOOT_SPEED);
-            }, this)
-            .finallyDo(this::stop);
+        return shootCoral(ClawConstants.CLAW_SECONDARY_SHOOT_SPEED);
     }
 
-    public Command shootCoralSlower() {
+    private Command shootCoral(double speed) {
         return Commands.run(
-                () -> {
-                    isIntaking = true;
-                    io.runIntake(ClawConstants.CLAW_TERTIARY_SHOOT_SPEED);
-                }, this)
+            () -> {
+                coralFullyOut = false;
+                isIntaking = true;
+                io.runIntake(speed);
+            }, this)
             .finallyDo(this::stop);
     }
 
     public void stop() {
+        coralFullyOut = !hasCoral().getAsBoolean();
         isIntaking = false;
         io.stop();
     }
