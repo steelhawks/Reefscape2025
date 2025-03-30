@@ -8,11 +8,11 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
-import org.steelhawks.Constants;
 import org.steelhawks.Constants.LEDConstants;
 
 import java.util.function.BooleanSupplier;
 
+@SuppressWarnings("unused")
 public class LED extends SubsystemBase {
 
     private static final double RAPID_FLASH_TIMEOUT = .25;
@@ -269,6 +269,26 @@ public class LED extends SubsystemBase {
         rainbowStart %= 180;
     }
 
+    public void blockyRainbow() {
+        int stretchFactor = 5;
+
+        for (int i = 0; i < stripLength; i++) {
+            i %= stripLength;
+
+            final var hue = (rainbowStart + ((i / stretchFactor) * 180 / (stripLength / stretchFactor))) % 180;
+
+            LEDBuffer.setHSV(i, hue, 255, 128);
+            LEDBuffer.setHSV(i + strip2Start, hue, 255, 128);
+        }
+
+        currentColor = LEDColor.OFF;
+        LEDStrip.setData(LEDBuffer);
+
+        rainbowStart += 3;
+        rainbowStart %= 180;
+    }
+
+
     private boolean fillDirectionForward = true;
     private int fillIndex = 0;
 
@@ -317,6 +337,10 @@ public class LED extends SubsystemBase {
      */
     public Command getRainbowCommand() {
         return Commands.run(this::rainbow, this);
+    }
+
+    public Command getBlockyRainbowCommand() {
+        return Commands.run(this::blockyRainbow, this);
     }
 
     /**

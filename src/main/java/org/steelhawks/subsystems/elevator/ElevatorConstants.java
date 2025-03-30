@@ -114,17 +114,17 @@ public class ElevatorConstants {
                 LIMIT_SWITCH_ID = 0;
                 LEFT_ID = 13;
                 RIGHT_ID = 14;
-                CANCODER_ID = 16;
+                CANCODER_ID = 16; // 16 cancoder
                 GEAR_RATIO = 25;
                 KS = 0.23;
                 KG = 0.176;
                 KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
-                KP = 5.5;
+                KP = 5.0;
                 KI = 0.0;
-                KD = 0.2;
+                KD = 0.0;
                 MAX_VELOCITY_PER_SEC = 40; // 35
                 MAX_ACCELERATION_PER_SEC_SQUARED = 60; // was 70
-                TOLERANCE = Units.degreesToRadians(5);
+                TOLERANCE = 0.02;
                 MANUAL_ELEVATOR_INCREMENT = 0.55;
                 MAX_RADIANS = 24; // 24.663
             }

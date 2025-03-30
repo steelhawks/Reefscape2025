@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -34,6 +35,8 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
+
+import static org.steelhawks.Constants.RobotType.*;
 
 public class Robot extends LoggedRobot {
 
@@ -171,6 +174,10 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
+        if (Constants.getRobot() != ALPHABOT)
+            Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
+        Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
+
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
         Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
@@ -204,7 +211,7 @@ public class Robot extends LoggedRobot {
                     if (LED.getInstance().getCurrentCommand() != null)
                         LED.getInstance().getCurrentCommand().cancel();
                     LED.getInstance().setColor(LEDColor.GREEN);
-                    }
+                }
                 case ROTATION_CCW ->
                     LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
                 case ROTATION_CW ->
@@ -227,11 +234,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
-        if (LED.getInstance().getCurrentCommand() != null)
-            LED.getInstance().getCurrentCommand().cancel();
-        if (DriverStation.isDSAttached()) {
-            robotContainer.waitForDs();
-        }
+        isFirstRun = false;
     }
 
     @Override
@@ -240,24 +243,26 @@ public class Robot extends LoggedRobot {
         Elastic.selectTab("Autonomous");
         autonomousCommand = Autos.getAuto();
 
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null)
             autonomousCommand.schedule();
-        }
+        if (LED.getInstance().getCurrentCommand() != null)
+            LED.getInstance().getCurrentCommand().cancel();
+        LED.getInstance().setDefaultLighting(LED.getInstance().getBlockyRainbowCommand());
     }
 
     @Override
-    public void autonomousPeriodic() {
-        LED.getInstance().rainbow();
-    }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
         Elastic.selectTab("Teleoperated");
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null)
             autonomousCommand.cancel();
-        }
-        isFirstRun = false;
+        if (LED.getInstance().getCurrentCommand() != null)
+            LED.getInstance().getCurrentCommand().cancel();
+        if (DriverStation.isDSAttached())
+            robotContainer.waitForDs();
     }
 
     @Override

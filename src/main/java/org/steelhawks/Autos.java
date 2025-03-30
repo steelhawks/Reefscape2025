@@ -11,6 +11,7 @@ import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.SwerveDriveAlignment;
+import org.steelhawks.commands.autos.RC2;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -146,7 +147,7 @@ public final class Autos {
                                 .andThen(
                                     new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(3.0),
                                     Commands.deadline(
-                                        Commands.waitSeconds(0.8),
+                                        Commands.waitSeconds(1.2),
                                         Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
                                     Commands.either(
                                         s_Claw.shootCoralSlow().withTimeout(0.6),
@@ -165,7 +166,7 @@ public final class Autos {
     private static Command createAuto(StartEndPosition pose, String... trajectories) {
         return Commands.runOnce(
             () -> s_Swerve.setPose(AllianceFlip.apply(pose.getPose())))
-            .andThen(s_Elevator.setDesiredState(desiredScoreLevel))
+//            .andThen(s_Elevator.setDesiredState(desiredScoreLevel))
             .andThen(buildTrajectorySequence(trajectories));
     }
 
@@ -196,17 +197,13 @@ public final class Autos {
     }
 
     public static Command getBC1Auton() {
-//        return createAuto(StartEndPosition.BC1,
-//            new String[]{
-//                "BC1 to TL2",
-//                "TL2 to Upper Source",
-//                "Upper Source to TL1",
-//                "TL1 to Upper Source"
-//                // "Upper Source to TL1",
-//                // "TL1 to Upper Source"
-//                // "Upper Source to L2"
-//            }).withName("BC1");
-        return Commands.none();
+        return createAuto(StartEndPosition.BC1,
+            "BC1 to TL2",
+            "TL2 to Upper Source",
+            "Upper Source to L1",
+            "L1 to Upper Source",
+            "Upper Source to L2"
+            ).withName("BC1");
     }
 
     public static Command getBC2Auton() {
@@ -253,6 +250,7 @@ public final class Autos {
             "BL2 to Lower Source",
             "Lower Source to BL1")
             .withName("RC2");
+//        return new RC2();
     }
 
     public static Command getRC3Auton() {
@@ -267,6 +265,12 @@ public final class Autos {
 //                "Lower Source to BL2"
 //            }).withName("RC3 Auto");
         return Commands.none();
+    }
+
+    public static Command getCenterAuton() {
+        return createAuto(StartEndPosition.CENTER,
+            "Center to R2"
+            ).withName("Center");
     }
 
     public static Command getAuto() {
