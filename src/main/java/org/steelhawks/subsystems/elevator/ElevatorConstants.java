@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.elevator;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
 
@@ -31,17 +32,15 @@ public class ElevatorConstants {
             this.hawkriderRadians = hawkrider;
         }
 
-        public double getRadians() {
-            switch (Constants.getRobot()) {
-                case ALPHABOT:
-                    return alphaRadians;
-                case OMEGABOT:
-                    return omegaRadians;
-                case HAWKRIDER:
-                    return hawkriderRadians;
-                default:
-                    return 0;
-            }
+        public Rotation2d getAngle() {
+            double angleRads =
+                switch (Constants.getRobot()) {
+                    case ALPHABOT -> alphaRadians;
+                    case OMEGABOT -> omegaRadians;
+                    case HAWKRIDER -> hawkriderRadians;
+                    default -> 0;
+                };
+            return new Rotation2d(angleRads);
         }
     }
 

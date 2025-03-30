@@ -182,7 +182,7 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atThisGoal(ElevatorConstants.State state) {
         return new Trigger(
-            () -> Math.abs(getPosition() - state.getRadians()) <= ElevatorConstants.TOLERANCE * 1.5);
+            () -> Math.abs(getPosition() - state.getAngle().getRadians()) <= ElevatorConstants.TOLERANCE * 1.5);
     }
 
     public Trigger atLimit() {
@@ -211,7 +211,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.getRadians(), 0, ElevatorConstants.MAX_RADIANS);
+                    MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
                 inputs.goal = goal;
 //                mController.setGoal(new TrapezoidProfile.State(goal, 0));
 //                enable();

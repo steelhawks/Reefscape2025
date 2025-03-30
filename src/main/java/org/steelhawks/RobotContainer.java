@@ -450,8 +450,8 @@ public class RobotContainer {
                     s_Claw.shootCoralSlow(),
                     s_Claw.shootCoral(),
                     () ->
-                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getRadians() ||
-                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getRadians()) && s_Elevator.isEnabled())
+                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
