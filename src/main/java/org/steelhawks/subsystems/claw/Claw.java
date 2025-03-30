@@ -51,12 +51,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command intakeCoral() {
-        return Commands.run(
-            () -> {
-                isIntaking = true;
-                io.runIntake(-INTAKE_SPEED);
-            }, this)
-            .finallyDo(this::stop);
+        return shootCoral(-INTAKE_SPEED);
     }
 
     public Command shootCoral() {
