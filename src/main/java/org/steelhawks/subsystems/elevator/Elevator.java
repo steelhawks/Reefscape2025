@@ -50,6 +50,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Elevator(ElevatorIO io) {
+        inputs.goal = ElevatorConstants.State.HOME.getAngle().getRadians(); // set default position
         mOperatorLock = OperatorLock.LOCKED;
         mSysId =
             new SysIdRoutine(
@@ -83,8 +84,6 @@ public class Elevator extends SubsystemBase {
 
         this.io = io;
         disable();
-
-        io.zeroEncoders();
     }
 
     private boolean limitPressed() {
