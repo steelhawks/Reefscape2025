@@ -55,7 +55,7 @@ public class RC2 extends SequentialCommandGroup {
                 () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
                     desiredScoreLevel == ElevatorConstants.State.L4),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
-            followTrajectory("BR2 to Lower Source"),
+            followTrajectory("BL2 to Lower Source"),
             Commands.waitUntil(s_Claw.hasCoral()),
             Commands.parallel(
                 followTrajectory("Lower Source to BL1"),
@@ -66,6 +66,26 @@ public class RC2 extends SequentialCommandGroup {
             ),
             s_Elevator.setDesiredState(ElevatorConstants.State.L4),
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL1.getScorePose(ElevatorConstants.State.L4)),
+            Commands.deadline(
+                Commands.waitSeconds(0.8),
+                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
+            Commands.either(
+                s_Claw.shootCoralSlow().withTimeout(0.6),
+                s_Claw.shootCoral().withTimeout(0.3),
+                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
+                    desiredScoreLevel == ElevatorConstants.State.L4),
+            s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
+            followTrajectory("BL1 to Lower Source"),
+            Commands.waitUntil(s_Claw.hasCoral()),
+            Commands.parallel(
+                followTrajectory("Lower Source to L2"),
+                Commands.sequence(
+                    Commands.waitSeconds(0.5),
+                    s_Elevator.setDesiredState(ElevatorConstants.State.L2)
+                )
+            ),
+            s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.L2.getScorePose(ElevatorConstants.State.L4)),
             Commands.deadline(
                 Commands.waitSeconds(0.8),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
