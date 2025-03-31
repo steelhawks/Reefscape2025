@@ -47,6 +47,9 @@ public interface ElevatorIO {
      */
     default void runElevatorViaSpeed(double speed) {}
 
+    /**
+     * Runs the elevator using the onboard TalonFX PID controller.
+     */
     default void runPosition(double positionRad) {}
 
     /**
