@@ -82,7 +82,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(ElevatorConstants.MAX_VELOCITY_PER_SEC)
                     .withMotionMagicAcceleration(ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED)
-                    .withMotionMagicJerk(ElevatorConstants.MAX_JERK_PER_SEC_CUBED)); // add jerk to make it an s-curve
+                    .withMotionMagicJerk(ElevatorConstants.MAX_JERK_PER_SEC_CUBED)) // add jerk to make it an s-curve
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(80.0)
+                    .withStatorCurrentLimitEnable(true));
 
         mLeftMotor.getConfigurator().apply(leftConfig);
         mRightMotor.setControl(new Follower(mLeftMotor.getDeviceID(), true));
