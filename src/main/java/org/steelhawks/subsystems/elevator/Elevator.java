@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
+import org.steelhawks.RobotContainer;
 
 import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Volts;
@@ -92,6 +93,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        updateGains();
         inputs.atTopLimit = getPosition() >= ElevatorConstants.MAX_RADIANS;
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
@@ -109,6 +111,30 @@ public class Elevator extends SubsystemBase {
 
         if (mEnabled)
             runElevator();
+    }
+
+    private void updateGains() {
+        if (RobotContainer.s_Claw.hasCoral().getAsBoolean()) {
+            io.setPID(
+                ElevatorConstants.CORAL_KP,
+                ElevatorConstants.CORAL_KI,
+                ElevatorConstants.CORAL_KD);
+            io.setFF(
+                ElevatorConstants.CORAL_KS,
+                ElevatorConstants.CORAL_KG,
+                ElevatorConstants.CORAL_KV,
+                ElevatorConstants.CORAL_KA);
+        } else {
+            io.setPID(
+                ElevatorConstants.NONE_KP,
+                ElevatorConstants.NONE_KI,
+                ElevatorConstants.NONE_KD);
+            io.setFF(
+                ElevatorConstants.NONE_KS,
+                ElevatorConstants.NONE_KG,
+                ElevatorConstants.NONE_KV,
+                ElevatorConstants.NONE_KA);
+        }
     }
 
     private double directionOfMovement() {
@@ -209,7 +235,7 @@ public class Elevator extends SubsystemBase {
                         double appliedSpeed = speed.getAsDouble();
 
                         if (speed.getAsDouble() == 0.0) {
-                            appliedSpeed = ElevatorConstants.KG / 12.0;
+                            appliedSpeed = (RobotContainer.s_Claw.hasCoral().getAsBoolean() ? ElevatorConstants.CORAL_KG : ElevatorConstants.NONE_KG) / 12.0;
                         }
 
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
@@ -250,20 +276,20 @@ public class Elevator extends SubsystemBase {
 
     public Command applykS() {
         return Commands.run(
-            () -> io.runElevator(ElevatorConstants.KS), this)
+            () -> io.runElevator(ElevatorConstants.CORAL_KS), this)
             .finallyDo(io::stop);
     }
 
     public Command applykG() {
         return Commands.run(
-            () -> io.runElevator(ElevatorConstants.KG), this)
+            () -> io.runElevator(ElevatorConstants.CORAL_KG), this)
             .finallyDo(io::stop);
     }
 
     public Command applykV() {
         return Commands.run(
             () -> {
-                double volts = ElevatorConstants.KS + ElevatorConstants.KV;
+                double volts = ElevatorConstants.CORAL_KS + ElevatorConstants.CORAL_KV;
                 io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);

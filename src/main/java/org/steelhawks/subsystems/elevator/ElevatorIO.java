@@ -53,6 +53,16 @@ public interface ElevatorIO {
     default void runPosition(double positionRad) {}
 
     /**
+     * Sets the PID gains for the elevator.
+     */
+    default void setPID(double kP, double kI, double kD) {}
+
+    /**
+     * Sets the feedforward gains for the elevator.
+     */
+    default void setFF(double kS, double kG, double kV, double kA) {}
+
+    /**
      * Zeros the position of the motor encoders.
      */
     default void zeroEncoders() {}

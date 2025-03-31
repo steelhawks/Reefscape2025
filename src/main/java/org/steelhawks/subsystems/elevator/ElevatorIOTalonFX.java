@@ -20,10 +20,11 @@ import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
-    private final TalonFX mLeftMotor;
-    private final TalonFX mRightMotor;
+    private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private final MotionMagicVoltage motionMagic;
     private final DigitalInput mLimitSwitch;
+    private final TalonFX mLeftMotor;
+    private final TalonFX mRightMotor;
     private CANcoder mCANcoder = null;
 
     private final StatusSignal<Angle> leftPosition;
@@ -66,16 +67,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         motionMagic = new MotionMagicVoltage(0.0);
         mLimitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
 
-        var leftConfig = new TalonFXConfiguration()
+        motorConfig
             .withSlot0(
                 new Slot0Configs()
                     .withGravityType(GravityTypeValue.Elevator_Static)
-                    .withKS(ElevatorConstants.KS)
-                    .withKG(ElevatorConstants.KG)
-                    .withKV(ElevatorConstants.KV)
-                    .withKP(ElevatorConstants.KP)
-                    .withKI(ElevatorConstants.KI)
-                    .withKD(ElevatorConstants.KD))
+                    .withKS(ElevatorConstants.CORAL_KS)
+                    .withKG(ElevatorConstants.CORAL_KG)
+                    .withKV(ElevatorConstants.CORAL_KV)
+                    .withKP(ElevatorConstants.CORAL_KP)
+                    .withKI(ElevatorConstants.CORAL_KI)
+                    .withKD(ElevatorConstants.CORAL_KD))
             .withFeedback(
                 new FeedbackConfigs()
                     .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
@@ -88,7 +89,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(80.0)
                     .withStatorCurrentLimitEnable(true));
-        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(leftConfig));
+        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(motorConfig));
 
         leftPosition = mLeftMotor.getPosition();
         leftVelocity = mLeftMotor.getVelocity();
@@ -208,6 +209,23 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void runPosition(double positionRad) {
         mLeftMotor.setControl(
             motionMagic.withPosition(Units.radiansToRotations(positionRad)));
+    }
+
+    @Override
+    public void setPID(double kP, double kI, double kD) {
+        motorConfig.Slot0.kP = kP;
+        motorConfig.Slot0.kI = kI;
+        motorConfig.Slot0.kD = kD;
+        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(motorConfig));
+    }
+
+    @Override
+    public void setFF(double kS, double kG, double kV, double kA) {
+        motorConfig.Slot0.kS = kS;
+        motorConfig.Slot0.kG = kG;
+        motorConfig.Slot0.kV = kV;
+        motorConfig.Slot0.kA = kA;
+        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(motorConfig));
     }
 
     @Override
