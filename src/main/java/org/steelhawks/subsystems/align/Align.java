@@ -205,6 +205,9 @@ public class Align extends VirtualSubsystem {
     }
 
     public Command alignToClosestCoralStation() {
-        return DriveCommands.driveToPosition(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
+        return Commands.defer(
+            () -> DriveCommands.driveToPosition(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine()),
+            Set.of(s_Swerve));
+
     }
 }

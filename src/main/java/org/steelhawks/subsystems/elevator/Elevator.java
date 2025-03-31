@@ -3,8 +3,6 @@ package org.steelhawks.subsystems.elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -16,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
 
@@ -105,6 +102,14 @@ public class Elevator extends SubsystemBase {
 
         this.io = io;
         disable();
+
+        if (inputs.limitSwitchPressed) {
+            io.zeroEncoders();
+        } else {
+            homeCommand()
+                .andThen(io::zeroEncoders)
+                .schedule();
+        }
     }
 
     private boolean limitPressed() {
@@ -113,6 +118,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        inputs.atTopLimit = getPosition() >= ElevatorConstants.MAX_RADIANS;
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
         Logger.recordOutput("Elevator/Enabled", mEnabled);
@@ -153,7 +159,7 @@ public class Elevator extends SubsystemBase {
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")
     public double getPosition() {
-        return inputs.encoderPositionRad;
+        return inputs.encoderPositionRad - ElevatorConstants.CANCODER_OFFSET;
     }
 
     public Trigger atGoal() {
@@ -162,7 +168,7 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atThisGoal(ElevatorConstants.State state) {
         return new Trigger(
-            () -> Math.abs(getPosition() - state.getRadians()) <= ElevatorConstants.TOLERANCE * 1.5);
+            () -> Math.abs(getPosition() - state.getAngle().getRadians()) <= ElevatorConstants.TOLERANCE * 1.5);
     }
 
     public Trigger atLimit() {
@@ -191,7 +197,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(
             () -> {
                 double goal =
-                    MathUtil.clamp(state.getRadians(), 0, ElevatorConstants.MAX_RADIANS);
+                    MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
                 inputs.goal = goal;
                 mController.setGoal(new TrapezoidProfile.State(goal, 0));
                 enable();
@@ -258,7 +264,7 @@ public class Elevator extends SubsystemBase {
         .until(() -> limitPressed())
         .finallyDo(() -> {
             io.stop();
-            io.zeroEncoders();
+//            io.zeroEncoders();
         })
         .withName("Slam Elevator");
     }
@@ -272,16 +278,16 @@ public class Elevator extends SubsystemBase {
             .until(() -> limitPressed())
             .finallyDo(() -> {
                 io.stop();
-                io.zeroEncoders();
+//                io.zeroEncoders();
             })
             .withName("No Slam Elevator");
     }
 
     public Command homeCommand() {
         return setDesiredState(ElevatorConstants.State.HOME)
-            .until(() -> limitPressed())
+            .until(this::limitPressed)
             .finallyDo(() -> {
-                io.zeroEncoders();
+//                io.zeroEncoders();
                 io.stop();
             })
             .withName("Home Elevator");

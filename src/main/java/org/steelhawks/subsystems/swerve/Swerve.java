@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -47,6 +46,7 @@ import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -194,7 +194,7 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                             Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-                ROBOT_MASS_KG = Units.lbsToKilograms(124.8);
+                ROBOT_MASS_KG = Units.lbsToKilograms(124.99);
                 ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
                 WHEEL_COF = COTS.WHEELS.COLSONS.cof;
                 PP_CONFIG =
@@ -357,9 +357,9 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                AutonConstants.ALIGN_PID.kP,
-                AutonConstants.ALIGN_PID.kI,
-                AutonConstants.ALIGN_PID.kD,
+                AutonConstants.ANGLE_PID.kP,
+                AutonConstants.ANGLE_PID.kI,
+                AutonConstants.ANGLE_PID.kD,
                 new TrapezoidProfile.Constraints(
                     AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
@@ -431,6 +431,7 @@ public class Swerve extends SubsystemBase {
             mPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
 
+        FieldConstants.FIELD_2D.setRobotPose(getPose());
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
     }
 

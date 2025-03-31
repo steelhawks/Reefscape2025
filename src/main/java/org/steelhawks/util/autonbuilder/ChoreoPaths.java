@@ -1,7 +1,7 @@
 package org.steelhawks.util.autonbuilder;
 
 public enum ChoreoPaths {
-    DEFAULT_PATH("No Auto", StartEndPosition.DEFAULT_POSITION, StartEndPosition.DEFAULT_POSITION, AutonBuilder.ReefZones.UNDEFINED),
+    DEFAULT_PATH("No Auto", StartEndPosition.NOTHING_AUTO, StartEndPosition.NOTHING_AUTO, AutonBuilder.ReefZones.UNDEFINED),
 
     BC1_TO_TL1 ("BC1 to TL1" , StartEndPosition.BC1, StartEndPosition.TL1, AutonBuilder.ReefZones.TL),
     BC1_TO_TL2 ("BC1 to TL2", StartEndPosition.BC1, StartEndPosition.TL2, AutonBuilder.ReefZones.TL),

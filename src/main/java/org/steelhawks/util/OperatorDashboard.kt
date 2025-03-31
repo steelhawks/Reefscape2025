@@ -33,7 +33,7 @@ object OperatorDashboard : VirtualSubsystem() {
     fun initialize() {
         for (connection in NetworkTableInstance.getDefault().connections) {
             println("Connection: $connection")
-            Alert("Connected Devices" + connection.remote_ip, AlertType.kInfo).set(true)
+            Alert("Connected Devices " + connection.remote_ip, AlertType.kInfo).set(true)
         }
     }
 
@@ -47,10 +47,10 @@ object OperatorDashboard : VirtualSubsystem() {
                     "Home"
                 } else {
                     when (RobotContainer.s_Elevator.desiredState) {
-                        ElevatorConstants.State.L1.radians -> "L1"
-                        ElevatorConstants.State.L2.radians -> "L2"
-                        ElevatorConstants.State.L3.radians -> "L3"
-                        ElevatorConstants.State.L4.radians -> "L4"
+                        ElevatorConstants.State.L1.angle.radians -> "L1"
+                        ElevatorConstants.State.L2.angle.radians -> "L2"
+                        ElevatorConstants.State.L3.angle.radians -> "L3"
+                        ElevatorConstants.State.L4.angle.radians -> "L4"
                         else -> "N/A"
                     }
                 })

@@ -1,5 +1,6 @@
 package org.steelhawks.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
@@ -13,6 +14,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.SwerveDriveController;
 
@@ -42,17 +44,17 @@ public class SwerveDriveAlignment extends Command {
         mController =
             new SwerveDriveController(
                 new PIDController(
-                    AutonConstants.TRANSLATION_PID.kP,
-                    AutonConstants.TRANSLATION_PID.kI,
-                    AutonConstants.TRANSLATION_PID.kD),
+                    AutonConstants.ALIGN_PID.kP,
+                    AutonConstants.ALIGN_PID.kI,
+                    AutonConstants.ALIGN_PID.kD),
                 new PIDController(
-                    AutonConstants.ROTATION_PID.kP,
-                    AutonConstants.ROTATION_PID.kI,
-                    AutonConstants.ROTATION_PID.kD),
+                    AutonConstants.ALIGN_PID.kP,
+                    AutonConstants.ALIGN_PID.kI,
+                    AutonConstants.ALIGN_PID.kD),
                 new ProfiledPIDController(
-                    AutonConstants.ROTATION_PID.kP,
-                    AutonConstants.ROTATION_PID.kI,
-                    AutonConstants.ROTATION_PID.kD,
+                    AutonConstants.ALIGN_ANGLE_PID.kP,
+                    AutonConstants.ALIGN_ANGLE_PID.kI,
+                    AutonConstants.ALIGN_ANGLE_PID.kD,
                     new TrapezoidProfile.Constraints(
                         AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)))
@@ -78,7 +80,7 @@ public class SwerveDriveAlignment extends Command {
 
     private boolean isAligned() {
         // added auton check so command keeps running if the driver wants to switch the branch to score on, this doesnt interrupt auton scoring sequence
-        return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance() && Robot.getState() == Robot.RobotState.AUTON;
+        return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance();
     }
 
     @Override
@@ -93,7 +95,13 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
-        s_Swerve.runVelocity(speeds);
+        s_Swerve.runVelocity(
+            new ChassisSpeeds(
+                Math.abs(speeds.vxMetersPerSecond) < 0.05 ? 0 : speeds.vxMetersPerSecond,
+                Math.abs(speeds.vyMetersPerSecond) < 0.05 ? 0 : speeds.vyMetersPerSecond,
+                Math.abs(speeds.omegaRadiansPerSecond) < 0.05 ? 0 : speeds.omegaRadiansPerSecond
+            )
+        );
 
         velocityError =
             Math.hypot(
@@ -115,11 +123,15 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/AlignedY", isYAligned());
         Logger.recordOutput("Align/AlignedTheta", isThetaAligned());
         Logger.recordOutput("Align/VelocityInTolerance", velocityInTolerance());
+
+//        if (isAligned()) {
+//            LED.getInstance().flashCommand(LED.LEDColor.GREEN, 0.2, 1.0).schedule();
+//        }
     }
 
     @Override
     public boolean isFinished() {
-        return debouncer.calculate(isAligned());
+        return debouncer.calculate(isAligned() && Robot.getState() == Robot.RobotState.AUTON);
     }
 
     @Override

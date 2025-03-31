@@ -2,6 +2,7 @@ package org.steelhawks;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.dyn4j.geometry.Vector2;
 import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
@@ -18,6 +19,7 @@ public class FieldConstants {
     public static double CENTER_OF_REEF_TO_REEF_FACE = Units.inchesToMeters(32.75);
     public static double CENTER_OF_TROUGH_TO_BRANCH = Units.inchesToMeters(13.0 / 2.0);
     public static double ROBOT_PERPENDICULAR_TO_NEXT_REEF = Units.inchesToMeters(18.5 + 3);
+    public static final Field2d FIELD_2D = new Field2d();
 
     public static final AprilTag[] APRIL_TAGS = {
         new AprilTag(1,  new Pose3d(new Translation3d(Units.inchesToMeters(657.37), Units.inchesToMeters(25.80), Units.inchesToMeters(58.50)), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(126)))),

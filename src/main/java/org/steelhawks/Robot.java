@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -8,19 +9,22 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.steelhawks.Autos.Misalignment;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -28,16 +32,19 @@ import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.util.Elastic;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
-import java.util.Set;
+import static org.steelhawks.Constants.RobotType.*;
 
 public class Robot extends LoggedRobot {
 
     private static RobotState mState = RobotState.DISABLED;
+    private Misalignment lastState = Misalignment.NONE;
     private final RobotContainer robotContainer;
     private Command autonomousCommand;
+    private boolean isFirstRun = true;
 
     public enum RobotState {
         DISABLED,
@@ -57,6 +64,7 @@ public class Robot extends LoggedRobot {
 
     @SuppressWarnings("resource")
     public Robot() {
+        WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
         for (int i = 5800; i < 5810; i++) {
             PortForwarder.add(i, "10.26.1.11", i);
             PortForwarder.add(i, "10.26.1.12", i);
@@ -166,6 +174,10 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
+        if (Constants.getRobot() != ALPHABOT)
+            Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
+        Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
+
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
         Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
@@ -186,47 +198,71 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-//        Commands.defer(
-//            () -> LED.getInstance().setColorCommand(
-//            Autos.robotReadyForAuton()
-//                ? LED.LEDColor.GREEN
-//                : LED.LEDColor.RED),
-//            Set.of(LED.getInstance())).schedule();
-        LED.getInstance().setColor(
-            Autos.robotReadyForAuton()
-                ? LEDColor.GREEN
-                : LEDColor.RED);
+        Misalignment currentState = Autos.getMisalignment();
+        if (!isFirstRun)
+            LED.getInstance().rainbow();
+
+
+        if (isFirstRun) {
+            Logger.recordOutput("Align/AutonMisalignment", currentState);
+
+            switch (currentState) {
+                case NONE -> {
+                    if (LED.getInstance().getCurrentCommand() != null)
+                        LED.getInstance().getCurrentCommand().cancel();
+                    LED.getInstance().setColor(LEDColor.GREEN);
+                }
+                case ROTATION_CCW ->
+                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 0.3, () -> false).schedule();
+                case ROTATION_CW ->
+                    LED.getInstance().flashUntilCommand(LEDColor.BLUE, 1.0, () -> false).schedule();
+                case X_RIGHT ->
+                    LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 0.3, () -> false).schedule();
+                case X_LEFT ->
+                    LED.getInstance().flashUntilCommand(LEDColor.YELLOW, 1.0, () -> false).schedule();
+                case Y_FORWARD ->
+                    LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 0.3, () -> false).schedule();
+                case Y_BACKWARD ->
+                    LED.getInstance().flashUntilCommand(LEDColor.PURPLE, 1.0, () -> false).schedule();
+                case MULTIPLE ->
+                    LED.getInstance().flashUntilCommand(LEDColor.RED, 0.2, () -> false).schedule();
+            }
+        }
     }
+
+
 
     @Override
     public void disabledExit() {
-        if (DriverStation.isDSAttached()) {
-            robotContainer.waitForDs();
-        }
+        isFirstRun = false;
     }
 
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-//        autonomousCommand = Autos.getRC2Auton();
+        Elastic.selectTab("Autonomous");
         autonomousCommand = Autos.getAuto();
 
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null)
             autonomousCommand.schedule();
-        }
+        if (LED.getInstance().getCurrentCommand() != null)
+            LED.getInstance().getCurrentCommand().cancel();
+        LED.getInstance().setDefaultLighting(LED.getInstance().getBlockyRainbowCommand());
     }
 
     @Override
-    public void autonomousPeriodic() {
-        LED.getInstance().rainbow();
-    }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
-        if (autonomousCommand != null) {
+        Elastic.selectTab("Teleoperated");
+        if (autonomousCommand != null)
             autonomousCommand.cancel();
-        }
+        if (LED.getInstance().getCurrentCommand() != null)
+            LED.getInstance().getCurrentCommand().cancel();
+        if (DriverStation.isDSAttached())
+            robotContainer.waitForDs();
     }
 
     @Override
