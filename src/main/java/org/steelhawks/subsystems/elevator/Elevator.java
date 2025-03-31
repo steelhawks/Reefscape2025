@@ -1,12 +1,9 @@
 package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
 
@@ -24,17 +20,14 @@ import static edu.wpi.first.units.Units.Volts;
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
 
+    private static final double VELOCITY_TOLERANCE = 0.1; // need to find irl
+    private static final double SLOW_DOWN_HOME_SPEED = -0.15;
+
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private OperatorLock mOperatorLock;
     private final SysIdRoutine mSysId;
     private boolean mEnabled = false;
     private final ElevatorIO io;
-
-    private final ProfiledPIDController mController;
-    private final ElevatorFeedforward mFeedforward;
-    private final TrapezoidProfile profile;
-    private TrapezoidProfile.State setpoint;
-    private TrapezoidProfile.State goalState;
 
     private final Alert leftMotorDisconnected;
     private final Alert rightMotorDisconnected;
@@ -44,12 +37,11 @@ public class Elevator extends SubsystemBase {
 
     public void enable() {
         mEnabled = true;
-        mController.reset(getPosition());
     }
 
     public void disable() {
         mEnabled = false;
-        runElevator(0, new TrapezoidProfile.State());
+        io.stop();
     }
 
     public boolean isEnabled() {
@@ -57,26 +49,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Elevator(ElevatorIO io) {
-        mController =
-            new ProfiledPIDController(
-                ElevatorConstants.KP,
-                ElevatorConstants.KI,
-                ElevatorConstants.KD,
-                new TrapezoidProfile.Constraints(
-                    ElevatorConstants.MAX_VELOCITY_PER_SEC,
-                    ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED));
-        mController.setTolerance(ElevatorConstants.TOLERANCE);
-        mFeedforward =
-            new ElevatorFeedforward(
-                ElevatorConstants.KS,
-                ElevatorConstants.KG,
-                ElevatorConstants.KV);
-        profile =
-            new TrapezoidProfile(
-                new TrapezoidProfile.Constraints(
-                    ElevatorConstants.MAX_VELOCITY_PER_SEC,
-                    ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED));
-
+        mOperatorLock = OperatorLock.LOCKED;
         mSysId =
             new SysIdRoutine(
                 new SysIdRoutine.Config(
@@ -86,8 +59,6 @@ public class Elevator extends SubsystemBase {
                     (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
-
-        mOperatorLock = OperatorLock.LOCKED;
 
         leftMotorDisconnected =
             new Alert(
@@ -112,13 +83,7 @@ public class Elevator extends SubsystemBase {
         this.io = io;
         disable();
 
-        if (inputs.limitSwitchPressed) {
-            io.zeroEncoders();
-        } else {
-            homeCommand()
-                .andThen(io::zeroEncoders)
-                .schedule();
-        }
+        io.zeroEncoders();
     }
 
     private boolean limitPressed() {
@@ -138,34 +103,26 @@ public class Elevator extends SubsystemBase {
         limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
         canCoderMagnetBad.set(!inputs.magnetGood);
 
-        // stop adding up pid error while disabled
-        if (DriverStation.isDisabled()) {
-            mController.reset(getPosition());
-        }
-
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
         }
 
-        if (mEnabled) {
-            runElevator(mController.calculate(getPosition()), mController.getSetpoint());
-        }
+        if (mEnabled)
+            runElevator();
     }
 
-    private void runElevator(double fb, TrapezoidProfile.State setpoint) {
-        double ff = mFeedforward.calculate(setpoint.velocity);
-        Logger.recordOutput("Elevator/Feedback", fb);
-        Logger.recordOutput("Elevator/Feedforward", ff);
-        double volts = fb + ff;
+    private double directionOfMovement() {
+        LinearFilter filter = LinearFilter.movingAverage(5);
+        if (Math.abs(inputs.encoderVelocityRadPerSec) < VELOCITY_TOLERANCE) // need to find irl
+            return 0;
+        return Math.signum(filter.calculate(inputs.encoderVelocityRadPerSec));
+    }
 
-        if ((inputs.atTopLimit && volts >= 0) || (limitPressed() && volts <= 0)) {
+    private void runElevator() {
+        if ((inputs.atTopLimit && directionOfMovement() > 0) || (limitPressed() && directionOfMovement() < 0)) { // need to test if dir of movement works fine
             io.stop();
             return;
         }
-
-        setpoint = profile.calculate(Constants.LOOP_UPDATE_PERIOD, setpoint, new TrapezoidProfile.State(inputs.goal, 0));
-
-//        io.runElevator(volts);
         io.runPosition(inputs.goal);
     }
 
@@ -175,7 +132,8 @@ public class Elevator extends SubsystemBase {
     }
 
     public Trigger atGoal() {
-        return new Trigger(mController::atGoal);
+        return new Trigger(
+            () -> Math.abs(getPosition() - inputs.goal) <= ElevatorConstants.TOLERANCE * 1.5);
     }
 
     public Trigger atThisGoal(ElevatorConstants.State state) {
@@ -188,7 +146,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Trigger atHome() {
-        return new Trigger(() -> limitPressed());
+        return new Trigger(this::limitPressed);
     }
 
     ///////////////////////
@@ -207,13 +165,7 @@ public class Elevator extends SubsystemBase {
 
     public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
-            () -> {
-                double goal =
-                    MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
-                inputs.goal = goal;
-//                mController.setGoal(new TrapezoidProfile.State(goal, 0));
-//                enable();
-            }, this)
+            () -> inputs.goal = MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS), this)
             .withName("Set Desired State");
     }
 
@@ -273,11 +225,8 @@ public class Elevator extends SubsystemBase {
             .andThen(
                 Commands.run(
                     () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT / 2.0), this))
-        .until(() -> limitPressed())
-        .finallyDo(() -> {
-            io.stop();
-//            io.zeroEncoders();
-        })
+        .until(this::limitPressed)
+        .finallyDo(io::stop)
         .withName("Slam Elevator");
     }
 
@@ -285,23 +234,17 @@ public class Elevator extends SubsystemBase {
         return setDesiredState(ElevatorConstants.State.HOME_ABOVE_BAR)
             .andThen(
                 Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME_ABOVE_BAR)),
-                Commands.runOnce(() -> disable()),
-                Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
-            .until(() -> limitPressed())
-            .finallyDo(() -> {
-                io.stop();
-//                io.zeroEncoders();
-            })
+                Commands.runOnce(this::disable),
+                Commands.run(() -> io.runElevatorViaSpeed(SLOW_DOWN_HOME_SPEED)))
+            .until(this::limitPressed)
+            .finallyDo(io::stop)
             .withName("No Slam Elevator");
     }
 
     public Command homeCommand() {
         return setDesiredState(ElevatorConstants.State.HOME)
             .until(this::limitPressed)
-            .finallyDo(() -> {
-//                io.zeroEncoders();
-                io.stop();
-            })
+            .finallyDo(io::stop)
             .withName("Home Elevator");
     }
 

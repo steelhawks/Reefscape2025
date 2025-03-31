@@ -21,9 +21,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX mLeftMotor;
     private final TalonFX mRightMotor;
     private final MotionMagicVoltage motionMagic;
-    private CANcoder mCANcoder = null;
-
     private final DigitalInput mLimitSwitch;
+    private CANcoder mCANcoder = null;
 
     private final StatusSignal<Angle> leftPosition;
     private final StatusSignal<AngularVelocity> leftVelocity;
@@ -82,7 +81,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withMotionMagic(
                 new MotionMagicConfigs()
                     .withMotionMagicCruiseVelocity(ElevatorConstants.MAX_VELOCITY_PER_SEC)
-                    .withMotionMagicAcceleration(ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED));
+                    .withMotionMagicAcceleration(ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED)
+                    .withMotionMagicJerk(ElevatorConstants.MAX_JERK_PER_SEC_CUBED)); // add jerk to make it an s-curve
 
         mLeftMotor.getConfigurator().apply(leftConfig);
         mRightMotor.setControl(new Follower(mLeftMotor.getDeviceID(), true));

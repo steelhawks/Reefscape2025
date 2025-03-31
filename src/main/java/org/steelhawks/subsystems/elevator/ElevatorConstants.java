@@ -63,6 +63,7 @@ public class ElevatorConstants {
 
     public static final double MAX_VELOCITY_PER_SEC;
     public static final double MAX_ACCELERATION_PER_SEC_SQUARED;
+    public static final double MAX_JERK_PER_SEC_CUBED;
 
     public static final double TOLERANCE;
     public static final double MANUAL_ELEVATOR_INCREMENT;
@@ -87,6 +88,7 @@ public class ElevatorConstants {
                 KD = 0.01;
                 MAX_VELOCITY_PER_SEC = 100.0;
                 MAX_ACCELERATION_PER_SEC_SQUARED = 110.0;
+                MAX_JERK_PER_SEC_CUBED = 0.0;
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.65;
                 MAX_RADIANS = 60;
@@ -105,6 +107,7 @@ public class ElevatorConstants {
                 KD = 0.002;
                 MAX_VELOCITY_PER_SEC = 5.2;
                 MAX_ACCELERATION_PER_SEC_SQUARED = 8.0;
+                MAX_JERK_PER_SEC_CUBED = 0.0;
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.5;
                 MAX_RADIANS = 18.5;
@@ -123,6 +126,7 @@ public class ElevatorConstants {
                 KD = 0.0;
                 MAX_VELOCITY_PER_SEC = 40; // 35
                 MAX_ACCELERATION_PER_SEC_SQUARED = 60; // was 70
+                MAX_JERK_PER_SEC_CUBED = 120;
                 TOLERANCE = 0.02;
                 MANUAL_ELEVATOR_INCREMENT = 0.55;
                 MAX_RADIANS = 24; // 24.663
