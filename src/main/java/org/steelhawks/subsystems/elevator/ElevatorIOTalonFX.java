@@ -16,6 +16,8 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 
+import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
+
 public class ElevatorIOTalonFX implements ElevatorIO {
 
     private final TalonFX mLeftMotor;
@@ -46,8 +48,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         mLeftMotor = new TalonFX(ElevatorConstants.LEFT_ID, Constants.getCANBus());
         mRightMotor = new TalonFX(ElevatorConstants.RIGHT_ID, Constants.getCANBus());
-        mLeftMotor.setPosition(0.0);
-        mRightMotor.setPosition(0.0);
+        mRightMotor.setControl(new Follower(mLeftMotor.getDeviceID(), true));
         if (ElevatorConstants.CANCODER_ID != -1) {
             mCANcoder = new CANcoder(ElevatorConstants.CANCODER_ID, Constants.getCANBus());
             magnetFault = mCANcoder.getFault_BadMagnet();
@@ -87,9 +88,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(80.0)
                     .withStatorCurrentLimitEnable(true));
-
-        mLeftMotor.getConfigurator().apply(leftConfig);
-        mRightMotor.setControl(new Follower(mLeftMotor.getDeviceID(), true));
+        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(leftConfig));
 
         leftPosition = mLeftMotor.getPosition();
         leftVelocity = mLeftMotor.getVelocity();
@@ -118,6 +117,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             rightTemp);
 
         ParentDevice.optimizeBusUtilizationForAll(mLeftMotor, mRightMotor);
+        zeroEncoders();
     }
 
     boolean encoderOffsetFound = false;
