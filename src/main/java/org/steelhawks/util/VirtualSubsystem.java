@@ -5,6 +5,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is used to create virtual subsystems to be able to access a periodic function.
+ * Should be used for non-physical subsystems that need to run a periodic function.
+ * This is separate from the normal SubsystemBase class, meaning you do not clog up the CommandScheduler.
+ *
+ * @author Farhan Jamil
+ */
 public abstract class VirtualSubsystem {
 
     private static final List<VirtualSubsystem> mSubsystems = new ArrayList<>();

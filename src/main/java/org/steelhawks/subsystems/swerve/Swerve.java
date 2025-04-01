@@ -529,6 +529,13 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
+     * Returns the robot's acceleration in the X direction relative to the robot.
+     */
+    public double getRobotRelativeXAccelGs() {
+        return gyroInputs.accelerationXInGs * getPose().getRotation().getCos();
+    }
+
+    /**
      * Returns the module states (turn angles and drive velocities) for all of the modules.
      */
     @AutoLogOutput(key = "SwerveStates/Measured")
