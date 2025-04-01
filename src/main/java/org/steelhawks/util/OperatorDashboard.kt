@@ -9,6 +9,16 @@ import org.steelhawks.Robot
 import org.steelhawks.RobotContainer
 import org.steelhawks.subsystems.elevator.ElevatorConstants
 
+/**
+ * OperatorDashboard.kt
+ *
+ * This class is used to send data to the iPad operator dashboard.
+ * It uses NetworkTables to send data to the Python server running on the driver station.
+ * The data is sent in a periodic function.
+ * The data is sent every 200ms.
+ *
+ * @author Farhan Jamil
+ */
 object OperatorDashboard : VirtualSubsystem() {
     private var ntInstance: NetworkTableInstance = NetworkTableInstance.getDefault()
     private val status: NetworkTable = ntInstance.getTable("status")
