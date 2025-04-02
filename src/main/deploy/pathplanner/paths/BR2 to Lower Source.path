@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.981214778318073,
-        "y": 2.5862194626234825
+        "x": 4.970200873437778,
+        "y": 2.5521402889562457
       },
       "isLocked": false,
       "linkedName": "BR2"
     },
     {
       "anchor": {
-        "x": 1.4259375000031982,
-        "y": 0.8490482954579442
+        "x": 1.4058449534785706,
+        "y": 0.8352395486429157
       },
       "prevControl": {
-        "x": 1.6545333805823272,
-        "y": 0.950260564389397
+        "x": 1.7121056200573133,
+        "y": 0.975159221788497
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
+    "maxVelocity": 5.9,
+    "maxAcceleration": 7.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 900.0,
     "nominalVoltage": 12.0,
