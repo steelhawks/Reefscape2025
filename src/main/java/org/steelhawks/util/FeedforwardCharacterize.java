@@ -8,6 +8,16 @@ import java.util.List;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
+/**
+ * This class is used to characterize a mechanism by running it at different
+ * voltages and recording the resulting velocities.
+ * <p>
+ * The kV value is calculated using the formula:
+ * kV = (v2 - v1) / (u2 - u1)
+ * where v is the velocity and u is the voltage.
+ *
+ * @author Farhan Jamil
+ */
 public class FeedforwardCharacterize {
 
     // everything is UNTESTED
