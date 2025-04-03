@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -380,7 +382,7 @@ public class RobotContainer {
                 Commands.either(
                     s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
-                    () -> s_Swerve.isSlowMode())));
+                    () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
 
         driver.b().onTrue(
             s_Swerve.zeroHeading());
@@ -445,7 +447,7 @@ public class RobotContainer {
                 Commands.either(
                     s_Elevator.noSlamCommand(),
                     s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
-                        .alongWith(new VibrateController(operator)),
+                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
                     s_Claw.clearFromReef()));
 
         /* ------------- Intake Controls ------------- */
