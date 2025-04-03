@@ -25,6 +25,9 @@ import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.claw.ClawIO;
+import org.steelhawks.subsystems.climb.Climb;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
+import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.claw.ClawIOSim;
@@ -55,6 +58,7 @@ public class RobotContainer {
     public static Elevator s_Elevator;
     public static Claw s_Claw;
     public static Align s_Align;
+    public static Climb s_Climb;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -283,6 +287,10 @@ public class RobotContainer {
         new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
         Autos.init();
 
+        s_Climb = new Climb(
+                new ShallowClimbIO() {},
+        new DeepClimbIOTalonFX());
+
         topCoralStationTrigger =
             new FieldBoundingBox(
                 "Top Coral Station",
@@ -458,5 +466,13 @@ public class RobotContainer {
             .whileTrue(
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
+
+        operator.povUp()
+            .whileTrue(
+                s_Climb.runDeepClimbViaSpeed(0.5));
+
+        operator.povDown()
+            .whileTrue(
+                s_Climb.runDeepClimbViaSpeed(-0.5));
     }
 }

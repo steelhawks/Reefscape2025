@@ -54,7 +54,7 @@ public class Climb extends SubsystemBase {
         runDeepClimb(0, new TrapezoidProfile.State());
     }
 
-    public Climb(ShallowClimbIO shallowIO, DeepClimbIO deepIO) {
+public Climb(ShallowClimbIO shallowIO, DeepClimbIO deepIO) {
         this.shallowIO = shallowIO;
         this.deepIO = deepIO;
 
