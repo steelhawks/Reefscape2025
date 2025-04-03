@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
@@ -28,8 +27,8 @@ import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.claw.ClawIO;
 import org.steelhawks.subsystems.climb.Climb;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
-import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.claw.ClawIOSim;
@@ -141,6 +140,9 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIOTalonFX());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -165,6 +167,9 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIO() {});
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -190,6 +195,9 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIO() {});
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
@@ -235,6 +243,9 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIOSim());
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIO() {});
                 }
             }
         }
@@ -279,19 +290,17 @@ public class RobotContainer {
                         new VisionIO() {},
                         new VisionIO() {});
             }
-
             s_Elevator =
                 new Elevator(
                     new ElevatorIO() {});
+            s_Climb =
+                new Climb(
+                    new DeepClimbIO() {});
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
         new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
         Autos.init();
-
-        s_Climb = new Climb(
-                new ShallowClimbIO() {},
-        new DeepClimbIOTalonFX());
 
         topCoralStationTrigger =
             new FieldBoundingBox(
