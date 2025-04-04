@@ -7,7 +7,7 @@ import org.steelhawks.subsystems.swerve.Swerve;
 
 public class ClawIOSim implements ClawIO {
 
-    private final IntakeSimulation mIntakeSim;
+    public static IntakeSimulation mIntakeSim = null;
 
     public ClawIOSim() {
         mIntakeSim =
@@ -26,9 +26,7 @@ public class ClawIOSim implements ClawIO {
         inputs.appliedVolts = 0.0;
         inputs.currentAmps = 0.0;
         inputs.tempCelsius = 0.0;
-        inputs.beamConnected = true;
 
-        inputs.beamDistance = mIntakeSim.getGamePiecesAmount() != 1 ? 0.001 : 10.0;
     }
 
     @Override
