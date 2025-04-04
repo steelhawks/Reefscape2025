@@ -26,6 +26,9 @@ import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.claw.ClawIO;
+import org.steelhawks.subsystems.claw.beambreak.BeamIO;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
@@ -136,6 +139,7 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
+                            new BeamIOCANrange(),
                             new ClawIOTalonFX());
                     s_Align =
                         new Align(
@@ -163,6 +167,7 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
+                            new BeamIO() {},
                             new ClawIOTalonFX());
                     s_Align =
                         new Align(
@@ -191,6 +196,7 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
+                            new BeamIO() {},
                             new ClawIO() {});
                     s_Align =
                         new Align(
@@ -239,6 +245,7 @@ public class RobotContainer {
                             new ElevatorIOSim());
                     s_Claw =
                         new Claw(
+                            new BeamIOSim(),
                             new ClawIOSim());
                     s_Align =
                         new Align(
@@ -267,6 +274,7 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Claw =
                         new Claw(
+                            new BeamIO() {},
                             new ClawIO() {});
                     s_Align =
                         new Align(

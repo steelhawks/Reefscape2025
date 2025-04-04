@@ -12,10 +12,6 @@ public interface ClawIO {
         public double appliedVolts = 0;
         public double currentAmps = 0;
         public double tempCelsius = 0;
-
-        public boolean beamConnected = false;
-        public double beamDistance = 0.0;
-        public boolean beamBroken = false;
     }
 
     /**

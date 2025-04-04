@@ -20,7 +20,6 @@ import edu.wpi.first.math.util.Units;
 public class ClawIOTalonFX implements ClawIO {
 
     private final TalonFX mIntakeMotor;
-    private CANrange mBeamBreak = null;
 
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
@@ -28,30 +27,11 @@ public class ClawIOTalonFX implements ClawIO {
     private final StatusSignal<Current> current;
     private final StatusSignal<Temperature> temp;
 
-    private StatusSignal<Distance> distance = null;
-    private StatusSignal<Boolean> beamBroken = null;
-
     public ClawIOTalonFX() {
         CANBus canBus = Constants.getCANBus();
         if (Constants.getRobot() == RobotType.OMEGABOT) // claw is on the rio bus on omega
             canBus = new CANBus();
         mIntakeMotor = new TalonFX(ClawConstants.CLAW_INTAKE_MOTOR_ID, canBus);
-        if (Constants.getRobot() == RobotType.OMEGABOT) {
-            mBeamBreak = new CANrange(ClawConstants.CAN_RANGE_ID_OMEGA, canBus);
-            var canRangeConfig =
-                new CANrangeConfiguration()
-                    .withProximityParams(new ProximityParamsConfigs()
-                        .withProximityThreshold(Claw.DIST_TO_HAVE_CORAL));
-            mBeamBreak.getConfigurator().apply(canRangeConfig);
-            distance = mBeamBreak.getDistance();
-            beamBroken = mBeamBreak.getIsDetected();
-            BaseStatusSignal.setUpdateFrequencyForAll(
-                100,
-                distance,
-                beamBroken);
-            mBeamBreak.optimizeBusUtilization();
-        }
-
 
         var motorConfig =
             new TalonFXConfiguration()
@@ -91,13 +71,6 @@ public class ClawIOTalonFX implements ClawIO {
         inputs.appliedVolts = voltage.getValueAsDouble();
         inputs.currentAmps = current.getValueAsDouble();
         inputs.tempCelsius = temp.getValueAsDouble();
-
-        inputs.beamConnected = mBeamBreak != null && mBeamBreak.isConnected();
-
-        if (mBeamBreak != null) {
-            inputs.beamDistance = distance.refresh().getValueAsDouble();
-            inputs.beamBroken = beamBroken.refresh().getValue();
-        }
     }
 
     @Override
