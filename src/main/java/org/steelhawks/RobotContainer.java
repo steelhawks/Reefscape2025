@@ -24,8 +24,7 @@ import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
-import org.steelhawks.subsystems.claw.Claw;
-import org.steelhawks.subsystems.claw.ClawIO;
+import org.steelhawks.subsystems.claw.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
@@ -34,8 +33,6 @@ import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
-import org.steelhawks.subsystems.claw.ClawIOSim;
-import org.steelhawks.subsystems.claw.ClawIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -140,7 +137,7 @@ public class RobotContainer {
                     s_Claw =
                         new Claw(
                             new BeamIOCANrange(),
-                            new ClawIOTalonFX());
+                            new ClawIOSparkFlex());
                     s_Align =
                         new Align(
                             new AlignIO() {});
@@ -348,10 +345,10 @@ public class RobotContainer {
         s_Swerve.isPathfinding()
             .whileTrue(
                 s_LED.rainbowFlashCommand());
-
+    // 8.116292348702927
         s_Elevator.atLimit()
             .onTrue(
-                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
+                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false))
             .whileFalse(
                 s_LED.setColorCommand(LEDColor.WHITE).repeatedly());
 
@@ -488,10 +485,10 @@ public class RobotContainer {
 
         operator.povUp()
             .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(0.5));
+                s_Climb.runDeepClimbViaSpeed(1.0));
 
         operator.povDown()
             .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(-0.5));
+                s_Climb.runDeepClimbViaSpeed(-1.0));
     }
 }

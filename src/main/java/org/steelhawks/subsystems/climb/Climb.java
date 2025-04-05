@@ -86,8 +86,8 @@ public class Climb extends SubsystemBase {
         Logger.recordOutput("Climb/Enabled", mEnabled);
         Logger.processInputs("Climb", deepInputs);
 
-        topDeepMotorDisconnected.set(!deepInputs.topConnected);
-        bottomDeepMotorDisconnected.set(!deepInputs.bottomConnected);
+        topDeepMotorDisconnected.set(!deepInputs.connected);
+//        bottomDeepMotorDisconnected.set(!deepInputs.bottomConnected);
 
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Climb/CurrentCommand", getCurrentCommand().getName());
