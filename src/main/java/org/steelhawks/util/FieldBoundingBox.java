@@ -7,6 +7,13 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import java.util.function.Supplier;
 
+/**
+ * A trigger that checks if the robot is within a specified bounding box on the field.
+ * The bounding box is defined by its minimum and maximum X and Y coordinates.
+ * The coordinates are adjusted based on the alliance color.
+ *
+ * @author Farhan Jamil
+ */
 public class FieldBoundingBox extends Trigger {
 
     public FieldBoundingBox(

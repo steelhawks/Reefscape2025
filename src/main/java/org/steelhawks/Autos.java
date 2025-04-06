@@ -55,6 +55,7 @@ public final class Autos {
         autoChooser.addOption("RC1", getRC1Auton());
         autoChooser.addOption("RC2", getRC2Auton());
         autoChooser.addOption("RC3", getRC3Auton());
+        autoChooser.addOption("CENTER", getCenterAuton());
     }
 
     public static Misalignment getMisalignment() {
@@ -244,7 +245,7 @@ public final class Autos {
 
     public static Command getRC2Auton() {
         return createAuto(StartEndPosition.RC2,
-            "RC2 to BR2",
+            "RC2 to BR1", // was BR2
             "BR2 to Lower Source",
             "Lower Source to BL2",
             "BL2 to Lower Source",
@@ -270,7 +271,7 @@ public final class Autos {
     public static Command getCenterAuton() {
         return createAuto(StartEndPosition.CENTER,
             "Center to R2"
-            ).withName("Center");
+            ).withName("CENTER");
     }
 
     public static Command getAuto() {

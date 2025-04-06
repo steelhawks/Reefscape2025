@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -242,6 +243,8 @@ public class Robot extends LoggedRobot {
         setState(RobotState.AUTON);
         Elastic.selectTab("Autonomous");
         autonomousCommand = Autos.getAuto();
+//        autonomousCommand = new PathPlannerAuto("RC2 Auto");
+//        autonomousCommand =  new PathPlannerAuto("Curvy Line");
 
         if (autonomousCommand != null)
             autonomousCommand.schedule();

@@ -16,9 +16,9 @@
     "2025 Reefscape Autonomous"
   ],
   "defaultMaxVel": 5.0,
-  "defaultMaxAccel": 6.0,
+  "defaultMaxAccel": 4.5,
   "defaultMaxAngVel": 540.0,
-  "defaultMaxAngAccel": 900.0,
+  "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
   "robotMass": 56.608328,
   "robotMOI": 4.27,

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -23,12 +24,16 @@ import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
-import org.steelhawks.subsystems.claw.Claw;
-import org.steelhawks.subsystems.claw.ClawIO;
+import org.steelhawks.subsystems.claw.*;
+import org.steelhawks.subsystems.claw.beambreak.BeamIO;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
+import org.steelhawks.subsystems.climb.Climb;
+import org.steelhawks.subsystems.climb.ClimbConstants;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
+import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
-import org.steelhawks.subsystems.claw.ClawIOSim;
-import org.steelhawks.subsystems.claw.ClawIOTalonFX;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.AllianceFlip;
@@ -47,6 +52,7 @@ public class RobotContainer {
     private final Trigger modifierTrigger;
     private final Trigger topCoralStationTrigger;
     private final Trigger bottomCoralStationTrigger;
+    private final Trigger endGameMode;
     private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
@@ -55,6 +61,7 @@ public class RobotContainer {
     public static Elevator s_Elevator;
     public static Claw s_Claw;
     public static Align s_Align;
+    public static Climb s_Climb;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -97,6 +104,7 @@ public class RobotContainer {
 
             return false;
         });
+        endGameMode = new Trigger(() -> deepClimbMode);
         modifierTrigger = operator.rightTrigger();
 
         if (Constants.getMode() != Mode.REPLAY) {
@@ -131,10 +139,14 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
-                            new ClawIOTalonFX());
+                            new BeamIOCANrange(),
+                            new ClawIOSparkFlex());
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIOTalonFX());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -155,10 +167,14 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
+                            new BeamIO() {},
                             new ClawIOTalonFX());
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIO() {});
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -180,10 +196,14 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
+                            new BeamIO() {},
                             new ClawIO() {});
                     s_Align =
                         new Align(
                             new AlignIO() {});
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIO() {});
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
@@ -225,10 +245,14 @@ public class RobotContainer {
                             new ElevatorIOSim());
                     s_Claw =
                         new Claw(
+                            new BeamIOSim(),
                             new ClawIOSim());
                     s_Align =
                         new Align(
                             new AlignIOSim());
+                    s_Climb =
+                        new Climb(
+                            new DeepClimbIO() {});
                 }
             }
         }
@@ -250,6 +274,7 @@ public class RobotContainer {
                             new VisionIO() {});
                     s_Claw =
                         new Claw(
+                            new BeamIO() {},
                             new ClawIO() {});
                     s_Align =
                         new Align(
@@ -273,10 +298,12 @@ public class RobotContainer {
                         new VisionIO() {},
                         new VisionIO() {});
             }
-
             s_Elevator =
                 new Elevator(
                     new ElevatorIO() {});
+            s_Climb =
+                new Climb(
+                    new DeepClimbIO() {});
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
@@ -321,10 +348,10 @@ public class RobotContainer {
         s_Swerve.isPathfinding()
             .whileTrue(
                 s_LED.rainbowFlashCommand());
-
+    // 8.116292348702927
         s_Elevator.atLimit()
             .onTrue(
-                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1))
+                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false))
             .whileFalse(
                 s_LED.setColorCommand(LEDColor.WHITE).repeatedly());
 
@@ -334,6 +361,17 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
                     new VibrateController(1.0, 1.0, driver, operator))
                     .ignoringDisable(false));
+
+        endGameMode
+            .onTrue(
+                s_Elevator.setDesiredState(State.PREPARE_CLIMB)
+                    .andThen(
+                        Commands.waitUntil(Clearances.ClimbClearances::isClearFromClaw))
+                    .andThen(
+                        s_Climb.prepareDeepClimb()))
+            .onFalse(
+                s_Elevator.setDesiredState(State.HOME)
+                    .alongWith(s_Climb.setDesiredState(ClimbConstants.DeepClimbState.HOME)));
 
         notifyAtEndgame
             .whileTrue(
@@ -372,7 +410,7 @@ public class RobotContainer {
                 Commands.either(
                     s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
-                    () -> s_Swerve.isSlowMode())));
+                    () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
 
         driver.b().onTrue(
             s_Swerve.zeroHeading());
@@ -434,11 +472,12 @@ public class RobotContainer {
             .or(new DashboardTrigger("elevatorHome"))
             .or(buttonBoard.getHome())
             .onTrue(
-                Commands.either(
-                    s_Elevator.noSlamCommand(),
-                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
-                        .alongWith(new VibrateController(operator)),
-                    s_Claw.clearFromReef()));
+//                Commands.either(
+//                    s_Elevator.noSlamCommand().alongWith(Commands.runOnce(() -> Clearances.ClawClearances.hasShot = false)),
+//                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
+//                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
+//                    Clearances.ClawClearances::clearFromReef));
+                s_Elevator.noSlamCommand());
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
@@ -458,5 +497,13 @@ public class RobotContainer {
             .whileTrue(
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
+
+        operator.povUp()
+            .whileTrue(
+                s_Climb.runDeepClimbViaSpeed(1.0));
+
+        operator.povDown()
+            .whileTrue(
+                s_Climb.runDeepClimbViaSpeed(-1.0));
     }
 }

@@ -3,8 +3,6 @@ package org.steelhawks.subsystems.climb;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -19,34 +17,31 @@ import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.climb.ClimbConstants.DeepClimbState;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
-import org.steelhawks.subsystems.climb.shallow.ShallowClimbIO;
-import org.steelhawks.subsystems.climb.shallow.ShallowClimbIOInputsAutoLogged;
 
 import java.util.function.DoubleSupplier;
 
 public class Climb extends SubsystemBase {
 
-    private static final double CURRENT_THRESHOLD = 40;
+    public enum ClimbingState {
+        IDLE, CLIMBING
+    }
 
-    private final ShallowClimbIOInputsAutoLogged shallowInputs = new ShallowClimbIOInputsAutoLogged();
+    private ClimbingState mClimbingState = ClimbingState.IDLE;
     private final DeepClimbIOInputsAutoLogged deepInputs = new DeepClimbIOInputsAutoLogged();
     private OperatorLock mOperatorLock = OperatorLock.LOCKED;
-    private final ShallowClimbIO shallowIO;
     private final DeepClimbIO deepIO;
 
     private final ProfiledPIDController mDeepController;
     private final ArmFeedforward mDeepFeedforward;
+    private final ArmFeedforward mClimbingDeepFeedforward;
 
-    private final Alert shallowMotorDisconnected;
     private final Alert topDeepMotorDisconnected;
-    private final Alert bottomDeepMotorDisconnected;
 
-    private final Debouncer mDebouncer = new Debouncer(0.005, DebounceType.kBoth);
     private boolean mEnabled = false;
 
     public void enable() {
         mEnabled = true;
-        mDeepController.reset(getDeepPosition());
+        mDeepController.reset(getPosition());
     }
 
     public void disable() {
@@ -54,8 +49,7 @@ public class Climb extends SubsystemBase {
         runDeepClimb(0, new TrapezoidProfile.State());
     }
 
-    public Climb(ShallowClimbIO shallowIO, DeepClimbIO deepIO) {
-        this.shallowIO = shallowIO;
+    public Climb(DeepClimbIO deepIO) {
         this.deepIO = deepIO;
 
         mDeepController =
@@ -66,34 +60,31 @@ public class Climb extends SubsystemBase {
                 new TrapezoidProfile.Constraints(
                     ClimbConstants.DEEP_MAX_VELO_PER_SECOND,
                     ClimbConstants.DEEP_MAX_ACCEL_PER_SECOND));
-
         mDeepFeedforward =
             new ArmFeedforward(
                 ClimbConstants.DEEP_KS,
                 ClimbConstants.DEEP_KG,
                 ClimbConstants.DEEP_KV);
+        mClimbingDeepFeedforward =
+            new ArmFeedforward(
+                ClimbConstants.CLIMBING_DEEP_KS,
+                ClimbConstants.CLIMBING_DEEP_KG,
+                ClimbConstants.CLIMBING_DEEP_KV);
 
-        shallowMotorDisconnected =
-            new Alert("Shallow Climb Motor is Disconnected", AlertType.kError);
         topDeepMotorDisconnected =
             new Alert("Left Deep Climb Motor is Disconnected", AlertType.kError);
-        bottomDeepMotorDisconnected =
-            new Alert("Right Deep Climb Motor is Disconnected", AlertType.kError);
 
         goHome().schedule();
     }
 
     @Override
     public void periodic() {
-//        shallowIO.updateInputs(shallowInputs);
         deepIO.updateInputs(deepInputs);
-//        Logger.processInputs("ShallowClimb", shallowInputs);
         Logger.recordOutput("Climb/Enabled", mEnabled);
         Logger.processInputs("Climb", deepInputs);
 
-        shallowMotorDisconnected.set(!shallowInputs.motorConnected);
-        topDeepMotorDisconnected.set(!deepInputs.topConnected);
-        bottomDeepMotorDisconnected.set(!deepInputs.bottomConnected);
+        topDeepMotorDisconnected.set(!deepInputs.connected);
+//        bottomDeepMotorDisconnected.set(!deepInputs.bottomConnected);
 
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Climb/CurrentCommand", getCurrentCommand().getName());
@@ -101,56 +92,38 @@ public class Climb extends SubsystemBase {
 
         // stop adding up pid error while disabled
         if (DriverStation.isDisabled()) {
-            mDeepController.reset(getDeepPosition());
+            mDeepController.reset(getPosition());
         }
 
         if (mEnabled) {
-            runDeepClimb(mDeepController.calculate(getDeepPosition()), mDeepController.getSetpoint());
+            if (mClimbingState == ClimbingState.IDLE) {
+                mDeepController.setPID(
+                    ClimbConstants.DEEP_KP,
+                    ClimbConstants.DEEP_KI,
+                    ClimbConstants.DEEP_KD);
+            } else {
+                mDeepController.setPID(
+                    ClimbConstants.CLIMBING_DEEP_KP,
+                    ClimbConstants.CLIMBING_DEEP_KI,
+                    ClimbConstants.CLIMBING_DEEP_KD);
+            }
+
+            runDeepClimb(mDeepController.calculate(getPosition()), mDeepController.getSetpoint());
         }
     }
 
     private void runDeepClimb(double output, TrapezoidProfile.State setpoint) {
-        double volts = output + mDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
+        double ff = mClimbingState == ClimbingState.IDLE
+            ? mDeepFeedforward.calculate(setpoint.position, setpoint.velocity)
+            : mClimbingDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
+        double volts = output + ff;
         deepIO.runClimb(volts);
     }
 
      @AutoLogOutput(key = "DeepClimb/AdjustedPosition")
-     private double getDeepPosition() {
+     public double getPosition() {
          return deepInputs.encoderPositionRad;
      }
-
-    /* ------------- Shallow Climb Commands ------------- */
-
-    public Command shallowClimbCommandWithCurrent() {
-        return runShallowClimbViaSpeed(0.2)
-            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > CURRENT_THRESHOLD));
-    }
-
-    public Command shallowHomeCommandWithCurrent() {
-        return runShallowClimbViaSpeed(-0.2)
-            .until(() -> mDebouncer.calculate(shallowInputs.climbCurrentAmps > CURRENT_THRESHOLD));
-    }
-
-    public Command runShallowClimbViaSpeed(double speed) {
-        return Commands.run(
-            () -> {
-                shallowIO.runClimbViaSpeed(speed);
-            }, this)
-            .finallyDo(() -> shallowIO.stop());
-    }
-
-    public Command runShallowClimbViaVolts(double volts) {
-        return Commands.run(
-            () -> {
-                shallowIO.runClimbViaVolts(volts);
-            }, this)
-            .finallyDo(() -> shallowIO.stop());
-    }
-
-    public Command runShallowClimb() {
-        return shallowClimbCommandWithCurrent()
-            .andThen(runShallowClimbViaVolts(-1));
-    }
 
     /* ------------- Deep Climb Commands ------------- */
 
@@ -173,7 +146,7 @@ public class Climb extends SubsystemBase {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
-                    setDesiredState(DeepClimbState.HOME).schedule();
+                    goHome().schedule();
                     enable();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
@@ -193,7 +166,7 @@ public class Climb extends SubsystemBase {
                         double appliedSpeed = speed.getAsDouble();
 
                         if (appliedSpeed == 0.0) {
-                            appliedSpeed = Math.cos(getDeepPosition()) * kG / 12.0;
+                            appliedSpeed = (Math.cos(getPosition()) * kG) / 12.0;
                         }
 
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
@@ -206,7 +179,7 @@ public class Climb extends SubsystemBase {
     public Command setDesiredState(DeepClimbState state) {
         return Commands.runOnce(
             () -> {
-                double goal = state.getRadians();
+                double goal = state.getAngle().getRadians();
                 deepInputs.goal = goal;
                 mDeepController.setGoal(goal);
             }, this);

@@ -1,6 +1,5 @@
 package org.steelhawks.subsystems.climb.deep;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -9,7 +8,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import org.steelhawks.Constants;
 import org.steelhawks.subsystems.climb.ClimbConstants;
 
 public class DeepClimbIO775Pro implements DeepClimbIO {
@@ -51,17 +49,17 @@ public class DeepClimbIO775Pro implements DeepClimbIO {
 
     @Override
     public void updateInputs(DeepClimbIOInputs inputs) {
-        inputs.topConnected = true;
-        inputs.topClimbPositionRad = mTopTalon.getSelectedSensorPosition();
-        inputs.topClimbVelocityRadPerSec = mTopTalon.getSelectedSensorVelocity();
-        inputs.topClimbAppliedVolts = mTopTalon.getBusVoltage();
-        inputs.topClimbCurrentAmps = mTopTalon.getStatorCurrent();
+        inputs.connected = true;
+        inputs.climbPositionRad = mTopTalon.getSelectedSensorPosition();
+        inputs.climbVelocityRadPerSec = mTopTalon.getSelectedSensorVelocity();
+        inputs.climbAppliedVolts = mTopTalon.getBusVoltage();
+        inputs.climbCurrentAmps = mTopTalon.getStatorCurrent();
 
-        inputs.bottomConnected = true;
-        inputs.bottomClimbPositionRad = mBottomTalon.getSelectedSensorPosition();
-        inputs.bottomClimbVelocityRadPerSec = mBottomTalon.getSelectedSensorVelocity();
-        inputs.bottomClimbAppliedVolts = mBottomTalon.getBusVoltage();
-        inputs.bottomClimbCurrentAmps = mBottomTalon.getStatorCurrent();
+//        inputs.bottomConnected = true;
+//        inputs.bottomClimbPositionRad = mBottomTalon.getSelectedSensorPosition();
+//        inputs.bottomClimbVelocityRadPerSec = mBottomTalon.getSelectedSensorVelocity();
+//        inputs.bottomClimbAppliedVolts = mBottomTalon.getBusVoltage();
+//        inputs.bottomClimbCurrentAmps = mBottomTalon.getStatorCurrent();
 
         inputs.encoderConnected =
             BaseStatusSignal.refreshAll(

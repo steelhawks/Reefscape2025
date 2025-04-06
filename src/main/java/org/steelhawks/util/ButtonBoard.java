@@ -33,6 +33,6 @@ public class ButtonBoard {
     }
 
     public Trigger getShoot() {
-        return board.button(Constants.OIConstants.HOME_BUTTON_PORT);
+        return board.button(Constants.OIConstants.SHOOT_BUTTON_PORT);
     }
 }
