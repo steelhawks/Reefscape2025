@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.subsystems.claw.beambreak.BeamIO;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
 
 public class Claw extends SubsystemBase {
 
@@ -16,38 +18,43 @@ public class Claw extends SubsystemBase {
     private static final double INTAKE_SPEED = 0.05;
     private static final double DEBOUNCE_TIME = 0.15;
 
-    private boolean isIntaking = false;
+    private boolean hitButton = true;
     private boolean coralFullyOut = false;
 
+    private final BeamIOInputsAutoLogged beamInputs = new BeamIOInputsAutoLogged();
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
-    private final Debouncer beamDebounce; //debouncer - returns the value if the value is held for a period of time
+    private final Debouncer beamDebounce;
+    private final BeamIO beamIO;
     private final ClawIO io;
 
     public Trigger hasCoral() {
         return switch (Constants.getRobot()) {
             case ALPHABOT ->
                 new Trigger(
-                    () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
+                    () -> inputs.currentAmps > CURRENT_THRESHOLD && hitButton);
             case HAWKRIDER -> new Trigger(() -> false);
             case SIMBOT -> new Trigger(() -> true);
-            default -> new Trigger(() -> beamDebounce.calculate(inputs.beamBroken));
+            default -> new Trigger(() -> beamDebounce.calculate(beamInputs.broken));
         };
     }
 
-    public Claw(ClawIO io) {
+    public Claw(BeamIO beamIO, ClawIO io) {
+        this.beamIO = beamIO;
         this.io = io;
         beamDebounce = new Debouncer(DEBOUNCE_TIME, DebounceType.kBoth);
     }
 
     @Override
     public void periodic() {
+        beamIO.updateInputs(beamInputs);
         io.updateInputs(inputs);
+        Logger.processInputs("BeamBreak", beamInputs);
         Logger.processInputs("Claw", inputs);
         Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
     }
 
     public Trigger clearFromReef() {
-        return new Trigger(() -> coralFullyOut);
+        return new Trigger(() -> coralFullyOut && !hitButton);
     }
 
     public Command intakeCoral() {
@@ -77,7 +84,7 @@ public class Claw extends SubsystemBase {
         return Commands.run(
             () -> {
                 coralFullyOut = false;
-                isIntaking = true;
+                hitButton = true;
                 io.runIntake(speed);
             }, this)
             .finallyDo(this::stop);
@@ -85,7 +92,7 @@ public class Claw extends SubsystemBase {
 
     public void stop() {
         coralFullyOut = !hasCoral().getAsBoolean();
-        isIntaking = false;
+        hitButton = false;
         io.stop();
     }
 }

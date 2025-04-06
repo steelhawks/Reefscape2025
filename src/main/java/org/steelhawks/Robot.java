@@ -25,7 +25,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.steelhawks.Autos.Misalignment;
-import org.steelhawks.commands.autos.RC2;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -242,8 +241,7 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
         Elastic.selectTab("Autonomous");
-//        autonomousCommand = Autos.getAuto();
-        autonomousCommand = new RC2();
+        autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null)
             autonomousCommand.schedule();

@@ -1,12 +1,11 @@
 package org.steelhawks.subsystems.climb.deep;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -18,21 +17,14 @@ import org.steelhawks.subsystems.climb.ClimbConstants;
 
 public class DeepClimbIOTalonFX implements DeepClimbIO {
 
-    private final TalonFX mTopMotor;
-    private final TalonFX mBottomMotor;
+    private final TalonFX mPivotMotor;
     private CANcoder mPivotEncoder = null;
 
-    private final StatusSignal<Angle> topPosition;
-    private final StatusSignal<AngularVelocity> topVelocity;
-    private final StatusSignal<Voltage> topVoltage;
-    private final StatusSignal<Current> topCurrent;
-    private final StatusSignal<Temperature> topTemperature;
-
-    private final StatusSignal<Angle> bottomPosition;
-    private final StatusSignal<AngularVelocity> bottomVelocity;
-    private final StatusSignal<Voltage> bottomVoltage;
-    private final StatusSignal<Current> bottomCurrent;
-    private final StatusSignal<Temperature> bottomTemperature;
+    private final StatusSignal<Angle> motorPosition;
+    private final StatusSignal<AngularVelocity> motorVelocity;
+    private final StatusSignal<Voltage> motorVoltage;
+    private final StatusSignal<Current> motorCurrent;
+    private final StatusSignal<Temperature> motorTemperature;
 
     private StatusSignal<Boolean> magnetFault = null;
     private StatusSignal<Angle> pivotPosition = null;
@@ -41,38 +33,23 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
     private StatusSignal<Voltage> pivotVoltage = null;
 
     public DeepClimbIOTalonFX() {
-        mTopMotor = new TalonFX(ClimbConstants.DEEP_TOP_MOTOR_ID, Constants.getCANBus());
-        mBottomMotor = new TalonFX(ClimbConstants.DEEP_BOTTOM_MOTOR_ID, Constants.getCANBus());
+        mPivotMotor = new TalonFX(ClimbConstants.DEEP_TOP_MOTOR_ID, new CANBus());
         if (ClimbConstants.DEEP_CANCODER_ID != -1)
-            mPivotEncoder = new CANcoder(ClimbConstants.DEEP_CANCODER_ID, Constants.getCANBus());
+            mPivotEncoder = new CANcoder(ClimbConstants.DEEP_CANCODER_ID, new CANBus());
 
-        var topConfig =
+        var config =
             new TalonFXConfiguration()
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.Clockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));
 
-        var bottomConfig =
-            new TalonFXConfiguration()
-                .withMotorOutput(new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake));
+        mPivotMotor.getConfigurator().apply(config);
 
-
-        mTopMotor.getConfigurator().apply(topConfig);
-        mBottomMotor.getConfigurator().apply(bottomConfig);
-
-        topPosition = mTopMotor.getPosition();
-        topVelocity = mTopMotor.getVelocity();
-        topVoltage = mTopMotor.getMotorVoltage();
-        topCurrent = mTopMotor.getStatorCurrent();
-        topTemperature = mTopMotor.getDeviceTemp();
-
-        bottomPosition = mBottomMotor.getPosition();
-        bottomVelocity = mBottomMotor.getVelocity();
-        bottomVoltage = mBottomMotor.getMotorVoltage();
-        bottomCurrent = mBottomMotor.getStatorCurrent();
-        bottomTemperature = mBottomMotor.getDeviceTemp();
+        motorPosition = mPivotMotor.getPosition();
+        motorVelocity = mPivotMotor.getVelocity();
+        motorVoltage = mPivotMotor.getMotorVoltage();
+        motorCurrent = mPivotMotor.getStatorCurrent();
+        motorTemperature = mPivotMotor.getDeviceTemp();
 
         if (mPivotEncoder != null) {
             magnetFault = mPivotEncoder.getFault_BadMagnet();
@@ -93,48 +70,28 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
-            topPosition,
-            topVelocity,
-            topVoltage,
-            topCurrent,
-            topTemperature,
-
-            bottomPosition,
-            bottomVelocity,
-            bottomVoltage,
-            bottomCurrent,
-            bottomTemperature);
-
-        ParentDevice.optimizeBusUtilizationForAll(mTopMotor, mBottomMotor);
+            motorPosition,
+            motorVelocity,
+            motorVoltage,
+            motorCurrent,
+            motorTemperature);
+        mPivotMotor.optimizeBusUtilization();
     }
 
     @Override
     public void updateInputs(DeepClimbIOInputs inputs) {
-        inputs.topConnected =
+        inputs.connected =
             BaseStatusSignal.refreshAll(
-                topPosition,
-                topVelocity,
-                topVoltage,
-                topCurrent,
-                topTemperature).isOK();
-        inputs.topClimbPositionRad = Units.rotationsToRadians(topPosition.getValueAsDouble());
-        inputs.topClimbVelocityRadPerSec = Units.rotationsToRadians(topVelocity.getValueAsDouble());
-        inputs.topClimbAppliedVolts = topVoltage.getValueAsDouble();
-        inputs.topClimbCurrentAmps = topCurrent.getValueAsDouble();
-        inputs.topClimbTempCelsius = topTemperature.getValueAsDouble();
-
-        inputs.bottomConnected =
-            BaseStatusSignal.refreshAll(
-                bottomPosition,
-                bottomVelocity,
-                bottomVoltage,
-                bottomCurrent,
-                bottomTemperature).isOK();
-        inputs.bottomClimbPositionRad = Units.rotationsToRadians(bottomPosition.getValueAsDouble());
-        inputs.bottomClimbVelocityRadPerSec = Units.rotationsToRadians(bottomVelocity.getValueAsDouble());
-        inputs.bottomClimbAppliedVolts = bottomVoltage.getValueAsDouble();
-        inputs.bottomClimbCurrentAmps = bottomCurrent.getValueAsDouble();
-        inputs.bottomClimbTempCelsius = bottomTemperature.getValueAsDouble();
+                motorPosition,
+                motorVelocity,
+                motorVoltage,
+                motorCurrent,
+                motorTemperature).isOK();
+        inputs.climbPositionRad = Units.rotationsToRadians(motorPosition.getValueAsDouble());
+        inputs.climbVelocityRadPerSec = Units.rotationsToRadians(motorVelocity.getValueAsDouble());
+        inputs.climbAppliedVolts = motorVoltage.getValueAsDouble();
+        inputs.climbCurrentAmps = motorCurrent.getValueAsDouble();
+        inputs.climbTempCelsius = motorTemperature.getValueAsDouble();
 
         if (mPivotEncoder == null) {
             inputs.encoderConnected = false;
@@ -160,19 +117,16 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
 
     @Override
     public void runClimb(double volts) {
-        mTopMotor.setVoltage(volts);
-        mBottomMotor.setVoltage(volts);
+        mPivotMotor.setVoltage(volts);
     }
 
     @Override
     public void runClimbViaSpeed(double speed) {
-        mTopMotor.set(speed);
-        mBottomMotor.set(speed);
+        mPivotMotor.set(speed);
     }
 
     @Override
     public void stop() {
-        mTopMotor.stopMotor();
-        mBottomMotor.stopMotor();
+        mPivotMotor.stopMotor();
     }
 }

@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.climb;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
 
@@ -20,17 +21,14 @@ public class ClimbConstants {
             this.hawkriderRadians = hawkrider;
         }
 
-        public double getRadians() {
-            switch (Constants.getRobot()) {
-                case ALPHABOT:
-                    return alphaRadians;
-                case OMEGABOT:
-                    return omegaRadians;
-                case HAWKRIDER:
-                    return hawkriderRadians;
-                default:
-                    return 0;
-            }
+        public Rotation2d getAngle() {
+            double angleRads = switch (Constants.getRobot()) {
+                case ALPHABOT -> alphaRadians;
+                case OMEGABOT -> omegaRadians;
+                case HAWKRIDER -> hawkriderRadians;
+                default -> 0;
+            };
+            return new Rotation2d(angleRads);
         }
     }
 
@@ -58,6 +56,14 @@ public class ClimbConstants {
     public static final double DEEP_KS;
     public static final double DEEP_KG;
     public static final double DEEP_KV;
+
+    public static final double CLIMBING_DEEP_KP;
+    public static final double CLIMBING_DEEP_KI;
+    public static final double CLIMBING_DEEP_KD;
+
+    public static final double CLIMBING_DEEP_KS;
+    public static final double CLIMBING_DEEP_KG;
+    public static final double CLIMBING_DEEP_KV;
 
     public static final double DEEP_MAX_VELO_PER_SECOND;
     public static final double DEEP_MAX_ACCEL_PER_SECOND;
@@ -122,5 +128,13 @@ public class ClimbConstants {
                 DEEP_MAX_ACCEL_PER_SECOND = 0.0;
             }
         }
+
+        // deep is only on OMEGABOT
+        CLIMBING_DEEP_KP = 0.0;
+        CLIMBING_DEEP_KI = 0.0;
+        CLIMBING_DEEP_KD = 0.0;
+        CLIMBING_DEEP_KS = 0.0;
+        CLIMBING_DEEP_KG = 0.0;
+        CLIMBING_DEEP_KV = 0.0;
     }
 }
