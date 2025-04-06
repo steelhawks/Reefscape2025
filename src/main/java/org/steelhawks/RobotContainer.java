@@ -29,6 +29,7 @@ import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 import org.steelhawks.subsystems.climb.Climb;
+import org.steelhawks.subsystems.climb.ClimbConstants;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
@@ -51,6 +52,7 @@ public class RobotContainer {
     private final Trigger modifierTrigger;
     private final Trigger topCoralStationTrigger;
     private final Trigger bottomCoralStationTrigger;
+    private final Trigger endGameMode;
     private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
@@ -102,6 +104,7 @@ public class RobotContainer {
 
             return false;
         });
+        endGameMode = new Trigger(() -> deepClimbMode);
         modifierTrigger = operator.rightTrigger();
 
         if (Constants.getMode() != Mode.REPLAY) {
@@ -359,6 +362,17 @@ public class RobotContainer {
                     new VibrateController(1.0, 1.0, driver, operator))
                     .ignoringDisable(false));
 
+        endGameMode
+            .onTrue(
+                s_Elevator.setDesiredState(State.PREPARE_CLIMB)
+                    .andThen(
+                        Commands.waitUntil(Clearances.ClimbClearances::clearFromClaw))
+                    .andThen(
+                        s_Climb.prepareDeepClimb()))
+            .onFalse(
+                s_Elevator.setDesiredState(State.HOME)
+                    .alongWith(s_Climb.setDesiredState(ClimbConstants.DeepClimbState.HOME)));
+
         notifyAtEndgame
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver, operator));
@@ -459,11 +473,11 @@ public class RobotContainer {
             .or(buttonBoard.getHome())
             .onTrue(
 //                Commands.either(
-//                    s_Elevator.noSlamCommand(),
+//                    s_Elevator.noSlamCommand().alongWith(Commands.runOnce(() -> Clearances.ClawClearances.hasShot = false)),
 //                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
 //                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
-//                    s_Claw.clearFromReef()));
-            s_Elevator.noSlamCommand());
+//                    Clearances.ClawClearances::clearFromReef));
+                s_Elevator.noSlamCommand());
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()

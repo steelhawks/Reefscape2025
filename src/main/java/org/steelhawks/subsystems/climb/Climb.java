@@ -36,13 +36,12 @@ public class Climb extends SubsystemBase {
     private final ArmFeedforward mClimbingDeepFeedforward;
 
     private final Alert topDeepMotorDisconnected;
-    private final Alert bottomDeepMotorDisconnected;
 
     private boolean mEnabled = false;
 
     public void enable() {
         mEnabled = true;
-        mDeepController.reset(getDeepPosition());
+        mDeepController.reset(getPosition());
     }
 
     public void disable() {
@@ -74,8 +73,6 @@ public class Climb extends SubsystemBase {
 
         topDeepMotorDisconnected =
             new Alert("Left Deep Climb Motor is Disconnected", AlertType.kError);
-        bottomDeepMotorDisconnected =
-            new Alert("Right Deep Climb Motor is Disconnected", AlertType.kError);
 
         goHome().schedule();
     }
@@ -95,7 +92,7 @@ public class Climb extends SubsystemBase {
 
         // stop adding up pid error while disabled
         if (DriverStation.isDisabled()) {
-            mDeepController.reset(getDeepPosition());
+            mDeepController.reset(getPosition());
         }
 
         if (mEnabled) {
@@ -111,7 +108,7 @@ public class Climb extends SubsystemBase {
                     ClimbConstants.CLIMBING_DEEP_KD);
             }
 
-            runDeepClimb(mDeepController.calculate(getDeepPosition()), mDeepController.getSetpoint());
+            runDeepClimb(mDeepController.calculate(getPosition()), mDeepController.getSetpoint());
         }
     }
 
@@ -124,7 +121,7 @@ public class Climb extends SubsystemBase {
     }
 
      @AutoLogOutput(key = "DeepClimb/AdjustedPosition")
-     private double getDeepPosition() {
+     public double getPosition() {
          return deepInputs.encoderPositionRad;
      }
 
@@ -169,7 +166,7 @@ public class Climb extends SubsystemBase {
                         double appliedSpeed = speed.getAsDouble();
 
                         if (appliedSpeed == 0.0) {
-                            appliedSpeed = (Math.cos(getDeepPosition()) * kG) / 12.0;
+                            appliedSpeed = (Math.cos(getPosition()) * kG) / 12.0;
                         }
 
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
