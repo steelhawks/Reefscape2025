@@ -366,7 +366,7 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(State.PREPARE_CLIMB)
                     .andThen(
-                        Commands.waitUntil(s_Climb.clearFromClaw()))
+                        Commands.waitUntil(Clearances.ClimbClearances::clearFromClaw))
                     .andThen(
                         s_Climb.prepareDeepClimb()))
             .onFalse(
@@ -473,11 +473,11 @@ public class RobotContainer {
             .or(buttonBoard.getHome())
             .onTrue(
 //                Commands.either(
-//                    s_Elevator.noSlamCommand(),
+//                    s_Elevator.noSlamCommand().alongWith(Commands.runOnce(() -> Clearances.ClawClearances.hasShot = false)),
 //                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
 //                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
-//                    s_Claw.clearFromReef()));
-            s_Elevator.noSlamCommand());
+//                    Clearances.ClawClearances::clearFromReef));
+                s_Elevator.noSlamCommand());
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()

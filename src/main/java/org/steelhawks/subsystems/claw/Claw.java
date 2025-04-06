@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Clearances;
 import org.steelhawks.Constants;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
@@ -17,9 +18,7 @@ public class Claw extends SubsystemBase {
     private static final double CURRENT_THRESHOLD = 30;
     private static final double INTAKE_SPEED = 0.05;
     private static final double DEBOUNCE_TIME = 0.15;
-
-    private boolean hitButton = true;
-    private boolean coralFullyOut = false;
+    private boolean isIntaking = true;
 
     private final BeamIOInputsAutoLogged beamInputs = new BeamIOInputsAutoLogged();
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
@@ -31,7 +30,7 @@ public class Claw extends SubsystemBase {
         return switch (Constants.getRobot()) {
             case ALPHABOT ->
                 new Trigger(
-                    () -> inputs.currentAmps > CURRENT_THRESHOLD && hitButton);
+                    () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
             case SIMBOT -> new Trigger(() -> true);
             default -> new Trigger(() -> beamDebounce.calculate(beamInputs.broken));
@@ -51,10 +50,6 @@ public class Claw extends SubsystemBase {
         Logger.processInputs("BeamBreak", beamInputs);
         Logger.processInputs("Claw", inputs);
         Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
-    }
-
-    public Trigger clearFromReef() {
-        return new Trigger(() -> coralFullyOut && !hitButton);
     }
 
     public Command intakeCoral() {
@@ -83,16 +78,15 @@ public class Claw extends SubsystemBase {
     private Command shootCoral(double speed) {
         return Commands.run(
             () -> {
-                coralFullyOut = false;
-                hitButton = true;
+                Clearances.ClawClearances.hasShot = true;
+                isIntaking = true;
                 io.runIntake(speed);
             }, this)
             .finallyDo(this::stop);
     }
 
     public void stop() {
-        coralFullyOut = !hasCoral().getAsBoolean();
-        hitButton = false;
+        isIntaking = false;
         io.stop();
     }
 }
