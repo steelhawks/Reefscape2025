@@ -3,6 +3,8 @@ package org.steelhawks.util.autonbuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import org.steelhawks.ReefUtil;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 
 import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 
@@ -18,23 +20,52 @@ public enum StartEndPosition {
     RC2(7.000, 1.907, Units.degreesToRadians(120)),
     RC3(7.58, 0.8137, Math.PI),
 
-    TR1(5.46030758, 5.16840642, -2.0956),
-    TR2(5.71848391, 5.0345549, -2.0956),
+    TR1(ReefUtil.CoralBranch.TR1.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.TR1.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.TR1.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
 
-    R1(6.0003, 4.18981981 - CORAL_OFFSET, Math.PI),
-    R2(6.0003, 3.857975483 - CORAL_OFFSET, Math.PI),
+    TR2(ReefUtil.CoralBranch.TR2.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.TR2.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.TR2.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
 
-    BR1(4.93162509, 2.5664244, 2.101656),
-    BR2(5.22050059, 2.73291654, 2.101656),
+    R1(ReefUtil.CoralBranch.R1.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.R1.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.R1.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
 
-    BL1(3.24164341, 3.0350286, 1.0472),
-    BL2(3.5158364, 2.86408312, 1.0472),
+    R2(ReefUtil.CoralBranch.R2.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.R2.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.R2.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
 
-    L1(2.9805, 4.4952572, 0),
-    L2(2.9805, 4.1633412, 0),
+    BR1(ReefUtil.CoralBranch.BR1.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.BR1.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.BR1.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
 
-    TL1(3.7739639, 5.313453, -1.0472),
-    TL2(4.0540139, 5.4801106, -1.0472),
+    BR2(ReefUtil.CoralBranch.BR2.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.BR2.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.BR2.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
+
+    BL1(ReefUtil.CoralBranch.BL1.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.BL1.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.BL1.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
+
+    BL2(ReefUtil.CoralBranch.BL2.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.BL2.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.BL2.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
+
+    L1(ReefUtil.CoralBranch.L1.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.L1.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.L1.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
+    L2(ReefUtil.CoralBranch.L2.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.L2.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.L2.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
+
+    TL1(ReefUtil.CoralBranch.TL1.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.TL1.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.TL1.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
+
+    TL2(ReefUtil.CoralBranch.TL2.getScorePose(ElevatorConstants.State.L4).getX(),
+        ReefUtil.CoralBranch.TL2.getScorePose(ElevatorConstants.State.L4).getY(),
+        ReefUtil.CoralBranch.TL2.getScorePose(ElevatorConstants.State.L4).getRotation().getRadians()),
 
     UPPER_ALGAE(1.7405211925506592, 5.857955455780029, 3.141592653589793),
     CENTER_ALGAE(1.7537007331848145, 3.999641180038452, 3.141592653589793),
