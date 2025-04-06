@@ -18,7 +18,7 @@ public class Claw extends SubsystemBase {
     private static final double INTAKE_SPEED = 0.05;
     private static final double DEBOUNCE_TIME = 0.15;
 
-    private boolean isIntaking = false;
+    private boolean hitButton = true;
     private boolean coralFullyOut = false;
 
     private final BeamIOInputsAutoLogged beamInputs = new BeamIOInputsAutoLogged();
@@ -31,7 +31,7 @@ public class Claw extends SubsystemBase {
         return switch (Constants.getRobot()) {
             case ALPHABOT ->
                 new Trigger(
-                    () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
+                    () -> inputs.currentAmps > CURRENT_THRESHOLD && hitButton);
             case HAWKRIDER -> new Trigger(() -> false);
             case SIMBOT -> new Trigger(() -> true);
             default -> new Trigger(() -> beamDebounce.calculate(beamInputs.broken));
@@ -54,7 +54,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Trigger clearFromReef() {
-        return new Trigger(() -> coralFullyOut);
+        return new Trigger(() -> coralFullyOut && !hitButton);
     }
 
     public Command intakeCoral() {
@@ -84,7 +84,7 @@ public class Claw extends SubsystemBase {
         return Commands.run(
             () -> {
                 coralFullyOut = false;
-                isIntaking = true;
+                hitButton = true;
                 io.runIntake(speed);
             }, this)
             .finallyDo(this::stop);
@@ -92,7 +92,7 @@ public class Claw extends SubsystemBase {
 
     public void stop() {
         coralFullyOut = !hasCoral().getAsBoolean();
-        isIntaking = false;
+        hitButton = false;
         io.stop();
     }
 }

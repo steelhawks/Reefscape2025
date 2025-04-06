@@ -458,11 +458,12 @@ public class RobotContainer {
             .or(new DashboardTrigger("elevatorHome"))
             .or(buttonBoard.getHome())
             .onTrue(
-                Commands.either(
-                    s_Elevator.noSlamCommand(),
-                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
-                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
-                    s_Claw.clearFromReef()));
+//                Commands.either(
+//                    s_Elevator.noSlamCommand(),
+//                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
+//                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
+//                    s_Claw.clearFromReef()));
+            s_Elevator.noSlamCommand());
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()

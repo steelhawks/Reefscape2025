@@ -242,8 +242,9 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
         Elastic.selectTab("Autonomous");
-//        autonomousCommand = Autos.getAuto();
-        autonomousCommand = new PathPlannerAuto("RC2 Auto");
+        autonomousCommand = Autos.getAuto();
+//        autonomousCommand = new PathPlannerAuto("RC2 Auto");
+//        autonomousCommand =  new PathPlannerAuto("Curvy Line");
 
         if (autonomousCommand != null)
             autonomousCommand.schedule();
