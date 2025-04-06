@@ -30,6 +30,7 @@ import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 import org.steelhawks.subsystems.climb.Climb;
+import org.steelhawks.subsystems.climb.ClimbConstants;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOTalonFX;
 import org.steelhawks.subsystems.elevator.*;
@@ -54,6 +55,7 @@ public class RobotContainer {
     private final Trigger modifierTrigger;
     private final Trigger topCoralStationTrigger;
     private final Trigger bottomCoralStationTrigger;
+    private final Trigger endGameMode;
     private boolean deepClimbMode = false;
 
     private final LED s_LED = LED.getInstance();
@@ -105,6 +107,7 @@ public class RobotContainer {
 
             return false;
         });
+        endGameMode = new Trigger(() -> deepClimbMode);
         modifierTrigger = operator.rightTrigger();
 
         if (Constants.getMode() != Mode.REPLAY) {
@@ -361,6 +364,17 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
                     new VibrateController(1.0, 1.0, driver, operator))
                     .ignoringDisable(false));
+
+        endGameMode
+            .onTrue(
+                s_Elevator.setDesiredState(State.PREPARE_CLIMB)
+                    .andThen(
+                        Commands.waitUntil(s_Climb.clearFromClaw()))
+                    .andThen(
+                        s_Climb.prepareDeepClimb()))
+            .onFalse(
+                s_Elevator.setDesiredState(State.HOME)
+                    .alongWith(s_Climb.setDesiredState(ClimbConstants.DeepClimbState.HOME)));
 
         notifyAtEndgame
             .whileTrue(

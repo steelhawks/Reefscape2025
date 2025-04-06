@@ -10,10 +10,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.OperatorLock;
+import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.climb.ClimbConstants.DeepClimbState;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
@@ -21,6 +23,8 @@ import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
 import java.util.function.DoubleSupplier;
 
 public class Climb extends SubsystemBase {
+
+    private static final double MIN_ANGLE_TO_CLEAR = 0.5;
 
     public enum ClimbingState {
         IDLE, CLIMBING
@@ -126,6 +130,10 @@ public class Climb extends SubsystemBase {
      @AutoLogOutput(key = "DeepClimb/AdjustedPosition")
      private double getDeepPosition() {
          return deepInputs.encoderPositionRad;
+     }
+
+     public Trigger clearFromClaw() {
+        return new Trigger(() -> getDeepPosition() > MIN_ANGLE_TO_CLEAR).and(RobotContainer.s_Elevator.atHome().negate());
      }
 
     /* ------------- Deep Climb Commands ------------- */

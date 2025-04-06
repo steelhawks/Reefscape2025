@@ -13,14 +13,16 @@ public class ElevatorConstants {
         L3(35.3237425930366, 13.956157208183564, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687
         L2(19.376478322177476, 8.308039947188632, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128
         L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
-        HOME(0, 0, 0),
+        HOME(0.0, 0.0, 0.0),
 
+        // move elevator up so claw is not blocking the climb and cage
+        PREPARE_CLIMB(0.0, 10.0, 0.0),
         // This is the "HOME" position the elevator goes to, before manually going down to the ACTUAL home position at the bottom bar
-        HOME_ABOVE_BAR(0, 1, 0),
+        HOME_ABOVE_BAR(0.0, 1.0, 0.0),
 
         // Algae Knockout Positions
-        KNOCK_L2(0, 5, 0),
-        KNOCK_L3(0, 12.038681223326511, 0);
+        KNOCK_L2(0.0, 5.0, 0.0),
+        KNOCK_L3(0.0, 12.038681223326511, 0.0);
 
         private final double alphaRadians;
         private final double omegaRadians;

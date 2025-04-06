@@ -43,14 +43,13 @@ public class ClawIOSparkFlex implements ClawIO {
             .busVoltagePeriodMs(20)
             .outputCurrentPeriodMs(20);
         SparkUtil.tryUntilOk(
-            mIntakeMotor,
             5,
             () ->
                 mIntakeMotor.configure(
                     mIntakeConfig,
                     SparkBase.ResetMode.kResetSafeParameters,
                     SparkBase.PersistMode.kPersistParameters));
-        SparkUtil.tryUntilOk(mIntakeMotor, 5, () -> mIntakeEncoder.setPosition(0.0));
+        SparkUtil.tryUntilOk(5, () -> mIntakeEncoder.setPosition(0.0));
     }
 
     @Override
