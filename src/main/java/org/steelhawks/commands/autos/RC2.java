@@ -15,8 +15,8 @@ public class RC2 extends AutoRoutine {
             "RC2",
             Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose()))),
             s_Elevator.setDesiredState(ElevatorConstants.State.L4),
-            followTrajectory("RC2 to BR2"),
-            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BR2.getScorePose(ElevatorConstants.State.L4)).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
+            followTrajectory("RC2 to BR1"),
+            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BR1.getScorePose(ElevatorConstants.State.L4)).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),

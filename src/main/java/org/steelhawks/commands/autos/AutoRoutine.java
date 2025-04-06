@@ -11,7 +11,7 @@ import org.steelhawks.subsystems.swerve.Swerve;
 public abstract class AutoRoutine extends SequentialCommandGroup {
 
     protected static final double WAIT_TIME_BEFORE_ELEVATOR_UP = 0.5;
-    protected static final double AUTO_ALIGNMENT_TIMEOUT = 1.0;
+    protected static final double AUTO_ALIGNMENT_TIMEOUT = 3.0;
     protected static final double SHOOT_TIMEOUT_SLOW = 0.6;
     protected static final double SHOOT_TIMEOUT = 0.3;
     protected static final double ELEVATOR_TIMEOUT = 0.8;
