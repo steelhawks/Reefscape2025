@@ -31,7 +31,7 @@ public class ClawIOSparkFlex implements ClawIO {
                 .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(CURRENT_LIMIT, 50)
             .voltageCompensation(12.0)
-            .inverted(false);
+            .inverted(true);
         mIntakeConfig.encoder.uvwMeasurementPeriod(10).uvwAverageDepth(2);
         mIntakeConfig
             .signals

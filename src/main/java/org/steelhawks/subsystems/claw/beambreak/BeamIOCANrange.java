@@ -34,7 +34,10 @@ public class BeamIOCANrange implements BeamIO {
 
     @Override
     public void updateInputs(BeamIOInputs inputs) {
-        inputs.connected = mBeamBreak.isConnected();
+        inputs.connected =
+            BaseStatusSignal.refreshAll(
+                distance,
+                beamBroken).isOK();
         inputs.distance = distance.getValueAsDouble();
         inputs.broken = beamBroken.getValue();
     }
