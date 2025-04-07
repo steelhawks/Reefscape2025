@@ -81,6 +81,18 @@ public class Conversions {
         return toVector2(pose.getTranslation());
     }
 
+    public static Translation2d toTranslation2d(Vector2 vector) {
+        return new Translation2d(vector.x, vector.y);
+    }
+
+    public static Translation2d[] toTranslation2dArray(Vector2[] vector) {
+        Translation2d[] translation = new Translation2d[vector.length];
+        for (int i = 0; i < vector.length; i++) {
+            translation[i] = new Translation2d(vector[i].x, vector[i].y);
+        }
+        return translation;
+    }
+
     /**
      * @param translation   Translation3d to convert to a Vector3
      * @return Converted Vector3

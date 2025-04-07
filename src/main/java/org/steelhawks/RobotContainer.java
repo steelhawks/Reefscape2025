@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -84,6 +85,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
+        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
         notifyAtEndgame = new Trigger(() -> {
 //            When connected to the real field, this number only changes in full integer increments, and always counts down.
 //                When the DS is in practice mode, this number is a floating point number, and counts down.
