@@ -69,7 +69,9 @@ public class ElevatorCharacterize extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        motor.setVoltage(0);
+        for (TalonFX motor : motors) {
+            motor.setVoltage(0);
+        }
         timer.stop();
     }
 
