@@ -303,7 +303,7 @@ public class RobotContainer {
                     new ElevatorIO() {});
             s_Climb =
                 new Climb(
-                    new DeepClimbIO() {});
+                    new DeepClimbIOTalonFX());
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
