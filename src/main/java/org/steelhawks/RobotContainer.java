@@ -350,7 +350,7 @@ public class RobotContainer {
     private void configureTriggers() {
         s_Swerve.isPathfinding()
             .whileTrue(
-                s_LED.rainbowFlashCommand());
+                s_LED.getBlockyRainbowCommand());
     // 8.116292348702927
         s_Elevator.atLimit()
             .onTrue(
