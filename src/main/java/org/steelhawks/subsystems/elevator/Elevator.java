@@ -11,9 +11,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.util.LoggedTunableNumber;
 
 import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Volts;
@@ -90,9 +92,13 @@ public class Elevator extends SubsystemBase {
         return inputs.limitSwitchPressed;
     }
 
+    private final LoggedTunableNumber kP = new LoggedTunableNumber("Tuning/Elevator/kP", 0);
+    private final LoggedTunableNumber kI = new LoggedTunableNumber("Tuning/Elevator/kI", 0);
+    private final LoggedTunableNumber kD = new LoggedTunableNumber("Tuning/Elevator/kD", 0);
+
     @Override
     public void periodic() {
-        updateGains();
+//        updateGains();
         inputs.atTopLimit = getPosition() >= ElevatorConstants.MAX_RADIANS;
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
@@ -107,6 +113,13 @@ public class Elevator extends SubsystemBase {
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
         }
+
+        if (kP.hasChanged(hashCode()) ||
+            kI.hasChanged(hashCode()) ||
+            kD.hasChanged(hashCode())) {
+            io.setPID(kP.get(), kI.get(), kD.get());
+        }
+
 
         if (mEnabled)
             runElevator();
