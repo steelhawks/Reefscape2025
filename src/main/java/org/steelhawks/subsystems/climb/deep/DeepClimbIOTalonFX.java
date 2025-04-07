@@ -33,7 +33,7 @@ public class DeepClimbIOTalonFX implements DeepClimbIO {
     private StatusSignal<Voltage> pivotVoltage = null;
 
     public DeepClimbIOTalonFX() {
-        mPivotMotor = new TalonFX(ClimbConstants.DEEP_TOP_MOTOR_ID, new CANBus());
+        mPivotMotor = new TalonFX(ClimbConstants.DEEP_TOP_MOTOR_ID, Constants.getCANBus());
         if (ClimbConstants.DEEP_CANCODER_ID != -1)
             mPivotEncoder = new CANcoder(ClimbConstants.DEEP_CANCODER_ID, new CANBus());
 

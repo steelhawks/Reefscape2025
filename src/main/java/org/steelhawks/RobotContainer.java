@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -47,6 +48,7 @@ import java.util.Objects;
 public class RobotContainer {
 
     public static final boolean useVision = true;
+    private static final boolean usingButtonBoard = false;
 
     private final Trigger notifyAtEndgame;
     private final Trigger modifierTrigger;
@@ -83,6 +85,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
+        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
         notifyAtEndgame = new Trigger(() -> {
 //            When connected to the real field, this number only changes in full integer increments, and always counts down.
 //                When the DS is in practice mode, this number is a floating point number, and counts down.
@@ -347,7 +350,7 @@ public class RobotContainer {
     private void configureTriggers() {
         s_Swerve.isPathfinding()
             .whileTrue(
-                s_LED.rainbowFlashCommand());
+                s_LED.getBlockyRainbowCommand());
     // 8.116292348702927
         s_Elevator.atLimit()
             .onTrue(
@@ -431,7 +434,7 @@ public class RobotContainer {
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
-            .or(buttonBoard.getL1())
+            .or(buttonBoard.getL1().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1))
             .whileTrue(
@@ -440,7 +443,7 @@ public class RobotContainer {
         operator.x()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l2"))
-            .or(buttonBoard.getL2())
+            .or(buttonBoard.getL2().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
@@ -452,7 +455,7 @@ public class RobotContainer {
         operator.y()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
-            .or(buttonBoard.getL3())
+            .or(buttonBoard.getL3().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
@@ -464,13 +467,13 @@ public class RobotContainer {
         operator.a()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
-            .or(buttonBoard.getL4())
+            .or(buttonBoard.getL4().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
-            .or(buttonBoard.getHome())
+            .or(buttonBoard.getHome().and(() -> usingButtonBoard))
             .onTrue(
 //                Commands.either(
 //                    s_Elevator.noSlamCommand().alongWith(Commands.runOnce(() -> Clearances.ClawClearances.hasShot = false)),
@@ -483,7 +486,7 @@ public class RobotContainer {
         operator.leftTrigger()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("scoreCoral"))
-            .or(buttonBoard.getShoot())
+            .or(buttonBoard.getShoot().and(() -> usingButtonBoard))
             .whileTrue(
                 Commands.either(
                     s_Claw.shootCoralSlow(),
