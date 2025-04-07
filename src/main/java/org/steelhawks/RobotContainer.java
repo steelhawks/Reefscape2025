@@ -47,6 +47,7 @@ import java.util.Objects;
 public class RobotContainer {
 
     public static final boolean useVision = true;
+    private static final boolean usingButtonBoard = false;
 
     private final Trigger notifyAtEndgame;
     private final Trigger modifierTrigger;
@@ -431,7 +432,7 @@ public class RobotContainer {
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
-            .or(buttonBoard.getL1())
+            .or(buttonBoard.getL1().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L1))
             .whileTrue(
@@ -440,7 +441,7 @@ public class RobotContainer {
         operator.x()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l2"))
-            .or(buttonBoard.getL2())
+            .or(buttonBoard.getL2().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L2));
 
@@ -452,7 +453,7 @@ public class RobotContainer {
         operator.y()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
-            .or(buttonBoard.getL3())
+            .or(buttonBoard.getL3().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L3));
 
@@ -464,13 +465,13 @@ public class RobotContainer {
         operator.a()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
-            .or(buttonBoard.getL4())
+            .or(buttonBoard.getL4().and(() -> usingButtonBoard))
             .onTrue(
                 s_Elevator.setDesiredState(ElevatorConstants.State.L4));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
-            .or(buttonBoard.getHome())
+            .or(buttonBoard.getHome().and(() -> usingButtonBoard))
             .onTrue(
 //                Commands.either(
 //                    s_Elevator.noSlamCommand().alongWith(Commands.runOnce(() -> Clearances.ClawClearances.hasShot = false)),
@@ -483,7 +484,7 @@ public class RobotContainer {
         operator.leftTrigger()
             .and(modifierTrigger.negate())
             .or(new DashboardTrigger("scoreCoral"))
-            .or(buttonBoard.getShoot())
+            .or(buttonBoard.getShoot().and(() -> usingButtonBoard))
             .whileTrue(
                 Commands.either(
                     s_Claw.shootCoralSlow(),
