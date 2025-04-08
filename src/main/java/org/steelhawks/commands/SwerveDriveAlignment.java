@@ -14,7 +14,6 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.SwerveDriveController;
 
