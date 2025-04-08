@@ -369,7 +369,7 @@ public class RobotContainer {
             .onTrue(
                 s_Elevator.setDesiredState(State.PREPARE_CLIMB)
                     .andThen(
-                        Commands.waitUntil(Clearances.ClimbClearances::isClearFromClaw))
+                        Commands.waitUntil(Clearances.ClimbClearances::clearFromClaw))
                     .andThen(
                         s_Climb.prepareDeepClimb()))
             .onFalse(
