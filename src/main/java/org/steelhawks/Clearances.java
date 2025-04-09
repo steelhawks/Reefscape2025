@@ -20,9 +20,13 @@ public class Clearances {
 
     public final static class ClimbClearances {
         private static final double MIN_ANGLE_TO_CLEAR = 0.5;
+        private static final double MIN_HEIGHT_TO_CLEAR = 0.5;
 
+//        public static boolean isClearFromClaw() {
+//            return s_Climb.getPosition() > MIN_ANGLE_TO_CLEAR && !RobotContainer.s_Elevator.atHome().getAsBoolean();
+//        }
         public static boolean isClearFromClaw() {
-            return s_Climb.getPosition() > MIN_ANGLE_TO_CLEAR && !RobotContainer.s_Elevator.atHome().getAsBoolean();
+            return s_Elevator.getPosition() > MIN_HEIGHT_TO_CLEAR;
         }
     }
 

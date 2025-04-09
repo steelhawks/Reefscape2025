@@ -17,6 +17,7 @@ import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.climb.ClimbConstants.DeepClimbState;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
+import org.steelhawks.util.TunableNumber;
 
 import java.util.function.DoubleSupplier;
 
@@ -60,6 +61,7 @@ public class Climb extends SubsystemBase {
                 new TrapezoidProfile.Constraints(
                     ClimbConstants.DEEP_MAX_VELO_PER_SECOND,
                     ClimbConstants.DEEP_MAX_ACCEL_PER_SECOND));
+        mDeepController.setTolerance(ClimbConstants.TOLERANCE);
         mDeepFeedforward =
             new ArmFeedforward(
                 ClimbConstants.DEEP_KS,
@@ -94,27 +96,31 @@ public class Climb extends SubsystemBase {
             mDeepController.reset(getPosition());
         }
 
+        Logger.recordOutput("Climb/Goal", deepInputs.goal);
+
         if (mEnabled) {
-            if (mClimbingState == ClimbingState.IDLE) {
-                mDeepController.setPID(
-                    ClimbConstants.DEEP_KP,
-                    ClimbConstants.DEEP_KI,
-                    ClimbConstants.DEEP_KD);
-            } else {
-                mDeepController.setPID(
-                    ClimbConstants.CLIMBING_DEEP_KP,
-                    ClimbConstants.CLIMBING_DEEP_KI,
-                    ClimbConstants.CLIMBING_DEEP_KD);
-            }
+//            if (mClimbingState == ClimbingState.IDLE) {
+//                mDeepController.setPID(
+//                    ClimbConstants.DEEP_KP,
+//                    ClimbConstants.DEEP_KI,
+//                    ClimbConstants.DEEP_KD);
+//            } else {
+//                mDeepController.setPID(
+//                    ClimbConstants.CLIMBING_DEEP_KP,
+//                    ClimbConstants.CLIMBING_DEEP_KI,
+//                    ClimbConstants.CLIMBING_DEEP_KD);
+//            }
 
             runDeepClimb(mDeepController.calculate(getPosition()), mDeepController.getSetpoint());
         }
     }
 
     private void runDeepClimb(double output, TrapezoidProfile.State setpoint) {
-        double ff = mClimbingState == ClimbingState.IDLE
-            ? mDeepFeedforward.calculate(setpoint.position, setpoint.velocity)
-            : mClimbingDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
+//        double ff = mClimbingState == ClimbingState.IDLE
+//            ? mDeepFeedforward.calculate(setpoint.position, setpoint.velocity)
+//            : mClimbingDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
+//        double ff = Math.signum(deepInputs.encoderVelocityRadPerSec) * ClimbConstants.DEEP_KS;
+        double ff = mDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
         double volts = output + ff;
         deepIO.runClimb(volts);
     }

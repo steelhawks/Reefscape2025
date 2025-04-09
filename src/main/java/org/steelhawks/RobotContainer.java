@@ -368,8 +368,8 @@ public class RobotContainer {
         endGameMode
             .onTrue(
                 s_Elevator.setDesiredState(State.PREPARE_CLIMB)
-                    .andThen(
-                        Commands.waitUntil(Clearances.ClimbClearances::isClearFromClaw))
+//                    .andThen(
+//                        Commands.waitUntil(Clearances.ClimbClearances::isClearFromClaw))
                     .andThen(
                         s_Climb.prepareDeepClimb()))
             .onFalse(
@@ -500,13 +500,5 @@ public class RobotContainer {
             .whileTrue(
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
-
-        operator.povUp()
-            .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(1.0));
-
-        operator.povDown()
-            .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(-1.0));
     }
 }
