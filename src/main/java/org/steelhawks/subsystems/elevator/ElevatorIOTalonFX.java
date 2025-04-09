@@ -77,11 +77,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         if (Constants.getRobot() != RobotType.ALPHABOT) {
             var encoderConfig =
-                new CANcoderConfiguration().MagnetSensor
-                    .withSensorDirection(
-                        Constants.getRobot() == RobotType.OMEGABOT
-                            ? SensorDirectionValue.Clockwise_Positive
-                            : SensorDirectionValue.CounterClockwise_Positive);
+                new CANcoderConfiguration()
+                    .withMagnetSensor(
+                        new MagnetSensorConfigs()
+                            .withMagnetOffset(ElevatorConstants.CANCODER_OFFSET)
+                            .withSensorDirection(
+                                Constants.getRobot() == RobotType.OMEGABOT
+                                    ? SensorDirectionValue.Clockwise_Positive
+                                    : SensorDirectionValue.CounterClockwise_Positive));
             mCANcoder.getConfigurator().apply(encoderConfig);
 
             magnetFault = mCANcoder.getFault_BadMagnet();
@@ -108,7 +111,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightTemp = mRightMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-            50,
+            100,
             leftPosition,
             leftVelocity,
             leftVoltage,

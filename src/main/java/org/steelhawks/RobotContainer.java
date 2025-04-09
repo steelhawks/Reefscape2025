@@ -500,5 +500,14 @@ public class RobotContainer {
             .whileTrue(
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
+
+        operator.povUp()
+            .whileTrue(
+                s_Climb.runDeepClimbViaSpeed(1.0)
+            );
+        operator.povDown()
+            .whileTrue(
+                s_Climb.runDeepClimbViaSpeed(-1.0)
+            );
     }
 }

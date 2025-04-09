@@ -46,7 +46,7 @@ public class ElevatorConstants {
         }
     }
 
-    public static double CANCODER_OFFSET = 0;
+    public static double CANCODER_OFFSET = -0.46435546875;
 
     public static final int LIMIT_SWITCH_ID;
     public static final int LEFT_ID;
@@ -118,9 +118,9 @@ public class ElevatorConstants {
                 CANCODER_ID = 16; // 16 cancoder
                 GEAR_RATIO = 25;
                 KS = 0.23;
-                KG = 0.176;
+                KG = 0.166;
                 KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
-                KP = 9.0; // 7
+                KP = 7.6; // 7
                 KI = 0.0;
                 KD = 0.0;
                 MAX_VELOCITY_PER_SEC = 20; // 40
