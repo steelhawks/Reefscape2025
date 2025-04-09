@@ -68,6 +68,8 @@ public class ClimbConstants {
     public static final double DEEP_MAX_VELO_PER_SECOND;
     public static final double DEEP_MAX_ACCEL_PER_SECOND;
 
+    public static final double ANGLE_OFFSET_TO_HORIZONTAL = 0.0;
+
     static {
         switch (Constants.getRobot()) {
             case ALPHABOT -> {
@@ -117,7 +119,7 @@ public class ClimbConstants {
                 SHALLOW_MAX_RADIANS = Units.rotationsToRadians(3.0);
                 DEEP_TOP_MOTOR_ID = 30;
                 DEEP_BOTTOM_MOTOR_ID = 36;
-                DEEP_CANCODER_ID = -1;
+                DEEP_CANCODER_ID = 18;
                 DEEP_KP = 0.0;
                 DEEP_KI = 0.0;
                 DEEP_KD = 0.0;

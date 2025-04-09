@@ -14,7 +14,6 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.SwerveDriveController;
 
@@ -63,15 +62,16 @@ public class SwerveDriveAlignment extends Command {
     }
 
     private boolean isXAligned() {
-        return Math.abs(targetPose.get().getX() - s_Swerve.getPose().getX()) < XY_TOLERANCE;
+        return Math.abs(targetPose.get().getX() - s_Swerve.getPose().getX()) <= XY_TOLERANCE;
     }
 
     private boolean isYAligned() {
-        return Math.abs(targetPose.get().getY() - s_Swerve.getPose().getY()) < XY_TOLERANCE;
+        return Math.abs(targetPose.get().getY() - s_Swerve.getPose().getY()) <= XY_TOLERANCE;
     }
 
     private boolean isThetaAligned() {
-        return Math.abs(targetPose.get().getRotation().getRadians() - s_Swerve.getPose().getRotation().getRadians()) < THETA_TOLERANCE;
+        double angleDifference = MathUtil.angleModulus(targetPose.get().getRotation().getRadians() - s_Swerve.getPose().getRotation().getRadians());
+        return Math.abs(angleDifference) <= THETA_TOLERANCE;
     }
 
     private boolean velocityInTolerance() {
