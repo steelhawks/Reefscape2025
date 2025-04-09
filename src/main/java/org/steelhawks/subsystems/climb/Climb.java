@@ -84,7 +84,6 @@ public class Climb extends SubsystemBase {
         Logger.processInputs("Climb", deepInputs);
 
         topDeepMotorDisconnected.set(!deepInputs.connected);
-//        bottomDeepMotorDisconnected.set(!deepInputs.bottomConnected);
 
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Climb/CurrentCommand", getCurrentCommand().getName());
@@ -122,7 +121,7 @@ public class Climb extends SubsystemBase {
 
      @AutoLogOutput(key = "DeepClimb/AdjustedPosition")
      public double getPosition() {
-         return deepInputs.encoderPositionRad;
+         return deepInputs.encoderAbsolutePositionRad;
      }
 
     /* ------------- Deep Climb Commands ------------- */
@@ -182,30 +181,29 @@ public class Climb extends SubsystemBase {
                 double goal = state.getAngle().getRadians();
                 deepInputs.goal = goal;
                 mDeepController.setGoal(goal);
-            }, this);
+            }, this)
+            .ignoringDisable(true);
     }
 
     public Command runDeepClimbViaSpeed(double speed) {
         return Commands.run(
-            () -> deepIO.runClimbViaSpeed(speed))
+            () -> deepIO.runClimbViaSpeed(speed), this)
         .finallyDo(deepIO::stop);
     }
 
     public Command runDeepClimb(double volts) {
         return Commands.run(
-            () -> deepIO.runClimb(volts))
+            () -> deepIO.runClimb(volts), this)
         .finallyDo(deepIO::stop);
     }
 
     public Command prepareDeepClimb() {
         return Commands.runOnce(this::enable)
-            .andThen(setDesiredState(DeepClimbState.PREPARE))
-            .ignoringDisable(true);
+            .andThen(setDesiredState(DeepClimbState.PREPARE));
     }
 
     public Command goHome() {
         return Commands.runOnce(this::enable)
-            .andThen(setDesiredState(DeepClimbState.HOME))
-            .ignoringDisable(true);
+            .andThen(setDesiredState(DeepClimbState.HOME));
     }
 }
