@@ -22,6 +22,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
+import org.steelhawks.subsystems.algaeclaw.AlgaeClawIO;
+import org.steelhawks.subsystems.algaeclaw.AlgaeClawIOTalonFX;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
@@ -64,6 +67,7 @@ public class RobotContainer {
     public static Claw s_Claw;
     public static Align s_Align;
     public static Climb s_Climb;
+    public static AlgaeClaw s_AlgaeClaw;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -150,6 +154,9 @@ public class RobotContainer {
                     s_Climb =
                         new Climb(
                             new DeepClimbIOTalonFX());
+                    s_AlgaeClaw =
+                        new AlgaeClaw(
+                            new AlgaeClawIOTalonFX());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -178,6 +185,9 @@ public class RobotContainer {
                     s_Climb =
                         new Climb(
                             new DeepClimbIO() {});
+                    s_AlgaeClaw =
+                        new AlgaeClaw(
+                            new AlgaeClawIO() {});
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -207,6 +217,9 @@ public class RobotContainer {
                     s_Climb =
                         new Climb(
                             new DeepClimbIO() {});
+                    s_AlgaeClaw =
+                        new AlgaeClaw(
+                            new AlgaeClawIO() {});
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
@@ -256,6 +269,9 @@ public class RobotContainer {
                     s_Climb =
                         new Climb(
                             new DeepClimbIO() {});
+                    s_AlgaeClaw =
+                        new AlgaeClaw(
+                            new AlgaeClawIO() {});
                 }
             }
         }
@@ -307,6 +323,9 @@ public class RobotContainer {
             s_Climb =
                 new Climb(
                     new DeepClimbIO() {});
+            s_AlgaeClaw =
+                new AlgaeClaw(
+                    new AlgaeClawIO() {});
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
@@ -506,19 +525,39 @@ public class RobotContainer {
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
 
+//        operator.povUp()
+//            .whileTrue(
+//                s_Climb.runDeepClimbViaSpeed(1.0)
+//            );
+//        operator.povDown()
+//            .whileTrue(
+//                s_Climb.runDeepClimbViaSpeed(-1.0)
+//            );
+//        operator.povUp()
+//            .onTrue(
+//                s_AlgaeClaw.home()
+//            );
+//        operator.povDown()
+//            .onTrue(
+//                s_AlgaeClaw.intake()
+//            );
+
         operator.povUp()
             .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(1.0)
-            );
-        operator.povDown()
-            .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(-1.0)
+                s_AlgaeClaw.applyKS()
             );
 
+        operator.povDown()
+            .whileTrue(
+                s_AlgaeClaw.spin(1.0)
+            );
+        operator.povRight()
+            .whileTrue(s_AlgaeClaw.spin(-1.0));
+
         /* ------------- Endgame Controls ------------- */
-        operator.leftStick()
-            .and(endGameMode)
-            .onTrue(
-                s_Climb.toggleManualControl(() -> -operator.getLeftY()));
+//        operator.leftStick()
+//            .and(endGameMode)
+//            .onTrue(
+//                s_Climb.toggleManualControl(() -> -operator.getLeftY()));
     }
 }

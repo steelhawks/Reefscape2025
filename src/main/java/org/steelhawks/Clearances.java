@@ -18,6 +18,10 @@ public class Clearances {
         }
     }
 
+    public final static class AlgaeClawClearances {
+        private static final double MIN_ANGLE_CLEAR_FROM_HOME = 0.0;
+    }
+
     public final static class ClimbClearances {
         private static final double MIN_HEIGHT_TO_CLEAR = 1.1259418983080607;
 

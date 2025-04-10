@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.util.ArmDriveFeedforward;
+import org.steelhawks.util.TunableNumber;
 
 public class AlgaeClaw extends SubsystemBase {
 
@@ -109,6 +110,19 @@ public class AlgaeClaw extends SubsystemBase {
 
     public Command catapult() {
         return setDesiredState(AlgaeClawConstants.AlgaeClawState.CATAPULT);
+    }
+
+    TunableNumber s = new TunableNumber("AlgaeClaw/kS", 0.0);
+    public Command applyKS() {
+        return Commands.run(
+            () -> io.runPivot(s.getAsDouble())
+        ).finallyDo(io::stopPivot);
+    }
+
+    public Command spin(double speed) {
+        return Commands.run(
+            () -> io.runSpin(speed)
+        ).finallyDo(io::stopSpin);
     }
 }
 
