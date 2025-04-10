@@ -17,7 +17,6 @@ import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.climb.ClimbConstants.DeepClimbState;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIO;
 import org.steelhawks.subsystems.climb.deep.DeepClimbIOInputsAutoLogged;
-import org.steelhawks.util.TunableNumber;
 
 import java.util.function.DoubleSupplier;
 
@@ -143,8 +142,8 @@ public class Climb extends SubsystemBase {
                         deepClimbManual(
                             () -> MathUtil.clamp(
                                 MathUtil.applyDeadband(joystickAxis.getAsDouble(), Constants.Deadbands.ELEVATOR_DEADBAND),
-                                -0.5,
-                                0.5)));
+                                -1.0,
+                                1.0)));
                     mOperatorLock = OperatorLock.UNLOCKED;
                 } else {
                     if (getDefaultCommand() != null) {
