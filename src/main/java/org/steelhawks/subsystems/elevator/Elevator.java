@@ -166,7 +166,7 @@ public class Elevator extends SubsystemBase {
 
     @AutoLogOutput(key = "Elevator/AdjustedPosition")
     public double getPosition() {
-        return inputs.encoderPositionRad - ElevatorConstants.CANCODER_OFFSET;
+        return inputs.encoderPositionRad;
     }
 
     public Trigger atGoal() {
@@ -176,7 +176,7 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atThisGoal(ElevatorConstants.State state) {
         return new Trigger(
-            () -> Math.abs(getPosition() - state.getAngle().getRadians()) <= ElevatorConstants.TOLERANCE * 1.5);
+            () -> Math.abs(getPosition() - state.getAngle().getRadians()) <= ElevatorConstants.TOLERANCE * 3.0);
     }
 
     public Trigger atLimit() {

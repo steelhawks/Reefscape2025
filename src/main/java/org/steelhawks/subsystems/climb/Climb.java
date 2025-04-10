@@ -60,6 +60,7 @@ public class Climb extends SubsystemBase {
                 new TrapezoidProfile.Constraints(
                     ClimbConstants.DEEP_MAX_VELO_PER_SECOND,
                     ClimbConstants.DEEP_MAX_ACCEL_PER_SECOND));
+        mDeepController.setTolerance(ClimbConstants.TOLERANCE);
         mDeepFeedforward =
             new ArmFeedforward(
                 ClimbConstants.DEEP_KS,
@@ -84,7 +85,6 @@ public class Climb extends SubsystemBase {
         Logger.processInputs("Climb", deepInputs);
 
         topDeepMotorDisconnected.set(!deepInputs.connected);
-//        bottomDeepMotorDisconnected.set(!deepInputs.bottomConnected);
 
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Climb/CurrentCommand", getCurrentCommand().getName());
@@ -95,34 +95,38 @@ public class Climb extends SubsystemBase {
             mDeepController.reset(getPosition());
         }
 
+        Logger.recordOutput("Climb/Goal", deepInputs.goal);
+
         if (mEnabled) {
-            if (mClimbingState == ClimbingState.IDLE) {
-                mDeepController.setPID(
-                    ClimbConstants.DEEP_KP,
-                    ClimbConstants.DEEP_KI,
-                    ClimbConstants.DEEP_KD);
-            } else {
-                mDeepController.setPID(
-                    ClimbConstants.CLIMBING_DEEP_KP,
-                    ClimbConstants.CLIMBING_DEEP_KI,
-                    ClimbConstants.CLIMBING_DEEP_KD);
-            }
+//            if (mClimbingState == ClimbingState.IDLE) {
+//                mDeepController.setPID(
+//                    ClimbConstants.DEEP_KP,
+//                    ClimbConstants.DEEP_KI,
+//                    ClimbConstants.DEEP_KD);
+//            } else {
+//                mDeepController.setPID(
+//                    ClimbConstants.CLIMBING_DEEP_KP,
+//                    ClimbConstants.CLIMBING_DEEP_KI,
+//                    ClimbConstants.CLIMBING_DEEP_KD);
+//            }
 
             runDeepClimb(mDeepController.calculate(getPosition()), mDeepController.getSetpoint());
         }
     }
 
     private void runDeepClimb(double output, TrapezoidProfile.State setpoint) {
-        double ff = mClimbingState == ClimbingState.IDLE
-            ? mDeepFeedforward.calculate(setpoint.position, setpoint.velocity)
-            : mClimbingDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
+//        double ff = mClimbingState == ClimbingState.IDLE
+//            ? mDeepFeedforward.calculate(setpoint.position, setpoint.velocity)
+//            : mClimbingDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
+//        double ff = Math.signum(deepInputs.encoderVelocityRadPerSec) * ClimbConstants.DEEP_KS;
+        double ff = mDeepFeedforward.calculate(setpoint.position, setpoint.velocity);
         double volts = output + ff;
         deepIO.runClimb(volts);
     }
 
      @AutoLogOutput(key = "DeepClimb/AdjustedPosition")
      public double getPosition() {
-         return deepInputs.encoderPositionRad;
+         return deepInputs.encoderAbsolutePositionRad;
      }
 
     /* ------------- Deep Climb Commands ------------- */
@@ -138,8 +142,8 @@ public class Climb extends SubsystemBase {
                         deepClimbManual(
                             () -> MathUtil.clamp(
                                 MathUtil.applyDeadband(joystickAxis.getAsDouble(), Constants.Deadbands.ELEVATOR_DEADBAND),
-                                -0.5,
-                                0.5)));
+                                -1.0,
+                                1.0)));
                     mOperatorLock = OperatorLock.UNLOCKED;
                 } else {
                     if (getDefaultCommand() != null) {
@@ -182,30 +186,29 @@ public class Climb extends SubsystemBase {
                 double goal = state.getAngle().getRadians();
                 deepInputs.goal = goal;
                 mDeepController.setGoal(goal);
-            }, this);
+            }, this)
+            .ignoringDisable(true);
     }
 
     public Command runDeepClimbViaSpeed(double speed) {
         return Commands.run(
-            () -> deepIO.runClimbViaSpeed(speed))
+            () -> deepIO.runClimbViaSpeed(speed), this)
         .finallyDo(deepIO::stop);
     }
 
     public Command runDeepClimb(double volts) {
         return Commands.run(
-            () -> deepIO.runClimb(volts))
+            () -> deepIO.runClimb(volts), this)
         .finallyDo(deepIO::stop);
     }
 
     public Command prepareDeepClimb() {
         return Commands.runOnce(this::enable)
-            .andThen(setDesiredState(DeepClimbState.PREPARE))
-            .ignoringDisable(true);
+            .andThen(setDesiredState(DeepClimbState.PREPARE));
     }
 
     public Command goHome() {
         return Commands.runOnce(this::enable)
-            .andThen(setDesiredState(DeepClimbState.HOME))
-            .ignoringDisable(true);
+            .andThen(setDesiredState(DeepClimbState.HOME));
     }
 }

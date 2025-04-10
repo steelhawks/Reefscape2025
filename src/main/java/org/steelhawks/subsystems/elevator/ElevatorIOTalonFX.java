@@ -3,12 +3,13 @@ package org.steelhawks.subsystems.elevator;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,16 +17,13 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 
-import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
-
 public class ElevatorIOTalonFX implements ElevatorIO {
 
-    private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    private final MotionMagicVoltage motionMagic;
-    private final DigitalInput mLimitSwitch;
     private final TalonFX mLeftMotor;
     private final TalonFX mRightMotor;
     private CANcoder mCANcoder = null;
+
+    private final DigitalInput mLimitSwitch;
 
     private final StatusSignal<Angle> leftPosition;
     private final StatusSignal<AngularVelocity> leftVelocity;
@@ -49,13 +47,49 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         mLeftMotor = new TalonFX(ElevatorConstants.LEFT_ID, Constants.getCANBus());
         mRightMotor = new TalonFX(ElevatorConstants.RIGHT_ID, Constants.getCANBus());
-        mRightMotor.setControl(new Follower(mLeftMotor.getDeviceID(), true));
-        if (ElevatorConstants.CANCODER_ID != -1) {
+        if (ElevatorConstants.CANCODER_ID != -1)
             mCANcoder = new CANcoder(ElevatorConstants.CANCODER_ID, Constants.getCANBus());
+        mLimitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
+
+        var leftConfig =
+            new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs()
+                    .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(
+                        Constants.getRobot() == RobotType.OMEGABOT
+                            ? InvertedValue.CounterClockwise_Positive
+                            : InvertedValue.Clockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+        mLeftMotor.getConfigurator().apply(leftConfig);
+
+        var rightConfig =
+            new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs()
+                    .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
+                .withMotorOutput(new MotorOutputConfigs()
+                    .withInverted(
+                        Constants.getRobot() == RobotType.OMEGABOT
+                            ? InvertedValue.Clockwise_Positive
+                            : InvertedValue.CounterClockwise_Positive)
+                    .withNeutralMode(NeutralModeValue.Brake));
+        mRightMotor.getConfigurator().apply(rightConfig);
+
+        if (Constants.getRobot() != RobotType.ALPHABOT) {
+            var encoderConfig =
+                new CANcoderConfiguration()
+                    .withMagnetSensor(
+                        new MagnetSensorConfigs()
+                            .withMagnetOffset(ElevatorConstants.CANCODER_OFFSET)
+                            .withSensorDirection(
+                                Constants.getRobot() == RobotType.OMEGABOT
+                                    ? SensorDirectionValue.Clockwise_Positive
+                                    : SensorDirectionValue.CounterClockwise_Positive));
+            mCANcoder.getConfigurator().apply(encoderConfig);
+
             magnetFault = mCANcoder.getFault_BadMagnet();
             canCoderPosition = mCANcoder.getPosition();
             canCoderVelocity = mCANcoder.getVelocity();
-
             BaseStatusSignal.setUpdateFrequencyForAll(
                 100,
                 magnetFault,
@@ -63,33 +97,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 canCoderVelocity);
             mCANcoder.optimizeBusUtilization();
         }
-
-        motionMagic = new MotionMagicVoltage(0.0);
-        mLimitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
-
-        motorConfig
-            .withSlot0(
-                new Slot0Configs()
-                    .withGravityType(GravityTypeValue.Elevator_Static)
-                    .withKS(ElevatorConstants.CORAL_KS)
-                    .withKG(ElevatorConstants.CORAL_KG)
-                    .withKV(ElevatorConstants.CORAL_KV)
-                    .withKP(ElevatorConstants.CORAL_KP)
-                    .withKI(ElevatorConstants.CORAL_KI)
-                    .withKD(ElevatorConstants.CORAL_KD))
-            .withFeedback(
-                new FeedbackConfigs()
-                    .withSensorToMechanismRatio(ElevatorConstants.GEAR_RATIO))
-            .withMotionMagic(
-                new MotionMagicConfigs()
-                    .withMotionMagicCruiseVelocity(ElevatorConstants.MAX_VELOCITY_PER_SEC)
-                    .withMotionMagicAcceleration(ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED)
-                    .withMotionMagicJerk(ElevatorConstants.MAX_JERK_PER_SEC_CUBED)) // add jerk to make it an s-curve
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(80.0)
-                    .withStatorCurrentLimitEnable(true));
-        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(motorConfig));
 
         leftPosition = mLeftMotor.getPosition();
         leftVelocity = mLeftMotor.getVelocity();
@@ -104,7 +111,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightTemp = mRightMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-            50,
+            100,
             leftPosition,
             leftVelocity,
             leftVoltage,
@@ -118,7 +125,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             rightTemp);
 
         ParentDevice.optimizeBusUtilizationForAll(mLeftMotor, mRightMotor);
-        zeroEncoders();
     }
 
     boolean encoderOffsetFound = false;
@@ -175,6 +181,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         inputs.limitSwitchConnected = mLimitSwitch.getChannel() == ElevatorConstants.LIMIT_SWITCH_ID;
         inputs.limitSwitchPressed = !mLimitSwitch.get();
+//        inputs.atTopLimit = inputs.encoderPositionRad >= ElevatorConstants.MAX_RADIANS;
 
         atTopLimit = inputs.atTopLimit;
         atBottomLimit = inputs.limitSwitchPressed;
@@ -206,26 +213,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
-    public void runPosition(double positionRad) {
+    public void runPosition(double positionRad, double feedforward) {
         mLeftMotor.setControl(
-            motionMagic.withPosition(Units.radiansToRotations(positionRad)));
-    }
-
-    @Override
-    public void setPID(double kP, double kI, double kD) {
-        motorConfig.Slot0.kP = kP;
-        motorConfig.Slot0.kI = kI;
-        motorConfig.Slot0.kD = kD;
-        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(motorConfig));
-    }
-
-    @Override
-    public void setFF(double kS, double kG, double kV, double kA) {
-        motorConfig.Slot0.kS = kS;
-        motorConfig.Slot0.kG = kG;
-        motorConfig.Slot0.kV = kV;
-        motorConfig.Slot0.kA = kA;
-        tryUntilOk(5, () -> mLeftMotor.getConfigurator().apply(motorConfig));
+            new PositionVoltage(positionRad)
+                .withFeedForward(feedforward));
+        mRightMotor.setControl(
+            new PositionVoltage(positionRad)
+                .withFeedForward(feedforward));
     }
 
     @Override

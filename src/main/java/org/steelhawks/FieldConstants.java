@@ -15,11 +15,18 @@ public class FieldConstants {
     public static final double FIELD_LENGTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldLength();
     public static final double FIELD_WIDTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldWidth();
 
-    public static Translation2d REEF_CENTER = new Translation2d(Units.inchesToMeters(144.0 + (93.5 - 14.0 * 2) / 2), FIELD_WIDTH / 2);
+    public static Translation2d REEF_CENTER = new Translation2d(Units.inchesToMeters(144.0 + (93.5 - 14.0 * 2.0) / 2.0), FIELD_WIDTH / 2.0);
     public static double CENTER_OF_REEF_TO_REEF_FACE = Units.inchesToMeters(32.75);
     public static double CENTER_OF_TROUGH_TO_BRANCH = Units.inchesToMeters(13.0 / 2.0);
-    public static double ROBOT_PERPENDICULAR_TO_NEXT_REEF = Units.inchesToMeters(18.5 + 3);
+    public static double ROBOT_PERPENDICULAR_TO_NEXT_REEF = Units.inchesToMeters(18.5 + 3.0);
     public static final Field2d FIELD_2D = new Field2d();
+
+    public static final double BARGE_LENGTH = Units.inchesToMeters(146.5);
+    public static final double DIST_BETWEEN_MIDDLE_AND_CORRESPONDING_CAGE = Units.inchesToMeters(43.0);
+    public static final double MIDDLE_CAGE_TO_APRIL_TAG_Y_OFFSET =  getAprilTag(14).pose().getY() - 6.160040;
+//    public static final double CENTER_OF_BARGE = -Units.inchesToMeters(46.0 / 2.0);
+//    public static final double CENTER_OF_BARGE = Units.inchesToMeters(3.892794);
+    public static final double CENTER_OF_BARGE = getAprilTag(14).pose().getX() - 8.760429;
 
     public static final AprilTag[] APRIL_TAGS = {
         new AprilTag(1,  new Pose3d(new Translation3d(Units.inchesToMeters(657.37), Units.inchesToMeters(25.80), Units.inchesToMeters(58.50)), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(126)))),
@@ -187,5 +194,64 @@ public class FieldConstants {
         }
 
         return bestPose;
+    }
+
+    public enum Cage {
+        LEFT,
+        CENTER,
+        RIGHT;
+
+        public Pose2d getTagPose() {
+            AprilTag tag = AllianceFlip.shouldFlip() ? getAprilTag(5) : getAprilTag(14);
+            return tag.pose().toPose2d();
+        }
+
+        public Pose2d getCagePose() {
+            return switch (this) {
+                case LEFT, RIGHT ->
+                    getTagPose().transformBy(
+                        new Transform2d(
+                            CENTER_OF_BARGE,
+                            MIDDLE_CAGE_TO_APRIL_TAG_Y_OFFSET
+                                + DIST_BETWEEN_MIDDLE_AND_CORRESPONDING_CAGE * (this == LEFT ? -1.0 : 1.0),
+                            new Rotation2d()));
+                case CENTER ->
+                    getTagPose().transformBy(
+                        new Transform2d(
+                            CENTER_OF_BARGE,
+                            MIDDLE_CAGE_TO_APRIL_TAG_Y_OFFSET,
+                            new Rotation2d()));
+
+            };
+        }
+
+        public Pose2d getClimbPose() {
+            return getCagePose()
+                .transformBy(
+                    new Transform2d(
+                    RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + RobotConstants.DISTANCE_FROM_CAGE,
+                    RobotConstants.CLIMB_Y_OFFSET,
+                    new Rotation2d()));
+        }
+    }
+
+    public static Cage getClosestCage() {
+        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
+
+        Cage[] cages = Cage.values();
+        double minDistance = Double.MAX_VALUE;
+        Cage closestCagePose = null;
+
+        for (Cage cage : cages) {
+            Pose2d cagePose = cage.getCagePose();
+            double distance = robotPose.getTranslation().getDistance(cagePose.getTranslation());
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestCagePose = cage;
+            }
+        }
+
+        return closestCagePose;
     }
 }

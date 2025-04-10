@@ -46,7 +46,7 @@ public class ElevatorConstants {
         }
     }
 
-    public static double CANCODER_OFFSET = 0;
+    public static double CANCODER_OFFSET = -0.46435546875;
 
     public static final int LIMIT_SWITCH_ID;
     public static final int LEFT_ID;
@@ -55,27 +55,16 @@ public class ElevatorConstants {
 
     public static final double GEAR_RATIO;
 
-    public static final double CORAL_KS;
-    public static final double CORAL_KG;
-    public static final double CORAL_KV;
-    public static final double CORAL_KA;
+    public static final double KS;
+    public static final double KG;
+    public static final double KV;
 
-    public static final double CORAL_KP;
-    public static final double CORAL_KI;
-    public static final double CORAL_KD;
-
-    public static final double NONE_KS;
-    public static final double NONE_KG;
-    public static final double NONE_KV;
-    public static final double NONE_KA;
-
-    public static final double NONE_KP;
-    public static final double NONE_KI;
-    public static final double NONE_KD;
+    public static final double KP;
+    public static final double KI;
+    public static final double KD;
 
     public static final double MAX_VELOCITY_PER_SEC;
     public static final double MAX_ACCELERATION_PER_SEC_SQUARED;
-    public static final double MAX_JERK_PER_SEC_CUBED;
 
     public static final double TOLERANCE;
     public static final double MANUAL_ELEVATOR_INCREMENT;
@@ -90,25 +79,16 @@ public class ElevatorConstants {
                 RIGHT_ID = 15;
                 CANCODER_ID = -1;
                 GEAR_RATIO = 10.0;
-                CORAL_KS = 0.18;
-                CORAL_KG = 0.18625;
-                CORAL_KV = Arrays.stream(new double[]{
+                KS = 0.18;
+                KG = 0.18625;
+                KV = Arrays.stream(new double[]{
                     (2.0 - 1) / (10.593671321138238 - 4.652870525814727),
                 }).average().orElse(0.0);
-                CORAL_KA = 0.0;
-                NONE_KS = CORAL_KS;
-                NONE_KG = CORAL_KG;
-                NONE_KV = CORAL_KV;
-                NONE_KA = CORAL_KA;
-                CORAL_KP = 2.6;
-                CORAL_KI = 0.0;
-                CORAL_KD = 0.01;
-                NONE_KP = CORAL_KP;
-                NONE_KI = CORAL_KI;
-                NONE_KD = CORAL_KD;
+                KP = 2.6;
+                KI = 0.0;
+                KD = 0.01;
                 MAX_VELOCITY_PER_SEC = 100.0;
                 MAX_ACCELERATION_PER_SEC_SQUARED = 110.0;
-                MAX_JERK_PER_SEC_CUBED = 0.0;
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.65;
                 MAX_RADIANS = 60;
@@ -119,23 +99,14 @@ public class ElevatorConstants {
                 RIGHT_ID = 21;
                 CANCODER_ID = 22;
                 GEAR_RATIO = 1.0;
-                CORAL_KS = 0.15;
-                CORAL_KG = 0.09;
-                CORAL_KV = 0.6;
-                CORAL_KA = 0.0;
-                NONE_KS = CORAL_KS;
-                NONE_KG = CORAL_KG;
-                NONE_KV = CORAL_KV;
-                NONE_KA = CORAL_KA;
-                CORAL_KP = 9.1;
-                CORAL_KI = 0.0;
-                CORAL_KD = 0.002;
-                NONE_KP = CORAL_KP;
-                NONE_KI = CORAL_KI;
-                NONE_KD = CORAL_KD;
+                KS = 0.15;
+                KG = 0.09;
+                KV = 0.6;
+                KP = 9.1;
+                KI = 0.0;
+                KD = 0.002;
                 MAX_VELOCITY_PER_SEC = 5.2;
                 MAX_ACCELERATION_PER_SEC_SQUARED = 8.0;
-                MAX_JERK_PER_SEC_CUBED = 0.0;
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.5;
                 MAX_RADIANS = 18.5;
@@ -146,24 +117,15 @@ public class ElevatorConstants {
                 RIGHT_ID = 14;
                 CANCODER_ID = 16; // 16 cancoder
                 GEAR_RATIO = 25;
-                CORAL_KS = 0.23;
-                CORAL_KG = 0.176;
-                CORAL_KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
-                CORAL_KA = 0.0;
-                NONE_KS = 0.0;
-                NONE_KG = 0.0;
-                NONE_KV = 0.0;
-                NONE_KA = 0.0;
-                CORAL_KP = 5.0;
-                CORAL_KI = 0.0;
-                CORAL_KD = 0.0;
-                NONE_KP = 0.0;
-                NONE_KI = 0.0;
-                NONE_KD = 0.0;
-                MAX_VELOCITY_PER_SEC = 40; // 35
-                MAX_ACCELERATION_PER_SEC_SQUARED = 60; // was 70
-                MAX_JERK_PER_SEC_CUBED = 120;
-                TOLERANCE = 0.02;
+                KS = 0.23;
+                KG = 0.166;
+                KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
+                KP = 7.6; // 7
+                KI = 0.0;
+                KD = 0.0;
+                MAX_VELOCITY_PER_SEC = 20; // 40
+                MAX_ACCELERATION_PER_SEC_SQUARED = 25; // was 60
+                TOLERANCE = 0.03;
                 MANUAL_ELEVATOR_INCREMENT = 0.55;
                 MAX_RADIANS = 24; // 24.663
             }

@@ -7,7 +7,7 @@ import org.steelhawks.Constants;
 public class ClimbConstants {
 
     public enum DeepClimbState {
-        HOME(0, 0, 0),
+        HOME(0, Math.PI / 2.0, 0),
         PREPARE(0, 0, 0),
         CLIMB(0, 0, 0);
 
@@ -68,6 +68,9 @@ public class ClimbConstants {
     public static final double DEEP_MAX_VELO_PER_SECOND;
     public static final double DEEP_MAX_ACCEL_PER_SECOND;
 
+    public static final double ANGLE_OFFSET_TO_HORIZONTAL = -0.305908203125;
+    public static final double TOLERANCE = Units.degreesToRadians(10);
+
     static {
         switch (Constants.getRobot()) {
             case ALPHABOT -> {
@@ -117,15 +120,15 @@ public class ClimbConstants {
                 SHALLOW_MAX_RADIANS = Units.rotationsToRadians(3.0);
                 DEEP_TOP_MOTOR_ID = 30;
                 DEEP_BOTTOM_MOTOR_ID = 36;
-                DEEP_CANCODER_ID = -1;
-                DEEP_KP = 0.0;
+                DEEP_CANCODER_ID = 18; // 18
+                DEEP_KP = 20.0;
                 DEEP_KI = 0.0;
                 DEEP_KD = 0.0;
-                DEEP_KS = 0.0;
+                DEEP_KS = 0.23;
                 DEEP_KG = 0.0;
-                DEEP_KV = 0.0;
-                DEEP_MAX_VELO_PER_SECOND = 0.0;
-                DEEP_MAX_ACCEL_PER_SECOND = 0.0;
+                DEEP_KV = 12.0;
+                DEEP_MAX_VELO_PER_SECOND = 20.0;
+                DEEP_MAX_ACCEL_PER_SECOND = 25.0;
             }
         }
 

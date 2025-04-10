@@ -367,11 +367,11 @@ public class RobotContainer {
 
         endGameMode
             .onTrue(
-                s_Elevator.setDesiredState(State.PREPARE_CLIMB)
-                    .andThen(
-                        Commands.waitUntil(Clearances.ClimbClearances::isClearFromClaw))
-                    .andThen(
-                        s_Climb.prepareDeepClimb()))
+                Commands.runOnce(
+                    () -> s_LED.setDefaultLighting(s_LED.waveCommand(LEDColor.PURPLE)))
+                .andThen(
+                    s_Elevator.setDesiredState(State.PREPARE_CLIMB),
+                    s_Climb.prepareDeepClimb()))
             .onFalse(
                 s_Elevator.setDesiredState(State.HOME)
                     .alongWith(s_Climb.setDesiredState(ClimbConstants.DeepClimbState.HOME)));
@@ -398,7 +398,10 @@ public class RobotContainer {
 
         driver.leftBumper()
             .whileTrue(
-                s_Align.alignToClosestReefWithFusedInput(State.L4, driver::getLeftX));
+                Commands.either(
+                    s_Align.alignToClosestReefWithFusedInput(State.L4, driver::getLeftX),
+                    s_Align.alignToSelectedCage(),
+                    endGameMode.negate()));
 
         driver.rightBumper()
             .whileTrue(
@@ -428,7 +431,9 @@ public class RobotContainer {
 
         /* ------------- Elevator Controls ------------- */
 
-        operator.leftStick().onTrue(
+        operator.leftStick()
+            .and(endGameMode.negate())
+            .onTrue(
             s_Elevator.toggleManualControl(
                 () -> -operator.getLeftY()));
 
@@ -503,10 +508,17 @@ public class RobotContainer {
 
         operator.povUp()
             .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(1.0));
-
+                s_Climb.runDeepClimbViaSpeed(1.0)
+            );
         operator.povDown()
             .whileTrue(
-                s_Climb.runDeepClimbViaSpeed(-1.0));
+                s_Climb.runDeepClimbViaSpeed(-1.0)
+            );
+
+        /* ------------- Endgame Controls ------------- */
+        operator.leftStick()
+            .and(endGameMode)
+            .onTrue(
+                s_Climb.toggleManualControl(() -> -operator.getLeftY()));
     }
 }
