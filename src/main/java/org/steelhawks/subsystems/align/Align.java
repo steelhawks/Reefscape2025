@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.ReefUtil;
@@ -22,6 +23,7 @@ import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
@@ -60,6 +62,9 @@ public class Align extends VirtualSubsystem {
     private static final double LEFT_ALIGN_THRESHOLD = 0.39;
     private static final double RIGHT_ALIGN_THRESHOLD = 0.34500000000000003;
 
+    private static final LoggedDashboardChooser<FieldConstants.Cage> cageChooser =
+        new LoggedDashboardChooser<>("Cage Chooser");
+
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
     private final AlignIOInputsAutoLogged inputs = new AlignIOInputsAutoLogged();
     private final AlignIO io;
@@ -74,6 +79,10 @@ public class Align extends VirtualSubsystem {
 
     public Align(AlignIO io) {
         this.io = io;
+
+        cageChooser.addOption("Left", FieldConstants.Cage.LEFT);
+        cageChooser.addOption("Right", FieldConstants.Cage.RIGHT);
+        cageChooser.addOption("Center", FieldConstants.Cage.CENTER);
 
         mLeftController =
             new PIDController(LEFT_KP, LEFT_KI, LEFT_KD);
@@ -149,7 +158,7 @@ public class Align extends VirtualSubsystem {
                             : s_Swerve.getRotation()));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mDistanceController.atSetpoint()))
-        .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
+        .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
     public Command alignLeft(Rotation2d angle) {
@@ -166,7 +175,7 @@ public class Align extends VirtualSubsystem {
                         alignOutput));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mLeftController.atSetpoint()))
-        .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
+        .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
     public Command alignRight(Rotation2d angle) {
@@ -183,7 +192,7 @@ public class Align extends VirtualSubsystem {
                         0.0));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mRightController.atSetpoint()))
-        .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
+        .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
     public Command alignToClosestReef(ElevatorConstants.State level) {
@@ -208,6 +217,30 @@ public class Align extends VirtualSubsystem {
         return Commands.defer(
             () -> directPathFollow(() -> FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine()),
             Set.of(s_Swerve));
+    }
 
+    public Command alignToClosestCage() {
+        return alignToCage(FieldConstants.getClosestCage());
+    }
+
+    public Command alignToSelectedCage() {
+        return Commands.defer(
+            () -> cageChooser.get() != null
+                ? alignToCage(cageChooser.get())
+                : alignToClosestCage(),
+            Set.of(s_Swerve));
+    }
+
+    public Command alignToCage(FieldConstants.Cage cage) {
+        return Commands.defer(
+            () -> directPathFollow(cage::getClimbPose)
+                .andThen(
+                    Commands.run(
+                            () -> s_Swerve.runVelocity(
+                                new ChassisSpeeds(-0.3, 0.0, 0.0)))
+                        .withTimeout(1.0)
+                        .finallyDo(s_Swerve::stopWithX),
+                    LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 3.0)),
+            Set.of(s_Swerve));
     }
 }
