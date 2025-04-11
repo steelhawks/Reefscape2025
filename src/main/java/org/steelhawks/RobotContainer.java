@@ -546,7 +546,12 @@ public class RobotContainer {
                     Commands.waitUntil(s_Elevator.atThisGoal(State.KNOCK_L2)),
                     s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL)))
             .whileTrue(
-                s_AlgaeClaw.intakeAlgae());
+                s_AlgaeClaw.intakeAlgae())
+            .onFalse(
+                Commands.sequence(
+                    s_AlgaeClaw.avoid(),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                    s_Elevator.setDesiredState(State.HOME)));
 
         operator.rightTrigger()
             .onTrue(
@@ -557,6 +562,11 @@ public class RobotContainer {
             .whileTrue(
                 Commands.sequence(
                     Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE)),
-                    s_AlgaeClaw.outtakeAlgae()));
+                    s_AlgaeClaw.outtakeAlgae()))
+            .onFalse(
+                Commands.sequence(
+                    s_AlgaeClaw.avoid(),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                    s_Elevator.setDesiredState(State.HOME)));
     }
 }

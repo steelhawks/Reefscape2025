@@ -213,11 +213,13 @@ public class AlgaeClaw extends SubsystemBase {
     }
 
     public Command intakeAlgae() {
-        return Commands.run(() -> intakeAlgae(AlgaeClawConstants.INTAKE_SPEED));
+        return Commands.run(() -> intakeAlgae(AlgaeClawConstants.INTAKE_SPEED))
+            .finallyDo(io::stopSpin);
     }
 
     public Command outtakeAlgae() {
-        return Commands.run(() -> intakeAlgae(-AlgaeClawConstants.INTAKE_SPEED));
+        return Commands.run(() -> intakeAlgae(-AlgaeClawConstants.INTAKE_SPEED))
+            .finallyDo(io::stopSpin);
     }
 
     public void intakeAlgae(double speed) {

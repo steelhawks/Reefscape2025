@@ -49,7 +49,7 @@ public class ElevatorConstants {
         }
     }
 
-    public static double CANCODER_OFFSET = -0.46435546875;
+    public static double CANCODER_OFFSET = -0.46435546875; // in rotations
 
     public static final int LIMIT_SWITCH_ID;
     public static final int LEFT_ID;
