@@ -573,10 +573,10 @@ public class RobotContainer {
                 Commands.sequence(
                     s_AlgaeClaw.catapult(),
                     Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(State.BARGE)))
+                    s_Elevator.setDesiredState(State.BARGE_SCORE)))
             .whileTrue(
                 Commands.sequence(
-                    Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE)),
+                    Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE)),
                     s_AlgaeClaw.outtakeAlgae()));
     }
 }

@@ -25,7 +25,7 @@ public class ElevatorConstants {
         KNOCK_L3(0.0, 12.945263868966926, 0.0),
 
         // height to score into the barge
-        BARGE(0.0, 24, 0.0);
+        BARGE_SCORE(0.0, 24.0, 0.0);
 
         private final double alphaRadians;
         private final double omegaRadians;
