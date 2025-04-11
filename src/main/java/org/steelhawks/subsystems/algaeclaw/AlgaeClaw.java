@@ -14,6 +14,7 @@ import org.steelhawks.Constants;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.AlgaeClawDefaultCommand;
+import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.ArmDriveFeedforward;
 import org.steelhawks.util.TunableNumber;
 import java.util.function.DoubleSupplier;
@@ -30,11 +31,15 @@ public class AlgaeClaw extends SubsystemBase {
     private boolean mEnabled = false;
     private boolean shouldEStop = false;
 
-//    private final Alert pivotDisconnected =
-//        new Alert("Pivot Disconnected", Alert.AlertType.kError)
-//            .withMessage("The pivot motor is disconnected. Please check the wiring.")
-//            .withDuration(5)
-//            .withCondition(() -> !inputs.pivotConnected);
+    private final Alert pivotDisconnected =
+        new AlertUtil("Pivot Disconnected", Alert.AlertType.kError)
+            .withCondition(() -> !inputs.pivotConnected);
+    private final Alert spinDisconnected =
+        new AlertUtil("Spin Disconnected", Alert.AlertType.kError)
+            .withCondition(() -> !inputs.spinConnected);
+    private final Alert eStopped =
+        new AlertUtil("AlgaeClaw is E-Stopped", Alert.AlertType.kError)
+            .withCondition(() -> shouldEStop);
 
     private void enable() {
         mEnabled = true;
