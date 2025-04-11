@@ -1,6 +1,5 @@
 package org.steelhawks.subsystems.algaeclaw;
 
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -12,6 +11,8 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.util.ArmDriveFeedforward;
 import org.steelhawks.util.TunableNumber;
+
+import java.util.function.BooleanSupplier;
 
 public class AlgaeClaw extends SubsystemBase {
 
@@ -87,6 +88,10 @@ public class AlgaeClaw extends SubsystemBase {
         io.runPivot(volts);
     }
 
+    public boolean hasAlgae() {
+        return inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE;
+    }
+
     private Command setDesiredState(AlgaeClawConstants.AlgaeClawState state) {
         return Commands.runOnce(
             () -> {
@@ -114,6 +119,22 @@ public class AlgaeClaw extends SubsystemBase {
 
     public Command catapult() {
         return setDesiredState(AlgaeClawConstants.AlgaeClawState.CATAPULT);
+    }
+
+    public Command intakeAlgae() {
+        return Commands.run(() -> intakeAlgae(AlgaeClawConstants.INTAKE_SPEED));
+    }
+
+    public Command outtakeAlgae() {
+        return Commands.run(() -> intakeAlgae(-AlgaeClawConstants.INTAKE_SPEED));
+    }
+
+    public void intakeAlgae(double speed) {
+        io.runSpin(speed);
+    }
+
+    public void stopSpin() {
+        io.stopSpin();
     }
 
     TunableNumber s = new TunableNumber("AlgaeClaw/kS", 0.0);

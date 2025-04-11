@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
+import org.steelhawks.commands.AlgaeClawDefaultCommand;
 import org.steelhawks.commands.VibrateController;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -364,6 +365,8 @@ public class RobotContainer {
 
         new Alert("Orange Pi 1 is not connected", AlertType.kError).set(orangePi1Connected);
         new Alert("Orange Pi 2 is not connected", AlertType.kError).set(orangePi2Connected);
+
+        s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
     }
 
     private void configureTriggers() {
