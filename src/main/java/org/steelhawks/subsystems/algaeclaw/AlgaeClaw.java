@@ -169,6 +169,12 @@ public class AlgaeClaw extends SubsystemBase {
                                 + mDriveFeedforward.calculate(getPivotPosition(), RobotContainer.s_Swerve::getRobotRelativeXAccelGs)) / 12.0;
                         }
 
+                        if ((getPivotPosition() >= AlgaeClawConstants.MAX_PIVOT_RADIANS && appliedSpeed >= 0)
+                            || (getPivotPosition() <= AlgaeClawConstants.MIN_PIVOT_RADIANS && appliedSpeed <= 0)) {
+                            io.stopPivot();
+                            return;
+                        }
+
                         Logger.recordOutput("AlgaeClaw/ManualAppliedSpeed", appliedSpeed);
                         io.runPivotViaSpeed(appliedSpeed);
                     }, this))
