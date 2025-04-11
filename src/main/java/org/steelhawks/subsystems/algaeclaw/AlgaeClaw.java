@@ -205,7 +205,7 @@ public class AlgaeClaw extends SubsystemBase {
     }
 
     public Command intake() {
-        return setDesiredState(AlgaeClawConstants.AlgaeClawState.INTAKE);
+        return setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL);
     }
 
     public Command catapult() {

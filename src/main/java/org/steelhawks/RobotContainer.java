@@ -539,6 +539,7 @@ public class RobotContainer {
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
 
+        /* ------------- AlgaeClaw Controls ------------- */
         operator.povUp()
             .onTrue(s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.AVOID));
 
@@ -551,10 +552,19 @@ public class RobotContainer {
                 Commands.sequence(
                     s_AlgaeClaw.intake(),
                     Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(State.KNOCK_L2))
-                .andThen(
-                    Commands.waitUntil(s_Elevator.atThisGoal(State.KNOCK_L2)),
-                    s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL)))
+                    Commands.defer(
+                        () ->
+                            Commands.either(
+                                s_Elevator.setDesiredState(State.KNOCK_L3),
+                                s_Elevator.setDesiredState(State.KNOCK_L2),
+                                () -> ReefUtil.getClosestAlgae().isOnL3())
+                            .andThen(
+                                Commands.waitUntil(s_Elevator.atThisGoal(
+                                ReefUtil.getClosestAlgae().isOnL3()
+                                    ? State.KNOCK_L3
+                                    : State.KNOCK_L2))),
+                        Set.of(s_Elevator)),
+                    new VibrateController(driver)))
             .whileTrue(
                 s_AlgaeClaw.intakeAlgae())
             .onFalse(
@@ -570,9 +580,8 @@ public class RobotContainer {
                     Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                     s_Elevator.setDesiredState(State.BARGE_SCORE)))
             .whileTrue(
-                Commands.sequence(
-                    Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE)),
-                    s_AlgaeClaw.outtakeAlgae()))
+                    Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE))
+                        .andThen(s_AlgaeClaw.outtakeAlgae()))
             .onFalse(
                 Commands.sequence(
                     s_AlgaeClaw.avoid(),
