@@ -17,6 +17,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Clearances;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
+import org.steelhawks.util.AlertUtil;
 
 import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Volts;
@@ -27,17 +28,31 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private OperatorLock mOperatorLock;
     private final SysIdRoutine mSysId;
+    private boolean shouldEStop = false;
     private boolean mEnabled = false;
     private final ElevatorIO io;
 
     private final ProfiledPIDController mController;
     private final ElevatorFeedforward mFeedforward;
 
-    private final Alert leftMotorDisconnected;
-    private final Alert rightMotorDisconnected;
-    private final Alert canCoderDisconnected;
-    private final Alert limitSwitchDisconnected;
-    private final Alert canCoderMagnetBad;
+    private final Alert leftMotorDisconnected =
+        new AlertUtil("Left Elevator Motor Disconnected", AlertType.kError)
+            .withCondition(() -> !inputs.leftConnected);
+    private final Alert rightMotorDisconnected =
+        new AlertUtil("Right Elevator Motor Disconnected", AlertType.kError)
+            .withCondition(() -> !inputs.rightConnected);
+    private final Alert canCoderDisconnected =
+        new AlertUtil("Elevator CANcoder Disconnected", Alert.AlertType.kError)
+            .withCondition(() -> !inputs.encoderConnected);
+    private final Alert limitSwitchDisconnected =
+        new AlertUtil("Elevator Limit Switch Disconnected", Alert.AlertType.kError)
+            .withCondition(() -> !inputs.limitSwitchConnected);
+    private final Alert canCoderMagnetBad =
+        new AlertUtil("Elevator CANcoder Magnet Bad", Alert.AlertType.kError)
+            .withCondition(() -> !inputs.magnetGood);
+    private final Alert eStopped =
+        new AlertUtil("Elevator is E-Stopped", Alert.AlertType.kError)
+            .withCondition(() -> shouldEStop);
 
     public void enable() {
         mEnabled = true;
@@ -81,26 +96,6 @@ public class Elevator extends SubsystemBase {
 
         mOperatorLock = OperatorLock.LOCKED;
 
-        leftMotorDisconnected =
-            new Alert(
-                "Left Elevator Motor Disconnected", AlertType.kError);
-
-        rightMotorDisconnected =
-            new Alert(
-                "Right Elevator Motor Disconnected", AlertType.kError);
-
-        canCoderDisconnected =
-            new Alert(
-                "Elevator CANcoder Disconnected", AlertType.kError);
-
-        limitSwitchDisconnected =
-            new Alert(
-                "Elevator Limit Switch Disconnected", AlertType.kError);
-
-        canCoderMagnetBad =
-            new Alert(
-                "Elevator CANcoder Magnet Bad", AlertType.kError);
-
         this.io = io;
         disable();
 
@@ -124,12 +119,6 @@ public class Elevator extends SubsystemBase {
         Logger.processInputs("Elevator", inputs);
         Logger.recordOutput("Elevator/Enabled", mEnabled);
 
-        leftMotorDisconnected.set(!inputs.leftConnected);
-        rightMotorDisconnected.set(!inputs.rightConnected);
-        canCoderDisconnected.set(!inputs.encoderConnected);
-        limitSwitchDisconnected.set(!inputs.limitSwitchConnected);
-        canCoderMagnetBad.set(!inputs.magnetGood);
-
         // stop adding up pid error while disabled
         if (DriverStation.isDisabled()) {
             mController.reset(getPosition());
@@ -139,7 +128,11 @@ public class Elevator extends SubsystemBase {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
         }
 
-        if (Clearances.AlgaeClawClearances.willCollideIntoElevator()) {
+        shouldEStop =
+            !Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam()
+                && Math.signum(inputs.encoderVelocityRadPerSec) == -1;
+
+        if (Clearances.AlgaeClawClearances.willCollideIntoElevator() || shouldEStop) {
             io.stop();
             disable();
             return;
