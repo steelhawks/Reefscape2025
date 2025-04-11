@@ -116,7 +116,7 @@ public final class Constants {
         public static final double ARM_OFFSET = -Units.inchesToMeters(9.836467);
         public static final double DIST_CLEAR_FROM_REEF = Units.inchesToMeters(4);
 
-        public static final double CLIMB_Y_OFFSET = Units.inchesToMeters(0.0);
+        public static final double CLIMB_Y_OFFSET = Units.inchesToMeters(12 + (3.0 / 8.0));
         public static final double DISTANCE_FROM_CAGE = Units.inchesToMeters(10.0);
     }
 
