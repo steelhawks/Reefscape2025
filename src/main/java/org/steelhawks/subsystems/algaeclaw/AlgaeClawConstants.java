@@ -2,12 +2,14 @@ package org.steelhawks.subsystems.algaeclaw;
 
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 
 public class AlgaeClawConstants {
 
     public enum AlgaeClawState {
         HOME(-1.5),
         AVOID(-1.0),
+        PARALLEL(0.0),
         INTAKE(-Math.PI / 4),
         CATAPULT(0.6);
 
@@ -29,20 +31,21 @@ public class AlgaeClawConstants {
     public static final int CANCODER_ID = 27;
 
     public static final double PIVOT_KS = 0.15;
-    public static final double PIVOT_KG = 0.0;
-    public static final double PIVOT_KV = 0.0;
+    public static final double PIVOT_KG = 0.08;
+    public static final double PIVOT_KV = 3.2;
 
-    public static final double PIVOT_KP = 0.0;
+    public static final double PIVOT_KP = 0.08;
     public static final double PIVOT_KI = 0.0;
-    public static final double PIVOT_KD = 0.0;
+    public static final double PIVOT_KD = 0.01;
 
-    public static final double MAX_VELOCITY = 0.0;
-    public static final double MAX_ACCELERATION = 0.0;
+    public static final double MAX_VELOCITY = 2.0;
+    public static final double MAX_ACCELERATION = 4.0;
     public static final double MAX_MANUAL_SPEED = 0.3;
     public static final double MAX_JERK = 0.0;
+    public static final double TOLERANCE = 0.002;
 
     public static final double CANCODER_OFFSET = -0.1103515625;
-    public static final double MIN_PIVOT_RADIANS = -1.5631264228554684;
+    public static final double MIN_PIVOT_RADIANS = -1.58;
     public static final double MAX_PIVOT_RADIANS = 0.6504078540635119;
 
     public static final double INTAKE_SPEED = 1.0;

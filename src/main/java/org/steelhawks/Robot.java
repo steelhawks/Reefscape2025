@@ -188,6 +188,8 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("Align/Left", FieldConstants.Cage.LEFT.getClimbPose());
         Logger.recordOutput("Align/Right", FieldConstants.Cage.RIGHT.getClimbPose());
         Logger.recordOutput("Align/Center", FieldConstants.Cage.CENTER.getClimbPose());
+
+        Logger.recordOutput("AlgaeClaw/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
     }
 
     @Override
