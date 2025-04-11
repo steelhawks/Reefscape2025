@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -41,7 +40,6 @@ import static org.steelhawks.Constants.RobotType.*;
 public class Robot extends LoggedRobot {
 
     private static RobotState mState = RobotState.DISABLED;
-    private Misalignment lastState = Misalignment.NONE;
     private final RobotContainer robotContainer;
     private Command autonomousCommand;
     private boolean isFirstRun = true;
@@ -184,6 +182,7 @@ public class Robot extends LoggedRobot {
     private void updateSimPoseVisualizer() {
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
+        Logger.recordOutput("Align/ClosestAlgaeClearance", ReefUtil.getClosestAlgae().getClearancePose());
         Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
         Logger.recordOutput("Align/Left", FieldConstants.Cage.LEFT.getClimbPose());
         Logger.recordOutput("Align/Right", FieldConstants.Cage.RIGHT.getClimbPose());
@@ -250,8 +249,7 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
         Elastic.selectTab("Autonomous");
-//        autonomousCommand = Autos.getAuto();
-        autonomousCommand = RobotContainer.s_Align.alignToSelectedCage();
+        autonomousCommand = Autos.getAuto();
 
         if (autonomousCommand != null)
             autonomousCommand.schedule();

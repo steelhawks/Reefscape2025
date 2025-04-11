@@ -12,9 +12,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
-import org.steelhawks.commands.AlgaeClawDefaultCommand;
-import org.steelhawks.commands.SuperStructure;
-import org.steelhawks.commands.VibrateController;
+import org.steelhawks.commands.*;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -22,7 +20,6 @@ import org.steelhawks.subsystems.LED.LEDColor;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.steelhawks.Constants.*;
-import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClawConstants;
@@ -45,6 +42,7 @@ import org.steelhawks.util.DashboardTrigger;
 import org.steelhawks.util.FieldBoundingBox;
 
 import java.util.Objects;
+import java.util.Set;
 
 
 public class RobotContainer {
@@ -414,7 +412,41 @@ public class RobotContainer {
 
         driver.rightBumper()
             .whileTrue(
-                s_Align.alignToClosestAlgae());
+                Commands.defer(
+                    () -> Align.directPathFollow(() -> ReefUtil.getClosestAlgae().getClearancePose()),
+                    Set.of(s_Swerve))
+                    .andThen(
+                        s_AlgaeClaw.intake(),
+                        Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                        Commands.either(
+                            s_Elevator.setDesiredState(State.KNOCK_L3),
+                            s_Elevator.setDesiredState(State.KNOCK_L2),
+                            () -> ReefUtil.getClosestAlgae().isOnL3()),
+                        Commands.defer(
+                            () -> Commands.waitUntil(
+                                s_Elevator.atThisGoal(
+                                    ReefUtil.getClosestAlgae().isOnL3()
+                                        ? State.KNOCK_L3
+                                        : State.KNOCK_L2)),
+                            Set.of()),
+                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getScorePose()), Set.of(s_Swerve))));
+
+//        operator.rightBumper()
+//            .onTrue(
+//                Commands.sequence(
+//                        s_AlgaeClaw.intake(),
+//                        Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+//                        s_Elevator.setDesiredState(State.KNOCK_L2))
+//                    .andThen(
+//                        Commands.waitUntil(s_Elevator.atThisGoal(State.KNOCK_L2)),
+//                        s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL)))
+//            .whileTrue(
+//                s_AlgaeClaw.intakeAlgae())
+//            .onFalse(
+//                Commands.sequence(
+//                    s_AlgaeClaw.avoid(),
+//                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+//                    s_Elevator.setDesiredState(State.HOME)));
 
         driver.leftTrigger()
             .whileTrue(

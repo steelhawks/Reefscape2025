@@ -169,6 +169,14 @@ public class ReefUtil {
                     RobotConstants.ARM_OFFSET,
                     new Rotation2d(Math.PI / 2.0)));
         }
+
+        public Pose2d getClearancePose() {
+            return getScorePose().transformBy(
+                new Transform2d(
+                    0.0,
+                    -Units.inchesToMeters(5),
+                    new Rotation2d()));
+        }
     }
 
     public static Algae getClosestAlgae() {
