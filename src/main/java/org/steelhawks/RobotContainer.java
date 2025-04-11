@@ -460,9 +460,14 @@ public class RobotContainer {
             .or(new DashboardTrigger("l1"))
             .or(buttonBoard.getL1().and(() -> usingButtonBoard))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L1))
-            .whileTrue(
-                s_Align.alignToClosestReef(State.L1));
+                Commands.sequence(
+                    s_AlgaeClaw.avoid(),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                    s_Elevator.setDesiredState(ElevatorConstants.State.L1),
+                    Commands.waitUntil(s_Elevator.atThisGoal(State.L1)),
+                    s_AlgaeClaw.home()));
+//            .whileTrue(
+//                s_Align.alignToClosestReef(State.L1));
 
         operator.x()
             .and(modifierTrigger.negate())

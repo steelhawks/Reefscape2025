@@ -59,7 +59,7 @@ public class AlgaeClaw extends SubsystemBase {
         disable();
     }
 
-    private double getPivotPosition() {
+    public double getPivotPosition() {
         return inputs.pivotPosition;
     }
 
@@ -102,6 +102,10 @@ public class AlgaeClaw extends SubsystemBase {
 
     public Command home() {
         return setDesiredState(AlgaeClawConstants.AlgaeClawState.HOME);
+    }
+
+    public Command avoid() {
+        return setDesiredState(AlgaeClawConstants.AlgaeClawState.AVOID);
     }
 
     public Command intake() {

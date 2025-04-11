@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.elevator.Elevator;
@@ -9,6 +10,7 @@ public class Clearances {
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
     private static final Claw s_Claw = RobotContainer.s_Claw;
     private static final Climb s_Climb = RobotContainer.s_Climb;
+    private static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
 
     public final static class ClawClearances {
         public static boolean hasShot = false;
@@ -20,6 +22,23 @@ public class Clearances {
 
     public final static class AlgaeClawClearances {
         private static final double MIN_ANGLE_CLEAR_FROM_HOME = 0.0;
+        private static final double ELEVATOR_COLLIDE_ANGLE = -0.5;
+        private static final double[] COLLISION_INTERVAL =
+            new double[] {
+                20, 30
+            };
+
+        public static boolean willCollideIntoElevator() {
+            return s_AlgaeClaw.getPivotPosition() < MIN_ANGLE_CLEAR_FROM_HOME && s_Elevator.getPosition() < ELEVATOR_COLLIDE_ANGLE;
+        }
+
+        public static boolean safeToGoHome() {
+            return s_AlgaeClaw.getPivotPosition() > COLLISION_INTERVAL[0] && s_AlgaeClaw.getPivotPosition() < COLLISION_INTERVAL[1];
+        }
+
+        public static boolean isClearFromElevatorCrossbeam() {
+            return s_AlgaeClaw.getPivotPosition() >= MIN_ANGLE_CLEAR_FROM_HOME;
+        }
     }
 
     public final static class ClimbClearances {
