@@ -56,7 +56,7 @@ public class RobotContainer {
     private static final boolean usingButtonBoard = false;
 
     private final Trigger notifyAtEndgame;
-    private final Trigger modifierTrigger;
+//    private final Trigger modifierTrigger;
     private final Trigger topCoralStationTrigger;
     private final Trigger bottomCoralStationTrigger;
     private final Trigger endGameMode;
@@ -114,7 +114,7 @@ public class RobotContainer {
             return false;
         });
         endGameMode = new Trigger(() -> deepClimbMode);
-        modifierTrigger = operator.rightTrigger();
+//        modifierTrigger = operator.rightTrigger();
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -489,7 +489,6 @@ public class RobotContainer {
 //                s_Align.alignToClosestReef(State.L1));
 
         operator.x()
-            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l2"))
             .or(buttonBoard.getL2().and(() -> usingButtonBoard))
             .onTrue(
@@ -501,13 +500,7 @@ public class RobotContainer {
                     s_Elevator.setDesiredState(ElevatorConstants.State.L2)
                 ));
 
-        operator.x()
-            .and(modifierTrigger)
-            .onTrue(
-                s_Elevator.setDesiredState(State.KNOCK_L2));
-
         operator.y()
-            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l3"))
             .or(buttonBoard.getL3().and(() -> usingButtonBoard))
             .onTrue(
@@ -519,13 +512,8 @@ public class RobotContainer {
                     s_Elevator.setDesiredState(ElevatorConstants.State.L3)
                 ));
 
-        operator.y()
-            .and(modifierTrigger)
-            .onTrue(
-                s_Elevator.setDesiredState(State.KNOCK_L3));
 
         operator.a()
-            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("l4"))
             .or(buttonBoard.getL4().and(() -> usingButtonBoard))
             .onTrue(
@@ -554,7 +542,6 @@ public class RobotContainer {
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
-            .and(modifierTrigger.negate())
             .or(new DashboardTrigger("scoreCoral"))
             .or(buttonBoard.getShoot().and(() -> usingButtonBoard))
             .whileTrue(
@@ -601,6 +588,39 @@ public class RobotContainer {
         operator.povDown()
             .onTrue(
                 s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL));
+
+        operator.rightBumper()
+            .onTrue(
+                Commands.sequence(
+                    s_AlgaeClaw.intake(),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                    s_Elevator.setDesiredState(State.KNOCK_L3)
+                )
+
+                    .andThen(
+                        Commands.waitUntil(s_Elevator.atThisGoal(State.KNOCK_L3)),
+                        s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL)
+                    )
+            )
+            .whileTrue(
+                s_AlgaeClaw.intakeAlgae()
+            );
+
+        operator.rightTrigger()
+            .onTrue(
+                Commands.sequence(
+                    s_AlgaeClaw.catapult(),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                    s_Elevator.setDesiredState(State.BARGE)
+                )
+            )
+            .whileTrue(
+                Commands.sequence(
+                    Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE)),
+                    s_AlgaeClaw.outtakeAlgae()
+                )
+
+            );
 
 //        operator.povDown()
 //            .whileTrue(
