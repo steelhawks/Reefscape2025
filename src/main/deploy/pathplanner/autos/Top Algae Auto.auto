@@ -13,7 +13,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R2 to R Algae"
+            "pathName": "R2 to R"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R to Barge"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge to TR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TR to Barge"
           }
         }
       ]

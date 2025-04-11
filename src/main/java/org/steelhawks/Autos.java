@@ -11,7 +11,9 @@ import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.SwerveDriveAlignment;
+import org.steelhawks.commands.autos.BottomG;
 import org.steelhawks.commands.autos.RC2;
+import org.steelhawks.commands.autos.TopG;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.autonbuilder.AutonBuilder;
@@ -56,6 +58,8 @@ public final class Autos {
         autoChooser.addOption("RC2", getRC2Auton());
         autoChooser.addOption("RC3", getRC3Auton());
         autoChooser.addOption("CENTER", getCenterAuton());
+        autoChooser.addOption("TOPG", new TopG());
+        autoChooser.addOption("BOTTOMG", new BottomG());
     }
 
     public static Misalignment getMisalignment() {

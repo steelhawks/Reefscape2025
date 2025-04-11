@@ -3,6 +3,7 @@ package org.steelhawks.commands.autos;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
@@ -20,6 +21,7 @@ public abstract class AutoRoutine extends SequentialCommandGroup {
     protected static final Swerve s_Swerve = RobotContainer.s_Swerve;
     protected static final Elevator s_Elevator = RobotContainer.s_Elevator;
     protected static final Claw s_Claw = RobotContainer.s_Claw;
+    protected static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
 
     public AutoRoutine(String autoName, Command... commands) {
         super(commands);
