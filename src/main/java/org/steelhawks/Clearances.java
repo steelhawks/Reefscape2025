@@ -2,14 +2,12 @@ package org.steelhawks;
 
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
-import org.steelhawks.subsystems.climb.Climb;
 import org.steelhawks.subsystems.elevator.Elevator;
 
 public class Clearances {
 
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
     private static final Claw s_Claw = RobotContainer.s_Claw;
-    private static final Climb s_Climb = RobotContainer.s_Climb;
     private static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
 
     public final static class ClawClearances {
