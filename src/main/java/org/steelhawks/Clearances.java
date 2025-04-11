@@ -21,7 +21,7 @@ public class Clearances {
     }
 
     public final static class AlgaeClawClearances {
-        private static final double MIN_ANGLE_CLEAR_FROM_HOME = 0.0;
+        private static final double MIN_ANGLE_CLEAR_FROM_HOME = -1.1274758790959463;
         private static final double ELEVATOR_COLLIDE_ANGLE = -0.5;
         private static final double[] COLLISION_INTERVAL =
             new double[] {

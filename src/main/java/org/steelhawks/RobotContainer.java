@@ -24,6 +24,7 @@ import org.steelhawks.Constants.*;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
+import org.steelhawks.subsystems.algaeclaw.AlgaeClawConstants;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClawIO;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClawIOTalonFX;
 import org.steelhawks.subsystems.align.Align;
@@ -463,7 +464,12 @@ public class RobotContainer {
         operator.leftStick()
             .and(endGameMode.negate())
             .onTrue(
-                s_Elevator.toggleManualControl(() -> -operator.getLeftY()));
+//                s_Elevator.toggleManualControl(() -> -operator.getLeftY()));
+                s_AlgaeClaw.avoid()
+                    .andThen(
+                        Commands.waitUntil(
+                            Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam))
+                    .andThen(s_Elevator.toggleManualControl(() -> -operator.getLeftY())));
 
         operator.rightStick()
             .onTrue(
@@ -560,17 +566,26 @@ public class RobotContainer {
 //                s_AlgaeClaw.intake()
 //            );
 
+//        operator.povUp()
+//            .whileTrue(
+//                s_AlgaeClaw.applyKV()
+//            );
+
         operator.povUp()
-            .whileTrue(
-                s_AlgaeClaw.applyKS()
+            .onTrue(
+                s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.AVOID)
             );
 
         operator.povDown()
-            .whileTrue(
-                s_AlgaeClaw.spin(1.0)
-            );
-        operator.povRight()
-            .whileTrue(s_AlgaeClaw.spin(-1.0));
+            .onTrue(
+                s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL));
+
+//        operator.povDown()
+//            .whileTrue(
+//                s_AlgaeClaw.spin(1.0)
+//            );
+//        operator.povRight()
+//            .whileTrue(s_AlgaeClaw.spin(-1.0));
 
         /* ------------- Endgame Controls ------------- */
 //        operator.leftStick()
