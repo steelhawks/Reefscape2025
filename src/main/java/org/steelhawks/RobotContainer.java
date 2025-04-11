@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.AlgaeClawDefaultCommand;
+import org.steelhawks.commands.SuperStructure;
 import org.steelhawks.commands.VibrateController;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
@@ -477,44 +478,24 @@ public class RobotContainer {
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .or(buttonBoard.getL1().and(() -> usingButtonBoard))
-            .onTrue(
-                Commands.sequence(
-                    s_AlgaeClaw.avoid(),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(ElevatorConstants.State.L1),
-                    Commands.waitUntil(s_Elevator.atThisGoal(State.L1)),
-                    s_AlgaeClaw.home()));
+            .onTrue(SuperStructure.elevatorToPosition(State.L1));
 
         operator.x()
             .or(new DashboardTrigger("l2"))
             .or(buttonBoard.getL2().and(() -> usingButtonBoard))
-            .onTrue(
-                Commands.sequence(
-                    s_AlgaeClaw.avoid(),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(ElevatorConstants.State.L2)));
+            .onTrue(SuperStructure.elevatorToPosition(State.L2));
 
         operator.y()
             .or(new DashboardTrigger("l3"))
             .or(buttonBoard.getL3().and(() -> usingButtonBoard))
-            .onTrue(
-                Commands.sequence(
-                    s_AlgaeClaw.avoid(),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(ElevatorConstants.State.L3)));
+            .onTrue(SuperStructure.elevatorToPosition(State.L3));
 
 
         operator.a()
             .or(new DashboardTrigger("l4"))
             .or(buttonBoard.getL4().and(() -> usingButtonBoard))
             .onTrue(
-                Commands.sequence(
-                    s_AlgaeClaw.avoid(),
-                    Commands.waitUntil(
-                        Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam
-                    ),
-                    s_Elevator.setDesiredState(ElevatorConstants.State.L4)
-                ));
+                SuperStructure.elevatorToPosition(State.L4));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
@@ -528,8 +509,7 @@ public class RobotContainer {
                 Commands.sequence(
                     s_AlgaeClaw.avoid(),
                     s_Elevator.noSlamCommand(),
-                    s_AlgaeClaw.home()
-                ));
+                    s_AlgaeClaw.home()));
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()
