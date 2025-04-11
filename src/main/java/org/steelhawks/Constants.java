@@ -15,7 +15,7 @@ public final class Constants {
     public static final double MATCH_TIME_SECONDS = 150;
 
     public static final boolean USE_MOTION_MAGIC = false;
-    public static final boolean TUNING_MODE = false;
+    public static final boolean TUNING_MODE = true;
 
     public static final int POWER_DISTRIBUTION_CAN_ID =
         getRobot() == RobotType.ALPHABOT
@@ -41,7 +41,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
