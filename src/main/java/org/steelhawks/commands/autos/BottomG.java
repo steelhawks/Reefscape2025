@@ -40,13 +40,13 @@ public class BottomG extends AutoRoutine {
             Commands.either(
                 s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L3),
                 s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L2),
-                ReefUtil.Algae.TR::isOnL3
+                ReefUtil.Algae.BR::isOnL3
             ),
-            followTrajectory("Barge to TR"),
+            followTrajectory("Barge to BR"),
             s_AlgaeClaw.intake(),
-            new SwerveDriveAlignment(ReefUtil.Algae.TR::getScorePose).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
+            new SwerveDriveAlignment(ReefUtil.Algae.BR::getScorePose).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
             s_AlgaeClaw.intakeAlgae().until(s_AlgaeClaw.hasAlgae()),
-            followTrajectory("TR to Barge"),
+            followTrajectory("BR to Barge"),
             s_Elevator.setDesiredState(ElevatorConstants.State.BARGE_SCORE),
             s_AlgaeClaw.outtakeAlgae().until(s_AlgaeClaw.hasAlgae().negate())
         );

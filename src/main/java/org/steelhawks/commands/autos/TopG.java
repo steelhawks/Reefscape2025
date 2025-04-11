@@ -36,7 +36,20 @@ public class TopG extends AutoRoutine {
             s_AlgaeClaw.intakeAlgae().until(s_AlgaeClaw.hasAlgae()),
             followTrajectory("R to Barge"),
             s_Elevator.setDesiredState(ElevatorConstants.State.BARGE_SCORE),
+            s_AlgaeClaw.outtakeAlgae().until(s_AlgaeClaw.hasAlgae().negate()),
+            Commands.either(
+                s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L3),
+                s_Elevator.setDesiredState(ElevatorConstants.State.KNOCK_L2),
+                ReefUtil.Algae.TR::isOnL3
+            ),
+            followTrajectory("Barge to TR"),
+            s_AlgaeClaw.intake(),
+            new SwerveDriveAlignment(ReefUtil.Algae.TR::getScorePose).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
+            s_AlgaeClaw.intakeAlgae().until(s_AlgaeClaw.hasAlgae()),
+            followTrajectory("TR to Barge"),
+            s_Elevator.setDesiredState(ElevatorConstants.State.BARGE_SCORE),
             s_AlgaeClaw.outtakeAlgae().until(s_AlgaeClaw.hasAlgae().negate())
+
         );
     }
 
