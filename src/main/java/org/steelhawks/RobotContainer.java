@@ -493,7 +493,13 @@ public class RobotContainer {
             .or(new DashboardTrigger("l2"))
             .or(buttonBoard.getL2().and(() -> usingButtonBoard))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L2));
+                Commands.sequence(
+                    s_AlgaeClaw.avoid(),
+                    Commands.waitUntil(
+                        () -> Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam()
+                    ),
+                    s_Elevator.setDesiredState(ElevatorConstants.State.L2)
+                ));
 
         operator.x()
             .and(modifierTrigger)
@@ -505,7 +511,13 @@ public class RobotContainer {
             .or(new DashboardTrigger("l3"))
             .or(buttonBoard.getL3().and(() -> usingButtonBoard))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L3));
+                Commands.sequence(
+                    s_AlgaeClaw.avoid(),
+                    Commands.waitUntil(
+                        Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam
+                    ),
+                    s_Elevator.setDesiredState(ElevatorConstants.State.L3)
+                ));
 
         operator.y()
             .and(modifierTrigger)
@@ -517,7 +529,13 @@ public class RobotContainer {
             .or(new DashboardTrigger("l4"))
             .or(buttonBoard.getL4().and(() -> usingButtonBoard))
             .onTrue(
-                s_Elevator.setDesiredState(ElevatorConstants.State.L4));
+                Commands.sequence(
+                    s_AlgaeClaw.avoid(),
+                    Commands.waitUntil(
+                        Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam
+                    ),
+                    s_Elevator.setDesiredState(ElevatorConstants.State.L4)
+                ));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
@@ -528,7 +546,11 @@ public class RobotContainer {
 //                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
 //                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
 //                    Clearances.ClawClearances::clearFromReef));
-                s_Elevator.noSlamCommand());
+                Commands.sequence(
+                    s_AlgaeClaw.avoid(),
+                    s_Elevator.noSlamCommand(),
+                    s_AlgaeClaw.home()
+                ));
 
         /* ------------- Intake Controls ------------- */
         operator.leftTrigger()

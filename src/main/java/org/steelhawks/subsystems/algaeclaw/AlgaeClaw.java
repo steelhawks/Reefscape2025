@@ -69,7 +69,7 @@ public class AlgaeClaw extends SubsystemBase {
                     AlgaeClawConstants.MAX_ACCELERATION));
         mController.setTolerance(AlgaeClawConstants.TOLERANCE);
         mController.setIZone(0.001);
-        mController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
+//        mController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
         mFeedforward =
             new ArmFeedforward(
                 AlgaeClawConstants.PIVOT_KS,
@@ -92,7 +92,7 @@ public class AlgaeClaw extends SubsystemBase {
 
         shouldEStop =
             inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS
-                || inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS;
+                || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && Math.signum(inputs.encoderVelocity) == -1);
 
         if (shouldEStop) {
             io.stopPivot();
