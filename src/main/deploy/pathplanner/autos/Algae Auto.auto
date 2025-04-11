@@ -1,0 +1,25 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center to R2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R2 to R Algae"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "2025 Reefscape Autonomous",
+  "choreoAuto": false
+}

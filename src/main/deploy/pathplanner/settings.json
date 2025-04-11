@@ -7,18 +7,19 @@
     "BC2",
     "BC3",
     "Event Hudson Valley",
-    "RC3",
+    "Algae",
     "RC1",
     "RC2",
+    "RC3",
     "Tests"
   ],
   "autoFolders": [
     "2025 Reefscape Autonomous"
   ],
-  "defaultMaxVel": 5.0,
-  "defaultMaxAccel": 4.5,
+  "defaultMaxVel": 8.6,
+  "defaultMaxAccel": 6.0,
   "defaultMaxAngVel": 540.0,
-  "defaultMaxAngAccel": 720.0,
+  "defaultMaxAngAccel": 920.0,
   "defaultNominalVoltage": 12.0,
   "robotMass": 56.608328,
   "robotMOI": 4.27,
