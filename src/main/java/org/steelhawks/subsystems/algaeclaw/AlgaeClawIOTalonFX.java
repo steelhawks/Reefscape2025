@@ -169,6 +169,11 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     }
 
     @Override
+    public void runPivotViaSpeed(double speed) {
+        mPivotMotor.set(speed);
+    }
+
+    @Override
     public void stopPivot() {
         mPivotMotor.stopMotor();
     }
@@ -180,9 +185,7 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     }
 
     @Override
-    public void setPID(double kP, double kI, double kD) {
-
-    }
+    public void setPID(double kP, double kI, double kD) {}
 
     @Override
     public void setFF(double kS, double kG, double kV) {

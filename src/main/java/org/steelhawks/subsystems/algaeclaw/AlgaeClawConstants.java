@@ -38,6 +38,7 @@ public class AlgaeClawConstants {
 
     public static final double MAX_VELOCITY = 0.0;
     public static final double MAX_ACCELERATION = 0.0;
+    public static final double MAX_MANUAL_SPEED = 0.3;
     public static final double MAX_JERK = 0.0;
 
     public static final double CANCODER_OFFSET = -0.1103515625;

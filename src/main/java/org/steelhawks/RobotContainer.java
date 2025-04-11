@@ -387,6 +387,13 @@ public class RobotContainer {
                     new VibrateController(1.0, 1.0, driver, operator))
                     .ignoringDisable(false));
 
+        s_AlgaeClaw.hasAlgae()
+            .onTrue(
+                Commands.parallel(
+                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
+                    new VibrateController(1.0, 1.0, driver, operator))
+                .ignoringDisable(false));
+
         endGameMode
             .onTrue(
                 Commands.runOnce(
@@ -456,8 +463,11 @@ public class RobotContainer {
         operator.leftStick()
             .and(endGameMode.negate())
             .onTrue(
-            s_Elevator.toggleManualControl(
-                () -> -operator.getLeftY()));
+                s_Elevator.toggleManualControl(() -> -operator.getLeftY()));
+
+        operator.rightStick()
+            .onTrue(
+                s_AlgaeClaw.toggleManualControl(() -> -operator.getRightY()));
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))

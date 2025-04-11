@@ -36,6 +36,8 @@ public interface AlgaeClawIO {
 
     default void runPivot(double volts) {}
 
+    default void runPivotViaSpeed(double speed) {}
+
     default void stopPivot() {}
 
     default void runPosition(double positionRad) {}

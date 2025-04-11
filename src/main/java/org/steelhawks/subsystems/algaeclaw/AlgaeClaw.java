@@ -4,15 +4,19 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
+import org.steelhawks.OperatorLock;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.commands.AlgaeClawDefaultCommand;
 import org.steelhawks.util.ArmDriveFeedforward;
 import org.steelhawks.util.TunableNumber;
-
-import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class AlgaeClaw extends SubsystemBase {
 
@@ -22,7 +26,15 @@ public class AlgaeClaw extends SubsystemBase {
     private final ProfiledPIDController mController;
     private final ArmDriveFeedforward mDriveFeedforward;
     private final ArmFeedforward mFeedforward;
+    private OperatorLock mOperatorLock = OperatorLock.LOCKED;
     private boolean mEnabled = false;
+    private boolean shouldEStop = false;
+
+//    private final Alert pivotDisconnected =
+//        new Alert("Pivot Disconnected", Alert.AlertType.kError)
+//            .withMessage("The pivot motor is disconnected. Please check the wiring.")
+//            .withDuration(5)
+//            .withCondition(() -> !inputs.pivotConnected);
 
     private void enable() {
         mEnabled = true;
@@ -69,6 +81,15 @@ public class AlgaeClaw extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeClaw", inputs);
 
+        shouldEStop =
+            inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS
+                || inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS;
+
+        if (shouldEStop) {
+            io.stopPivot();
+            return;
+        }
+
         if (mEnabled)
             runPivot();
     }
@@ -88,8 +109,57 @@ public class AlgaeClaw extends SubsystemBase {
         io.runPivot(volts);
     }
 
-    public boolean hasAlgae() {
-        return inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE;
+    public Trigger hasAlgae() {
+        return new Trigger(() -> inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE);
+    }
+
+    public Command toggleManualControl(DoubleSupplier joystickAxis) {
+        return Commands.runOnce(
+            () -> {
+                Logger.recordOutput("Algae/RequestedSpeed", joystickAxis.getAsDouble());
+
+                if (mOperatorLock == OperatorLock.LOCKED) {
+                    disable();
+                    setDefaultCommand(
+                        pivotManual(
+                            () -> MathUtil.clamp(
+                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Constants.Deadbands.PIVOT_DEADBAND),
+                                -AlgaeClawConstants.MAX_MANUAL_SPEED,
+                                AlgaeClawConstants.MAX_MANUAL_SPEED)));
+                    mOperatorLock = OperatorLock.UNLOCKED;
+                } else {
+                    if (getDefaultCommand() != null) {
+                        getDefaultCommand().cancel();
+                        removeDefaultCommand();
+                    }
+                    setDefaultCommand(new AlgaeClawDefaultCommand());
+                    home().schedule();
+                    enable();
+                    mOperatorLock = OperatorLock.LOCKED;
+                }
+
+                Logger.recordOutput("AlgaeClaw/IsLocked", mOperatorLock == OperatorLock.LOCKED);
+            }, this)
+        .withName("Toggle Manual Control");
+    }
+
+    private Command pivotManual(DoubleSupplier speed) {
+        return Commands.runOnce(this::disable, this)
+            .andThen(
+                Commands.run(
+                    () -> {
+                        double appliedSpeed = speed.getAsDouble();
+
+                        if (appliedSpeed == 0.0) {
+                            appliedSpeed = ((Math.cos(getPivotPosition()) * AlgaeClawConstants.PIVOT_KG)
+                                + mDriveFeedforward.calculate(getPivotPosition(), RobotContainer.s_Swerve::getRobotRelativeXAccelGs)) / 12.0;
+                        }
+
+                        Logger.recordOutput("AlgaeClaw/ManualAppliedSpeed", appliedSpeed);
+                        io.runPivotViaSpeed(appliedSpeed);
+                    }, this))
+            .finallyDo(io::stopPivot)
+            .withName("Manual AlgaeClaw Pivot");
     }
 
     private Command setDesiredState(AlgaeClawConstants.AlgaeClawState state) {
