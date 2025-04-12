@@ -112,6 +112,10 @@ public class Elevator extends SubsystemBase {
         return inputs.limitSwitchPressed;
     }
 
+    public boolean willTipAtFastSpeeds() {
+        return getPosition() > ElevatorConstants.MAX_RADIANS - ElevatorConstants.TIP_THRESHOLD;
+    }
+
     @Override
     public void periodic() {
         inputs.atTopLimit = getPosition() >= ElevatorConstants.MAX_RADIANS;

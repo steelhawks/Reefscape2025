@@ -652,7 +652,9 @@ public class Swerve extends SubsystemBase {
      * Returns the speed multiplier.
      */
     public double getSpeedMultiplier() {
-        return SPEED_MULTIPLIER;
+        return RobotContainer.s_Elevator.willTipAtFastSpeeds()
+            ? SLOW_SPEED_MULTIPLIER * 2
+            : SPEED_MULTIPLIER;
     }
 
     /**

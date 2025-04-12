@@ -73,6 +73,7 @@ public class ElevatorConstants {
     public static final double MANUAL_ELEVATOR_INCREMENT;
 
     public static final double MAX_RADIANS;
+    public static final double TIP_THRESHOLD;
 
     static {
         switch (Constants.getRobot()) {
@@ -95,6 +96,7 @@ public class ElevatorConstants {
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.65;
                 MAX_RADIANS = 60;
+                TIP_THRESHOLD = MAX_RADIANS / 2.0;
             }
             case HAWKRIDER -> {
                 LIMIT_SWITCH_ID = 0;
@@ -113,6 +115,7 @@ public class ElevatorConstants {
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.5;
                 MAX_RADIANS = 18.5;
+                TIP_THRESHOLD = MAX_RADIANS / 2.0;
             }
             default -> {
                 LIMIT_SWITCH_ID = 0;
@@ -131,6 +134,7 @@ public class ElevatorConstants {
                 TOLERANCE = 0.03;
                 MANUAL_ELEVATOR_INCREMENT = 0.65;
                 MAX_RADIANS = 24; // 24.663
+                TIP_THRESHOLD = 12;
             }
         }
     }
