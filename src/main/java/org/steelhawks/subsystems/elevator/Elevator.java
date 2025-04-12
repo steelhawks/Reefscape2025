@@ -275,7 +275,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command noSlamCommand() {
-        //                io.zeroEncoders();
         return setDesiredState(ElevatorConstants.State.HOME_ABOVE_BAR)
             .andThen(
                 Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME_ABOVE_BAR)),
@@ -287,7 +286,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command homeCommand() {
-        //                io.zeroEncoders();
         return setDesiredState(ElevatorConstants.State.HOME)
             .until(this::limitPressed)
             .finallyDo(io::stop)

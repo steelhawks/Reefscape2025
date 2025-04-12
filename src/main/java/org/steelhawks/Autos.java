@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.steelhawks.commands.SuperStructure;
 import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.commands.autos.BottomG;
 import org.steelhawks.commands.autos.RC2;
@@ -119,7 +120,7 @@ public final class Autos {
 
     public static Command elevatorAndShoot(ElevatorConstants.State state) {
         return Commands.sequence(
-            s_Elevator.setDesiredState(state),
+            SuperStructure.elevatorToPosition(state),
             Commands.deadline(
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
@@ -127,7 +128,7 @@ public final class Autos {
                 s_Claw.shootPulsatingCoral().withTimeout(0.6),
                 s_Claw.shootCoral().withTimeout(0.6),
                 () -> (state == ElevatorConstants.State.L1)),
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
+                SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME))
         .withName("Elevator and Shoot in Auton");
     }
 
@@ -150,7 +151,7 @@ public final class Autos {
                 followTrajectory(trajectory)
                     .andThen(
                         Commands.either(
-                            s_Elevator.setDesiredState(desiredScoreLevel)
+                            SuperStructure.elevatorToPosition(desiredScoreLevel)
                                 .andThen(
                                     new SwerveDriveAlignment(() -> getScorePoseFromTrajectoryName(trajectory)).withTimeout(3.0),
                                     Commands.deadline(
@@ -161,7 +162,7 @@ public final class Autos {
                                         s_Claw.shootCoral().withTimeout(0.3),
                                         () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
                                             desiredScoreLevel == ElevatorConstants.State.L4),
-                                    s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
+                                    SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME)),
                             Commands.waitUntil(s_Claw.hasCoral()),
                             () -> atReef)));
         }
@@ -182,12 +183,12 @@ public final class Autos {
             () -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC1.getPose())))
             .andThen(
                 followChoreoTrajectory("BC1 to TR2"),
-                s_Elevator.setDesiredState(ElevatorConstants.State.L4),
+                SuperStructure.elevatorToPosition(ElevatorConstants.State.L4),
                 Commands.race(
                     Commands.waitSeconds(1),
                     Commands.waitUntil(s_Elevator.atGoal())),
                 s_Claw.shootCoralSlow().withTimeout(1.0),
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
+                SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME))
             .andThen(followChoreoTrajectory("TR2 to Upper Source"));
     }
 

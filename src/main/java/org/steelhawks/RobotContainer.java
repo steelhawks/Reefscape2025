@@ -84,8 +84,8 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
         SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
+        SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
         notifyAtEndgame = new Trigger(() -> {
 //            When connected to the real field, this number only changes in full integer increments, and always counts down.
 //                When the DS is in practice mode, this number is a floating point number, and counts down.
@@ -343,8 +343,8 @@ public class RobotContainer {
             }
         }
 
-        new Alert("Orange Pi 1 is not connected", AlertType.kError).set(orangePi1Connected);
-        new Alert("Orange Pi 2 is not connected", AlertType.kError).set(orangePi2Connected);
+        new Alert("Orange Pi 1 is not connected", AlertType.kError).set(!orangePi1Connected);
+        new Alert("Orange Pi 2 is not connected", AlertType.kError).set(!orangePi2Connected);
 
         s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
     }
@@ -365,7 +365,7 @@ public class RobotContainer {
                 Commands.parallel(
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
                     new VibrateController(1.0, 1.0, driver, operator))
-                    .ignoringDisable(false));
+                .ignoringDisable(false));
 
         s_AlgaeClaw.hasAlgae()
             .onTrue(
@@ -399,6 +399,7 @@ public class RobotContainer {
 
     private void configureDriver() {
         /* ------------- Swerve Controls ------------- */
+
         s_Swerve.setDefaultCommand(
             DriveCommands.joystickDrive(
                 () -> -driver.getLeftY(),
@@ -421,8 +422,8 @@ public class RobotContainer {
                         s_AlgaeClaw.intake(),
                         Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                         Commands.either(
-                            s_Elevator.setDesiredState(State.KNOCK_L3),
-                            s_Elevator.setDesiredState(State.KNOCK_L2),
+                            SuperStructure.elevatorToPosition(State.KNOCK_L3),
+                            SuperStructure.elevatorToPosition(State.KNOCK_L2),
                             () -> ReefUtil.getClosestAlgae().isOnL3()),
                         Commands.defer(
                             () -> Commands.waitUntil(
@@ -431,7 +432,8 @@ public class RobotContainer {
                                         ? State.KNOCK_L3
                                         : State.KNOCK_L2)),
                             Set.of()),
-                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getScorePose()), Set.of(s_Swerve))));
+                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getScorePose()), Set.of(s_Swerve)))
+                .alongWith(s_AlgaeClaw.intakeAlgae()));
 
 //        operator.rightBumper()
 //            .onTrue(
@@ -467,12 +469,13 @@ public class RobotContainer {
 
     private void configureOperator() {
         /* ------------- End Game Toggles ------------- */
+
         operator.start()
         .and(operator.back())
             .onTrue(
                 Commands.runOnce(() -> deepClimbMode = !deepClimbMode));
 
-        /* ------------- Elevator Controls ------------- */
+        /* ------------- Manual Controls ------------- */
 
         operator.leftStick()
             .and(endGameMode.negate())
@@ -486,6 +489,8 @@ public class RobotContainer {
         operator.rightStick()
             .onTrue(
                 s_AlgaeClaw.toggleManualControl(() -> -operator.getRightY()));
+
+        /* ------------- Elevator Controls ------------- */
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
@@ -524,6 +529,7 @@ public class RobotContainer {
                     s_AlgaeClaw.home()));
 
         /* ------------- Intake Controls ------------- */
+
         operator.leftTrigger()
             .or(new DashboardTrigger("scoreCoral"))
             .or(buttonBoard.getShoot().and(() -> usingButtonBoard))
@@ -535,6 +541,7 @@ public class RobotContainer {
                         (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
                             s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
+
         operator.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
@@ -542,6 +549,7 @@ public class RobotContainer {
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
 
         /* ------------- AlgaeClaw Controls ------------- */
+
         operator.povUp()
             .onTrue(s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.AVOID));
 
@@ -557,8 +565,8 @@ public class RobotContainer {
                     Commands.defer(
                         () ->
                             Commands.either(
-                                s_Elevator.setDesiredState(State.KNOCK_L3),
-                                s_Elevator.setDesiredState(State.KNOCK_L2),
+                                SuperStructure.elevatorToPosition(State.KNOCK_L3),
+                                SuperStructure.elevatorToPosition(State.KNOCK_L2),
                                 () -> ReefUtil.getClosestAlgae().isOnL3())
                             .andThen(
                                 Commands.waitUntil(s_Elevator.atThisGoal(
@@ -567,13 +575,8 @@ public class RobotContainer {
                                     : State.KNOCK_L2))),
                         Set.of(s_Elevator)),
                     new VibrateController(driver)))
-            .whileTrue(
-                s_AlgaeClaw.intakeAlgae())
-            .onFalse(
-                Commands.sequence(
-                    s_AlgaeClaw.avoid(),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(State.HOME)));
+            .whileTrue(s_AlgaeClaw.intakeAlgae())
+            .onFalse(SuperStructure.elevatorToPosition(State.HOME));
 
         operator.rightTrigger()
             .onTrue(
@@ -584,11 +587,7 @@ public class RobotContainer {
             .whileTrue(
                     Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE))
                         .andThen(s_AlgaeClaw.outtakeAlgae()))
-            .onFalse(
-                Commands.sequence(
-                    s_AlgaeClaw.avoid(),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(State.HOME)));
+            .onFalse(SuperStructure.elevatorToPosition(State.HOME));
     }
 
     private void configureSysId() {
