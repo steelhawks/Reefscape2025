@@ -454,7 +454,7 @@ public class RobotContainer {
 
         driver.leftTrigger()
             .whileTrue(
-                s_Align.alignToClosestCoralStation());
+                s_Align.alignToClosestCoralStation(driver::getLeftY, driver::getLeftX));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(

@@ -21,18 +21,19 @@ import java.util.function.Supplier;
 
 public class SwerveDriveAlignment extends Command {
 
-    private static final double XY_TOLERANCE = Units.inchesToMeters(1.0);
-    private static final double THETA_TOLERANCE = Units.degreesToRadians(5);
-    private static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
+    protected static final double XY_TOLERANCE = Units.inchesToMeters(1.0);
+    protected static final double THETA_TOLERANCE = Units.degreesToRadians(5);
+    protected static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
+    protected static final double SWERVE_DEADBAND = 0.05;
 
-    private static final Swerve s_Swerve = RobotContainer.s_Swerve;
+    protected static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
-    private final SwerveDriveController mController;
-    private final Supplier<Pose2d> targetPose;
-    private final Debouncer debouncer;
-    private final LinearFilter filter;
-    private Pose2d startingPose;
-    private double velocityError;
+    protected final SwerveDriveController mController;
+    protected final Supplier<Pose2d> targetPose;
+    protected final Debouncer debouncer;
+    protected final LinearFilter filter;
+    protected Pose2d startingPose;
+    protected double velocityError;
 
     public SwerveDriveAlignment(Pose2d targetPose) {
         this(() -> targetPose);
@@ -61,28 +62,28 @@ public class SwerveDriveAlignment extends Command {
                     new TrapezoidProfile.Constraints(
                         AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)))
-            .withLinearTolerance(XY_TOLERANCE)
-            .withRotationalTolerance(THETA_TOLERANCE);
+                .withLinearTolerance(XY_TOLERANCE)
+                .withRotationalTolerance(THETA_TOLERANCE);
     }
 
-    private boolean isXAligned() {
+    protected boolean isXAligned() {
         return Math.abs(targetPose.get().getX() - s_Swerve.getPose().getX()) <= XY_TOLERANCE;
     }
 
-    private boolean isYAligned() {
+    protected boolean isYAligned() {
         return Math.abs(targetPose.get().getY() - s_Swerve.getPose().getY()) <= XY_TOLERANCE;
     }
 
-    private boolean isThetaAligned() {
+    protected boolean isThetaAligned() {
         double angleDifference = MathUtil.angleModulus(targetPose.get().getRotation().getRadians() - s_Swerve.getPose().getRotation().getRadians());
         return Math.abs(angleDifference) <= THETA_TOLERANCE;
     }
 
-    private boolean velocityInTolerance() {
+    protected boolean velocityInTolerance() {
         return Math.abs(filter.calculate(velocityError)) < MAX_VELOCITY_ERROR_TOLERANCE;
     }
 
-    private boolean isAligned() {
+    protected boolean isAligned() {
         // added auton check so command keeps running if the driver wants to switch the branch to score on, this doesnt interrupt auton scoring sequence
         return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance();
     }
@@ -93,20 +94,15 @@ public class SwerveDriveAlignment extends Command {
         s_Swerve.setPathfinding(true);
     }
 
-    @Override
-    public void execute() {
+    protected ChassisSpeeds getOutput() {
         ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
-        s_Swerve.runVelocity(
-            new ChassisSpeeds(
-                Math.abs(speeds.vxMetersPerSecond) < 0.05 ? 0 : speeds.vxMetersPerSecond,
-                Math.abs(speeds.vyMetersPerSecond) < 0.05 ? 0 : speeds.vyMetersPerSecond,
-                Math.abs(speeds.omegaRadiansPerSecond) < 0.05 ? 0 : speeds.omegaRadiansPerSecond
-            )
-        );
+        return speeds;
+    }
 
+    protected void log() {
         velocityError =
             Math.hypot(
                 mController.getError().vxMetersPerSecond,
@@ -127,10 +123,18 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/AlignedY", isYAligned());
         Logger.recordOutput("Align/AlignedTheta", isThetaAligned());
         Logger.recordOutput("Align/VelocityInTolerance", velocityInTolerance());
+    }
 
-//        if (isAligned()) {
-//            LED.getInstance().flashCommand(LED.LEDColor.GREEN, 0.2, 1.0).schedule();
-//        }
+    @Override
+    public void execute() {
+        ChassisSpeeds speeds = getOutput();
+        s_Swerve.runVelocity(
+            new ChassisSpeeds(
+                Math.abs(speeds.vxMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vxMetersPerSecond,
+                Math.abs(speeds.vyMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vyMetersPerSecond,
+                Math.abs(speeds.omegaRadiansPerSecond) < SWERVE_DEADBAND ? 0 : speeds.omegaRadiansPerSecond));
+
+        log();
     }
 
     @Override

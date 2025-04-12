@@ -21,6 +21,7 @@ import org.steelhawks.FieldConstants;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.commands.FusedSwerveDriveAlignment;
 import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
@@ -213,10 +214,10 @@ public class Align extends VirtualSubsystem {
             Set.of(s_Swerve));
     }
 
-    public Command alignToClosestCoralStation() {
+    public Command alignToClosestCoralStation(DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
         return Commands.defer(
             () -> DriveCommands.driveToPosition(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine())
-                .andThen(new SwerveDriveAlignment(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine())),
+                .andThen(new FusedSwerveDriveAlignment(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine(), xSupplier, ySupplier)),
             Set.of(s_Swerve));
     }
 
