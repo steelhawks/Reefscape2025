@@ -128,6 +128,10 @@ public class Elevator extends SubsystemBase {
             mController.reset(getPosition());
         }
 
+        Logger.recordOutput("Elevator/Error-kP", mController.getPositionError());
+        Logger.recordOutput("Elevator/AccumulatedError-kI", mController.getAccumulatedError());
+        Logger.recordOutput("Elevator/ErrorDerivativeTolerance-kD", mController.getVelocityError());
+
         if (getCurrentCommand() != null) {
             Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
         }
