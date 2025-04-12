@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.*;
@@ -326,6 +327,7 @@ public class RobotContainer {
         configureTriggers();
         configureOperator();
         configureDriver();
+        configureSysId();
     }
 
     private void checkIfDevicesConnected() {
@@ -587,5 +589,43 @@ public class RobotContainer {
                     s_AlgaeClaw.avoid(),
                     Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                     s_Elevator.setDesiredState(State.HOME)));
+    }
+
+    private void configureSysId() {
+        /* ------------- Swerve SysId ------------- */
+
+        Autos.sysIdChooser.addOption("Swerve Drive (Quasistatic Forward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Swerve Drive (Quasistatic Backward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        Autos.sysIdChooser.addOption("Swerve Drive (Dynamic Forward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Swerve Drive (Dynamic Backward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        Autos.sysIdChooser.addOption("Swerve Turn (Quasistatic Forward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Swerve Turn (Quasistatic Backward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        Autos.sysIdChooser.addOption("Swerve Turn (Dynamic Forward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Swerve Turn (Dynamic Backward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        Autos.sysIdChooser.addOption("Swerve Angular (Quasistatic Forward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Swerve Angular (Quasistatic Backward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        Autos.sysIdChooser.addOption("Swerve Angular (Dynamic Forward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Swerve Angular (Dynamic Backward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        /* ------------- Elevator SysId ------------- */
+
+        Autos.sysIdChooser.addOption("Elevator (Quasistatic Forward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Elevator (Quasistatic Backward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        Autos.sysIdChooser.addOption("Elevator (Dynamic Forward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("Elevator (Dynamic Backward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        /* ------------- AlgaeClaw SysId ------------- */
+
+        Autos.sysIdChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        Autos.sysIdChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        Autos.sysIdChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 }

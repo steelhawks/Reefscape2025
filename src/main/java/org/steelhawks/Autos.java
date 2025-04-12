@@ -34,6 +34,8 @@ public final class Autos {
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
     private static final Claw s_Claw = RobotContainer.s_Claw;
 
+    public static final LoggedDashboardChooser<Command> sysIdChooser =
+        new LoggedDashboardChooser<>("SysId Chooser");
     private static final LoggedDashboardChooser<Command> autoChooser =
         new LoggedDashboardChooser<>("Auto Chooser");
 
@@ -281,6 +283,8 @@ public final class Autos {
     public static Command getAuto() {
         if (autoChooser.get().getName().equals("Use Auton Builder")) {
             return s_Builder.getAutonCommand();
+        } else if (Constants.TUNING_MODE) {
+            return sysIdChooser.get();
         }
         return autoChooser.get();
     }

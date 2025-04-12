@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.OperatorLock;
@@ -20,15 +21,19 @@ import org.steelhawks.util.ArmDriveFeedforward;
 import org.steelhawks.util.TunableNumber;
 import java.util.function.DoubleSupplier;
 
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+
 public class AlgaeClaw extends SubsystemBase {
 
     private final AlgaeClawIOInputsAutoLogged inputs = new AlgaeClawIOInputsAutoLogged();
     private final AlgaeClawIO io;
 
+    private OperatorLock mOperatorLock = OperatorLock.LOCKED;
     private final ProfiledPIDController mController;
     private final ArmDriveFeedforward mDriveFeedforward;
     private final ArmFeedforward mFeedforward;
-    private OperatorLock mOperatorLock = OperatorLock.LOCKED;
+    private final SysIdRoutine mSysId;
     private boolean mEnabled = false;
     private boolean shouldEStop = false;
 
@@ -77,6 +82,15 @@ public class AlgaeClaw extends SubsystemBase {
                 AlgaeClawConstants.PIVOT_KV);
         mDriveFeedforward =
             new ArmDriveFeedforward(AlgaeClawConstants.PIVOT_KG);
+        mSysId =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    Volts.of(1.0).per(Second),
+                    Volts.of(0.5),
+                    null,
+                    (state) -> Logger.recordOutput("AlgaeClaw/SysIdState", state.toString())),
+                new SysIdRoutine.Mechanism(
+                    (voltage) -> io.runPivot(voltage.in(Volts)), null, this));
 
         if (RobotContainer.s_Elevator.atHome().getAsBoolean())
             home().schedule();
@@ -200,6 +214,14 @@ public class AlgaeClaw extends SubsystemBase {
                 enable();
             }
         );
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return mSysId.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return mSysId.dynamic(direction);
     }
 
     public Command home() {
