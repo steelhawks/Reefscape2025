@@ -78,7 +78,8 @@ public class AlgaeClaw extends SubsystemBase {
         mDriveFeedforward =
             new ArmDriveFeedforward(AlgaeClawConstants.PIVOT_KG);
 
-        disable();
+        if (RobotContainer.s_Elevator.atHome().getAsBoolean())
+            home().schedule();
     }
 
     public double getPivotPosition() {
@@ -147,7 +148,12 @@ public class AlgaeClaw extends SubsystemBase {
                         removeDefaultCommand();
                     }
                     setDefaultCommand(new AlgaeClawDefaultCommand());
-                    home().schedule();
+                    if (RobotContainer.s_Elevator.atHome().getAsBoolean()) {
+                        home().schedule();
+                    } else {
+                        avoid().schedule();
+                    }
+
                     enable();
                     mOperatorLock = OperatorLock.LOCKED;
                 }
