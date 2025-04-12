@@ -34,6 +34,10 @@ public class SwerveDriveAlignment extends Command {
     private Pose2d startingPose;
     private double velocityError;
 
+    public SwerveDriveAlignment(Pose2d targetPose) {
+        this(() -> targetPose);
+    }
+
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose) {
         addRequirements(s_Swerve);
         this.targetPose = targetPose;
