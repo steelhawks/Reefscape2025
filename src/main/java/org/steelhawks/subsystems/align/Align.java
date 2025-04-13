@@ -221,6 +221,13 @@ public class Align extends VirtualSubsystem {
             Set.of(s_Swerve));
     }
 
+    public Command alignToClosestBargePoint(DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+        return Commands.defer(
+            () -> DriveCommands.driveToPosition(FieldConstants.Barge.SCORE.getClearancePose())
+                .andThen(new FusedSwerveDriveAlignment(FieldConstants.Barge.SCORE.getClearancePose(), () -> -xSupplier.getAsDouble(), () -> -ySupplier.getAsDouble())),
+            Set.of(s_Swerve));
+    }
+
     public Command alignToClosestCage() {
         return alignToCage(FieldConstants.getClosestCage());
     }

@@ -64,6 +64,33 @@ public class FieldConstants {
     public static final Pose2d BLUE_STARTING_POSE =
         new Pose2d(new Translation2d(0, 0), new Rotation2d());
 
+    public static Translation2d getClosestPointOnLine(Translation2d startLine, Translation2d endLine) {
+        Translation2d robotPoint = RobotContainer.s_Swerve.getPose().getTranslation();
+
+        Vector2 lineVector = new Vector2(endLine.getX() - startLine.getX(), endLine.getY() - startLine.getY());
+        Vector2 pointVector = new Vector2(robotPoint.getX() - startLine.getX(), robotPoint.getY() - startLine.getY());
+
+        double lineLengthSquared = lineVector.dot(lineVector);
+        double dotProduct = pointVector.dot(pointVector);
+
+        double t = dotProduct / lineLengthSquared; // projection of point onto line
+        double lineLength = startLine.getDistance(endLine);
+        double percentToIgnoreFromEachSide = (RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0) / lineLength;
+
+        t = Math.max(percentToIgnoreFromEachSide, Math.min(1 - percentToIgnoreFromEachSide, t));
+
+        return new Translation2d(startLine.getX() + t * lineVector.x, startLine.getY() + t * lineVector.y);
+
+//        return new Pose2d(
+//            closestPointOnLine,
+//            new Rotation2d(Math.PI / 2.0))
+//            .transformBy(
+//                new Transform2d(
+//                    RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
+//                    0,
+//                    new Rotation2d()));
+    }
+
     public enum Position {
         LEFT_SECTION(new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI))),
         TOP_LEFT_SECTION(new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3))),
@@ -129,25 +156,8 @@ public class FieldConstants {
         }
 
         public Pose2d getIntakePoseViaPointToLine() {
-            Translation2d startLine = getLineStart();
-            Translation2d endLine = getLineEnd();
-            Translation2d robotPoint = RobotContainer.s_Swerve.getPose().getTranslation();
-
-            Vector2 lineVector = new Vector2(endLine.getX() - startLine.getX(), endLine.getY() - startLine.getY());
-            Vector2 pointVector = new Vector2(robotPoint.getX() - startLine.getX(), robotPoint.getY() - startLine.getY());
-
-            double lineLengthSquared = lineVector.dot(lineVector);
-            double dotProduct = pointVector.dot(pointVector);
-
-            double t = dotProduct / lineLengthSquared; // projection of point onto line
-            double stationLength = startLine.getDistance(endLine);
-            double percentToIgnoreFromEachSide = (RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0) / stationLength;
-
-            t = Math.max(percentToIgnoreFromEachSide, Math.min(1 - percentToIgnoreFromEachSide, t));
-            Translation2d closestPointOnCoralStation = new Translation2d(startLine.getX() + t * lineVector.x, startLine.getY() + t * lineVector.y);
-
             return new Pose2d(
-                closestPointOnCoralStation,
+                getClosestPointOnLine(getLineStart(), getLineEnd()),
                 getAprilTagPose().getRotation())
             .transformBy(
                 new Transform2d(
@@ -194,6 +204,48 @@ public class FieldConstants {
         }
 
         return bestPose;
+    }
+
+    public enum Barge {
+        SCORE(new Translation2d(7.563846, 8.061901), new Translation2d(7.563846, 8.061901 / 2.0));
+
+        private final Translation2d startPoint;
+        private final Translation2d endPoint;
+
+        Barge(Translation2d startPoint, Translation2d endPoint) {
+            this.startPoint = startPoint;
+            this.endPoint = endPoint;
+        }
+
+        public Translation2d getLineStart() {
+            return AllianceFlip.apply(startPoint);
+        }
+
+        public Translation2d getLineEnd() {
+            return AllianceFlip.apply(endPoint);
+        }
+
+        public Pose2d getCatapultPose() {
+            return new Pose2d(
+                getClosestPointOnLine(getLineStart(), getLineEnd()),
+                new Rotation2d(Math.PI / 2.0))
+                .transformBy(
+                    new Transform2d(
+                        RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
+                        RobotConstants.ALGAE_CLAW_Y_OFFSET,
+                        new Rotation2d()));
+        }
+
+        public Pose2d getClearancePose() {
+            return getCatapultPose()
+                .transformBy(
+                    new Transform2d(
+                        0.0,
+                        -Units.inchesToMeters(15.0),
+                        new Rotation2d()
+                    )
+                );
+        }
     }
 
     public enum Cage {

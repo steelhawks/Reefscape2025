@@ -456,12 +456,15 @@ public class RobotContainer {
             .whileTrue(
                 s_Align.alignToClosestCoralStation(driver::getLeftY, driver::getLeftX));
 
-        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
-            .alongWith(
-                Commands.either(
-                    s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
-                    s_LED.flashCommand(LEDColor.RED, 0.2, 2),
-                    () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
+//        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
+//            .alongWith(
+//                Commands.either(
+//                    s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
+//                    s_LED.flashCommand(LEDColor.RED, 0.2, 2),
+//                    () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
+        driver.rightTrigger()
+            .whileTrue(
+                s_Align.alignToClosestBargePoint(driver::getLeftY, driver::getLeftX));
 
         driver.b().onTrue(
             s_Swerve.zeroHeading());

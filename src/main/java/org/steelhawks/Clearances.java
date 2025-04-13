@@ -37,6 +37,10 @@ public class Clearances {
         public static boolean isClearFromElevatorCrossbeam() {
             return s_AlgaeClaw.getPivotPosition() >= MIN_ANGLE_CLEAR_FROM_HOME;
         }
+
+        public static boolean isClearFromBarge() {
+            return false;
+        }
     }
 
     public final static class ClimbClearances {
