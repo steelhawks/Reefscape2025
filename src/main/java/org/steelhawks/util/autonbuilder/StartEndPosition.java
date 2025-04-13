@@ -9,12 +9,14 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 
 public enum StartEndPosition {
-    NOTHING_AUTO(3, 3, 0),
+    NOTHING_AUTO(3.0, 3.0, 0.0),
     BC1(7.58, 7.2524, Units.degreesToRadians(-60.0)),
     BC2(7.000, 6.024, Units.degreesToRadians(-120)),
     BC3(7.18, 5.0812, Math.PI),
 
-    CENTER(7.085, 4, Math.PI),
+    CENTER(7.085, 4.0, Math.PI),
+    TOPG(7.085, 4.0, Math.PI),
+    BOTTOMG(7.085, 4.0, Math.PI),
 
     RC1(7.58, 3, Math.PI),
     RC2(7.000, 2.059, Units.degreesToRadians(120)),

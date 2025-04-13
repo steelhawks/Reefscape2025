@@ -13,7 +13,7 @@ public class BottomG extends AutoRoutine {
 
     public BottomG() {
         super(
-            "Bottom G",
+            "BOTTOMG",
             Commands.runOnce(() -> s_Swerve.setPose(StartEndPosition.CENTER.getPose())),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.L4),
             followTrajectory("Center to R2"),
