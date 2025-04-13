@@ -33,6 +33,12 @@
           "data": {
             "pathName": "BR to Barge"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge to Bottom Leave"
+          }
         }
       ]
     }

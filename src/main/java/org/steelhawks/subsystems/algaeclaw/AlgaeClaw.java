@@ -139,7 +139,10 @@ public class AlgaeClaw extends SubsystemBase {
     }
 
     public Trigger hasAlgae() {
-        return new Trigger(() -> inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE);
+        return new Trigger(
+            Constants.getRobot() != Constants.RobotType.SIMBOT
+                ? () -> inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE
+                : () -> true);
     }
 
     public Command toggleManualControl(DoubleSupplier joystickAxis) {

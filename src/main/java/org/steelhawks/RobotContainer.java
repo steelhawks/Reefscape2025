@@ -22,10 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.steelhawks.Constants.*;
 import org.steelhawks.subsystems.LED;
-import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
-import org.steelhawks.subsystems.algaeclaw.AlgaeClawConstants;
-import org.steelhawks.subsystems.algaeclaw.AlgaeClawIO;
-import org.steelhawks.subsystems.algaeclaw.AlgaeClawIOTalonFX;
+import org.steelhawks.subsystems.algaeclaw.*;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
@@ -254,7 +251,7 @@ public class RobotContainer {
                             new AlignIOSim());
                     s_AlgaeClaw =
                         new AlgaeClaw(
-                            new AlgaeClawIO() {});
+                            new AlgaeClawIOSim());
                 }
             }
         }

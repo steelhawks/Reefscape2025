@@ -25,7 +25,7 @@ public final class Constants {
         getRobot() == RobotType.ALPHABOT
             ? PowerDistribution.ModuleType.kCTRE
             : PowerDistribution.ModuleType.kRev;
-    public static final double SIM_UPDATE_LOOP = 0.020;
+    public static final double UPDATE_LOOP_DT = 0.020;
 
     public enum Mode {
         REAL,

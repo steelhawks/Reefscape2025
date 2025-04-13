@@ -207,7 +207,7 @@ public class FieldConstants {
     }
 
     public enum Barge {
-        SCORE(new Translation2d(7.563846, 8.061901), new Translation2d(7.563846, 8.061901 / 2.0));
+        SCORE(new Translation2d(7.563846, 8.061901), new Translation2d(7.563846, (8.061901 / 2.0) + 0.5));
 
         private final Translation2d startPoint;
         private final Translation2d endPoint;
@@ -228,7 +228,7 @@ public class FieldConstants {
         public Pose2d getCatapultPose() {
             return new Pose2d(
                 getClosestPointOnLine(getLineStart(), getLineEnd()),
-                new Rotation2d(Math.PI / 2.0))
+                new Rotation2d(-Math.PI / 2.0))
                 .transformBy(
                     new Transform2d(
                         RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,

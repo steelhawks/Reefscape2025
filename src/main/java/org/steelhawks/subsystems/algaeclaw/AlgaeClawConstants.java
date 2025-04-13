@@ -26,6 +26,12 @@ public class AlgaeClawConstants {
 
     public static final CANBus CLAW_BUS = new CANBus();
 
+    /* ------------- Simulation ------------- */
+    public static final double GEAR_RATIO = 100.0;
+    public static final double ARM_LENGTH = Units.inchesToMeters(8.0);
+    public static final double ARM_MASS_KG = Units.lbsToKilograms(12.0);
+    public static final double MOMENT_OF_INERTIA = ARM_MASS_KG * Math.pow(ARM_LENGTH, 2) / 3.0;
+
     public static final int PIVOT_ID = 25;
     public static final int SPIN_ID = 26;
     public static final int CANCODER_ID = 27;
