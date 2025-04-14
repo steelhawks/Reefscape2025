@@ -38,7 +38,8 @@ public class VisionConstants {
                     "arducam-front-left",
                     "arducam-center-mount",
                     "arducam-center-right",
-                    "arducam-back-right"
+                    "arducam-back-right",
+                    "arducam-algae"
                 };
         };
     }
@@ -126,7 +127,20 @@ public class VisionConstants {
                         new Rotation3d(
                             Units.degreesToRadians(0),
                             Units.degreesToRadians(0),
-                            Units.degreesToRadians(-120)))
+                            Units.degreesToRadians(-120))),
+                    
+                    // ALGAE (Mounted on 1x1 beam running through the robot, such that the camera face is parallel to the reef when scoring algae)
+                    new Transform3d(
+                        // Left-Right: 10.251 left
+                        // Front-Back: 3.650 front
+                        // Up-Down: 6.940 up
+                        Units.inchesToMeters(3.650), 
+                        Units.inchesToMeters(10.251), 
+                        Units.inchesToMeters(6.940),   // Z is from the top of the belly pan
+                        new Rotation3d(
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(0),
+                            Units.degreesToRadians(90)))
 
 
                     // Hello This Is Rahman Arssath FRC 2601 2025
@@ -161,7 +175,8 @@ public class VisionConstants {
                     3.0, // arducam-front-left
                     1.0, // arducam-center-mount
                     1.0, // arducam-center-right
-                    8.0  // arducam-back-right
+                    8.0,  // arducam-back-right
+                    1.0 // arducam-algae
                 };
         };
 
