@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.*;
@@ -402,6 +401,16 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
+        driver.x().onTrue(s_Swerve.toggleMultiplier()
+            .alongWith(
+                Commands.either(
+                    s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
+                    s_LED.flashCommand(LEDColor.RED, 0.2, 2),
+                    () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
+
+        driver.b().onTrue(
+            s_Swerve.zeroHeading());
+
         driver.leftBumper()
             .whileTrue(
                 Commands.either(
@@ -452,18 +461,9 @@ public class RobotContainer {
             .whileTrue(
                 s_Align.alignToClosestCoralStation(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
 
-//        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
-//            .alongWith(
-//                Commands.either(
-//                    s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
-//                    s_LED.flashCommand(LEDColor.RED, 0.2, 2),
-//                    () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
         driver.rightTrigger()
             .whileTrue(
                 s_Align.alignToClosestBargePoint(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
-
-        driver.b().onTrue(
-            s_Swerve.zeroHeading());
     }
 
     private void configureOperator() {
@@ -523,9 +523,15 @@ public class RobotContainer {
 //                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
 //                    Clearances.ClawClearances::clearFromReef));
                 Commands.sequence(
-                    s_AlgaeClaw.avoid(),
+                    Commands.either(
+                        s_AlgaeClaw.catapult(),
+                        s_AlgaeClaw.avoid(),
+                        s_AlgaeClaw.hasAlgae()),
                     s_Elevator.noSlamCommand(),
-                    s_AlgaeClaw.home()));
+                    Commands.either(
+                        Commands.none(),
+                        s_AlgaeClaw.home(),
+                        s_AlgaeClaw.hasAlgae())));
 
         /* ------------- Intake Controls ------------- */
 

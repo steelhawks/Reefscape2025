@@ -20,7 +20,10 @@ public class SuperStructure {
 
     public static Command elevatorToPosition(ElevatorConstants.State state) {
         return Commands.sequence(
-            s_AlgaeClaw.avoid(),
+            Commands.either(
+                s_AlgaeClaw.catapult(),
+                s_AlgaeClaw.avoid(),
+                s_AlgaeClaw.hasAlgae()),
             Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
             s_Elevator.setDesiredState(state));
     }
