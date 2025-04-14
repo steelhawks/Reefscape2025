@@ -185,7 +185,7 @@ public class Robot extends LoggedRobot {
 
     private void updateSimPoseVisualizer() {
         Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
-        Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getScorePose());
+        Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getRetrievePose());
         Logger.recordOutput("Align/ClosestAlgaeClearance", ReefUtil.getClosestAlgae().getClearancePose());
         Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
         Logger.recordOutput("Align/Left", FieldConstants.Cage.LEFT.getClimbPose());

@@ -162,7 +162,7 @@ public class ReefUtil {
             return AllianceFlip.shouldFlip() ? redTag.pose().toPose2d() : blueTag.pose().toPose2d();
         }
 
-        public Pose2d getScorePose() {
+        public Pose2d getRetrievePose() {
             return getAprilTagPose().transformBy(
                 new Transform2d(
                     RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
@@ -171,7 +171,7 @@ public class ReefUtil {
         }
 
         public Pose2d getClearancePose() {
-            return getScorePose().transformBy(
+            return getRetrievePose().transformBy(
                 new Transform2d(
                     0.0,
                     -Units.inchesToMeters(5),
@@ -184,7 +184,7 @@ public class ReefUtil {
         double closestDistance = Double.MAX_VALUE;
 
         for (Algae algae : Algae.values()) {
-            double distance = RobotContainer.s_Swerve.getPose().minus(algae.getScorePose()).getTranslation().getNorm();
+            double distance = RobotContainer.s_Swerve.getPose().minus(algae.getRetrievePose()).getTranslation().getNorm();
             if (distance < closestDistance) {
                 closestDistance = distance;
                 nearestAlgae = algae;

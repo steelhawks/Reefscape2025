@@ -210,7 +210,7 @@ public class Align extends VirtualSubsystem {
 
     public Command alignToClosestAlgae() {
         return Commands.defer(
-            () -> directPathFollow(() -> ReefUtil.getClosestAlgae().getScorePose()),
+            () -> directPathFollow(() -> ReefUtil.getClosestAlgae().getRetrievePose()),
             Set.of(s_Swerve));
     }
 

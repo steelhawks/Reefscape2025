@@ -437,7 +437,7 @@ public class RobotContainer {
                                         ? State.KNOCK_L3
                                         : State.KNOCK_L2)),
                             Set.of()),
-                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getScorePose()), Set.of(s_Swerve)))
+                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getRetrievePose()), Set.of(s_Swerve)))
                 .alongWith(s_AlgaeClaw.intakeAlgae()));
 
 //        operator.rightBumper()
