@@ -41,8 +41,8 @@ public class Robot extends LoggedRobot {
 
     private static RobotState mState = RobotState.DISABLED;
     private final RobotContainer robotContainer;
+    private static boolean isFirstRun = true;
     private Command autonomousCommand;
-    private boolean isFirstRun = true;
 
     public enum RobotState {
         DISABLED,
@@ -58,6 +58,10 @@ public class Robot extends LoggedRobot {
 
     public static RobotState getState() {
         return mState;
+    }
+
+    public static boolean isFirstRun() {
+        return isFirstRun;
     }
 
     @SuppressWarnings("resource")

@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.algaeclaw;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.OperatorLock;
+import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.AlgaeClawDefaultCommand;
 import org.steelhawks.util.AlertUtil;
@@ -33,9 +35,11 @@ public class AlgaeClaw extends SubsystemBase {
     private final ProfiledPIDController mController;
     private final ArmDriveFeedforward mDriveFeedforward;
     private final ArmFeedforward mFeedforward;
+    private final LinearFilter velocityFilter;
     private final SysIdRoutine mSysId;
     private boolean mEnabled = false;
     private boolean shouldEStop = false;
+    private boolean brakeModeEnabled = true;
 
     private final Alert pivotDisconnected =
         new AlertUtil("Pivot Disconnected", Alert.AlertType.kError)
@@ -91,6 +95,7 @@ public class AlgaeClaw extends SubsystemBase {
                     (state) -> Logger.recordOutput("AlgaeClaw/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runPivot(voltage.in(Volts)), null, this));
+        velocityFilter = LinearFilter.movingAverage(5);
 
         if (RobotContainer.s_Elevator.atHome().getAsBoolean())
             home().schedule();
@@ -106,8 +111,8 @@ public class AlgaeClaw extends SubsystemBase {
         Logger.processInputs("AlgaeClaw", inputs);
 
         shouldEStop =
-            inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS
-                || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && Math.signum(inputs.encoderVelocity) == -1);
+            (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && velocityFilter.calculate(Math.signum(inputs.encoderPosition)) == 1)
+                || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && velocityFilter.calculate(Math.signum(inputs.encoderVelocity)) == -1); // prob need to run a deadband for small movements
 
         if (shouldEStop) {
             io.stopPivot();
@@ -117,16 +122,29 @@ public class AlgaeClaw extends SubsystemBase {
         // stop adding up pid error while disabled
         if (DriverStation.isDisabled()) {
             mController.reset(getPivotPosition());
+            if (Robot.isFirstRun()) {
+                setBrakeMode(false);
+            }
+        }
+
+        if (DriverStation.isEnabled()) {
+            setBrakeMode(true);
         }
 
         if (mEnabled)
             runPivot();
     }
 
+    private void setBrakeMode(boolean enabled) {
+        if (brakeModeEnabled == enabled) return;
+        brakeModeEnabled = enabled;
+        io.setBrakeMode(brakeModeEnabled);
+    }
+
     private void runPivot() {
         double fb = mController.calculate(getPivotPosition());
-        double ff = mFeedforward.calculate(mController.getSetpoint().position, mController.getSetpoint().velocity);
-//            + mDriveFeedforward.calculate(getPivotPosition(), RobotContainer.s_Swerve::getRobotRelativeXAccelGs);
+        double ff = mFeedforward.calculate(mController.getSetpoint().position, mController.getSetpoint().velocity)
+            + mDriveFeedforward.calculate(getPivotPosition(), RobotContainer.s_Swerve::getRobotRelativeXAccelGs);
         double volts = fb + ff;
 
         if ((getPivotPosition() >= AlgaeClawConstants.MAX_PIVOT_RADIANS && volts >= 0)

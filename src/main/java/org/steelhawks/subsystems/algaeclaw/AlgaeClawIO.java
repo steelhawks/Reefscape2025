@@ -42,6 +42,8 @@ public interface AlgaeClawIO {
 
     default void runPosition(double positionRad) {}
 
+    default void setBrakeMode(boolean brake) {}
+
     default void setPID(double kP, double kI, double kD) {}
 
     default void setFF(double kS, double kG, double kV) {}

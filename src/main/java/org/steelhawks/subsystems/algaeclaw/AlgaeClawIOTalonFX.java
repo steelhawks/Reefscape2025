@@ -185,6 +185,12 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     }
 
     @Override
+    public void setBrakeMode(boolean brake) {
+        new Thread(() -> mPivotMotor.setNeutralMode(
+            brake ? NeutralModeValue.Brake : NeutralModeValue.Coast)).start();
+    }
+
+    @Override
     public void setPID(double kP, double kI, double kD) {}
 
     @Override
