@@ -1,5 +1,6 @@
 package org.steelhawks.util;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,11 +23,15 @@ public class Conversions {
      * @return returns a continuous angle from 0-2pi to an angle that is -pi to pi
      */
     public static double convert360To180Rad(double angle) {
-        return (angle + Math.PI) % (2 * Math.PI) - Math.PI;
+        return MathUtil.angleModulus(angle);
     }
 
+    /**
+     * @param angle angle in degrees
+     * @return returns a continuous angle from 0-360 to an angle that is -180 to 180
+     */
     public static double convert360To180(double angle) {
-        return (angle + 180) % 360 - 180;
+        return Math.toDegrees(convert360To180Rad(Math.toRadians(angle)));
     }
 
     /**
