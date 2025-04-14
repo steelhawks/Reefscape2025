@@ -17,7 +17,7 @@ public class BeamIOCANrange implements BeamIO {
     private final StatusSignal<Boolean> beamBroken;
 
     public BeamIOCANrange() {
-        mBeamBreak = new CANrange(ClawConstants.CAN_RANGE_ID_OMEGA, "");
+        mBeamBreak = new CANrange(ClawConstants.CAN_RANGE_ID_OMEGA, ClawConstants.CLAW_CANBUS);
         var canRangeConfig =
             new CANrangeConfiguration()
                 .withProximityParams(new ProximityParamsConfigs()

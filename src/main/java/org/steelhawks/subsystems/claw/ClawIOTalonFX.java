@@ -28,10 +28,7 @@ public class ClawIOTalonFX implements ClawIO {
     private final StatusSignal<Temperature> temp;
 
     public ClawIOTalonFX() {
-        CANBus canBus = Constants.getCANBus();
-        if (Constants.getRobot() == RobotType.OMEGABOT) // claw is on the rio bus on omega
-            canBus = new CANBus();
-        mIntakeMotor = new TalonFX(ClawConstants.CLAW_INTAKE_MOTOR_ID, canBus);
+        mIntakeMotor = new TalonFX(ClawConstants.CLAW_INTAKE_MOTOR_ID, ClawConstants.CLAW_CANBUS);
 
         var motorConfig =
             new TalonFXConfiguration()
@@ -54,7 +51,7 @@ public class ClawIOTalonFX implements ClawIO {
             current,
             temp);
 
-        ParentDevice.optimizeBusUtilizationForAll(mIntakeMotor);
+        mIntakeMotor.optimizeBusUtilization();
     }
 
     @Override

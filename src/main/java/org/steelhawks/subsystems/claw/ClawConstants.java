@@ -1,9 +1,11 @@
 package org.steelhawks.subsystems.claw;
 
+import com.ctre.phoenix6.CANBus;
 import org.steelhawks.Constants;
 
 public class ClawConstants {
 
+    public static final CANBus CLAW_CANBUS = new CANBus("");
     public static final int CAN_RANGE_ID_OMEGA = 17;
 
     public static final int CLAW_INTAKE_MOTOR_ID;
