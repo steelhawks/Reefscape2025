@@ -59,6 +59,7 @@ public class AlgaeClaw extends SubsystemBase {
     private void disable() {
         mEnabled = false;
         runPivot();
+        io.stopPivot();
     }
 
     public boolean isEnabled() {
@@ -111,8 +112,8 @@ public class AlgaeClaw extends SubsystemBase {
         Logger.processInputs("AlgaeClaw", inputs);
 
         shouldEStop =
-            (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && velocityFilter.calculate(Math.signum(inputs.encoderPosition)) == 1)
-                || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && velocityFilter.calculate(Math.signum(inputs.encoderVelocity)) == -1); // prob need to run a deadband for small movements
+            (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderPosition)) == 1)
+                || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderVelocity)) == -1); // prob need to run a deadband for small movements
 
         if (shouldEStop) {
             io.stopPivot();
