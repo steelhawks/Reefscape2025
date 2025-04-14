@@ -207,7 +207,7 @@ public class FieldConstants {
     }
 
     public enum Barge {
-        SCORE(new Translation2d(7.563846, 8.061901), new Translation2d(7.563846, (8.061901 / 2.0) + 0.5));
+        SCORE(new Translation2d(7.563846, 8.061901 - 0.55), new Translation2d(7.563846, (8.061901 / 2.0) + 0.2));
 
         private final Translation2d startPoint;
         private final Translation2d endPoint;

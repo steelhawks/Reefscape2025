@@ -450,7 +450,7 @@ public class RobotContainer {
 
         driver.leftTrigger()
             .whileTrue(
-                s_Align.alignToClosestCoralStation(driver::getLeftY, driver::getLeftX));
+                s_Align.alignToClosestCoralStation(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
 
 //        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
 //            .alongWith(
@@ -460,7 +460,7 @@ public class RobotContainer {
 //                    () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
         driver.rightTrigger()
             .whileTrue(
-                s_Align.alignToClosestBargePoint(driver::getLeftY, driver::getLeftX));
+                s_Align.alignToClosestBargePoint(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
 
         driver.b().onTrue(
             s_Swerve.zeroHeading());
