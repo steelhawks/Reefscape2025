@@ -131,7 +131,10 @@ public class RobotContainer {
                                 VisionConstants.robotToCamera()[2]),
                             new VisionIOPhoton(
                                 VisionConstants.cameraNames()[3],
-                                VisionConstants.robotToCamera()[3]));
+                                VisionConstants.robotToCamera()[3]),
+                            new VisionIOPhoton(
+                                VisionConstants.cameraNames()[4],
+                                VisionConstants.robotToCamera()[4]));
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
