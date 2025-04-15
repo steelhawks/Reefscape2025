@@ -2,6 +2,7 @@ package org.steelhawks.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
@@ -16,6 +17,33 @@ import java.util.function.Supplier;
  */
 public class FieldBoundingBox extends Trigger {
 
+    /**
+     * Creates a new FieldBoundingBox trigger.
+     *
+     * @param name Name of the trigger for logging purposes.
+     * @param startPoint The starting point of the bounding box.
+     * @param endPoint The ending point of the bounding box.
+     * @param robotPose Supplier for the robot's current pose.
+     */
+    public FieldBoundingBox(
+        String name,
+        Translation2d startPoint,
+        Translation2d endPoint,
+        Supplier<Pose2d> robotPose
+    ) {
+        this(name, startPoint.getX(), endPoint.getX(), startPoint.getY(), endPoint.getY(), robotPose);
+    }
+
+    /**
+     * Creates a new FieldBoundingBox trigger.
+     *
+     * @param name Name of the trigger for logging purposes.
+     * @param minX Minimum X coordinate of the bounding box.
+     * @param maxX Maximum X coordinate of the bounding box.
+     * @param minY Minimum Y coordinate of the bounding box.
+     * @param maxY Maximum Y coordinate of the bounding box.
+     * @param robotPose Supplier for the robot's current pose.
+     */
     public FieldBoundingBox(
         String name,
         double minX,

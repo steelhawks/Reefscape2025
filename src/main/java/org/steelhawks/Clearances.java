@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.Elevator;
@@ -53,8 +54,8 @@ public class Clearances {
         public static boolean isClearFromBarge() {
             return !new FieldBoundingBox(
                 "Under Barge",
-                8.294717, 9.253538,
-                7.831129, 4.242398,
+                new Translation2d(8.294717, 7.831129),
+                new Translation2d(9.253538, 4.242398),
                 s_Swerve::getPose).getAsBoolean();
         }
     }
