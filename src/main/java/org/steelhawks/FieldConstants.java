@@ -80,15 +80,6 @@ public class FieldConstants {
         t = Math.max(percentToIgnoreFromEachSide, Math.min(1 - percentToIgnoreFromEachSide, t));
 
         return new Translation2d(startLine.getX() + t * lineVector.x, startLine.getY() + t * lineVector.y);
-
-//        return new Pose2d(
-//            closestPointOnLine,
-//            new Rotation2d(Math.PI / 2.0))
-//            .transformBy(
-//                new Transform2d(
-//                    RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0,
-//                    0,
-//                    new Rotation2d()));
     }
 
     public enum Position {
@@ -176,11 +167,6 @@ public class FieldConstants {
     }
 
     public static CoralStation getClosestCoralStation() {
-//        double distanceToTop =
-//            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.TOP.getAprilTagPose().getTranslation());
-//        double distanceToBottom =
-//            RobotContainer.s_Swerve.getPose().getTranslation().getDistance(CoralStation.BOTTOM.getAprilTagPose().getTranslation());
-
         return CoralStation.BOTTOM.getDistanceToStation() > CoralStation.TOP.getDistanceToStation() ? CoralStation.TOP : CoralStation.BOTTOM;
     }
 
@@ -254,8 +240,7 @@ public class FieldConstants {
         RIGHT;
 
         public Pose2d getTagPose() {
-            AprilTag tag = AllianceFlip.shouldFlip() ? getAprilTag(5) : getAprilTag(14);
-            return tag.pose().toPose2d();
+            return (AllianceFlip.shouldFlip() ? getAprilTag(5) : getAprilTag(14)).pose().toPose2d();
         }
 
         public Pose2d getCagePose() {

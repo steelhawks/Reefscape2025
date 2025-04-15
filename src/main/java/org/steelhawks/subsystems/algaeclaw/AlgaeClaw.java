@@ -114,7 +114,7 @@ public class AlgaeClaw extends SubsystemBase {
         shouldEStop =
             (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderPosition)) == 1)
                 || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderVelocity)) == -1); // prob need to run a deadband for small movements
-
+        Logger.recordOutput("AlgaeClaw/EStopped", shouldEStop);
         if (shouldEStop) {
             io.stopPivot();
             return;

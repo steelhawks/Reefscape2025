@@ -297,6 +297,7 @@ public class RobotContainer {
                         new VisionIO() {},
                         new VisionIO() {},
                         new VisionIO() {},
+                        new VisionIO() {},
                         new VisionIO() {});
             }
             s_Elevator =
@@ -440,8 +441,11 @@ public class RobotContainer {
                                         ? State.KNOCK_L3
                                         : State.KNOCK_L2)),
                             Set.of()),
-                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getRetrievePose()), Set.of(s_Swerve)))
-                .alongWith(s_AlgaeClaw.intakeAlgae()));
+                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getRetrievePose()), Set.of(s_Swerve)).until(s_AlgaeClaw.hasAlgae()))
+                .alongWith(s_AlgaeClaw.intakeAlgae()))
+            .onFalse(
+                Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef)
+                    .andThen(SuperStructure.elevatorToPosition(State.HOME)));
 
 //        operator.rightBumper()
 //            .onTrue(
@@ -584,17 +588,20 @@ public class RobotContainer {
                         Set.of(s_Elevator)),
                     new VibrateController(driver)))
             .whileTrue(s_AlgaeClaw.intakeAlgae())
-            .onFalse(SuperStructure.elevatorToPosition(State.HOME));
+            .onFalse(
+                Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef)
+                    .andThen(SuperStructure.elevatorToPosition(State.HOME)));
 
         operator.rightTrigger()
             .onTrue(
                 Commands.sequence(
                     s_AlgaeClaw.catapult(),
                     Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromBarge),
                     s_Elevator.setDesiredState(State.BARGE_SCORE)))
             .whileTrue(
-                    Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE))
-                        .andThen(s_AlgaeClaw.outtakeAlgae()))
+                Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE))
+                    .andThen(s_AlgaeClaw.outtakeAlgae()))
             .onFalse(SuperStructure.elevatorToPosition(State.HOME));
     }
 }

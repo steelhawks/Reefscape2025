@@ -193,7 +193,8 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("Align/Center", FieldConstants.Cage.CENTER.getClimbPose());
         Logger.recordOutput("Align/ClosestBargePoint", FieldConstants.Barge.SCORE.getClearancePose());
 
-        Logger.recordOutput("AlgaeClaw/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
+        Logger.recordOutput("Clearances/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
+        Logger.recordOutput("Clearances/ClearFromBarge", Clearances.AlgaeClawClearances.isClearFromBarge());
     }
 
     @Override

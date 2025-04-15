@@ -139,8 +139,9 @@ public class Elevator extends SubsystemBase {
         shouldEStop =
             !Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam()
                 && Math.signum(inputs.encoderVelocityRadPerSec) == -1;
+        Logger.recordOutput("Elevator/EStopped", shouldEStop);
 
-        if (Clearances.AlgaeClawClearances.willCollideIntoElevator() || shouldEStop) {
+        if (shouldEStop) {
             io.stop();
             disable();
             return;
