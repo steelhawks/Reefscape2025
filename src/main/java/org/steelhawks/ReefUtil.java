@@ -174,7 +174,7 @@ public class ReefUtil {
             return getRetrievePose().transformBy(
                 new Transform2d(
                     0.0,
-                    -Units.inchesToMeters(15),
+                    -Units.inchesToMeters(13),
                     new Rotation2d()));
         }
     }
