@@ -99,13 +99,14 @@ public class Elevator extends SubsystemBase {
         this.io = io;
         disable();
 
-        if (inputs.limitSwitchPressed) {
-            io.zeroEncoders();
-        } else {
-            homeCommand()
-                .andThen(io::zeroEncoders)
-                .schedule();
-        }
+        io.zeroEncoders();
+//        if (inputs.limitSwitchPressed) {
+//            io.zeroEncoders();
+//        } else {
+//            homeCommand()
+//                .andThen(io::zeroEncoders)
+//                .schedule();
+//        }
     }
 
     private boolean limitPressed() {
