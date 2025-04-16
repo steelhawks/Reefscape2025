@@ -431,8 +431,8 @@ public class RobotContainer {
                         s_AlgaeClaw.intake(),
                         Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                         Commands.either(
-                            SuperStructure.elevatorToPosition(State.KNOCK_L3),
-                            SuperStructure.elevatorToPosition(State.KNOCK_L2),
+                            s_Elevator.setDesiredState(State.KNOCK_L3),
+                            s_Elevator.setDesiredState(State.KNOCK_L2),
                             () -> ReefUtil.getClosestAlgae().isOnL3()),
                         Commands.defer(
                             () -> Commands.waitUntil(
