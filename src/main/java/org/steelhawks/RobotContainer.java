@@ -590,7 +590,13 @@ public class RobotContainer {
             .whileTrue(s_AlgaeClaw.intakeAlgae())
             .onFalse(
                 Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef)
-                    .andThen(SuperStructure.elevatorToPosition(State.HOME)));
+                    .andThen(
+                        SuperStructure.elevatorToPosition(State.HOME),
+                        Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
+                        Commands.either(
+                            s_AlgaeClaw.home(),
+                            s_AlgaeClaw.catapult(),
+                            s_AlgaeClaw.hasAlgae())));
 
         operator.rightTrigger()
             .onTrue(
