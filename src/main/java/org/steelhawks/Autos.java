@@ -326,7 +326,7 @@ public final class Autos {
         if (autoChooser.get().getName().equals("Use Auton Builder")) {
             return s_Builder.getAutonCommand();
         } else if (Constants.TUNING_MODE) {
-            return sysIdChooser.get();
+            return sysIdChooser.get() != null ? Commands.none() : sysIdChooser.get();
         }
         return autoChooser.get();
     }
