@@ -128,9 +128,13 @@ public class Align extends VirtualSubsystem {
         return path;
     }
 
-    public static Command directPathFollow(Supplier<Pose2d> goal) {
+    public static Command directPathFollow(Supplier<Pose2d> goal, boolean endsWhenAligned) {
         return DriveCommands.driveToPosition(goal.get())
-            .andThen(new SwerveDriveAlignment(goal));
+            .andThen(new SwerveDriveAlignment(goal, endsWhenAligned));
+    }
+
+    public static Command directPathFollow(Supplier<Pose2d> goal) {
+        return directPathFollow(goal, false);
     }
 
     public Command forwardUntil(Rotation2d angle) {

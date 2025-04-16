@@ -35,15 +35,22 @@ public class SwerveDriveAlignment extends Command {
     protected Pose2d startingPose;
     protected double velocityError;
 
+    private final boolean endsWhenAligned;
+
     public SwerveDriveAlignment(Pose2d targetPose) {
         this(() -> targetPose);
     }
 
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose) {
+        this(targetPose, false);
+    }
+
+    public SwerveDriveAlignment(Supplier<Pose2d> targetPose, boolean endsWhenAligned) {
         addRequirements(s_Swerve);
         this.targetPose = targetPose;
         this.debouncer = new Debouncer(0.2, Debouncer.DebounceType.kRising);
         this.filter = LinearFilter.movingAverage(5);
+        this.endsWhenAligned = endsWhenAligned;
 
         mController =
             new SwerveDriveController(
@@ -139,7 +146,7 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public boolean isFinished() {
         // added auton check so command keeps running if the driver wants to switch the branch to score on, this doesnt interrupt auton scoring sequence
-        return debouncer.calculate(isAligned()) && Robot.getState() == Robot.RobotState.AUTON;
+        return debouncer.calculate(isAligned()) && (Robot.getState() == Robot.RobotState.AUTON || endsWhenAligned);
     }
 
     @Override

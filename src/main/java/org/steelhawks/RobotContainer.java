@@ -425,7 +425,7 @@ public class RobotContainer {
         driver.rightBumper()
             .whileTrue(
                 Commands.defer(
-                    () -> Align.directPathFollow(() -> ReefUtil.getClosestAlgae().getClearancePose()),
+                    () -> Align.directPathFollow(() -> ReefUtil.getClosestAlgae().getClearancePose(), true),
                     Set.of(s_Swerve))
                     .andThen(
                         s_AlgaeClaw.intake(),
