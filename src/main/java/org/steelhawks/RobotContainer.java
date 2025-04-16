@@ -594,8 +594,8 @@ public class RobotContainer {
                         SuperStructure.elevatorToPosition(State.HOME),
                         Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
                         Commands.either(
+                            Commands.none(),
                             s_AlgaeClaw.home(),
-                            s_AlgaeClaw.catapult(),
                             s_AlgaeClaw.hasAlgae())));
 
         operator.rightTrigger()
