@@ -22,7 +22,7 @@ public class ElevatorConstants {
 
         // Algae Knockout Positions
         KNOCK_L2(0.0, 6.493340675119919, 0.0),
-        KNOCK_L3(0.0, 12.945263868966926, 0.0),
+        KNOCK_L3(0.0, 11.231807328898665, 0.0),
 
         // height to score into the barge
         BARGE_SCORE(0.0, 24.0, 0.0);
