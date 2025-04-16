@@ -113,8 +113,9 @@ public final class Constants {
             // 10.783720 (the length-wise distance between the bottom front lip of the coral in the coral intake, and the center of the robot)
             // 4.174247 (the length-wise distance between the top back lip of the coral in the coral intake, and the center of the robot)
 
-        public static final double ALGAE_CLAW_Y_OFFSET = -Units.inchesToMeters(4.081);
-        public static final double DIST_CLEAR_FROM_REEF = Units.inchesToMeters(4);
+//        public static final double ALGAE_CLAW_Y_OFFSET = -Units.inchesToMeters(4.081);
+        public static final double ALGAE_CLAW_Y_OFFSET = -Units.inchesToMeters(3.0);
+        public static final double DIST_CLEAR_FROM_REEF = Units.inchesToMeters(13.0);
 
         public static final double CLIMB_Y_OFFSET = Units.inchesToMeters(12 + (3.0 / 8.0));
         public static final double DISTANCE_FROM_CAGE = Units.inchesToMeters(10.0);
