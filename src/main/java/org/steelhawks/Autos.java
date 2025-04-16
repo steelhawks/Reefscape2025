@@ -107,6 +107,10 @@ public final class Autos {
     }
 
     public static Misalignment getMisalignment() {
+        if (Constants.TUNING_MODE) {
+            return Misalignment.NONE;
+        }
+
         String autoName = getAuto().getName();
         double radiansTolerance = Units.degreesToRadians(5);
         double xyTolerance = 0.6;
