@@ -55,6 +55,6 @@ public class AlgaeClawConstants {
     public static final double MAX_PIVOT_RADIANS = 0.6504078540635119;
 
     public static final double INTAKE_SPEED = 1.0;
-    public static final double RETAIN_ALGAE_SPEED = 0.7;
+    public static final double RETAIN_ALGAE_SPEED = 0.5;
     public static final double CURRENT_THRESHOLD_TO_HAVE_ALGAE = 80;
 }
