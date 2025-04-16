@@ -33,10 +33,7 @@ import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
-import org.steelhawks.util.AllianceFlip;
-import org.steelhawks.util.ButtonBoard;
-import org.steelhawks.util.DashboardTrigger;
-import org.steelhawks.util.FieldBoundingBox;
+import org.steelhawks.util.*;
 
 import java.util.Objects;
 import java.util.Set;
@@ -503,42 +500,46 @@ public class RobotContainer {
             .or(buttonBoard.getL1().and(() -> usingButtonBoard))
             .onTrue(SuperStructure.elevatorToPosition(State.L1));
 
+//        operator.x()
+//            .or(new DashboardTrigger("l2"))
+//            .or(buttonBoard.getL2().and(() -> usingButtonBoard))
+//            .onTrue(SuperStructure.elevatorToPosition(State.L2));
+//
+//        operator.y()
+//            .or(new DashboardTrigger("l3"))
+//            .or(buttonBoard.getL3().and(() -> usingButtonBoard))
+//            .onTrue(SuperStructure.elevatorToPosition(State.L3));
+//
+//
+//        operator.a()
+//            .or(new DashboardTrigger("l4"))
+//            .or(buttonBoard.getL4().and(() -> usingButtonBoard))
+//            .onTrue(
+//                SuperStructure.elevatorToPosition(State.L4));
+//
+//        operator.b()
+//            .or(new DashboardTrigger("elevatorHome"))
+//            .or(buttonBoard.getHome().and(() -> usingButtonBoard))
+//            .onTrue(
+////                Commands.either(
+////                    s_Elevator.noSlamCommand().alongWith(Commands.runOnce(() -> Clearances.ClawClearances.hasShot = false)),
+////                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
+////                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
+////                    Clearances.ClawClearances::clearFromReef));
+//                Commands.sequence(
+//                    Commands.either(
+//                        s_AlgaeClaw.catapult(),
+//                        s_AlgaeClaw.avoid(),
+//                        s_AlgaeClaw.hasAlgae()),
+//                    s_Elevator.noSlamCommand(),
+//                    Commands.either(
+//                        Commands.none(),
+//                        s_AlgaeClaw.home(),
+//                        s_AlgaeClaw.hasAlgae())));
         operator.x()
-            .or(new DashboardTrigger("l2"))
-            .or(buttonBoard.getL2().and(() -> usingButtonBoard))
-            .onTrue(SuperStructure.elevatorToPosition(State.L2));
-
-        operator.y()
-            .or(new DashboardTrigger("l3"))
-            .or(buttonBoard.getL3().and(() -> usingButtonBoard))
-            .onTrue(SuperStructure.elevatorToPosition(State.L3));
-
-
-        operator.a()
-            .or(new DashboardTrigger("l4"))
-            .or(buttonBoard.getL4().and(() -> usingButtonBoard))
-            .onTrue(
-                SuperStructure.elevatorToPosition(State.L4));
-
-        operator.b()
-            .or(new DashboardTrigger("elevatorHome"))
-            .or(buttonBoard.getHome().and(() -> usingButtonBoard))
-            .onTrue(
-//                Commands.either(
-//                    s_Elevator.noSlamCommand().alongWith(Commands.runOnce(() -> Clearances.ClawClearances.hasShot = false)),
-//                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
-//                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
-//                    Clearances.ClawClearances::clearFromReef));
-                Commands.sequence(
-                    Commands.either(
-                        s_AlgaeClaw.catapult(),
-                        s_AlgaeClaw.avoid(),
-                        s_AlgaeClaw.hasAlgae()),
-                    s_Elevator.noSlamCommand(),
-                    Commands.either(
-                        Commands.none(),
-                        s_AlgaeClaw.home(),
-                        s_AlgaeClaw.hasAlgae())));
+            .whileTrue(
+                s_Elevator.applyVolts(new TunableNumber("Elevator/value").get())
+            );
 
         /* ------------- Intake Controls ------------- */
 
