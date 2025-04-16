@@ -16,8 +16,8 @@
   "autoFolders": [
     "2025 Reefscape Autonomous"
   ],
-  "defaultMaxVel": 8.6,
-  "defaultMaxAccel": 6.0,
+  "defaultMaxVel": 5.0,
+  "defaultMaxAccel": 4.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 920.0,
   "defaultNominalVoltage": 12.0,
