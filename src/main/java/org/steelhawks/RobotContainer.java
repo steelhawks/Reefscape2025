@@ -542,8 +542,11 @@ public class RobotContainer {
 //            );
         operator.x()
             .whileTrue(
-                s_Elevator.applyVolts(0.0)
+                s_Elevator.applyVolts(1.0)
             );
+
+        operator.y()
+                .whileTrue(s_Elevator.applyVolts(0.5));
 
         /* ------------- Intake Controls ------------- */
 

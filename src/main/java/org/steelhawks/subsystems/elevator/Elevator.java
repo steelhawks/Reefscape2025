@@ -316,12 +316,13 @@ public class Elevator extends SubsystemBase {
             .finallyDo(io::stop);
     }
 
-    TunableNumber s = new TunableNumber("Elevator/ApplyVolts");
+//    TunableNumber s = new TunableNumber("Elevator/ApplyVolts");
     public Command applyVolts(double volts) {
         return Commands.run(
             () -> {
                 Logger.recordOutput("Elevator/AppliedVolts", volts);
-                io.runElevator(s.getAsDouble());
+//                io.runElevator(s.getAsDouble());
+                io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);
     }
