@@ -322,7 +322,7 @@ public class Elevator extends SubsystemBase {
             () -> {
                 Logger.recordOutput("Elevator/AppliedVolts", volts);
                 io.runElevator(s.getAsDouble());
-                io.runElevator(volts);
+//                io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);
     }
