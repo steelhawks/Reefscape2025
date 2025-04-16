@@ -536,9 +536,13 @@ public class RobotContainer {
 //                        Commands.none(),
 //                        s_AlgaeClaw.home(),
 //                        s_AlgaeClaw.hasAlgae())));
+//        operator.x()
+//            .whileTrue(
+//                s_Elevator.applyVolts(new TunableNumber("Elevator/value").get())
+//            );
         operator.x()
             .whileTrue(
-                s_Elevator.applyVolts(new TunableNumber("Elevator/value").get())
+                s_Elevator.applyVolts(0.0)
             );
 
         /* ------------- Intake Controls ------------- */

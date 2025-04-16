@@ -18,6 +18,7 @@ import org.steelhawks.Clearances;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.util.AlertUtil;
+import org.steelhawks.util.TunableNumber;
 
 import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Volts;
@@ -315,11 +316,12 @@ public class Elevator extends SubsystemBase {
             .finallyDo(io::stop);
     }
 
+    TunableNumber s = new TunableNumber("Elevator/ApplyVolts");
     public Command applyVolts(double volts) {
         return Commands.run(
             () -> {
                 Logger.recordOutput("Elevator/AppliedVolts", volts);
-                io.runElevator(volts);
+                io.runElevator(s.getAsDouble());
             }, this)
             .finallyDo(io::stop);
     }
