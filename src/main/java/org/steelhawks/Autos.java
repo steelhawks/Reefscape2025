@@ -66,8 +66,8 @@ public final class Autos {
         autoChooser.addOption("RC3", getRC3Auton());
         autoChooser.addOption("Center R2", getCenterR2Auton());
         autoChooser.addOption("Center R1", getCenterR1Auton());
-        autoChooser.addOption("Top G", new TopG());
-        autoChooser.addOption("Bottom G", new BottomG());
+//        autoChooser.addOption("Top G", new TopG());
+//        autoChooser.addOption("Bottom G", new BottomG());
 
         /* ------------- Swerve SysId ------------- */
 
