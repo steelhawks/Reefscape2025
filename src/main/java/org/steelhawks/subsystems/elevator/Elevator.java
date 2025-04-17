@@ -275,7 +275,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(this::disable)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT / 1.5), this))
+                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT), this))
         .until(this::limitPressed)
         .finallyDo(
             () -> {
