@@ -191,7 +191,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Trigger atHome() {
-        return new Trigger(this::limitPressed);
+        return new Trigger(() -> limitPressed());
     }
 
     ///////////////////////
@@ -275,9 +275,12 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(this::disable)
             .andThen(
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT / 1.5), this))
-        .until(this::limitPressed)
-        .finallyDo(io::stop)
+                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT / 2.0), this))
+        .until(() -> limitPressed())
+        .finallyDo(() -> {
+            io.stop();
+//            io.zeroEncoders();
+        })
         .withName("Slam Elevator");
     }
 
@@ -285,17 +288,23 @@ public class Elevator extends SubsystemBase {
         return setDesiredState(ElevatorConstants.State.HOME_ABOVE_BAR)
             .andThen(
                 Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME_ABOVE_BAR)),
-                Commands.runOnce(this::disable),
+                Commands.runOnce(() -> disable()),
                 Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
-            .until(this::limitPressed)
-            .finallyDo(io::stop)
+            .until(() -> limitPressed())
+            .finallyDo(() -> {
+                io.stop();
+//                io.zeroEncoders();
+            })
             .withName("No Slam Elevator");
     }
 
     public Command homeCommand() {
         return setDesiredState(ElevatorConstants.State.HOME)
             .until(this::limitPressed)
-            .finallyDo(io::stop)
+            .finallyDo(() -> {
+//                io.zeroEncoders();
+                io.stop();
+            })
             .withName("Home Elevator");
     }
 
