@@ -122,11 +122,11 @@ public class ElevatorConstants {
                 KS = 0.23;
                 KG = 0.166;
                 KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
-                KP = 7.4; // 7
+                KP = 7.0; // 7
                 KI = 0.0;
-                KD = 0.01;
+                KD = 0.0;
                 MAX_VELOCITY_PER_SEC = 30; // 40
-                MAX_ACCELERATION_PER_SEC_SQUARED = 35; // was 60
+                MAX_ACCELERATION_PER_SEC_SQUARED = 25; // was 60
                 TOLERANCE = 0.03;
                 MANUAL_ELEVATOR_INCREMENT = 0.65;
                 MAX_RADIANS = 24; // 24.663
