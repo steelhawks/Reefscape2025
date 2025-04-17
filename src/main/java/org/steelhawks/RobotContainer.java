@@ -144,7 +144,7 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_AlgaeClaw =
                         new AlgaeClaw(
-                            new AlgaeClawIOTalonFX());
+                            new AlgaeClawIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -414,35 +414,36 @@ public class RobotContainer {
 
         driver.leftBumper()
             .whileTrue(
-                Commands.either(
-                    s_Align.alignToClosestReefWithFusedInput(State.L4, driver::getLeftX),
-                    s_Align.alignToSelectedCage(),
-                    endGameMode.negate()));
+                s_Align.alignToClosestReefWithFusedInput(State.L4, driver::getLeftX));
+//                Commands.either(
+//                    s_Align.alignToClosestReefWithFusedInput(State.L4, driver::getLeftX),
+//                    s_Align.alignToSelectedCage(),
+//                    endGameMode.negate()));
 
-        driver.rightBumper()
-            .whileTrue(
-                Commands.defer(
-                    () -> Align.directPathFollow(() -> ReefUtil.getClosestAlgae().getClearancePose(), true),
-                    Set.of(s_Swerve))
-                    .andThen(
-                        s_AlgaeClaw.intake(),
-                        Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                        Commands.either(
-                            s_Elevator.setDesiredState(State.KNOCK_L3),
-                            s_Elevator.setDesiredState(State.KNOCK_L2),
-                            () -> ReefUtil.getClosestAlgae().isOnL3()),
-                        Commands.defer(
-                            () -> Commands.waitUntil(
-                                s_Elevator.atThisGoal(
-                                    ReefUtil.getClosestAlgae().isOnL3()
-                                        ? State.KNOCK_L3
-                                        : State.KNOCK_L2)),
-                            Set.of()),
-                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getRetrievePose()), Set.of(s_Swerve)).until(s_AlgaeClaw.hasAlgae()))
-                .alongWith(s_AlgaeClaw.intakeAlgae()))
-            .onFalse(
-                Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef)
-                    .andThen(SuperStructure.elevatorToPosition(State.HOME)));
+//        driver.rightBumper()
+//            .whileTrue(
+//                Commands.defer(
+//                    () -> Align.directPathFollow(() -> ReefUtil.getClosestAlgae().getClearancePose(), true),
+//                    Set.of(s_Swerve))
+//                    .andThen(
+//                        s_AlgaeClaw.intake(),
+//                        Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+//                        Commands.either(
+//                            s_Elevator.setDesiredState(State.KNOCK_L3),
+//                            s_Elevator.setDesiredState(State.KNOCK_L2),
+//                            () -> ReefUtil.getClosestAlgae().isOnL3()),
+//                        Commands.defer(
+//                            () -> Commands.waitUntil(
+//                                s_Elevator.atThisGoal(
+//                                    ReefUtil.getClosestAlgae().isOnL3()
+//                                        ? State.KNOCK_L3
+//                                        : State.KNOCK_L2)),
+//                            Set.of()),
+//                        Commands.defer(() -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getRetrievePose()), Set.of(s_Swerve)).until(s_AlgaeClaw.hasAlgae()))
+//                .alongWith(s_AlgaeClaw.intakeAlgae()))
+//            .onFalse(
+//                Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef)
+//                    .andThen(SuperStructure.elevatorToPosition(State.HOME)));
 
 //        operator.rightBumper()
 //            .onTrue(
@@ -465,9 +466,9 @@ public class RobotContainer {
             .whileTrue(
                 s_Align.alignToClosestCoralStation(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
 
-        driver.rightTrigger()
-            .whileTrue(
-                s_Align.alignToClosestBargePoint(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
+//        driver.rightTrigger()
+//            .whileTrue(
+//                s_Align.alignToClosestBargePoint(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
     }
 
     private void configureOperator() {
@@ -482,40 +483,35 @@ public class RobotContainer {
 
         operator.leftStick()
             .and(endGameMode.negate())
-            .onTrue(
-                s_AlgaeClaw.avoid()
-                    .andThen(
-                        Commands.waitUntil(
-                            Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam))
-                    .andThen(s_Elevator.toggleManualControl(() -> -operator.getLeftY())));
+            .onTrue(s_Elevator.toggleManualControl(() -> -operator.getLeftY()));
 
-        operator.rightStick()
-            .onTrue(
-                s_AlgaeClaw.toggleManualControl(() -> -operator.getRightY()));
+//        operator.rightStick()
+//            .onTrue(
+//                s_AlgaeClaw.toggleManualControl(() -> -operator.getRightY()));
 
         /* ------------- Elevator Controls ------------- */
 
         operator.leftBumper()
             .or(new DashboardTrigger("l1"))
             .or(buttonBoard.getL1().and(() -> usingButtonBoard))
-            .onTrue(SuperStructure.elevatorToPosition(State.L1));
+            .onTrue(s_Elevator.setDesiredState((State.L1)));
 
         operator.x()
             .or(new DashboardTrigger("l2"))
             .or(buttonBoard.getL2().and(() -> usingButtonBoard))
-            .onTrue(SuperStructure.elevatorToPosition(State.L2));
+            .onTrue(s_Elevator.setDesiredState((State.L2)));
 
         operator.y()
             .or(new DashboardTrigger("l3"))
             .or(buttonBoard.getL3().and(() -> usingButtonBoard))
-            .onTrue(SuperStructure.elevatorToPosition(State.L3));
+            .onTrue(s_Elevator.setDesiredState(State.L3));
 
 
         operator.a()
             .or(new DashboardTrigger("l4"))
             .or(buttonBoard.getL4().and(() -> usingButtonBoard))
             .onTrue(
-                SuperStructure.elevatorToPosition(State.L4));
+                s_Elevator.setDesiredState(State.L4));
 
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
@@ -526,24 +522,7 @@ public class RobotContainer {
 //                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
 //                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
 //                    Clearances.ClawClearances::clearFromReef));
-                Commands.sequence(
-                    Commands.either(
-                        s_AlgaeClaw.catapult(),
-                        s_AlgaeClaw.avoid(),
-                        s_AlgaeClaw.hasAlgae()),
-                    s_Elevator.noSlamCommand()));
-//        operator.x()
-//            .whileTrue(
-//                s_Elevator.applyVolts(new TunableNumber("Elevator/value").get())
-//            );
-//        operator.x()
-//            .whileTrue(
-//                s_Elevator.applyVolts(1.0)
-//            );
-//
-//        operator.y()
-//                .whileTrue(s_Elevator.applyVolts(0.5));
-
+                s_Elevator.setDesiredState(State.HOME));
         /* ------------- Intake Controls ------------- */
 
         operator.leftTrigger()
@@ -566,54 +545,54 @@ public class RobotContainer {
 
         /* ------------- AlgaeClaw Controls ------------- */
 
-        operator.povUp()
-            .onTrue(s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.AVOID));
+//        operator.povUp()
+//            .onTrue(s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.AVOID));
+//
+//        operator.povDown()
+//            .onTrue(
+//                s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL));
 
-        operator.povDown()
-            .onTrue(
-                s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL));
+//        operator.rightBumper()
+//            .onTrue(
+//                Commands.sequence(
+//                    s_AlgaeClaw.intake(),
+//                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+//                    Commands.defer(
+//                        () ->
+//                            Commands.either(
+//                                s_Elevator.setDesiredState(State.KNOCK_L3),
+//                                s_Elevator.setDesiredState(State.KNOCK_L2),
+//                                () -> ReefUtil.getClosestAlgae().isOnL3())
+//                            .andThen(
+//                                Commands.waitUntil(s_Elevator.atThisGoal(
+//                                ReefUtil.getClosestAlgae().isOnL3()
+//                                    ? State.KNOCK_L3
+//                                    : State.KNOCK_L2))),
+//                        Set.of(s_Elevator)),
+//                    new VibrateController(driver)))
+//            .whileTrue(s_AlgaeClaw.intakeAlgae())
+//            .onFalse(
+//                Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef)
+//                    .andThen(
+//                        SuperStructure.elevatorToPosition(State.HOME),
+//                        Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
+//                        Commands.either(
+//                            Commands.none(),
+//                            s_AlgaeClaw.home(),
+//                            s_AlgaeClaw.hasAlgae())));
+//
+//        operator.rightTrigger()
+//            .whileTrue(
+//                Commands.sequence(
+//                    s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PROCESSOR),
+//                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef),
+//                    s_Elevator.setDesiredState(State.HOME),
+//                    Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
+//                    s_AlgaeClaw.outtakeAlgae()));
 
-        operator.rightBumper()
-            .onTrue(
-                Commands.sequence(
-                    s_AlgaeClaw.intake(),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    Commands.defer(
-                        () ->
-                            Commands.either(
-                                s_Elevator.setDesiredState(State.KNOCK_L3),
-                                s_Elevator.setDesiredState(State.KNOCK_L2),
-                                () -> ReefUtil.getClosestAlgae().isOnL3())
-                            .andThen(
-                                Commands.waitUntil(s_Elevator.atThisGoal(
-                                ReefUtil.getClosestAlgae().isOnL3()
-                                    ? State.KNOCK_L3
-                                    : State.KNOCK_L2))),
-                        Set.of(s_Elevator)),
-                    new VibrateController(driver)))
-            .whileTrue(s_AlgaeClaw.intakeAlgae())
-            .onFalse(
-                Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef)
-                    .andThen(
-                        SuperStructure.elevatorToPosition(State.HOME),
-                        Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
-                        Commands.either(
-                            Commands.none(),
-                            s_AlgaeClaw.home(),
-                            s_AlgaeClaw.hasAlgae())));
-
-        operator.rightTrigger()
-            .whileTrue(
-                Commands.sequence(
-                    s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PROCESSOR),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef),
-                    s_Elevator.setDesiredState(State.HOME),
-                    Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
-                    s_AlgaeClaw.outtakeAlgae()));
-
-        operator.povRight()
-            .whileTrue(
-                s_AlgaeClaw.outtakeAlgae());
+//        operator.povRight()
+//            .whileTrue(
+//                s_AlgaeClaw.outtakeAlgae());
 
 //        operator.rightTrigger()
 //            .onTrue(
