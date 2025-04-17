@@ -156,7 +156,7 @@ public class RobotContainer {
                             new DeepClimbIOTalonFX());
                     s_AlgaeClaw =
                         new AlgaeClaw(
-                            new AlgaeClawIOTalonFX());
+                            new AlgaeClawIO() {});
                 }
                 case ALPHABOT -> {
                     s_Swerve =
