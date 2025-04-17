@@ -19,7 +19,7 @@ public class ElevatorConstants {
         PREPARE_CLIMB(0.0, 10.0, 0.0),
         // This is the "HOME" position the elevator goes to, before manually going down to the ACTUAL home position at the bottom bar
         HOME_ABOVE_BAR(0.0, 1.0, 0.0),
-        BARGE(0.0, 24.0, 0.0),
+        BARGE_SCORE(0.0, 24.0, 0.0),
 
         // Algae Knockout Positions
         KNOCK_L2(0.0, 5.0, 0.0),
