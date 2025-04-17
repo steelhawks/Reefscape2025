@@ -47,6 +47,7 @@ public class ElevatorConstants {
     }
 
     public static double CANCODER_OFFSET = 0.229736328125;
+    public static double TIP_THRESHOLD = 10;
 
     public static final int LIMIT_SWITCH_ID;
     public static final int LEFT_ID;
