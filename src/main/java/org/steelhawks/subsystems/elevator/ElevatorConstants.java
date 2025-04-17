@@ -9,9 +9,9 @@ import java.util.Arrays;
 public class ElevatorConstants {
 
     public enum State {
-        L4(59.905784718904, 22.01569226773472, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21
-        L3(35.3237425930366, 13.048040581755263, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687
-        L2(19.376478322177476, 6.958136853849268, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128
+        L4(59.905784718904, 23.299634187195004, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21
+        L3(35.3237425930366, 13.956157208183564, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687
+        L2(19.376478322177476, 8.308039947188632, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128
         L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
         HOME(0.0, 0.0, 0.0),
 
@@ -21,11 +21,8 @@ public class ElevatorConstants {
         HOME_ABOVE_BAR(0.0, 1.0, 0.0),
 
         // Algae Knockout Positions
-        KNOCK_L2(0.0, 0.0, 0.0),
-        KNOCK_L3(0.0, 11.0, 0.0),
-
-        // height to score into the barge
-        BARGE_SCORE(0.0, 24.0, 0.0);
+        KNOCK_L2(0.0, 5.0, 0.0),
+        KNOCK_L3(0.0, 12.038681223326511, 0.0);
 
         private final double alphaRadians;
         private final double omegaRadians;
@@ -49,7 +46,7 @@ public class ElevatorConstants {
         }
     }
 
-    public static double CANCODER_OFFSET = -0.36474609375; // in rotations
+    public static double CANCODER_OFFSET = 0.229736328125;
 
     public static final int LIMIT_SWITCH_ID;
     public static final int LEFT_ID;
@@ -73,7 +70,6 @@ public class ElevatorConstants {
     public static final double MANUAL_ELEVATOR_INCREMENT;
 
     public static final double MAX_RADIANS;
-    public static final double TIP_THRESHOLD;
 
     static {
         switch (Constants.getRobot()) {
@@ -96,7 +92,6 @@ public class ElevatorConstants {
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.65;
                 MAX_RADIANS = 60;
-                TIP_THRESHOLD = MAX_RADIANS / 2.0;
             }
             case HAWKRIDER -> {
                 LIMIT_SWITCH_ID = 0;
@@ -115,7 +110,6 @@ public class ElevatorConstants {
                 TOLERANCE = Units.rotationsToRadians(0.005);
                 MANUAL_ELEVATOR_INCREMENT = 0.5;
                 MAX_RADIANS = 18.5;
-                TIP_THRESHOLD = MAX_RADIANS / 2.0;
             }
             default -> {
                 LIMIT_SWITCH_ID = 0;
@@ -125,17 +119,15 @@ public class ElevatorConstants {
                 GEAR_RATIO = 25;
                 KS = 0.23;
                 KG = 0.166;
-//                KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
-                KV = (1.0 - 0.5) / (1.4603497100671303 - 0.760854470791278);
+                KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
                 KP = 7.6; // 7
                 KI = 0.0;
                 KD = 0.01;
-                MAX_VELOCITY_PER_SEC = 20; // 40
-                MAX_ACCELERATION_PER_SEC_SQUARED = 25; // was 60
+                MAX_VELOCITY_PER_SEC = 30; // 40
+                MAX_ACCELERATION_PER_SEC_SQUARED = 35; // was 60
                 TOLERANCE = 0.03;
-                MANUAL_ELEVATOR_INCREMENT = 0.65;
+                MANUAL_ELEVATOR_INCREMENT = 0.55;
                 MAX_RADIANS = 24; // 24.663
-                TIP_THRESHOLD = 12;
             }
         }
     }
