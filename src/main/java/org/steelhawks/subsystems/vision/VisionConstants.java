@@ -35,7 +35,7 @@ public class VisionConstants {
                 };
             default ->
                 new String[] {
-                    "arducam-front-left",
+//                    "arducam-front-left",
                     "arducam-center-mount",
                     "arducam-center-right",
                     "arducam-back-right",
@@ -61,25 +61,25 @@ public class VisionConstants {
             default ->
                 new Transform3d[] {
                     // FRONT LEFT GEARBOX MOUNT 20250316
-                    new Transform3d(
-                        // Left-Right: 6.841572
-                        // Front-Back: 13.851222
-                        // Up-Down: 10.527559
-                        Units.inchesToMeters(13.851222),
-                        Units.inchesToMeters(6.841572),
-                        Units.inchesToMeters(10.527559),
-                        new Rotation3d(
-                            Units.degreesToRadians(0),
-                            Units.degreesToRadians(10),
-                            Units.degreesToRadians(0))), // Z is from the top of the belly pan
+//                    new Transform3d(
+//                        // Left-Right: 6.841572
+//                        // Front-Back: 13.851222
+//                        // Up-Down: 10.527559
+//                        Units.inchesToMeters(13.851222),
+//                        Units.inchesToMeters(6.841572),
+//                        Units.inchesToMeters(10.527559),
+//                        new Rotation3d(
+//                            Units.degreesToRadians(0),
+//                            Units.degreesToRadians(10),
+//                            Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
                     // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH, 15 DEGREE YAW RIGHT) 20250323
                     new Transform3d(
                         // Left-Right: 0.098023
                         // Front-Back: 3.174653
                         // Up-Down: 6.950909
-                            // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                            // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                        // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                        // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
                         Units.inchesToMeters(3.174653),
                         Units.inchesToMeters(-0.098023),
                         Units.inchesToMeters(6.950909),
@@ -93,8 +93,8 @@ public class VisionConstants {
                         // Left-Right: 9.062338
                         // Front-Back: 3.134462
                         // Up-Down: 6.900835
-                            // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                            // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+                        // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+                        // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
                         Units.inchesToMeters(3.134462),
                         Units.inchesToMeters(-9.062338),
                         Units.inchesToMeters(6.900835),
@@ -108,34 +108,34 @@ public class VisionConstants {
                     //     // Left-Right: 12.656868
                     //     // Front-Back: 11.219128
                     //     // Up-Down: 6.797115
-                    //     Units.inchesToMeters(-11.219128), 
-                    //     Units.inchesToMeters(-12.656868), 
+                    //     Units.inchesToMeters(-11.219128),
+                    //     Units.inchesToMeters(-12.656868),
                     //     Units.inchesToMeters(6.797115),   // Z is from the top of the belly pan
                     //     new Rotation3d(
                     //         Units.degreesToRadians(0),
                     //         Units.degreesToRadians(-15),
                     //         Units.degreesToRadians(-135))),
-                    
+
                     // BACK RIGHT (30 degree yaw, 20250323) (Same mount as previous Front Right from HVR, 20230307)
                     new Transform3d(
                         // Left-Right: 11.365372
                         // Front-Back: 12.783453
                         // Up-Down: 6.763611
-                        Units.inchesToMeters(-12.783453), 
-                        Units.inchesToMeters(-11.365372), 
+                        Units.inchesToMeters(-12.783453),
+                        Units.inchesToMeters(-11.365372),
                         Units.inchesToMeters(6.763611),   // Z is from the top of the belly pan
                         new Rotation3d(
                             Units.degreesToRadians(0),
                             Units.degreesToRadians(0),
                             Units.degreesToRadians(-120))),
-                    
+
                     // ALGAE (Mounted on 1x1 beam running through the robot, such that the camera face is parallel to the reef when scoring algae)
                     new Transform3d(
                         // Left-Right: 10.251 left
                         // Front-Back: 3.650 front
                         // Up-Down: 6.940 up
-                        Units.inchesToMeters(3.650), 
-                        Units.inchesToMeters(10.251), 
+                        Units.inchesToMeters(3.650),
+                        Units.inchesToMeters(10.251),
                         Units.inchesToMeters(6.940),   // Z is from the top of the belly pan
                         new Rotation3d(
                             Units.degreesToRadians(0),
@@ -172,11 +172,11 @@ public class VisionConstants {
                 };
             default ->
                 new double[] {
-                    3.0, // arducam-front-left
+//                    3.0, // arducam-front-left
                     1.0, // arducam-center-mount
                     1.0, // arducam-center-right
                     8.0,  // arducam-back-right
-                    1.0 // arducam-algae
+                    4.0 // arducam-algae
                 };
         };
 
@@ -188,87 +188,87 @@ public class VisionConstants {
 
     // ------------------------------------------------------------ OLD MOUNTS ------------------------------------------------------------------------------
 
-                    // // FRONT LEFT (Arducam has pitch angle)
-                    // new Transform3d(
-                    //     // Left-Right: 11.315133
-                    //     // Front-Back: 11.685378
-                    //     // Up-Down: 6.689
-                    //     Units.inchesToMeters(11.685378),
-                    //     Units.inchesToMeters(11.315133),
-                    //     Units.inchesToMeters(6.689),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(-28.125),
-                    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
+    // // FRONT LEFT (Arducam has pitch angle)
+    // new Transform3d(
+    //     // Left-Right: 11.315133
+    //     // Front-Back: 11.685378
+    //     // Up-Down: 6.689
+    //     Units.inchesToMeters(11.685378),
+    //     Units.inchesToMeters(11.315133),
+    //     Units.inchesToMeters(6.689),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(-28.125),
+    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
 
-                    // // FRONT LEFT (Arducam has NO pitch angle. Printed for HVR on 20250307)
-                    // new Transform3d(
-                    //     // Left-Right: 11.365368
-                    //     // Front-Back: 12.784361
-                    //     // Up-Down: 6.763611
-                    //     Units.inchesToMeters(12.784361),
-                    //     Units.inchesToMeters(11.365368),
-                    //     Units.inchesToMeters(6.763611),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(60.036534))), // Z is from the top of the belly pan
+    // // FRONT LEFT (Arducam has NO pitch angle. Printed for HVR on 20250307)
+    // new Transform3d(
+    //     // Left-Right: 11.365368
+    //     // Front-Back: 12.784361
+    //     // Up-Down: 6.763611
+    //     Units.inchesToMeters(12.784361),
+    //     Units.inchesToMeters(11.365368),
+    //     Units.inchesToMeters(6.763611),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(60.036534))), // Z is from the top of the belly pan
 
-                    // // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
-                    // new Transform3d(
-                    //     // Left-Right: 11.315133
-                    //     // Front-Back: 12.192615
-                    //     // Up-Down: 6.657998
-                    //     Units.inchesToMeters(12.192615),
-                    //     Units.inchesToMeters(11.315133),
-                    //     Units.inchesToMeters(6.657998),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
+    // // FRONT LEFT (Arducam has NO pitch angle and NO yaw angle. Printed for HVR on 20250308)
+    // new Transform3d(
+    //     // Left-Right: 11.315133
+    //     // Front-Back: 12.192615
+    //     // Up-Down: 6.657998
+    //     Units.inchesToMeters(12.192615),
+    //     Units.inchesToMeters(11.315133),
+    //     Units.inchesToMeters(6.657998),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0))), // Z is from the top of the belly pan
 
-                    // // FRONT RIGHT (Arducam has pitch angle)
-                    // new Transform3d(
-                    //     // Left-Right: 10.975
-                    //     // Front-Back: 12.556
-                    //     // Up-Down: 6.689
-                    //     Units.inchesToMeters(12.556),
-                    //     Units.inchesToMeters(-10.975),
-                    //     Units.inchesToMeters(6.689),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(15),
-                    //         Units.degreesToRadians(-28.125),
-                    //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
+    // // FRONT RIGHT (Arducam has pitch angle)
+    // new Transform3d(
+    //     // Left-Right: 10.975
+    //     // Front-Back: 12.556
+    //     // Up-Down: 6.689
+    //     Units.inchesToMeters(12.556),
+    //     Units.inchesToMeters(-10.975),
+    //     Units.inchesToMeters(6.689),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(15),
+    //         Units.degreesToRadians(-28.125),
+    //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
 
-                    // // FRONT RIGHT (Arducam has NO pitch angle. Printed for HVR on 20250307)
-                    // new Transform3d(
-                    //     // Left-Right: 11.559949
-                    //     // Front-Back: 12.071904
-                    //     // Up-Down: 6.763611
-                    //     Units.inchesToMeters(12.071904),
-                    //     Units.inchesToMeters(-11.559949),
-                    //     Units.inchesToMeters(6.763611),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(-30))), // Z is from the top of the belly pan
+    // // FRONT RIGHT (Arducam has NO pitch angle. Printed for HVR on 20250307)
+    // new Transform3d(
+    //     // Left-Right: 11.559949
+    //     // Front-Back: 12.071904
+    //     // Up-Down: 6.763611
+    //     Units.inchesToMeters(12.071904),
+    //     Units.inchesToMeters(-11.559949),
+    //     Units.inchesToMeters(6.763611),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(-30))), // Z is from the top of the belly pan
 
-                    // // FRONT RIGHT 
-                    // new Transform3d(
-                    //     // Left-Right: 11.365372
-                    //     // Front-Back: 12.783453
-                    //     // Up-Down: 6.763611
-                    //     Units.inchesToMeters(12.783453),
-                    //     Units.inchesToMeters(-11.365372),
-                    //     Units.inchesToMeters(6.763611),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
+    // // FRONT RIGHT
+    // new Transform3d(
+    //     // Left-Right: 11.365372
+    //     // Front-Back: 12.783453
+    //     // Up-Down: 6.763611
+    //     Units.inchesToMeters(12.783453),
+    //     Units.inchesToMeters(-11.365372),
+    //     Units.inchesToMeters(6.763611),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(-60))), // Z is from the top of the belly pan
 
 
-                    // BACK LEFT
+    // BACK LEFT
 //                    new Transform3d(
 //                        // Left-Right: 12.556
 //                        // Front-Back: 10.976
@@ -281,7 +281,7 @@ public class VisionConstants {
 //                            Units.degreesToRadians(-28.125),
 //                            Units.degreesToRadians(-210))),
 
-                    // ELEVATOR MOUNT
+    // ELEVATOR MOUNT
 //                    new Transform3d(
 //                        // Left-Right: 0
 //                        // Front-Back: 13.583
@@ -294,63 +294,63 @@ public class VisionConstants {
 //                            Units.degreesToRadians(-45),
 //                            Units.degreesToRadians(0))),
 
-                    // // BRIDGE MOUNT, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
-                    // new Transform3d(
-                    //     // Left-Right: 2.000679
-                    //     // Front-Back: 10.862403
-                    //     // Up-Down: 8.312102
-                    //     Units.inchesToMeters(-10.862403),
-                    //     Units.inchesToMeters(-2.000679),
-                    //     Units.inchesToMeters(8.312102),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(8.5),
-                    //         Units.degreesToRadians(-15),
-                    //         Units.degreesToRadians(-150))),
+    // // BRIDGE MOUNT, the arducam that's hanging off the bottom beam connecting the elevator to the superstructure
+    // new Transform3d(
+    //     // Left-Right: 2.000679
+    //     // Front-Back: 10.862403
+    //     // Up-Down: 8.312102
+    //     Units.inchesToMeters(-10.862403),
+    //     Units.inchesToMeters(-2.000679),
+    //     Units.inchesToMeters(8.312102),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(8.5),
+    //         Units.degreesToRadians(-15),
+    //         Units.degreesToRadians(-150))),
 
-                    // // BEAM MOUNT, the arducam that's hanging off of the beam supporting the funnel
-                    // new Transform3d(
-                    //     // Left-Right: 2.312500
-                    //     // Front-Back: 14.622078
-                    //     // Up-Down: 24.062500
-                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                    //     Units.inchesToMeters(-14.622078),
-                    //     Units.inchesToMeters(2.312500),
-                    //     Units.inchesToMeters(24.062500),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(-180))),
+    // // BEAM MOUNT, the arducam that's hanging off of the beam supporting the funnel
+    // new Transform3d(
+    //     // Left-Right: 2.312500
+    //     // Front-Back: 14.622078
+    //     // Up-Down: 24.062500
+    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+    //     Units.inchesToMeters(-14.622078),
+    //     Units.inchesToMeters(2.312500),
+    //     Units.inchesToMeters(24.062500),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(-180))),
 
-                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)
-                    // new Transform3d(
-                    //     // Left-Right: 0
-                    //     // Front-Back: 4.150 - 1.00 = 3.15
-                    //     // Up-Down: 5.5 + 1.25 = 6.75
-                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                    //     Units.inchesToMeters(3.15),
-                    //     Units.inchesToMeters(0),
-                    //     Units.inchesToMeters(6.75),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(0)))
+    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (NO PITCH)
+    // new Transform3d(
+    //     // Left-Right: 0
+    //     // Front-Back: 4.150 - 1.00 = 3.15
+    //     // Up-Down: 5.5 + 1.25 = 6.75
+    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+    //     Units.inchesToMeters(3.15),
+    //     Units.inchesToMeters(0),
+    //     Units.inchesToMeters(6.75),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(0)))
 
-                    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)
-                    // new Transform3d(
-                    //     // Left-Right: 0
-                    //     // Front-Back: 2.932785
-                    //     // Up-Down: 6.886101
-                    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
-                    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                    //     Units.inchesToMeters(2.932785),
-                    //     Units.inchesToMeters(0),
-                    //     Units.inchesToMeters(6.886101),
-                    //     new Rotation3d(
-                    //         Units.degreesToRadians(0),
-                    //         Units.degreesToRadians(-15),
-                    //         Units.degreesToRadians(0))),
+    // // CENTER MOUNT, the arducam that's placed on the beam inside the robot (15 DEGREE PITCH)
+    // new Transform3d(
+    //     // Left-Right: 0
+    //     // Front-Back: 2.932785
+    //     // Up-Down: 6.886101
+    //         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
+    //         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
+    //     Units.inchesToMeters(2.932785),
+    //     Units.inchesToMeters(0),
+    //     Units.inchesToMeters(6.886101),
+    //     new Rotation3d(
+    //         Units.degreesToRadians(0),
+    //         Units.degreesToRadians(-15),
+    //         Units.degreesToRadians(0))),
 
 
 }
