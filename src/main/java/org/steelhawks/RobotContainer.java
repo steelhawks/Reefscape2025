@@ -531,11 +531,7 @@ public class RobotContainer {
                         s_AlgaeClaw.catapult(),
                         s_AlgaeClaw.avoid(),
                         s_AlgaeClaw.hasAlgae()),
-                    s_Elevator.noSlamCommand(),
-                    Commands.either(
-                        Commands.none(),
-                        s_AlgaeClaw.home(),
-                        s_AlgaeClaw.hasAlgae())));
+                    s_Elevator.noSlamCommand()));
 //        operator.x()
 //            .whileTrue(
 //                s_Elevator.applyVolts(new TunableNumber("Elevator/value").get())

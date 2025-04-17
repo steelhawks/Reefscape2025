@@ -143,6 +143,10 @@ public class Elevator extends SubsystemBase {
                 && Math.signum(inputs.encoderVelocityRadPerSec) == -1;
         Logger.recordOutput("Elevator/EStopped", shouldEStop);
 
+        if (limitPressed()) {
+            io.zeroEncoders();
+        }
+
         if (shouldEStop) {
             io.stop();
             disable();
