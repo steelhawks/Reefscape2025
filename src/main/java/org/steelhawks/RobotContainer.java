@@ -338,8 +338,6 @@ public class RobotContainer {
 
         new Alert("Orange Pi 1 is not connected", AlertType.kError).set(!orangePi1Connected);
         new Alert("Orange Pi 2 is not connected", AlertType.kError).set(!orangePi2Connected);
-
-        s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
     }
 
     private void configureTriggers() {
