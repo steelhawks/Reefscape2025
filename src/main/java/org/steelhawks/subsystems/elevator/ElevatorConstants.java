@@ -125,7 +125,7 @@ public class ElevatorConstants {
                 KP = 7.0; // 7
                 KI = 0.0;
                 KD = 0.0;
-                MAX_VELOCITY_PER_SEC = 30; // 40
+                MAX_VELOCITY_PER_SEC = 40; // 40
                 MAX_ACCELERATION_PER_SEC_SQUARED = 25; // was 60
                 TOLERANCE = 0.03;
                 MANUAL_ELEVATOR_INCREMENT = 0.65;
