@@ -517,7 +517,7 @@ public class RobotContainer {
 //                    s_LED.flashCommand(LEDColor.RED, 0.1, 0.5)
 //                        .alongWith(new VibrateController(operator)).withInterruptBehavior(InterruptionBehavior.kCancelSelf),
 //                    Clearances.ClawClearances::clearFromReef));
-                s_Elevator.setDesiredState(State.HOME));
+                s_Elevator.noSlamCommand());
         /* ------------- Intake Controls ------------- */
 
         operator.leftTrigger()
