@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 public class SwerveDriveAlignment extends Command {
 
     protected static final double XY_TOLERANCE = Units.inchesToMeters(1.0);
-    protected static final double THETA_TOLERANCE = Units.degreesToRadians(5);
+    protected static final double THETA_TOLERANCE = Units.degreesToRadians(3);
     protected static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
     protected static final double SWERVE_DEADBAND = 0.05;
 
