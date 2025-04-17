@@ -603,15 +603,24 @@ public class RobotContainer {
                             s_AlgaeClaw.hasAlgae())));
 
         operator.rightTrigger()
-            .onTrue(
-                Commands.sequence(
-                    s_AlgaeClaw.catapult(),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromBarge),
-                    s_Elevator.setDesiredState(State.BARGE_SCORE)))
             .whileTrue(
-                Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE))
-                    .andThen(s_AlgaeClaw.outtakeAlgae()))
-            .onFalse(SuperStructure.elevatorToPosition(State.HOME));
+                Commands.sequence(
+                    s_AlgaeClaw.setDesiredState(AlgaeClawConstants.AlgaeClawState.PROCESSOR),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef),
+                    s_Elevator.setDesiredState(State.HOME),
+                    Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
+                    s_AlgaeClaw.outtakeAlgae()));
+
+//        operator.rightTrigger()
+//            .onTrue(
+//                Commands.sequence(
+//                    s_AlgaeClaw.catapult(),
+//                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+//                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromBarge),
+//                    s_Elevator.setDesiredState(State.BARGE_SCORE)))
+//            .whileTrue(
+//                Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE))
+//                    .andThen(s_AlgaeClaw.outtakeAlgae()))
+//            .onFalse(SuperStructure.elevatorToPosition(State.HOME));
     }
 }

@@ -14,7 +14,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.SuperStructure;
 import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.commands.autos.BottomG;
-import org.steelhawks.commands.autos.RC2;
 import org.steelhawks.commands.autos.TopG;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
@@ -65,7 +64,8 @@ public final class Autos {
         autoChooser.addOption("RC1", getRC1Auton());
         autoChooser.addOption("RC2", getRC2Auton());
         autoChooser.addOption("RC3", getRC3Auton());
-        autoChooser.addOption("Center", getCenterAuton());
+        autoChooser.addOption("Center R2", getCenterR2Auton());
+        autoChooser.addOption("Center R1", getCenterR1Auton());
         autoChooser.addOption("Top G", new TopG());
         autoChooser.addOption("Bottom G", new BottomG());
 
@@ -320,10 +320,16 @@ public final class Autos {
         return Commands.none();
     }
 
-    public static Command getCenterAuton() {
+    public static Command getCenterR2Auton() {
         return createAuto(StartEndPosition.CENTER,
             "Center to R2"
             ).withName("CENTER");
+    }
+
+    public static Command getCenterR1Auton() {
+        return createAuto(StartEndPosition.CENTER,
+            "Center to R1"
+        ).withName("CENTER");
     }
 
     public static Command getAuto() {

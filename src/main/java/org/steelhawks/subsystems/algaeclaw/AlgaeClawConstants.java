@@ -9,6 +9,7 @@ public class AlgaeClawConstants {
     public enum AlgaeClawState {
         HOME(-1.5),
         AVOID(-1.0),
+        PROCESSOR(-0.8),
         PARALLEL(0.0),
         INTAKE(-Math.PI / 4),
         CATAPULT(0.6);
