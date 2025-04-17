@@ -180,7 +180,8 @@ public class Robot extends LoggedRobot {
             Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
         Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
 
-        updateSimPoseVisualizer();
+        if (Constants.getRobot() == SIMBOT)
+            updateSimPoseVisualizer();
     }
 
     private void updateSimPoseVisualizer() {
