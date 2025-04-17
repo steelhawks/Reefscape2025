@@ -611,6 +611,10 @@ public class RobotContainer {
                     Commands.waitUntil(s_Elevator.atThisGoal(State.HOME)),
                     s_AlgaeClaw.outtakeAlgae()));
 
+        operator.povRight()
+            .whileTrue(
+                s_AlgaeClaw.outtakeAlgae());
+
 //        operator.rightTrigger()
 //            .onTrue(
 //                Commands.sequence(
