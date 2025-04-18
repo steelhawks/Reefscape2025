@@ -10,8 +10,8 @@ public class ElevatorConstants {
 
     public enum State {
         L4(59.905784718904, 23.299634187195004, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21
-        L3(35.3237425930366, 13.956157208183564, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687
-        L2(19.376478322177476, 8.308039947188632, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128
+        L3(35.3237425930366, 12.988215331027725, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687
+        L2(19.376478322177476, 7.059379585849721, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128
         L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
         HOME(0.0, 0.0, 0.0),
 
