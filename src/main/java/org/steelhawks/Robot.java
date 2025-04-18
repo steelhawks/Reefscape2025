@@ -176,9 +176,9 @@ public class Robot extends LoggedRobot {
         // Return to normal thread priority
         Threads.setCurrentThreadPriority(false, 10);
 
-        if (Constants.getRobot() != ALPHABOT)
-            Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
-        Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
+//        if (Constants.getRobot() != ALPHABOT)
+//            Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
+//        Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
 
         if (Constants.getRobot() == SIMBOT)
             updateSimPoseVisualizer();
