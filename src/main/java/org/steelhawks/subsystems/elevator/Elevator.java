@@ -289,7 +289,7 @@ public class Elevator extends SubsystemBase {
     public Command noSlamCommand() {
         return setDesiredState(ElevatorConstants.State.HOME_ABOVE_BAR)
             .andThen(
-                Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME)),
+                Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME_ABOVE_BAR)),
                 Commands.runOnce(this::disable),
                 Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
             .until(this::limitPressed)
