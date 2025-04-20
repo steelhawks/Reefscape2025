@@ -47,15 +47,6 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         motionMagicVoltage = new MotionMagicVoltage(0.0);
 
         var config = new TalonFXConfiguration()
-//            .withSlot0(
-//                new Slot0Configs()
-//                    .withGravityType(GravityTypeValue.Arm_Cosine)
-//                    .withKS(AlgaeClawConstants.PIVOT_KS)
-//                    .withKG(AlgaeClawConstants.PIVOT_KG)
-//                    .withKV(AlgaeClawConstants.PIVOT_KV)
-//                    .withKP(AlgaeClawConstants.PIVOT_KP)
-//                    .withKI(AlgaeClawConstants.PIVOT_KI)
-//                    .withKD(AlgaeClawConstants.PIVOT_KD))
             .withMotorOutput(
                 new MotorOutputConfigs()
                     .withNeutralMode(NeutralModeValue.Brake)
@@ -63,12 +54,6 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
             .withFeedback(
                 new FeedbackConfigs()
                     .withRemoteCANcoder(mPivotEncoder));
-//            .withMotionMagic(
-//                new MotionMagicConfigs()
-//                    .withMotionMagicCruiseVelocity(AlgaeClawConstants.MAX_VELOCITY)
-//                    .withMotionMagicAcceleration(AlgaeClawConstants.MAX_ACCELERATION)
-//                    .withMotionMagicJerk(AlgaeClawConstants.MAX_JERK));
-//        tryUntilOk(5, () -> mPivotMotor.getConfigurator().apply(config));
         mPivotMotor.getConfigurator().apply(config);
 
         var encoderConfig = new CANcoderConfiguration()
