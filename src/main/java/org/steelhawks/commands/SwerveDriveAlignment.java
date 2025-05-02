@@ -54,14 +54,16 @@ public class SwerveDriveAlignment extends Command {
 
         mController =
             new SwerveDriveController(
-                new PIDController(
+                new ProfiledPIDController(
                     AutonConstants.ALIGN_PID.kP,
                     AutonConstants.ALIGN_PID.kI,
-                    AutonConstants.ALIGN_PID.kD),
-                new PIDController(
+                    AutonConstants.ALIGN_PID.kD,
+                    AutonConstants.ALIGN_CONSTRAINTS),
+                new ProfiledPIDController(
                     AutonConstants.ALIGN_PID.kP,
                     AutonConstants.ALIGN_PID.kI,
-                    AutonConstants.ALIGN_PID.kD),
+                    AutonConstants.ALIGN_PID.kD,
+                    AutonConstants.ALIGN_CONSTRAINTS),
                 new ProfiledPIDController(
                     AutonConstants.ALIGN_ANGLE_PID.kP,
                     AutonConstants.ALIGN_ANGLE_PID.kI,
@@ -97,6 +99,7 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void initialize() {
         startingPose = s_Swerve.getPose();
+        mController.reset(startingPose);
         s_Swerve.setPathfinding(true);
     }
 

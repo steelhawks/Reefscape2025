@@ -3,6 +3,7 @@ package org.steelhawks;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -41,7 +42,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -177,7 +178,11 @@ public final class Constants {
         private static final double ALIGN_KP;
         private static final double ALIGN_KI;
         private static final double ALIGN_KD;
+        private static final double MAX_TRANSLATION_VELOCITY;
+        private static final double MAX_TRANSLATION_ACCELERATION;
         public static final PIDConstants ALIGN_PID;
+        public static final TrapezoidProfile.Constraints ALIGN_CONSTRAINTS;
+
 
         private static final double ALIGN_ANGLE_KP;
         private static final double ALIGN_ANGLE_KI;
@@ -209,6 +214,8 @@ public final class Constants {
                     ALIGN_KP = 5.0;
                     ALIGN_KI = 0.0;
                     ALIGN_KD = 0.0;
+                    MAX_TRANSLATION_VELOCITY = 5.0;
+                    MAX_TRANSLATION_ACCELERATION = 5.0;
                     ALIGN_ANGLE_KP = 3.0;
                     ALIGN_ANGLE_KI = 0.0;
                     ALIGN_ANGLE_KD = 0.0;
@@ -230,6 +237,8 @@ public final class Constants {
                     ALIGN_KP = 5.0;
                     ALIGN_KI = 0.0;
                     ALIGN_KD = 0.0;
+                    MAX_TRANSLATION_VELOCITY = 5.0;
+                    MAX_TRANSLATION_ACCELERATION = 5.0;
                     ALIGN_ANGLE_KP = 3.0;
                     ALIGN_ANGLE_KI = 0.0;
                     ALIGN_ANGLE_KD = 0.0;
@@ -251,6 +260,8 @@ public final class Constants {
                     ALIGN_KP = 5.0;
                     ALIGN_KI = 0.0;
                     ALIGN_KD = 0.1;
+                    MAX_TRANSLATION_VELOCITY = 5.0;
+                    MAX_TRANSLATION_ACCELERATION = 6.0;
                     ALIGN_ANGLE_KP = 3.0;
                     ALIGN_ANGLE_KI = 0.0;
                     ALIGN_ANGLE_KD = 0.0;
@@ -272,6 +283,7 @@ public final class Constants {
             TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
             ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
             ALIGN_PID = new PIDConstants(ALIGN_KP, ALIGN_KI, ALIGN_KD);
+            ALIGN_CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_TRANSLATION_VELOCITY, MAX_TRANSLATION_ACCELERATION);
             ALIGN_ANGLE_PID = new PIDConstants(ALIGN_ANGLE_KP, ALIGN_ANGLE_KI, ALIGN_ANGLE_KD);
             ANGLE_PID = new PIDConstants(ANGLE_KP, ANGLE_KI, ANGLE_KD);
         }
