@@ -133,10 +133,6 @@ public class Align extends VirtualSubsystem {
             .andThen(new SwerveDriveAlignment(goal, endsWhenAligned));
     }
 
-    public static Command directPathFollow(Supplier<Pose2d> goal) {
-        return directPathFollow(goal, false);
-    }
-
     public Command forwardUntil(Rotation2d angle) {
         return Commands.run(
             () -> {
@@ -202,19 +198,23 @@ public class Align extends VirtualSubsystem {
 
     public Command alignToClosestReef(ElevatorConstants.State level) {
         return Commands.defer(
-            () -> directPathFollow(() -> ReefUtil.getClosestCoralBranch().getScorePose(level)),
+            () -> directPathFollow(() -> ReefUtil.getClosestCoralBranch().getScorePose(level), false),
             Set.of(s_Swerve));
     }
 
     public Command alignToClosestReefWithFusedInput(ElevatorConstants.State level, DoubleSupplier joystickAxis) {
+        return alignToClosestReefWithFusedInput(level, joystickAxis, false);
+    }
+
+    public Command alignToClosestReefWithFusedInput(ElevatorConstants.State level, DoubleSupplier joystickAxis, boolean endsWhenAligned) {
         return Commands.defer(
-            () -> directPathFollow(() -> ReefUtil.getCoralBranchWithFusedDriverInput(joystickAxis).get().getScorePose(level)),
+            () -> new SwerveDriveAlignment(() -> ReefUtil.getCoralBranchWithFusedDriverInput(joystickAxis).get().getScorePose(level), endsWhenAligned),
             Set.of(s_Swerve));
     }
 
     public Command alignToClosestAlgae() {
         return Commands.defer(
-            () -> directPathFollow(() -> ReefUtil.getClosestAlgae().getRetrievePose()),
+            () -> directPathFollow(() -> ReefUtil.getClosestAlgae().getRetrievePose(), false),
             Set.of(s_Swerve));
     }
 
@@ -246,7 +246,7 @@ public class Align extends VirtualSubsystem {
 
     public Command alignToCage(FieldConstants.Cage cage) {
         return Commands.defer(
-            () -> directPathFollow(cage::getClimbPose)
+            () -> directPathFollow(cage::getClimbPose, true)
                 .andThen(
                     Commands.run(
                             () -> s_Swerve.runVelocity(

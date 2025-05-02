@@ -3,9 +3,10 @@ package org.steelhawks.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.steelhawks.Clearances;
+import org.steelhawks.ReefUtil;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
+import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
@@ -22,6 +23,7 @@ public class SuperStructure {
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
     private static final Claw s_Claw = RobotContainer.s_Claw;
     private static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
+    private static final Align s_Align = RobotContainer.s_Align;
 
     public static Command elevatorToPosition(ElevatorConstants.State state) {
         return Commands.sequence(
@@ -33,19 +35,28 @@ public class SuperStructure {
             s_Elevator.setDesiredState(state));
     }
 
-    public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis) {
+    public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.sequence(
-            RobotContainer.s_Align.alignToClosestReefWithFusedInput(state, joystickAxis),
-            s_Elevator.setDesiredState(state),
-            Commands.waitUntil(s_Elevator.atThisGoal(state)),
             Commands.either(
-                s_Claw.shootCoralSlow(),
-                s_Claw.shootCoral(),
-                () ->
-                    (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                        s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
-                .alongWith(LED.getInstance().flashCommand(LED.LEDColor.WHITE, 0.2, 2.0).repeatedly()).until(s_Claw.hasCoral().negate()),
-            Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
-            s_Elevator.noSlamCommand());
+                s_Align.alignToClosestReefWithFusedInput(state, joystickAxis, true),
+                Commands.none(),
+                () -> s_Swerve.getPose().getTranslation()
+                    .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
+            s_Elevator.setDesiredState(state),
+            Commands.either(
+                Commands.sequence(
+                    Commands.waitUntil(s_Elevator.atThisGoal(state)),
+                    Commands.either(
+                        s_Claw.shootCoralSlow(),
+                        s_Claw.shootCoral(),
+                        () ->
+                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()),
+                        Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
+                    s_Elevator.noSlamCommand()),
+                Commands.none(),
+                () -> s_Swerve.getPose().getTranslation()
+                    .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))
+            .onlyWhile(() -> Math.abs(joystickAxisToCancel.getAsDouble()) < 0.3);
     }
 }

@@ -392,20 +392,21 @@ public class RobotContainer {
 
         driver.leftBumper()
             .or(new DashboardTrigger("l1"))
-            .onTrue(SuperStructure.scoringSequence(State.L1, driver::getLeftX));
+            .onTrue(SuperStructure.scoringSequence(State.L1, driver::getLeftX, driver::getLeftY));
 
         driver.x()
             .or(new DashboardTrigger("l2"))
-            .onTrue(SuperStructure.scoringSequence(State.L2, driver::getLeftX));
+            .onTrue(SuperStructure.scoringSequence(State.L2, driver::getLeftX, driver::getLeftY));
+
 
         driver.y()
             .or(new DashboardTrigger("l3"))
-            .onTrue(SuperStructure.scoringSequence(State.L3, driver::getLeftX));
+            .onTrue(SuperStructure.scoringSequence(State.L3, driver::getLeftX, driver::getLeftY));
 
 
         driver.a()
             .or(new DashboardTrigger("l4"))
-            .onTrue(SuperStructure.scoringSequence(State.L4, driver::getLeftX));
+            .onTrue(SuperStructure.scoringSequence(State.L4, driver::getLeftX, driver::getLeftY));
 
         driver.b()
             .or(new DashboardTrigger("elevatorHome"))
