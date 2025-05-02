@@ -1,6 +1,7 @@
 package org.steelhawks;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.Elevator;
@@ -15,10 +16,16 @@ public class Clearances {
     private static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
 
     public final static class ClawClearances {
+        private static final double DIST_TO_BE_CLEAR_FROM_REEF = Units.inchesToMeters(3.0);
         public static boolean hasShot = false;
 
+//        public static boolean isClearFromReef() {
+//            return s_Claw.hasCoral().getAsBoolean() || !hasShot;
+//        }
+
         public static boolean isClearFromReef() {
-            return s_Claw.hasCoral().getAsBoolean() || !hasShot;
+            return ReefUtil.getClosestAlgae().getRetrievePose().getTranslation()
+                .getDistance(s_Swerve.getPose().getTranslation()) >= DIST_TO_BE_CLEAR_FROM_REEF;
         }
     }
 
