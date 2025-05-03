@@ -1,6 +1,5 @@
 package org.steelhawks.util;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -43,14 +42,12 @@ public class SwerveDriveController {
 
     public ChassisSpeeds getOutput(Pose2d measurement, Pose2d setpoint) {
         if (firstRun) {
-            thetaController.reset(measurement.getRotation().getRadians());
-            xController.reset(measurement.getTranslation().getX());
-            yController.reset(measurement.getTranslation().getY());
+            reset(measurement);
             firstRun = false;
         }
 
-//        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(measurement.getRotation().getRadians());
-//        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(measurement.getRotation().getRadians());
+//        double xFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.cos(setpoint.getRotation().getRadians());
+//        double yFF = AutonConstants.MAX_VELOCITY_METERS_PER_SECOND * Math.sin(setpoint.getRotation().getRadians());
         double xFF = 0, yFF = 0;
         Logger.recordOutput("SwerveDriveController/FeedforwardX/" + instanceCount, xFF);
         Logger.recordOutput("SwerveDriveController/FeedforwardY/" + instanceCount, yFF);
