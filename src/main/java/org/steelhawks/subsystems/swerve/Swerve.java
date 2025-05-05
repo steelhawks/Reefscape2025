@@ -239,7 +239,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public static SwerveDriveSimulation getDriveSimulation() {
-        return RobotBase.isSimulation() ? DRIVE_SIMULATION : null;
+        return DRIVE_SIMULATION;
     }
 
     public void updatePhysicsSimulation() {

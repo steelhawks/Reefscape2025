@@ -49,6 +49,7 @@ public class RobotContainer {
     private final Trigger endGameMode;
     private boolean deepClimbMode = false;
 
+    private final ReefVisualizer s_ReefVisualizer = new ReefVisualizer();
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
     public static Vision s_Vision;
