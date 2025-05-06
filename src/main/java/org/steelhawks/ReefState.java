@@ -1,5 +1,6 @@
 package org.steelhawks;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import org.steelhawks.ReefUtil.CoralBranch;
@@ -228,50 +229,49 @@ public class ReefState extends VirtualSubsystem {
     }
 
     /**
-     * pick next branch on “best” level.
+     * Find the next best branch to score:
+     * highest reef‑level first (L4→L3→L2)
+     * then minimal travel distance
      */
-    public String[] getNextToggle() {
-        // find level with lowest count that’s available
-        int bestLevel = -1, min = Integer.MAX_VALUE;
-        for (int lvl = 2; lvl <= 4; lvl++) {
-            int cnt = getCountForLevel(lvl);
-            if (cnt < min) {
-                min = cnt;
-                bestLevel = lvl;
+    public ScoreGoal getNextBestScorePosition() {
+        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
+
+        ScoreGoal best = null;
+        int bestLevelPrio = Integer.MAX_VALUE;
+        double bestDist = Double.MAX_VALUE;
+
+        for (String reefName : REEF_NAMES) {
+            boolean[] arr = coralMap.get(reefName);
+            for (int idx = 0; idx < arr.length; idx++) {
+                if (!arr[idx]) {
+                    // idx 0→L4, 1→L3, 2→L2
+                    int levelPrio = idx;
+                    ElevatorConstants.State state =
+                        (idx == 0 ? ElevatorConstants.State.L4
+                            : idx == 1 ? ElevatorConstants.State.L3
+                            : ElevatorConstants.State.L2);
+
+                    // branch code "L1","TL2", etc.
+                    String code = toBranchCode(reefName);
+                    CoralBranch branch = CoralBranch.valueOf(code);
+
+                    // distance from robot to that branch
+                    Pose2d branchPose = branch.getBranchPoseProjectedToReefFace();
+                    double dist = robotPose.getTranslation()
+                        .getDistance(branchPose.getTranslation());
+
+                    // choose if better level, or same level but closer
+                    if (levelPrio < bestLevelPrio ||
+                        (levelPrio == bestLevelPrio && dist < bestDist)) {
+                        bestLevelPrio = levelPrio;
+                        bestDist = dist;
+                        best = new ScoreGoal(state, branch);
+                    }
+                }
             }
         }
-        if (bestLevel < 2) return null;
-        int idx = bestLevel == 4 ? 0 : bestLevel == 3 ? 1 : 2;
-        // find any reefName where coralMap.get(name)[idx]==false
-        for (String name : REEF_NAMES) {
-            if (!coralMap.get(name)[idx]) {
-                return new String[]{name, String.valueOf(idx)};
-            }
-        }
-        return null;
-    }
 
-    public ScoreGoal getNextBestBranch() {
-        ArrayList<CoralBranch> sortedByDistance = new ArrayList<>(Arrays.asList(CoralBranch.values()));
-        sortedByDistance.sort((b1, b2) -> {
-            double d1 = RobotContainer.s_Swerve.getPose()
-                .minus(b1.getBranchPoseProjectedToReefFace())
-                .getTranslation()
-                .getNorm();
-            double d2 = RobotContainer.s_Swerve.getPose()
-                .minus(b2.getBranchPoseProjectedToReefFace())
-                .getTranslation()
-                .getNorm();
-            return Double.compare(d1, d2);
-        });
-
-        // Find first unscored branch
-//        for (CoralBranch branch : sortedByDistance) {
-//            get
-//            branch.name()
-//        }
-
-        return null;
+        return best;  // null if everything already scored
     }
 
     // getters for dashboard
@@ -287,5 +287,6 @@ public class ReefState extends VirtualSubsystem {
         return coop;
     }
 
-    public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) { }
+    public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) {
+    }
 }
