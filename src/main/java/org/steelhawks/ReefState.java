@@ -1,13 +1,12 @@
 package org.steelhawks;
 
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import org.steelhawks.ReefUtil.CoralBranch;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.VirtualSubsystem;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ReefState extends VirtualSubsystem {
     private static final String[] REEF_NAMES = {
@@ -18,6 +17,34 @@ public class ReefState extends VirtualSubsystem {
         "bottomRightOne", "bottomRightTwo",
         "bottomLeftOne", "bottomLeftTwo"
     };
+
+    private static final String[] levels = {
+        "L4",
+        "L3",
+        "L2"
+    };
+
+    private static final Map<String,String> BRANCH_CODE = Map.ofEntries(
+        Map.entry("leftOne", "L1"),
+        Map.entry("leftTwo", "L2"),
+        Map.entry("topLeftOne", "TL1"),
+        Map.entry("topLeftTwo", "TL2"),
+        Map.entry("topRightOne", "TR1"),
+        Map.entry("topRightTwo", "TR2"),
+        Map.entry("rightOne", "R1"),
+        Map.entry("rightTwo", "R2"),
+        Map.entry("bottomRightOne", "BR1"),
+        Map.entry("bottomRightTwo", "BR2"),
+        Map.entry("bottomLeftOne", "BL1"),
+        Map.entry("bottomLeftTwo", "BL2"));
+
+    private String toBranchCode(String reefName) {
+        return BRANCH_CODE.getOrDefault(reefName, reefName);
+    }
+
+
+    private static final String troughKey = "TroughCount";
+    private static final String coopKey = "coop";
 
     // for levels 2–4 each reef has 3 branches; level1 uses troughCount
     private Map<String, boolean[]> coralMap;
@@ -36,7 +63,7 @@ public class ReefState extends VirtualSubsystem {
     @Override
     public void periodic() {
         updateFromNetworkTables();
-        syncVisualizer(); // ← new: push our boolean‑map into the visualizer
+        syncVisualizer(); // ← push our boolean‑map into the visualizer
         ReefVisualizer.updateVisualizer();
     }
 
@@ -46,14 +73,17 @@ public class ReefState extends VirtualSubsystem {
     private void syncVisualizer() {
         // 1) clear all previously scored coral
         for (String name : coralMap.keySet()) {
-            // remove any enum entries like "L4_leftOne" etc.
-            ReefVisualizer.removeCoral(name);
+            // remove any enum entries like "L4_L1" etc.
+            for (String level : levels) {
+                ReefVisualizer.removeCoral(level + "_" + toBranchCode(name));
+            }
+
         }
         // if you want to visualize troughCount (level1) as L1 branches:
-        for (int i = 0; i < troughCount; i++) {
-            // e.g. name them "L1_branch0", "L1_branch1", …
-            ReefVisualizer.scoreCoral("L1_branch" + i);
-        }
+//        for (int i = 0; i < troughCount; i++) {
+//            // e.g. name them "L1_branch0", "L1_branch1", …
+//            ReefVisualizer.scoreCoral(i);
+//        }
 
         // 2) re‑score every coral toggle for levels2–4
         for (var entry : coralMap.entrySet()) {
@@ -64,7 +94,7 @@ public class ReefState extends VirtualSubsystem {
                     // map lvlIdx → dashboard level: 0→4, 1→3, 2→2
                     int dashLevel = (lvlIdx == 0 ? 4 : lvlIdx == 1 ? 3 : 2);
                     // reefName is e.g. "leftOne", prepend "L4_", "L3_" or "L2_"
-                    String enumName = "L" + dashLevel + "_" + reefName;
+                    String enumName = "L" + dashLevel + "_" + toBranchCode(reefName);
                     ReefVisualizer.scoreCoral(enumName);
                 }
             }
@@ -75,10 +105,10 @@ public class ReefState extends VirtualSubsystem {
         NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
 
         // read troughCount
-        troughCount = (int) table.getEntry("troughCount").getInteger(0);
+        troughCount = (int) table.getEntry(troughKey).getInteger(0);
 
         // read coop flag
-        coop = table.getEntry("coop").getBoolean(false);
+        coop = table.getEntry(coopKey).getBoolean(false);
 
         // read every coral array entry
         for (String name : REEF_NAMES) {
@@ -102,7 +132,7 @@ public class ReefState extends VirtualSubsystem {
     }
 
     /**
-     * Called when you change troughCount (level 1).
+     * Called when you change troughCount (level1).
      */
     public void setTroughCount(int count) {
         troughCount = count;
@@ -119,12 +149,12 @@ public class ReefState extends VirtualSubsystem {
         coop = c;
         NetworkTableInstance.getDefault()
             .getTable("ReefData")
-            .getEntry("coop")
+            .getEntry(coopKey)
             .setBoolean(c);
     }
 
     /**
-     * Returns total coral‑toggles at dashboard level (4→index 0, 3→1, 2→2, 1→troughCount).
+     * Returns total coral‑toggles at dashboard level (4→index0, 3→1, 2→2, 1→troughCount).
      */
     public int getCountForLevel(int level) {
         switch (level) {
@@ -196,6 +226,29 @@ public class ReefState extends VirtualSubsystem {
         }
         return null;
     }
+    
+    public ScoreGoal getNextBestBranch() {
+        ArrayList<CoralBranch> sortedByDistance = new ArrayList<>(Arrays.asList(CoralBranch.values()));
+        sortedByDistance.sort((b1, b2) -> {
+            double d1 = RobotContainer.s_Swerve.getPose()
+                .minus(b1.getBranchPoseProjectedToReefFace())
+                .getTranslation()
+                .getNorm();
+            double d2 = RobotContainer.s_Swerve.getPose()
+                .minus(b2.getBranchPoseProjectedToReefFace())
+                .getTranslation()
+                .getNorm();
+            return Double.compare(d1, d2);
+        });
+
+        // Find first unscored branch
+//        for (CoralBranch branch : sortedByDistance) {
+//            get
+//            branch.name()
+//        }
+
+        return null;
+    }
 
     // getters for dashboard
     public Map<String, boolean[]> getAllCoralMaps() {
@@ -209,4 +262,6 @@ public class ReefState extends VirtualSubsystem {
     public boolean isCoop() {
         return coop;
     }
+    
+    public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) {}
 }
