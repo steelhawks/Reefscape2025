@@ -24,7 +24,7 @@ public class ReefState extends VirtualSubsystem {
         "L2"
     };
 
-    private static final Map<String,String> BRANCH_CODE = Map.ofEntries(
+    private static final Map<String, String> BRANCH_CODE = Map.ofEntries(
         Map.entry("leftOne", "L1"),
         Map.entry("leftTwo", "L2"),
         Map.entry("topLeftOne", "TL1"),
@@ -48,6 +48,7 @@ public class ReefState extends VirtualSubsystem {
 
     // for levels 2–4 each reef has 3 branches; level1 uses troughCount
     private Map<String, boolean[]> coralMap;
+    private Map<String, Boolean> algaeMap;
     private int troughCount;
     private boolean coop;
 
@@ -58,6 +59,11 @@ public class ReefState extends VirtualSubsystem {
         }
         troughCount = 0;
         coop = false;
+
+        algaeMap = new HashMap<>();
+        for (String code : new String[]{"L", "TL", "TR", "R", "BR", "BL"}) {
+            algaeMap.put(code, false);
+        }
     }
 
     @Override
@@ -99,6 +105,19 @@ public class ReefState extends VirtualSubsystem {
                 }
             }
         }
+
+        // 3) clear all algae, then re‑add only those not removed
+        for (String code : algaeMap.keySet()) {
+            ReefVisualizer.removeAlgae(code);
+        }
+        for (Map.Entry<String, Boolean> e : algaeMap.entrySet()) {
+            String code = e.getKey();
+            boolean removed = e.getValue();
+            if (!removed) {
+                // algae still present → add it
+                ReefVisualizer.addAlgae(code);
+            }
+        }
     }
 
     public void updateFromNetworkTables() {
@@ -117,6 +136,11 @@ public class ReefState extends VirtualSubsystem {
                 String key = name + "_" + idx;
                 arr[idx] = table.getEntry(key).getBoolean(false);
             }
+        }
+
+        for (String code : algaeMap.keySet()) {
+            boolean removed = table.getEntry("algae_" + code).getBoolean(false);
+            algaeMap.put(code, removed);
         }
     }
 
@@ -226,7 +250,7 @@ public class ReefState extends VirtualSubsystem {
         }
         return null;
     }
-    
+
     public ScoreGoal getNextBestBranch() {
         ArrayList<CoralBranch> sortedByDistance = new ArrayList<>(Arrays.asList(CoralBranch.values()));
         sortedByDistance.sort((b1, b2) -> {
@@ -262,6 +286,6 @@ public class ReefState extends VirtualSubsystem {
     public boolean isCoop() {
         return coop;
     }
-    
-    public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) {}
+
+    public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) { }
 }
