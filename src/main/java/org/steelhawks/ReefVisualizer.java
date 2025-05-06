@@ -22,6 +22,7 @@ public final class ReefVisualizer {
 
     private static final HashMap<String, Pose3d> coralPoses = new HashMap<>();
     private static final HashMap<String, Pose3d> algaePoses = new HashMap<>();
+    private static int troughCount = 0;
     private static boolean previousFlipState = false;
     private static final Pose3d baselinePose =
         new Pose3d(
@@ -436,6 +437,14 @@ public final class ReefVisualizer {
             return;
         }
         throw new IllegalArgumentException("The scoring level must be a reef level, (L1, L2, L3, L4) and a valid branch must be selected.");
+    }
+
+    /**
+     * Updates the visualizer to have coral scored in the trough.
+     * @param troughCount The amount of trough scored
+     */
+    public static void scoreCoral(int troughCount) {
+        troughCount += troughCount;
     }
 
     /**
