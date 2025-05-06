@@ -1,12 +1,9 @@
 package org.steelhawks;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import org.steelhawks.util.VirtualSubsystem;
-
-import java.util.List;
 
 public class ReefState extends VirtualSubsystem {
     private static final int LEVELS = 4;
@@ -19,7 +16,7 @@ public class ReefState extends VirtualSubsystem {
     @Override
     public void periodic() {
         updateFromNetworkTables();
-        updateVisualizer();
+        ReefVisualizer.updateVisualizer();
     }
 
     public ReefState() {

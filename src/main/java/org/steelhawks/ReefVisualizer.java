@@ -7,12 +7,11 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.Conversions;
-import org.steelhawks.util.VirtualSubsystem;
 
 import java.util.HashMap;
 
 
-public class ReefVisualizer extends VirtualSubsystem {
+public final class ReefVisualizer {
 
     private static final double L4_HEIGHT = (183.0 - 6.0) / 100.0;
     private static final double L3_HEIGHT = (121.0 - 10.0) / 100.0;
@@ -23,7 +22,7 @@ public class ReefVisualizer extends VirtualSubsystem {
 
     private static final HashMap<String, Pose3d> coralPoses = new HashMap<>();
     private static final HashMap<String, Pose3d> algaePoses = new HashMap<>();
-    private boolean previousFlipState = false;
+    private static boolean previousFlipState = false;
     private static final Pose3d baselinePose =
         new Pose3d(
             Conversions.fromTranslation2dWithZ(ReefUtil.CoralBranch.L1.getBranchPoseProjectedToReefFace()
@@ -563,8 +562,7 @@ public class ReefVisualizer extends VirtualSubsystem {
         algaePoses.put(position.name(), position.getPosition());
     }
 
-    @Override
-    public void periodic() {
+    public static void updateVisualizer() {
         boolean currentFlipState = AllianceFlip.shouldFlip();
         if (currentFlipState != previousFlipState) {
             HashMap<String, Pose3d> newCoralPoses = new HashMap<>();
