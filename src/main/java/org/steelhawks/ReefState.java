@@ -175,8 +175,7 @@ public class ReefState extends VirtualSubsystem {
         int index =
             level == ElevatorConstants.State.L4
                 ? 0 : level == ElevatorConstants.State.L3
-                ? 1 : level == ElevatorConstants.State.L2
-                ? 2 : 3;
+                ? 1 : 2;
         coralMap.get(toCodeFromBranch(branch))[index] = true;
         // push to NetworkTables
         NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
