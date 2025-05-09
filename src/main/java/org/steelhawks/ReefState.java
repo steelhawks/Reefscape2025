@@ -41,7 +41,24 @@ public class ReefState extends VirtualSubsystem {
         Map.entry("bottomLeftTwo", "BL2"));
 
     private String toBranchCode(String reefName) {
-        return BRANCH_CODE.getOrDefault(reefName, reefName);
+        return BRANCH_CODE.getOrDefault(reefName, reefName); 
+    }
+
+    private CoralBranch toCodeBranch(String code) {
+        return CoralBranch.valueOf(code);
+    }
+
+    private String toBranchFromCode(String code) {
+        for (Map.Entry<String, String> entry : BRANCH_CODE.entrySet()) {
+            if (entry.getValue().equals(code)) {
+                return entry.getKey();
+            }
+        }
+        return code;
+    }
+
+    private String toCodeFromBranch(CoralBranch branch) {
+        return toBranchFromCode(branch.name());
     }
 
     private static final String troughKey = "TroughCount";
@@ -149,6 +166,21 @@ public class ReefState extends VirtualSubsystem {
         // push to NetworkTables
         NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
         table.getEntry(reefName + "_" + levelIndex).setBoolean(true);
+    }
+
+    /**
+     * Called from robot code when you score a coral.
+     */
+    public void scoreCoral(CoralBranch branch, ElevatorConstants.State level) {
+        int index =
+            level == ElevatorConstants.State.L4
+                ? 0 : level == ElevatorConstants.State.L3
+                ? 1 : level == ElevatorConstants.State.L2
+                ? 2 : 3;
+        coralMap.get(toCodeFromBranch(branch))[index] = true;
+        // push to NetworkTables
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
+        table.getEntry(toCodeFromBranch(branch) + "_" + index).setBoolean(true);
     }
 
     /**

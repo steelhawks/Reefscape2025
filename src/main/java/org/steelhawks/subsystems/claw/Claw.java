@@ -2,6 +2,7 @@ package org.steelhawks.subsystems.claw;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -9,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Clearances;
 import org.steelhawks.Constants;
+import org.steelhawks.ReefUtil;
+import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
 
@@ -80,6 +83,11 @@ public class Claw extends SubsystemBase {
             () -> {
                 Clearances.ClawClearances.hasShot = true;
                 isIntaking = true;
+                if (hasCoral().getAsBoolean()
+                    && RobotContainer.s_Swerve.getPose().getTranslation()
+                        .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= Units.inchesToMeters(5.0)) {
+                    RobotContainer.s_ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
+                }
                 io.runIntake(speed);
             }, this)
             .finallyDo(this::stop);
