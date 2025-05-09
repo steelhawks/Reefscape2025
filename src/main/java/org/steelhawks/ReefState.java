@@ -10,6 +10,7 @@ import org.steelhawks.util.VirtualSubsystem;
 import java.util.*;
 
 public class ReefState extends VirtualSubsystem {
+
     private static final String[] REEF_NAMES = {
         "leftOne", "leftTwo",
         "topLeftOne", "topLeftTwo",
@@ -43,7 +44,6 @@ public class ReefState extends VirtualSubsystem {
         return BRANCH_CODE.getOrDefault(reefName, reefName);
     }
 
-
     private static final String troughKey = "TroughCount";
     private static final String coopKey = "coop";
 
@@ -70,7 +70,7 @@ public class ReefState extends VirtualSubsystem {
     @Override
     public void periodic() {
         updateFromNetworkTables();
-        syncVisualizer(); // ← push our boolean‑map into the visualizer
+        syncVisualizer(); // push our boolean‑map into the visualizer
         ReefVisualizer.updateVisualizer();
     }
 
@@ -86,11 +86,6 @@ public class ReefState extends VirtualSubsystem {
             }
 
         }
-        // if you want to visualize troughCount (level1) as L1 branches:
-//        for (int i = 0; i < troughCount; i++) {
-//            // e.g. name them "L1_branch0", "L1_branch1", …
-//            ReefVisualizer.scoreCoral(i);
-//        }
 
         // 2) re‑score every coral toggle for levels2–4
         for (var entry : coralMap.entrySet()) {
@@ -98,7 +93,7 @@ public class ReefState extends VirtualSubsystem {
             boolean[] levels = entry.getValue();
             for (int lvlIdx = 0; lvlIdx < levels.length; lvlIdx++) {
                 if (levels[lvlIdx]) {
-                    // map lvlIdx → dashboard level: 0→4, 1→3, 2→2
+                    // map lvlIdx to dashboard level: 0→4, 1→3, 2→2
                     int dashLevel = (lvlIdx == 0 ? 4 : lvlIdx == 1 ? 3 : 2);
                     // reefName is e.g. "leftOne", prepend "L4_", "L3_" or "L2_"
                     String enumName = "L" + dashLevel + "_" + toBranchCode(reefName);
@@ -115,7 +110,7 @@ public class ReefState extends VirtualSubsystem {
             String code = e.getKey();
             boolean removed = e.getValue();
             if (!removed) {
-                // algae still present → add it
+                // algae still present, add it
                 ReefVisualizer.addAlgae(code);
             }
         }
@@ -200,21 +195,15 @@ public class ReefState extends VirtualSubsystem {
     }
 
     /**
-     * “minimum” is 7 (or 5 in coop).
+     * “minimum” is 7.
      */
     public boolean achievedLevelMinimum(int level) {
-        int needed = (coop ? 5 : 7);
+        int needed = 7;
         return getCountForLevel(level) >= needed;
     }
 
-    /**
-     * all levels 2–4 ≥7 (or 5 if coop).
-     */
-    public boolean achievedCoopertition() {
-        for (int lvl = 2; lvl <= 4; lvl++) {
-            if (!achievedLevelMinimum(lvl)) return false;
-        }
-        return true;
+    public boolean achievedCoralRP() {
+        return NetworkTableInstance.getDefault().getTable("ReefData").getEntry(coopKey).getBoolean(false);
     }
 
     /**
@@ -271,78 +260,78 @@ public class ReefState extends VirtualSubsystem {
             }
         }
 
-        return best;  // null if everything already scored
+        // null if everything already scored, continues to l1 scoring only
+        return best != null ? best : new ScoreGoal(ElevatorConstants.State.L1, ReefUtil.getClosestCoralBranch());
     }
 
+    // create an algorithm to achieve coral rp the fastest
+    // make sure it returns to maximize points algorithm after it achieves rp
     /**
      * Pick the next score action (either a coral branch or a trough increment)
      * that most advances you toward CoralRP (7 on each level, or 7 on any 3 levels if coop).
      */
-//    public ScoreGoal getNextForCoralRP() {
-//        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
-//        final int THRESH = 7;
-//        boolean includeL1 = !coop;
-//
-//        // build a 5‑element counts so sim[1]..sim[4] are valid
-//        int[] base = new int[5];
-//        for (int lvl = 1; lvl <= 4; lvl++) {
-//            base[lvl] = getCountForLevel(lvl);
-//        }
-//
-//        ScoreGoal best = null;
-//        int bestQual = -1, bestPrio = Integer.MAX_VALUE;
-//        double bestDist = Double.MAX_VALUE;
-//
-//        // optionally simulate L1 bump
-//        if (includeL1) {
-//            int[] sim = base.clone();
-//            sim[1]++;
-//            int qual = 0;
-//            for (int L = 1; L <= 4; L++) if (sim[L] >= THRESH) qual++;
-//            if (qual > bestQual) {
-//                bestQual = qual;
-//                bestPrio = 3;
-//                bestDist = 0;
-//                best = new ScoreGoal(ElevatorConstants.State.L1, null);
-//            }
-//        }
-//
-//        // simulate every coral branch
-//        for (String reef : REEF_NAMES) {
-//            boolean[] arr = coralMap.get(reef);
-//            for (int idx = 0; idx < 3; idx++) {
-//                if (!arr[idx]) {
-//                    int dashLevel = idx == 0 ? 4 : idx == 1 ? 3 : 2;
-//                    int[] sim = base.clone();
-//                    sim[dashLevel]++;
-//                    int qual = 0;
-//                    if (coop) {
-//                        for (int L = 2; L <= 4; L++) if (sim[L] >= THRESH) qual++;
-//                    } else {
-//                        for (int L = 1; L <= 4; L++) if (sim[L] >= THRESH) qual++;
-//                    }
-//                    CoralBranch br = CoralBranch.valueOf(toBranchCode(reef));
-//                    double dist = robotPose.getTranslation()
-//                        .getDistance(br.getBranchPoseProjectedToReefFace().getTranslation());
-//                    int prio = dashLevel == 4 ? 0 : dashLevel == 3 ? 1 : dashLevel == 2 ? 2 : 3;
-//                    if (qual > bestQual
-//                        || (qual == bestQual && prio < bestPrio)
-//                        || (qual == bestQual && prio == bestPrio && dist < bestDist)) {
-//                        bestQual = qual;
-//                        bestPrio = prio;
-//                        bestDist = dist;
-//                        best = new ScoreGoal(
-//                            dashLevel == 4 ? ElevatorConstants.State.L4
-//                                : dashLevel == 3 ? ElevatorConstants.State.L3
-//                                : ElevatorConstants.State.L2,
-//                            br);
-//                    }
-//                }
-//            }
-//        }
-//
-//        return best;
-//    }
+    public ScoreGoal getNextForCoralRP() {
+        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
+
+        // 1) find which level we need to score next to hit the RP thresholds
+        int consecutiveFull = 0;
+        int targetLevel = 1;
+        for (int lvl = 4; lvl >= 1; lvl--) {
+            if (achievedLevelMinimum(lvl)) {
+                consecutiveFull++;
+                // once 3 higher levels are full, switch to max‑points
+                if (consecutiveFull == 3) {
+                    return getNextBestScorePosition();
+                }
+            } else {
+                targetLevel = lvl;
+                break;
+            }
+        }
+
+        // map targetLevel, array index (0→L4, 1→L3, 2→L2, 3→L1)
+        int idxWanted = 4 - targetLevel;
+
+        ElevatorConstants.State targetState =
+            switch (targetLevel) {
+                case 4 -> ElevatorConstants.State.L4;
+                case 3 -> ElevatorConstants.State.L3;
+                case 2 -> ElevatorConstants.State.L2;
+                default -> ElevatorConstants.State.L1;
+            };
+
+        // 2) among all reefs, choose the closest branch at that level
+        double bestDist = Double.MAX_VALUE;
+        ScoreGoal bestGoal = null;
+
+        for (String reefName : REEF_NAMES) {
+            boolean[] arr = coralMap.get(reefName);
+            // skip if already scored at this level
+            if (idxWanted < 0 || idxWanted >= arr.length || arr[idxWanted]) {
+                continue;
+            }
+
+            // build branch enum
+            String code = toBranchCode(reefName);
+            CoralBranch branch = CoralBranch.valueOf(code);
+
+            // distance from robot to branch
+            Pose2d branchPose = branch.getBranchPoseProjectedToReefFace();
+            double dist = robotPose.getTranslation().getDistance(branchPose.getTranslation());
+
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestGoal = new ScoreGoal(targetState, branch);
+            }
+        }
+
+        // if nothing found, fallback to max‑points
+        return (bestGoal != null ? bestGoal : getNextBestScorePosition());
+    }
+
+    public ScoreGoal dynamicScoreRoutine() {
+        return achievedCoralRP() ? getNextBestScorePosition() : getNextForCoralRP();
+    }
 
     // getters for dashboard
     public Map<String, boolean[]> getAllCoralMaps() {
