@@ -41,7 +41,7 @@ public class ReefState extends VirtualSubsystem {
         Map.entry("bottomLeftTwo", "BL2"));
 
     private String toBranchCode(String reefName) {
-        return BRANCH_CODE.getOrDefault(reefName, reefName); 
+        return BRANCH_CODE.getOrDefault(reefName, reefName);
     }
 
     private CoralBranch toCodeBranch(String code) {
@@ -297,6 +297,7 @@ public class ReefState extends VirtualSubsystem {
 
     // create an algorithm to achieve coral rp the fastest
     // make sure it returns to maximize points algorithm after it achieves rp
+
     /**
      * Pick the next score action (either a coral branch or a trough increment)
      * that most advances you toward CoralRP (7 on each level, or 7 on any 3 levels if coop).
@@ -358,6 +359,44 @@ public class ReefState extends VirtualSubsystem {
 
         // if nothing found, fallback to max‑points
         return (bestGoal != null ? bestGoal : getNextBestScorePosition());
+    }
+
+    public ScoreGoal getQuickestScoring() {
+        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
+
+        ScoreGoal best = null;
+        double bestDist = Double.MAX_VALUE;
+        int bestLevelPrio = Integer.MAX_VALUE;
+
+        for (String reefName : REEF_NAMES) {
+            boolean[] arr = coralMap.get(reefName);
+            for (int idx = 0; idx < arr.length; idx++) {
+                if (!arr[idx]) {
+                    // idx 0→L4, 1→L3, 2→L2
+                    ElevatorConstants.State state =
+                        (idx == 0 ? ElevatorConstants.State.L4
+                            : idx == 1 ? ElevatorConstants.State.L3
+                            : ElevatorConstants.State.L2);
+
+                    CoralBranch branch = CoralBranch.valueOf(toBranchCode(reefName));
+                    double dist = robotPose.getTranslation()
+                        .getDistance(branch.getBranchPoseProjectedToReefFace().getTranslation());
+
+                    // now compare: closest first, then higher level
+                    if (dist < bestDist ||
+                        (dist == bestDist && idx < bestLevelPrio)) {
+                        bestDist = dist;
+                        bestLevelPrio = idx;
+                        best = new ScoreGoal(state, branch);
+                    }
+                }
+            }
+        }
+
+        // if everything’s scored, fall back to L1 on the absolute closest branch
+        return best != null
+            ? best
+            : new ScoreGoal(ElevatorConstants.State.L1, ReefUtil.getClosestCoralBranch());
     }
 
     public ScoreGoal dynamicScoreRoutine() {
