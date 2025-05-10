@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.elevator;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
@@ -16,7 +17,7 @@ public class ElevatorIOSim implements ElevatorIO {
         Units.inchesToMeters(1.888);
     private static final double ELEVATOR_GEARING = 10.0 / 1.0;
     private static final double MIN_HEIGHT = 0; //m
-    public static final double MAX_HEIGHT = 1; //m
+    public static final double MAX_HEIGHT = Conversions.rotationsToMeters(Units.radiansToRotations(ElevatorConstants.MAX_RADIANS), 2 * Math.PI * SPROCKET_RAD); //m
     private static final double ELEVATOR_WIDTH =
         Units.inchesToMeters(27);
 
@@ -61,10 +62,10 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.leftConnected = true;
         inputs.leftPositionRad =
             Units.rotationsToRadians(
-                Conversions.metersToRotations(mElevatorSim.getPositionMeters(), SPROCKET_RAD));
+                Conversions.metersToRotations(mElevatorSim.getPositionMeters(), 2 * Math.PI * SPROCKET_RAD));
         inputs.leftVelocityRadPerSec =
             Units.rotationsToRadians(
-                Conversions.metersToRotations(mElevatorSim.getVelocityMetersPerSecond(), SPROCKET_RAD));
+                Conversions.metersToRotations(mElevatorSim.getVelocityMetersPerSecond(), 2 * Math.PI * SPROCKET_RAD));
         inputs.leftAppliedVolts = appliedVolts;
         inputs.leftCurrentAmps = mElevatorSim.getCurrentDrawAmps();
 
@@ -95,7 +96,7 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void runElevator(double volts) {
         appliedVolts = volts;
-        mElevatorSim.setInputVoltage(volts);
+        mElevatorSim.setInputVoltage(MathUtil.clamp(volts, -12, 12));
     }
 
     @Override
@@ -108,7 +109,7 @@ public class ElevatorIOSim implements ElevatorIO {
         }
 
         double convertToVolts = speed * 12;
-        mElevatorSim.setInputVoltage(convertToVolts);
+        mElevatorSim.setInputVoltage(MathUtil.clamp(convertToVolts, -12, 12));
     }
 
     @Override

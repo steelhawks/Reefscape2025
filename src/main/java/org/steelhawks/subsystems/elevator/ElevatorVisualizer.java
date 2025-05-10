@@ -23,7 +23,7 @@ public class ElevatorVisualizer {
             new LoggedMechanism2d(
                 elevatorWidth,
                 elevatorMaxHeight);
-        mMech2dRoot = mElevator.getRoot("Elevator Root", 10, 0);
+        mMech2dRoot = mElevator.getRoot("Elevator Root", 0.33, 0);
         mElevatorMech2d =
             mMech2dRoot.append(
                 new LoggedMechanismLigament2d("Elevator", mElevatorPosition.get(), 90));
