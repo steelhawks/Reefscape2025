@@ -2,6 +2,7 @@ package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import org.steelhawks.Constants;
 
 import java.util.Arrays;
@@ -120,10 +121,10 @@ public class ElevatorConstants {
                 GEAR_RATIO = 25;
                 KS = 0.23;
                 KG = 0.166;
-                KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
-                KP = 7.0; // 7
+                KV = ((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268)) / 2.0;
+                KP = RobotBase.isReal() ? 7.0 : 5.0; // 7
                 KI = 0.0;
-                KD = 0.0;
+                KD = RobotBase.isReal() ? 0.0 : 0.3;
                 MAX_VELOCITY_PER_SEC = 50; // 40
                 MAX_ACCELERATION_PER_SEC_SQUARED = 40; // was 60
                 TOLERANCE = 0.03;

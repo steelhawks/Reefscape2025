@@ -12,8 +12,7 @@ public class ElevatorVisualizer {
     private final Supplier<Double> mElevatorPosition;
     private final LoggedMechanism2d mElevator;
 
-    private final LoggedMechanismRoot2d mMech2dRoot;
-    private final LoggedMechanismLigament2d mElevatorMech2d;
+    private final LoggedMechanismLigament2d leftLig, rightLig;
 
     public ElevatorVisualizer(
         Supplier<Double> elevatorPosition, double elevatorWidth, double elevatorMaxHeight) {
@@ -23,15 +22,22 @@ public class ElevatorVisualizer {
             new LoggedMechanism2d(
                 elevatorWidth,
                 elevatorMaxHeight);
-        mMech2dRoot = mElevator.getRoot("Elevator Root", 0.33, 0);
-        mElevatorMech2d =
-            mMech2dRoot.append(
-                new LoggedMechanismLigament2d("Elevator", mElevatorPosition.get(), 90));
+        double width = 0.1;
+
+        var leftRoot = mElevator.getRoot("Left Root", 0.33 - width / 2, 0);
+        var rightRoot = mElevator.getRoot("Right Root", 0.33 + width / 2, 0);
+
+        leftLig = leftRoot.append(
+            new LoggedMechanismLigament2d("Left Side", mElevatorPosition.get(), 90));
+        rightLig = rightRoot.append(
+            new LoggedMechanismLigament2d("Right Side", mElevatorPosition.get(), 90));
     }
 
     public void update() {
-        mElevatorMech2d.setAngle(90);
-        mElevatorMech2d.setLength(mElevatorPosition.get());
+        leftLig.setAngle(90);
+        leftLig.setLength(mElevatorPosition.get());
+        rightLig.setAngle(90);
+        rightLig.setLength(mElevatorPosition.get());
 
         Logger.recordOutput("Elevator/Mechanism2d", mElevator);
     }
