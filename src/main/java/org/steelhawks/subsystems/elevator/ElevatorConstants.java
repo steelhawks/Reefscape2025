@@ -39,9 +39,8 @@ public class ElevatorConstants {
             double angleRads =
                 switch (Constants.getRobot()) {
                     case ALPHABOT -> alphaRadians;
-                    case OMEGABOT -> omegaRadians;
+                    case OMEGABOT, SIMBOT -> omegaRadians;
                     case HAWKRIDER -> hawkriderRadians;
-                    default -> 0;
                 };
             return new Rotation2d(angleRads);
         }

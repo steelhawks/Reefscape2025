@@ -85,7 +85,7 @@ public class Claw extends SubsystemBase {
                 isIntaking = true;
                 if (hasCoral().getAsBoolean()
                     && RobotContainer.s_Swerve.getPose().getTranslation()
-                        .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= Units.inchesToMeters(5.0)) {
+                        .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
                     RobotContainer.s_ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
                 }
                 io.runIntake(speed);

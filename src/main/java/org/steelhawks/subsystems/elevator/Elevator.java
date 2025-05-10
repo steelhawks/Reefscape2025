@@ -71,9 +71,7 @@ public class Elevator extends SubsystemBase {
 
     public ElevatorConstants.State getState() {
         ElevatorConstants.State state = ElevatorConstants.State.L4;
-        if (inputs.goal == ElevatorConstants.State.L4.getAngle().getRadians()) {
-            state = ElevatorConstants.State.L4;
-        } else if (inputs.goal == ElevatorConstants.State.L3.getAngle().getRadians()) {
+        if (inputs.goal == ElevatorConstants.State.L3.getAngle().getRadians()) {
             state = ElevatorConstants.State.L3;
         } else if (inputs.goal == ElevatorConstants.State.L2.getAngle().getRadians()) {
             state = ElevatorConstants.State.L2;
