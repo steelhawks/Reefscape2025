@@ -41,6 +41,10 @@ public class SwerveDriveAlignment extends Command {
         this(() -> targetPose);
     }
 
+    public SwerveDriveAlignment(Pose2d targetPose, boolean endsWhenAligned) {
+        this(() -> targetPose, endsWhenAligned);
+    }
+
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose) {
         this(targetPose, false);
     }

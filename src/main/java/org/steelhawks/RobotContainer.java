@@ -380,7 +380,7 @@ public class RobotContainer {
         driver.leftBumper()
             .whileTrue(
                 Commands.sequence(
-                    Align.directPathFollow(() -> s_ReefState.dynamicScoreRoutine().branch().getScorePose(s_ReefState.dynamicScoreRoutine().state()), true),
+                    Align.directPathFollow(s_ReefState.dynamicScoreRoutine().branch().getScorePose(s_ReefState.dynamicScoreRoutine().state()), true),
                     s_Elevator.setDesiredState(s_ReefState.dynamicScoreRoutine().state()),
                     Commands.waitUntil(s_Elevator.atThisGoal(s_ReefState.dynamicScoreRoutine().state())),
                     Commands.either(
