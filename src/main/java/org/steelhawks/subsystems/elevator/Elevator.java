@@ -43,16 +43,16 @@ public class Elevator extends SubsystemBase {
         new AlertUtil("Right Elevator Motor Disconnected", AlertType.kError)
             .withCondition(() -> !inputs.rightConnected);
     private final Alert canCoderDisconnected =
-        new AlertUtil("Elevator CANcoder Disconnected", Alert.AlertType.kError)
+        new AlertUtil("Elevator CANcoder Disconnected", AlertType.kError)
             .withCondition(() -> !inputs.encoderConnected);
     private final Alert limitSwitchDisconnected =
-        new AlertUtil("Elevator Limit Switch Disconnected", Alert.AlertType.kError)
+        new AlertUtil("Elevator Limit Switch Disconnected", AlertType.kError)
             .withCondition(() -> !inputs.limitSwitchConnected);
     private final Alert canCoderMagnetBad =
-        new AlertUtil("Elevator CANcoder Magnet Bad", Alert.AlertType.kError)
+        new AlertUtil("Elevator CANcoder Magnet Bad", AlertType.kError)
             .withCondition(() -> !inputs.magnetGood);
     private final Alert eStopped =
-        new AlertUtil("Elevator is E-Stopped", Alert.AlertType.kError)
+        new AlertUtil("Elevator is E-Stopped", AlertType.kError)
             .withCondition(() -> shouldEStop);
 
     public void enable() {
@@ -67,6 +67,18 @@ public class Elevator extends SubsystemBase {
 
     public boolean isEnabled() {
         return mEnabled;
+    }
+
+    public ElevatorConstants.State getState() {
+        ElevatorConstants.State state = ElevatorConstants.State.L4;
+        if (inputs.goal == ElevatorConstants.State.L3.getAngle().getRadians()) {
+            state = ElevatorConstants.State.L3;
+        } else if (inputs.goal == ElevatorConstants.State.L2.getAngle().getRadians()) {
+            state = ElevatorConstants.State.L2;
+        } else if (inputs.goal == ElevatorConstants.State.L1.getAngle().getRadians()) {
+            state = ElevatorConstants.State.L1;
+        }
+        return state;
     }
 
     public Elevator(ElevatorIO io) {

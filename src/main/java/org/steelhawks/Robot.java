@@ -196,6 +196,11 @@ public class Robot extends LoggedRobot {
 
         Logger.recordOutput("Clearances/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
         Logger.recordOutput("Clearances/ClearFromBarge", Clearances.AlgaeClawClearances.isClearFromBarge());
+
+        Logger.recordOutput("Align/MaximizeScore", RobotContainer.s_ReefState.getNextBestScorePosition());
+        Logger.recordOutput("Align/CoralRP", RobotContainer.s_ReefState.getNextForCoralRP());
+        Logger.recordOutput("Align/QuickestScorer", RobotContainer.s_ReefState.getQuickestScoring());
+        Logger.recordOutput("Align/DynamicRoutine", RobotContainer.s_ReefState.dynamicScoreRoutine());
     }
 
     @Override

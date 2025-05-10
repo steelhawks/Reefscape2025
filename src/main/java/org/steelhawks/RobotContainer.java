@@ -46,6 +46,7 @@ public class RobotContainer {
     private final Trigger topCoralStationTrigger;
     private final Trigger bottomCoralStationTrigger;
 
+    public static final ReefState s_ReefState = new ReefState();
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
     public static Vision s_Vision;

@@ -113,4 +113,24 @@ public class Conversions {
     public static Vector3 toVector3(Pose3d translation) {
         return toVector3(translation.getTranslation());
     }
+
+    /**
+     * Easy util to convert from Translation2d with a Z coordinate
+     * @param translation Translation2d to convert
+     * @param z Z coordinate as a double
+     * @return Returns the Translation3d with Z coordinate, instead of 0.
+     */
+    public static Translation3d fromTranslation2dWithZ(Translation2d translation, double z) {
+        return new Translation3d(translation.getX(), translation.getY(), z);
+    }
+
+    /**
+     * Easy util to convert from Pose2d with a Z coordinate; removes the rotation.
+     * @param pose Pose2d to convert
+     * @param z Z coordinate as a double
+     * @return Returns the Translation3d with Z coordinate, instead of 0.
+     */
+    public static Translation3d fromTranslation2dWithZ(Pose2d pose, double z) {
+        return fromTranslation2dWithZ(pose.getTranslation(), z);
+    }
 }
