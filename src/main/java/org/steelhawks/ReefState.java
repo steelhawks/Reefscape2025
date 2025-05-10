@@ -3,6 +3,7 @@ package org.steelhawks;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import org.littletonrobotics.junction.Logger;
 import org.steelhawks.ReefUtil.CoralBranch;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.VirtualSubsystem;
@@ -63,6 +64,7 @@ public class ReefState extends VirtualSubsystem {
 
     private static final String troughKey = "TroughCount";
     private static final String coopKey = "coop";
+    private static final String goal = "goal";
 
     // for levels 2–4 each reef has 3 branches; level1 uses troughCount
     private Map<String, boolean[]> coralMap;
@@ -400,7 +402,13 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public ScoreGoal dynamicScoreRoutine() {
-        return achievedCoralRP() ? getNextBestScorePosition() : getNextForCoralRP();
+        String goal = NetworkTableInstance.getDefault().getTable("ReefData").getEntry(ReefState.goal).getString("");
+        Logger.recordOutput("Align/AutoScoreGoal", goal);
+        return switch (goal) {
+            case "CORALRP" -> getNextForCoralRP();
+            case "FASTEST" -> getQuickestScoring();
+            default -> getNextBestScorePosition();
+        };
     }
 
     // getters for dashboard
