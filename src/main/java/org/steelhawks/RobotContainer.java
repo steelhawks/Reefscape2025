@@ -311,7 +311,6 @@ public class RobotContainer {
 
         checkIfDevicesConnected();
         configureTriggers();
-        configureOperator();
         configureDriver();
     }
 
@@ -378,6 +377,23 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
+        driver.leftBumper()
+            .whileTrue(
+                Commands.sequence(
+                    Align.directPathFollow(() -> s_ReefState.dynamicScoreRoutine().branch().getScorePose(s_ReefState.dynamicScoreRoutine().state()), true),
+                    s_Elevator.setDesiredState(s_ReefState.dynamicScoreRoutine().state()),
+                    Commands.waitUntil(s_Elevator.atThisGoal(s_ReefState.dynamicScoreRoutine().state())),
+                    Commands.either(
+                        s_Claw.shootCoralSlow(),
+                        s_Claw.shootCoral(),
+                        () ->
+                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()),
+                    Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
+                    s_Elevator.noSlamCommand()
+                .onlyWhile(() -> Math.abs(driver.getLeftX() + driver.getLeftY()) < 0.6)))
+            .onFalse(s_Elevator.setDesiredState(State.HOME));
+
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 Commands.either(
@@ -391,7 +407,7 @@ public class RobotContainer {
 
         /* ------------- Elevator Controls ------------- */
 
-        driver.leftBumper()
+        driver.rightBumper()
             .or(new DashboardTrigger("l1"))
             .onTrue(SuperStructure.scoringSequence(State.L1, driver::getLeftX, driver::getLeftY));
 
@@ -431,62 +447,5 @@ public class RobotContainer {
             .whileTrue(
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
-    }
-
-    private void configureOperator() {
-        /* ------------- Manual Controls ------------- */
-
-//        operator.leftStick()
-//            .and(endGameMode.negate())
-//            .onTrue(s_Elevator.toggleManualControl(() -> -operator.getLeftY()));
-
-//        /* ------------- Elevator Controls ------------- */
-//
-//        operator.leftBumper()
-//            .or(new DashboardTrigger("l1"))
-//            .or(buttonBoard.getL1().and(() -> usingButtonBoard))
-//            .onTrue(s_Elevator.setDesiredState((State.L1)));
-//
-//        operator.x()
-//            .or(new DashboardTrigger("l2"))
-//            .or(buttonBoard.getL2().and(() -> usingButtonBoard))
-//            .onTrue(s_Elevator.setDesiredState((State.L2)));
-//
-//        operator.y()
-//            .or(new DashboardTrigger("l3"))
-//            .or(buttonBoard.getL3().and(() -> usingButtonBoard))
-//            .onTrue(s_Elevator.setDesiredState(State.L3));
-//
-//
-//        operator.a()
-//            .or(new DashboardTrigger("l4"))
-//            .or(buttonBoard.getL4().and(() -> usingButtonBoard))
-//            .onTrue(
-//                s_Elevator.setDesiredState(State.L4));
-//
-//        operator.b()
-//            .or(new DashboardTrigger("elevatorHome"))
-//            .or(buttonBoard.getHome().and(() -> usingButtonBoard))
-//            .onTrue(s_Elevator.noSlamCommand());
-//
-//        /* ------------- Intake Controls ------------- */
-//
-//        operator.leftTrigger()
-//            .or(new DashboardTrigger("scoreCoral"))
-//            .or(buttonBoard.getShoot().and(() -> usingButtonBoard))
-//            .whileTrue(
-//                Commands.either(
-//                    s_Claw.shootCoralSlow(),
-//                    s_Claw.shootCoral(),
-//                    () ->
-//                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-//                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
-//                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
-//
-//        operator.povLeft()
-//            .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
-//            .whileTrue(
-//                s_Claw.reverseCoral()
-//                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
     }
 }
