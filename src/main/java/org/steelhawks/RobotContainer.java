@@ -388,7 +388,7 @@ public class RobotContainer {
                         s_Claw.shootCoral(),
                         () ->
                             (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()),
+                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
                     Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                     s_Elevator.noSlamCommand()
                 .onlyWhile(() -> Math.abs(driver.getLeftX() + driver.getLeftY()) < 0.6)))
