@@ -36,6 +36,7 @@ import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.*;
 
 import java.util.Objects;
+import java.util.Set;
 
 
 public class RobotContainer {
@@ -379,19 +380,20 @@ public class RobotContainer {
 
         driver.leftBumper()
             .whileTrue(
-                Commands.sequence(
-                    Align.directPathFollow(ReefState.dynamicScoreRoutine().branch().getScorePose(ReefState.dynamicScoreRoutine().state()), true),
-                    s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),
-                    Commands.waitUntil(s_Elevator.atThisGoal(ReefState.dynamicScoreRoutine().state())),
-                    Commands.either(
-                        s_Claw.shootCoralSlow(),
-                        s_Claw.shootCoral(),
-                        () ->
-                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
-                    Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
-                    s_Elevator.noSlamCommand()
-                .onlyWhile(() -> Math.abs(driver.getLeftX() + driver.getLeftY()) < 0.6)))
+                Commands.deferredProxy(
+                    () -> Commands.sequence(
+                        Align.directPathFollow(ReefState.dynamicScoreRoutine().branch().getScorePose(ReefState.dynamicScoreRoutine().state()), true),
+                        s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),
+                        Commands.waitUntil(s_Elevator.atThisGoal(ReefState.dynamicScoreRoutine().state())),
+                        Commands.either(
+                            s_Claw.shootCoralSlow(),
+                            s_Claw.shootCoral(),
+                            () ->
+                                (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                                    s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
+                        Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
+                        s_Elevator.noSlamCommand()
+                            .onlyWhile(() -> Math.abs(driver.getLeftX() + driver.getLeftY()) < 0.6))))
             .onFalse(s_Elevator.setDesiredState(State.HOME));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
