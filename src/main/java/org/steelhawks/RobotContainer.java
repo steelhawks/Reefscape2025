@@ -370,8 +370,11 @@ public class RobotContainer {
             .whileTrue(
                 Commands.deferredProxy(
                     () -> Commands.sequence(
-                        Align.directPathFollow(ReefState.dynamicScoreRoutine().branch().getScorePose(ReefState.dynamicScoreRoutine().state()), true)
-                            .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
+                        Commands.either(
+                            Align.directPathFollow(ReefState.dynamicScoreRoutine().branch().getScorePose(ReefState.dynamicScoreRoutine().state()), true),
+                            Align.directPathFollow(ReefUtil.getCoralBranchWithFusedDriverInput(driver::getLeftX).get().getScorePose(State.L4), true),
+                            ReefState::hasOverriden)
+                        .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
                         s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),
                         Commands.waitUntil(s_Elevator.atThisGoal(ReefState.dynamicScoreRoutine().state())),
                         Commands.either(
@@ -382,7 +385,7 @@ public class RobotContainer {
                                     s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         s_Elevator.noSlamCommand()
-                            .onlyWhile(() -> Math.abs(driver.getLeftX() + driver.getLeftY()) < 0.6))))
+                            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * driver.getLeftX()) + driver.getLeftY()) < 0.6))))
             .onFalse(s_Elevator.setDesiredState(State.HOME));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()

@@ -463,5 +463,9 @@ public class ReefState extends VirtualSubsystem {
         return coop;
     }
 
+    public static boolean hasOverriden() {
+        return NetworkTableInstance.getDefault().getTable("ReefData").getEntry("override").getBoolean(false);
+    }
+
     public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) {}
 }

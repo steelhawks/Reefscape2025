@@ -57,7 +57,7 @@ public class SuperStructure {
                     Commands.none(),
                     () -> s_Swerve.getPose().getTranslation()
                         .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))
-            .onlyWhile(() -> Math.abs(joystickAxisToCancel.getAsDouble() + joystickAxis.getAsDouble()) < 0.3),
+            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.3),
         Set.of());
     }
 }
