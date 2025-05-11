@@ -2,6 +2,7 @@ package org.steelhawks.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -84,6 +85,7 @@ public class Swerve extends SubsystemBase {
     private final SysIdRoutine driveSysId;
     private final SysIdRoutine turnSysId;
     private final SysIdRoutine angularSysId;
+    private final SysIdRoutine chassisTranslationSysId;
     private final Alert gyroDisconnectedAlert =
         new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
@@ -361,6 +363,29 @@ public class Swerve extends SubsystemBase {
                     (state) -> Logger.recordOutput("Swerve/AngularSysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> runAngularCharacterization(voltage.in(Volts)), null, this));
+
+        /* Use to tune PathPlanner PID and/or SwerveDriveAlignment */
+        chassisTranslationSysId =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    /* This is in meters per second², but SysId only supports "volts per second" */
+                    Volts.of(1).per(Second),
+                    /* This is in meters per second, but SysId only supports "volts" */
+                    Volts.of(4),
+                    null, // Use default timeout (10 s)
+                    state -> Logger.recordOutput("Swerve/ChassisTranslationSysIdState", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                    output -> {
+                        /* output is actually meters per second, but SysId only supports "volts" */
+                        runVelocity(new ChassisSpeeds(output.in(Volts), 0, 0));
+                        /* also log the requested output for SysId */
+                        Logger.recordOutput("Swerve/TranslationVelocity", output.in(Volts));
+                        Logger.recordOutput("Swerve/TranslationPosition", getPose().getX());
+                        Logger.recordOutput("Swerve/TranslationVelocity", getChassisSpeeds().vxMetersPerSecond * getPose().getRotation().getCos());
+                    },
+                    null,
+                    this));
 
         mAlignController =
             new ProfiledPIDController(
