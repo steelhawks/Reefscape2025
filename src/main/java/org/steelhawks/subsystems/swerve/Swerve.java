@@ -2,13 +2,18 @@ package org.steelhawks.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.swerve.SwerveSetpoint;
+import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -98,6 +103,8 @@ public class Swerve extends SubsystemBase {
 
     private final ProfiledPIDController mAlignController;
     private final Debouncer mAlignDebouncer;
+    private final SwerveSetpointGenerator setpointGenerator;
+    private SwerveSetpoint previousSetpoint;
 
     static {
         switch (Constants.getRobot()) {
@@ -212,18 +219,18 @@ public class Swerve extends SubsystemBase {
                         getModuleTranslations());
                 MAPLE_SIM_CONFIG =
                     DriveTrainSimulationConfig.Default()
-                    // Specify gyro type (for realistic gyro drifting and error simulation)
-                    .withGyro(COTS.ofPigeon2())
-                    // Specify swerve module (for realistic swerve dynamics)
-                    .withSwerveModule(COTS.ofMark4n(
-                        DCMotor.getKrakenX60(1),
-                        DCMotor.getKrakenX60(1),
-                        COTS.WHEELS.COLSONS.cof,
-                        3)) // L3 Gear ratio
-                    // Configures the track length and track width (spacing between swerve modules)
-                    .withTrackLengthTrackWidth(Inches.of(25), Inches.of(25))
-                    // Configures the bumper size (dimensions of the robot bumper)
-                    .withBumperSize(Inches.of(36), Inches.of(36));
+                        // Specify gyro type (for realistic gyro drifting and error simulation)
+                        .withGyro(COTS.ofPigeon2())
+                        // Specify swerve module (for realistic swerve dynamics)
+                        .withSwerveModule(COTS.ofMark4n(
+                            DCMotor.getKrakenX60(1),
+                            DCMotor.getKrakenX60(1),
+                            COTS.WHEELS.COLSONS.cof,
+                            3)) // L3 Gear ratio
+                        // Configures the track length and track width (spacing between swerve modules)
+                        .withTrackLengthTrackWidth(Inches.of(25), Inches.of(25))
+                        // Configures the bumper size (dimensions of the robot bumper)
+                        .withBumperSize(Inches.of(36), Inches.of(36));
             }
         }
 
@@ -365,6 +372,15 @@ public class Swerve extends SubsystemBase {
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
         mAlignDebouncer = new Debouncer(1, DebounceType.kRising);
+
+        setpointGenerator = new SwerveSetpointGenerator(
+            PP_CONFIG, // The robot configuration. This is the same config used for generating trajectories and running path following commands.
+            getMaxAngularSpeedRadPerSec()); // The max rotation velocity of a swerve module in radians per second. This should probably be stored in your Constants file
+
+        // Initialize the previous setpoint to the robot's current speeds & module states
+        ChassisSpeeds currentSpeeds = getChassisSpeeds(); // Method to get current robot-relative chassis speeds
+        SwerveModuleState[] currentStates = getModuleStates(); // Method to get the current swerve module states
+        previousSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(PP_CONFIG.numModules));
     }
 
     public ProfiledPIDController getAlign() {
@@ -448,13 +464,16 @@ public class Swerve extends SubsystemBase {
                 default -> TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
             };
 
-        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-        SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, speedMetersPerSec);
+        previousSetpoint = setpointGenerator.generateSetpoint(
+            previousSetpoint, // The previous setpoint
+            speeds, // The desired target speeds
+            Constants.UPDATE_LOOP_DT);
+
+        SwerveModuleState[] setpointStates = previousSetpoint.moduleStates();
+//        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, speedMetersPerSec);
 
         // Log unoptimized setpoints and setpoint speeds
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-        Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
         for (int i = 0; i < 4; i++) {
             swerveModules[i].runSetpoint(setpointStates[i]);
@@ -675,7 +694,7 @@ public class Swerve extends SubsystemBase {
                     new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
                     new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                     new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
-            };
+                };
             case ALPHABOT -> new Translation2d[]{
                 new Translation2d(TunerConstantsAlpha.FrontLeft.LocationX, TunerConstantsAlpha.FrontLeft.LocationY),
                 new Translation2d(TunerConstantsAlpha.FrontRight.LocationX, TunerConstantsAlpha.FrontRight.LocationY),
@@ -710,15 +729,15 @@ public class Swerve extends SubsystemBase {
 
     public Command zeroHeading() {
         return Commands.runOnce(
-            () -> {
-                Pose2d zeroed = new Pose2d(getPose().getTranslation(), new Rotation2d());
+                () -> {
+                    Pose2d zeroed = new Pose2d(getPose().getTranslation(), new Rotation2d());
 
-                if (RobotBase.isSimulation()) {
-                    zeroed = new Pose2d(DRIVE_SIMULATION.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d());
-                }
+                    if (RobotBase.isSimulation()) {
+                        zeroed = new Pose2d(DRIVE_SIMULATION.getSimulatedDriveTrainPose().getTranslation(), new Rotation2d());
+                    }
 
-                setPose(zeroed);
-            }, this)
+                    setPose(zeroed);
+                }, this)
             .ignoringDisable(true);
     }
 
