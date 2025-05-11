@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -31,6 +32,7 @@ import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
@@ -195,12 +197,11 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("Align/ClosestBargePoint", FieldConstants.Barge.SCORE.getClearancePose());
 
         Logger.recordOutput("Clearances/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
-        Logger.recordOutput("Clearances/ClearFromBarge", Clearances.AlgaeClawClearances.isClearFromBarge());
 
-        Logger.recordOutput("Align/MaximizeScore", RobotContainer.s_ReefState.getNextBestScorePosition());
-        Logger.recordOutput("Align/CoralRP", RobotContainer.s_ReefState.getNextForCoralRP());
-        Logger.recordOutput("Align/QuickestScorer", RobotContainer.s_ReefState.getQuickestScoring());
-        Logger.recordOutput("Align/DynamicRoutine", RobotContainer.s_ReefState.dynamicScoreRoutine());
+        Logger.recordOutput("Align/MaximizeScore", ReefState.getNextBestScorePosition());
+        Logger.recordOutput("Align/CoralRP", ReefState.getNextForCoralRP());
+        Logger.recordOutput("Align/QuickestScorer", ReefState.getQuickestScoring());
+        Logger.recordOutput("Align/DynamicRoutine", ReefState.dynamicScoreRoutine());
     }
 
     @Override
@@ -281,8 +282,16 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         if (LED.getInstance().getCurrentCommand() != null)
             LED.getInstance().getCurrentCommand().cancel();
-        if (DriverStation.isDSAttached())
-            robotContainer.waitForDs();
+        if (DriverStation.isDSAttached()) {
+            boolean isRed = AllianceFlip.shouldFlip();
+            Color c1 = isRed ? Color.kBlue : Color.kRed;
+            Color c2 = isRed ? Color.kRed : Color.kBlue;
+
+            LED.getInstance().setDefaultLighting(
+                LED.getInstance().movingDiscontinuousGradient(
+                    c1, c2)
+                .ignoringDisable(false));
+        }
     }
 
     @Override

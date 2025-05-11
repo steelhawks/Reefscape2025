@@ -36,7 +36,6 @@ import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.*;
 
 import java.util.Objects;
-import java.util.Set;
 
 
 public class RobotContainer {
@@ -58,17 +57,6 @@ public class RobotContainer {
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
-
-    public void waitForDs() {
-        boolean isRed = AllianceFlip.shouldFlip();
-        Color c1 = isRed ? Color.kBlue : Color.kRed;
-        Color c2 = isRed ? Color.kRed : Color.kBlue;
-
-        s_LED.setDefaultLighting(
-            s_LED.movingDiscontinuousGradient(
-                c1, c2)
-            .ignoringDisable(false));
-    }
 
     public RobotContainer() {
         SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
