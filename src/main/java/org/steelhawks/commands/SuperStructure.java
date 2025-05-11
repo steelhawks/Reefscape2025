@@ -43,9 +43,7 @@ public class SuperStructure {
         return Commands.defer(
             () -> Commands.sequence(
                 Commands.either(
-//                s_Align.alignToClosestReefWithFusedInput(state, joystickAxis, true),
-//                    new SwerveDriveAlignment(() -> ReefState.getFreeBranch(state).getScorePose(state), true),
-                Align.directPathFollow(ReefState.getFreeBranch(state).getScorePose(state), true),
+                    Align.directPathFollow(ReefState.getFreeBranch(state).getScorePose(state), true),
                     Commands.none(),
                     () -> s_Swerve.getPose().getTranslation()
                         .getDistance(ReefState.getFreeBranch(state).getScorePose(state).getTranslation()) < 10.0),
