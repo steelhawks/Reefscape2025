@@ -401,6 +401,45 @@ public class ReefState extends VirtualSubsystem {
             : new ScoreGoal(ElevatorConstants.State.L1, ReefUtil.getClosestCoralBranch());
     }
 
+    public CoralBranch getFreeBranch(ElevatorConstants.State targetState) {
+        Pose2d robotPose = RobotContainer.s_Swerve.getPose();
+        // map targetLevel, array index (0→L4, 1→L3, 2→L2, 3→L1)
+        int idxWanted =
+            switch (targetState) {
+                case L4 -> 0;
+                case L3 -> 1;
+                case L2 -> 2;
+                default -> -1;
+            };
+
+        // 2) among all reefs, choose the closest branch at that level
+        double bestDist = Double.MAX_VALUE;
+        CoralBranch bestBranch = null;
+
+        for (String reefName : REEF_NAMES) {
+            boolean[] arr = coralMap.get(reefName);
+            // skip if already scored at this level
+            if (idxWanted < 0 || idxWanted >= arr.length || arr[idxWanted]) {
+                continue;
+            }
+
+            // build branch enum
+            String code = toBranchCode(reefName);
+            CoralBranch branch = CoralBranch.valueOf(code);
+
+            // distance from robot to branch
+            Pose2d branchPose = branch.getBranchPoseProjectedToReefFace();
+            double dist = robotPose.getTranslation().getDistance(branchPose.getTranslation());
+
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestBranch = branch;
+            }
+        }
+
+        return bestBranch;
+    }
+
     public ScoreGoal dynamicScoreRoutine() {
         String goal = NetworkTableInstance.getDefault().getTable("ReefData").getEntry(ReefState.goal).getString("");
         Logger.recordOutput("Align/AutoScoreGoal", goal);

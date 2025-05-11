@@ -3,6 +3,7 @@ package org.steelhawks.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.steelhawks.Clearances;
+import org.steelhawks.ReefState;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
@@ -38,7 +39,8 @@ public class SuperStructure {
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.sequence(
             Commands.either(
-                s_Align.alignToClosestReefWithFusedInput(state, joystickAxis, true),
+//                s_Align.alignToClosestReefWithFusedInput(state, joystickAxis, true),
+                new SwerveDriveAlignment(() -> RobotContainer.s_ReefState.getFreeBranch(state).getScorePose(state)),
                 Commands.none(),
                 () -> s_Swerve.getPose().getTranslation()
                     .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
@@ -57,6 +59,6 @@ public class SuperStructure {
                 Commands.none(),
                 () -> s_Swerve.getPose().getTranslation()
                     .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))
-            .onlyWhile(() -> Math.abs(joystickAxisToCancel.getAsDouble()) < 0.3);
+            .onlyWhile(() -> Math.abs(joystickAxisToCancel.getAsDouble() + joystickAxis.getAsDouble()) < 0.3);
     }
 }
