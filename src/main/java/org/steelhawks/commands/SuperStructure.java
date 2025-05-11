@@ -14,9 +14,12 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.subsystems.vision.Vision;
 
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 
-/** Command factory class for commands that require multiple subsystems. */
+/**
+ * Command factory class for commands that require multiple subsystems.
+ */
 public class SuperStructure {
 
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
@@ -37,28 +40,31 @@ public class SuperStructure {
     }
 
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
-        return Commands.sequence(
-            Commands.either(
+        return Commands.defer(
+            () -> Commands.sequence(
+                Commands.either(
 //                s_Align.alignToClosestReefWithFusedInput(state, joystickAxis, true),
-                new SwerveDriveAlignment(() -> RobotContainer.s_ReefState.getFreeBranch(state).getScorePose(state)),
-                Commands.none(),
-                () -> s_Swerve.getPose().getTranslation()
-                    .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
-            s_Elevator.setDesiredState(state),
-            Commands.either(
-                Commands.sequence(
-                    Commands.waitUntil(s_Elevator.atThisGoal(state)),
-                    Commands.either(
-                        s_Claw.shootCoralSlow(),
-                        s_Claw.shootCoral(),
-                        () ->
-                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
+//                    new SwerveDriveAlignment(() -> ReefState.getFreeBranch(state).getScorePose(state), true),
+                Align.directPathFollow(ReefState.getFreeBranch(state).getScorePose(state), true),
+                    Commands.none(),
+                    () -> s_Swerve.getPose().getTranslation()
+                        .getDistance(ReefState.getFreeBranch(state).getScorePose(state).getTranslation()) < 10.0),
+                s_Elevator.setDesiredState(state),
+                Commands.either(
+                    Commands.sequence(
+                        Commands.waitUntil(s_Elevator.atThisGoal(state)),
+                        Commands.either(
+                            s_Claw.shootCoralSlow(),
+                            s_Claw.shootCoral(),
+                            () ->
+                                (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                                    s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
-                    s_Elevator.noSlamCommand()),
-                Commands.none(),
-                () -> s_Swerve.getPose().getTranslation()
-                    .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))
-            .onlyWhile(() -> Math.abs(joystickAxisToCancel.getAsDouble() + joystickAxis.getAsDouble()) < 0.3);
+                        s_Elevator.noSlamCommand()),
+                    Commands.none(),
+                    () -> s_Swerve.getPose().getTranslation()
+                        .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))
+            .onlyWhile(() -> Math.abs(joystickAxisToCancel.getAsDouble() + joystickAxis.getAsDouble()) < 0.3),
+        Set.of());
     }
 }

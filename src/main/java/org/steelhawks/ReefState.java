@@ -41,7 +41,7 @@ public class ReefState extends VirtualSubsystem {
         Map.entry("bottomLeftOne", "BL1"),
         Map.entry("bottomLeftTwo", "BL2"));
 
-    private String toBranchCode(String reefName) {
+    private static String toBranchCode(String reefName) {
         return BRANCH_CODE.getOrDefault(reefName, reefName);
     }
 
@@ -49,7 +49,7 @@ public class ReefState extends VirtualSubsystem {
         return CoralBranch.valueOf(code);
     }
 
-    private String toBranchFromCode(String code) {
+    private static String toBranchFromCode(String code) {
         for (Map.Entry<String, String> entry : BRANCH_CODE.entrySet()) {
             if (entry.getValue().equals(code)) {
                 return entry.getKey();
@@ -58,7 +58,7 @@ public class ReefState extends VirtualSubsystem {
         return code;
     }
 
-    private String toCodeFromBranch(CoralBranch branch) {
+    private static String toCodeFromBranch(CoralBranch branch) {
         return toBranchFromCode(branch.name());
     }
 
@@ -67,10 +67,10 @@ public class ReefState extends VirtualSubsystem {
     private static final String goal = "goal";
 
     // for levels 2–4 each reef has 3 branches; level1 uses troughCount
-    private Map<String, boolean[]> coralMap;
-    private Map<String, Boolean> algaeMap;
-    private int troughCount;
-    private boolean coop;
+    private static Map<String, boolean[]> coralMap;
+    private static Map<String, Boolean> algaeMap;
+    private static int troughCount;
+    private static boolean coop;
 
     public ReefState() {
         coralMap = new HashMap<>();
@@ -173,7 +173,7 @@ public class ReefState extends VirtualSubsystem {
     /**
      * Called from robot code when you score a coral.
      */
-    public void scoreCoral(CoralBranch branch, ElevatorConstants.State level) {
+    public static void scoreCoral(CoralBranch branch, ElevatorConstants.State level) {
         int index =
             level == ElevatorConstants.State.L4
                 ? 0 : level == ElevatorConstants.State.L3
@@ -187,7 +187,7 @@ public class ReefState extends VirtualSubsystem {
     /**
      * Called when you change troughCount (level1).
      */
-    public void setTroughCount(int count) {
+    public static void setTroughCount(int count) {
         troughCount = count;
         NetworkTableInstance.getDefault()
             .getTable("ReefData")
@@ -198,7 +198,7 @@ public class ReefState extends VirtualSubsystem {
     /**
      * Called when coop toggles.
      */
-    public void setCoop(boolean c) {
+    public static void setCoop(boolean c) {
         coop = c;
         NetworkTableInstance.getDefault()
             .getTable("ReefData")
@@ -209,7 +209,7 @@ public class ReefState extends VirtualSubsystem {
     /**
      * Returns total coral‑toggles at dashboard level (4→index0, 3→1, 2→2, 1→troughCount).
      */
-    public int getCountForLevel(int level) {
+    public static int getCountForLevel(int level) {
         switch (level) {
             case 4:
             case 3:
@@ -228,21 +228,21 @@ public class ReefState extends VirtualSubsystem {
     }
 
     /**
-     * “minimum” is 7.
+     * “minimum" is 7.
      */
-    public boolean achievedLevelMinimum(int level) {
+    public static boolean achievedLevelMinimum(int level) {
         int needed = 7;
         return getCountForLevel(level) >= needed;
     }
 
-    public boolean achievedCoralRP() {
+    public static boolean achievedCoralRP() {
         return NetworkTableInstance.getDefault().getTable("ReefData").getEntry(coopKey).getBoolean(false);
     }
 
     /**
      * Coral RP: either 4 levels ≥7 (no‑coop) or 3 levels ≥7 + coop.
      */
-    public boolean isCoralRPFeasible() {
+    public static boolean isCoralRPFeasible() {
         int qualified = 0;
         for (int lvl = 2; lvl <= 4; lvl++) {
             if (getCountForLevel(lvl) >= 7) qualified++;
@@ -255,7 +255,7 @@ public class ReefState extends VirtualSubsystem {
      * highest reef‑level first (L4→L3→L2)
      * then minimal travel distance
      */
-    public ScoreGoal getNextBestScorePosition() {
+    public static ScoreGoal getNextBestScorePosition() {
         Pose2d robotPose = RobotContainer.s_Swerve.getPose();
 
         ScoreGoal best = null;
@@ -304,7 +304,7 @@ public class ReefState extends VirtualSubsystem {
      * Pick the next score action (either a coral branch or a trough increment)
      * that most advances you toward CoralRP (7 on each level, or 7 on any 3 levels if coop).
      */
-    public ScoreGoal getNextForCoralRP() {
+    public static ScoreGoal getNextForCoralRP() {
         Pose2d robotPose = RobotContainer.s_Swerve.getPose();
 
         // 1) find which level we need to score next to hit the RP thresholds
@@ -363,7 +363,7 @@ public class ReefState extends VirtualSubsystem {
         return (bestGoal != null ? bestGoal : getNextBestScorePosition());
     }
 
-    public ScoreGoal getQuickestScoring() {
+    public static ScoreGoal getQuickestScoring() {
         Pose2d robotPose = RobotContainer.s_Swerve.getPose();
 
         ScoreGoal best = null;
@@ -401,7 +401,7 @@ public class ReefState extends VirtualSubsystem {
             : new ScoreGoal(ElevatorConstants.State.L1, ReefUtil.getClosestCoralBranch());
     }
 
-    public CoralBranch getFreeBranch(ElevatorConstants.State targetState) {
+    public static CoralBranch getFreeBranch(ElevatorConstants.State targetState) {
         Pose2d robotPose = RobotContainer.s_Swerve.getPose();
         // map targetLevel, array index (0→L4, 1→L3, 2→L2, 3→L1)
         int idxWanted =
@@ -440,7 +440,7 @@ public class ReefState extends VirtualSubsystem {
         return bestBranch;
     }
 
-    public ScoreGoal dynamicScoreRoutine() {
+    public static ScoreGoal dynamicScoreRoutine() {
         String goal = NetworkTableInstance.getDefault().getTable("ReefData").getEntry(ReefState.goal).getString("");
         Logger.recordOutput("Align/AutoScoreGoal", goal);
         return switch (goal) {
@@ -451,15 +451,15 @@ public class ReefState extends VirtualSubsystem {
     }
 
     // getters for dashboard
-    public Map<String, boolean[]> getAllCoralMaps() {
+    public static Map<String, boolean[]> getAllCoralMaps() {
         return coralMap;
     }
 
-    public int getTroughCount() {
+    public static int getTroughCount() {
         return troughCount;
     }
 
-    public boolean isCoop() {
+    public static boolean isCoop() {
         return coop;
     }
 

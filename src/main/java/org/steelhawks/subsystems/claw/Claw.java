@@ -8,10 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Clearances;
-import org.steelhawks.Constants;
-import org.steelhawks.ReefUtil;
-import org.steelhawks.RobotContainer;
+import org.steelhawks.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
 
@@ -86,7 +83,7 @@ public class Claw extends SubsystemBase {
                 if (hasCoral().getAsBoolean()
                     && RobotContainer.s_Swerve.getPose().getTranslation()
                         .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
-                    RobotContainer.s_ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
+                    ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
                 }
                 io.runIntake(speed);
             }, this)
