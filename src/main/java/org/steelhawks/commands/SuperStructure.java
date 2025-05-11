@@ -2,10 +2,8 @@ package org.steelhawks.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import org.steelhawks.Clearances;
-import org.steelhawks.ReefState;
-import org.steelhawks.ReefUtil;
-import org.steelhawks.RobotContainer;
+import org.steelhawks.*;
+import org.steelhawks.Robot.RobotState;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.claw.Claw;
@@ -42,11 +40,8 @@ public class SuperStructure {
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.defer(
             () -> Commands.sequence(
-                Commands.either(
-                    Align.directPathFollow(ReefState.getFreeBranch(state).getScorePose(state), true),
-                    Commands.none(),
-                    () -> s_Swerve.getPose().getTranslation()
-                        .getDistance(ReefState.getFreeBranch(state).getScorePose(state).getTranslation()) < 10.0),
+                Align.directPathFollow(ReefState.getFreeBranch(state).getScorePose(state), true)
+                    .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
                 s_Elevator.setDesiredState(state),
                 Commands.either(
                     Commands.sequence(

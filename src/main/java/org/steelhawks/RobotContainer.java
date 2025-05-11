@@ -370,7 +370,8 @@ public class RobotContainer {
             .whileTrue(
                 Commands.deferredProxy(
                     () -> Commands.sequence(
-                        Align.directPathFollow(ReefState.dynamicScoreRoutine().branch().getScorePose(ReefState.dynamicScoreRoutine().state()), true),
+                        Align.directPathFollow(ReefState.dynamicScoreRoutine().branch().getScorePose(ReefState.dynamicScoreRoutine().state()), true)
+                            .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
                         s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),
                         Commands.waitUntil(s_Elevator.atThisGoal(ReefState.dynamicScoreRoutine().state())),
                         Commands.either(
