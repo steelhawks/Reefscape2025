@@ -437,7 +437,7 @@ public class ReefState extends VirtualSubsystem {
             }
         }
 
-        return bestBranch;
+        return bestBranch != null ? bestBranch : ReefUtil.getClosestCoralBranch();
     }
 
     public static ScoreGoal dynamicScoreRoutine() {
