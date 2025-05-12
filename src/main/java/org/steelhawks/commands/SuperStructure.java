@@ -41,7 +41,7 @@ public class SuperStructure {
         return Commands.defer(
             () -> Commands.sequence(
                 Align.directPathFollow(ReefState.getFreeBranch(state).getScorePose(state), true)
-                    .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
+                    .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
                 s_Elevator.setDesiredState(state),
                 Commands.either(
                     Commands.sequence(
@@ -57,7 +57,7 @@ public class SuperStructure {
                     Commands.none(),
                     () -> s_Swerve.getPose().getTranslation()
                         .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))
-            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.3),
+            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.6),
         Set.of());
     }
 }
