@@ -38,6 +38,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
     private final MotionMagicVoltage positionVoltageRequestMotionMagic = new MotionMagicVoltage(0.0);
     private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
+    private final MotionMagicVelocityVoltage velocityVoltageRequestMotionMagic = new MotionMagicVelocityVoltage(0.0);
 
     // Torque-current control requests
     private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
@@ -92,8 +93,8 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.DriveMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        driveTalon.getConfigurator().apply(driveConfig);
-        driveTalon.setPosition(0.0);
+        tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig));
+        tryUntilOk(5, () -> driveTalon.setPosition(0.0));
 
         // Configure turn motor
         var turnConfig = new TalonFXConfiguration();
@@ -124,7 +125,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.SteerMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        turnTalon.getConfigurator().apply(turnConfig);
+        tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig));
 
         // Configure CANCoder
         CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
@@ -133,7 +134,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.EncoderInverted
                 ? SensorDirectionValue.Clockwise_Positive
                 : SensorDirectionValue.CounterClockwise_Positive;
-        cancoder.getConfigurator().apply(cancoderConfig);
+        tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig));
 
         // Create timestamp queue
         timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
@@ -242,7 +243,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         double velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec);
         driveTalon.setControl(
             switch (constants.DriveMotorClosedLoopOutput) {
-                case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec);
+                case Voltage -> Constants.USE_MOTION_MAGIC ?
+                    velocityVoltageRequestMotionMagic.withVelocity(velocityRotPerSec) :
+                    velocityVoltageRequest.withVelocity(velocityRotPerSec);
                 case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec);
             });
     }
@@ -253,7 +256,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             switch (constants.SteerMotorClosedLoopOutput) {
                 case Voltage -> Constants.USE_MOTION_MAGIC ?
                     positionVoltageRequestMotionMagic.withPosition(rotation.getRotations()) :
-                        positionVoltageRequest.withPosition(rotation.getRotations());
+                    positionVoltageRequest.withPosition(rotation.getRotations());
                 case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
                     rotation.getRotations());
             });
