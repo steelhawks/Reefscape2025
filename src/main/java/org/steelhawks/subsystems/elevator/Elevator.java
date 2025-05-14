@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -35,6 +36,7 @@ public class Elevator extends SubsystemBase {
 
     private final ProfiledPIDController mController;
     private final ElevatorFeedforward mFeedforward;
+    private final SlewRateLimiter mSlewRateLimiter;
 
     private final Alert leftMotorDisconnected =
         new AlertUtil("Left Elevator Motor Disconnected", AlertType.kError)
@@ -96,6 +98,7 @@ public class Elevator extends SubsystemBase {
                 ElevatorConstants.KS,
                 ElevatorConstants.KG,
                 ElevatorConstants.KV);
+        mSlewRateLimiter = new SlewRateLimiter(ElevatorConstants.MAX_VELOCITY_PER_SEC);
 
         mSysId =
             new SysIdRoutine(
