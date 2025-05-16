@@ -19,6 +19,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.ReefUtil;
+import org.steelhawks.ReefUtil.CoralBranch;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.FusedSwerveDriveAlignment;
@@ -26,6 +27,7 @@ import org.steelhawks.commands.SwerveDriveAlignment;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.VirtualSubsystem;
@@ -138,6 +140,11 @@ public class Align extends VirtualSubsystem {
             .andThen(new SwerveDriveAlignment(goal, endsWhenAligned));
     }
 
+    public static Command alignWithSetpoint(CoralBranch branch, State level, boolean endsWhenAligned) {
+        return DriveCommands.driveToPosition(branch.getStagingPose(level))
+            .andThen(new SwerveDriveAlignment(branch.getScorePose(level), endsWhenAligned));
+    }
+
     public Command forwardUntil(Rotation2d angle) {
         return Commands.run(
             () -> {
@@ -201,17 +208,17 @@ public class Align extends VirtualSubsystem {
         .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
-    public Command alignToClosestReef(ElevatorConstants.State level) {
+    public Command alignToClosestReef(State level) {
         return Commands.defer(
             () -> directPathFollow(() -> ReefUtil.getClosestCoralBranch().getScorePose(level), false),
             Set.of(s_Swerve));
     }
 
-    public Command alignToClosestReefWithFusedInput(ElevatorConstants.State level, DoubleSupplier joystickAxis) {
+    public Command alignToClosestReefWithFusedInput(State level, DoubleSupplier joystickAxis) {
         return alignToClosestReefWithFusedInput(level, joystickAxis, false);
     }
 
-    public Command alignToClosestReefWithFusedInput(ElevatorConstants.State level, DoubleSupplier joystickAxis, boolean endsWhenAligned) {
+    public Command alignToClosestReefWithFusedInput(State level, DoubleSupplier joystickAxis, boolean endsWhenAligned) {
         return Commands.defer(
             () -> new SwerveDriveAlignment(() -> ReefUtil.getCoralBranchWithFusedDriverInput(joystickAxis).get().getScorePose(level), endsWhenAligned),
             Set.of(s_Swerve));

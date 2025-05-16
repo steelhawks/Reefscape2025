@@ -367,7 +367,7 @@ public class RobotContainer {
                     () -> Commands.sequence(
                         Commands.either(
                             Align.directPathFollow(ReefUtil.getCoralBranchWithFusedDriverInput(driver::getLeftX).get().getScorePose(State.L4), true),
-                            Align.directPathFollow(ReefState.dynamicScoreRoutine().branch().getScorePose(ReefState.dynamicScoreRoutine().state()), true),
+                            Align.alignWithSetpoint(ReefState.dynamicScoreRoutine().branch(), ReefState.dynamicScoreRoutine().state(), true),
                             ReefState::hasOverriden)
                         .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
                         s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),

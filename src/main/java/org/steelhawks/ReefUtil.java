@@ -85,6 +85,15 @@ public class ReefUtil {
                             + RobotConstants.CLAW_Y_OFFSET * (isLeftBranch() ? 1.0 : -1.0),
                         new Rotation2d(Math.PI)));
         }
+
+        public Pose2d getStagingPose(ElevatorConstants.State level) {
+            return getScorePose(level)
+                .transformBy(
+                    new Transform2d(
+                        -15.0,
+                        0.0,
+                        new Rotation2d()));
+        }
     }
 
     public static CoralBranch getClosestCoralBranch() {
