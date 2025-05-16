@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 
 public class Claw extends SubsystemBase {
 
@@ -32,7 +33,6 @@ public class Claw extends SubsystemBase {
                 new Trigger(
                     () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
-            case SIMBOT -> new Trigger(() -> true);
             default -> new Trigger(() -> beamDebounce.calculate(beamInputs.broken));
         };
     }
@@ -80,10 +80,15 @@ public class Claw extends SubsystemBase {
             () -> {
                 Clearances.ClawClearances.hasShot = true;
                 isIntaking = true;
-                if (hasCoral().getAsBoolean()
-                    && RobotContainer.s_Swerve.getPose().getTranslation()
-                        .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
-                    ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
+                if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
+                    if (hasCoral().getAsBoolean()
+                        && RobotContainer.s_Swerve.getPose().getTranslation()
+                            .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
+                        ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
+                    }
+                    if (Constants.getRobot() == Constants.RobotType.SIMBOT) {
+                        BeamIOSim.hasShot();
+                    }
                 }
                 io.runIntake(speed);
             }, this)
