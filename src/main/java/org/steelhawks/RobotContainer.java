@@ -357,7 +357,7 @@ public class RobotContainer {
 
         topCoralStationTrigger
         .or(bottomCoralStationTrigger)
-        .and(() -> Robot.getState() != RobotState.AUTON) // AUTON WILL BREAK IF IT RUNS THIS COMMAND
+        .and(() -> Robot.getState() != RobotState.AUTON) // due to the nature of triggers, if this runs during auton, the autonomous command will be interrupted
             .whileTrue(
                 s_Claw.intakeCoral()
             .until(s_Claw.hasCoral()));

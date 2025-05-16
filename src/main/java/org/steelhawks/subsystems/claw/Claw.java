@@ -14,6 +14,7 @@ import org.steelhawks.ReefUtil;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 
 public class Claw extends SubsystemBase {
 
@@ -35,7 +36,6 @@ public class Claw extends SubsystemBase {
                 new Trigger(
                     () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
             case HAWKRIDER -> new Trigger(() -> false);
-            case SIMBOT -> new Trigger(() -> true);
             default -> new Trigger(() -> beamDebounce.calculate(beamInputs.broken));
         };
     }
@@ -87,6 +87,9 @@ public class Claw extends SubsystemBase {
                     && RobotContainer.s_Swerve.getPose().getTranslation()
                         .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
                     RobotContainer.s_ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
+                }
+                if (Constants.getRobot() == Constants.RobotType.SIMBOT) {
+                    BeamIOSim.hasShot();
                 }
                 io.runIntake(speed);
             }, this)
