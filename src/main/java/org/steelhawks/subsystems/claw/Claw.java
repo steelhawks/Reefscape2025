@@ -83,13 +83,15 @@ public class Claw extends SubsystemBase {
             () -> {
                 Clearances.ClawClearances.hasShot = true;
                 isIntaking = true;
-                if (hasCoral().getAsBoolean()
-                    && RobotContainer.s_Swerve.getPose().getTranslation()
-                        .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
-                    RobotContainer.s_ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
-                }
-                if (Constants.getRobot() == Constants.RobotType.SIMBOT) {
-                    BeamIOSim.hasShot();
+                if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
+                    if (hasCoral().getAsBoolean()
+                        && RobotContainer.s_Swerve.getPose().getTranslation()
+                            .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
+                        RobotContainer.s_ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
+                    }
+                    if (Constants.getRobot() == Constants.RobotType.SIMBOT) {
+                        BeamIOSim.hasShot();
+                    }
                 }
                 io.runIntake(speed);
             }, this)
