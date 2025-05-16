@@ -140,21 +140,6 @@ public class LED extends SubsystemBase {
         LEDStrip.start();
     }
 
-    /**
-     * A helper command that removes and cancels any existing default command before replacing it with
-     * a new one.
-     *
-     * @param defaultCommand the default command you want to set
-     */
-    public void setDefaultLighting(Command defaultCommand) {
-        if (getDefaultCommand() != null) {
-            getDefaultCommand().cancel();
-            removeDefaultCommand();
-        }
-
-        setDefaultCommand(defaultCommand);
-    }
-
     public void setColor(LEDColor color) {
         for (int i = 0; i < LEDBuffer.getLength(); i++) {
             LEDBuffer.setRGB(i, color.r, color.g, color.b);
@@ -164,7 +149,7 @@ public class LED extends SubsystemBase {
         LEDStrip.setData(LEDBuffer);
     }
 
-    private void pulse(LEDColor color, double interval) {
+    public void pulse(LEDColor color, double interval) {
         double timestamp = Timer.getFPGATimestamp();
 
         if (timestamp - lastChange > interval) {
@@ -179,7 +164,7 @@ public class LED extends SubsystemBase {
         }
     }
 
-    private void wave(LEDColor color) {
+    public void wave(LEDColor color) {
         for (int i = 0; i < stripLength; i++) {
             if ((i >= waveIndex && i < waveIndex + waveLength)
                 || (waveIndex + waveLength > stripLength && i < (waveIndex + waveLength) % stripLength)) {
@@ -198,7 +183,7 @@ public class LED extends SubsystemBase {
         this.LEDStrip.setData(this.LEDBuffer);
     }
 
-    private void bounceWave(LEDColor color) {
+    public void bounceWave(LEDColor color) {
         for (int i = 0; i < stripLength; i++) {
             if (i >= bounceWaveIndex && i < bounceWaveIndex + bounceWaveLength) {
                 this.LEDBuffer.setRGB(i, color.r, color.g, color.b);
@@ -225,7 +210,7 @@ public class LED extends SubsystemBase {
         this.LEDStrip.setData(this.LEDBuffer);
     }
 
-    private void fade(LEDColor color) {
+    public void fade(LEDColor color) {
         for (int i = 0; i < LEDBuffer.getLength(); i++) {
             LEDBuffer.setRGB(
                 i,

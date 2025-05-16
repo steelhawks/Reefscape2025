@@ -115,7 +115,7 @@ public final class Autos {
         double radiansTolerance = Units.degreesToRadians(5);
         double xyTolerance = 0.6;
 
-        double rotError = AllianceFlip.apply(new Rotation2d(StartEndPosition.valueOf(autoName).rotRadians)).getRadians()  - s_Swerve.getRotation().getRadians();
+        double rotError = AllianceFlip.apply(new Rotation2d(StartEndPosition.valueOf(autoName).rotRadians)).getRadians() - s_Swerve.getRotation().getRadians();
         double xError = AllianceFlip.applyX(StartEndPosition.valueOf(autoName).x) - s_Swerve.getPose().getX();
         double yError = AllianceFlip.applyY(StartEndPosition.valueOf(autoName).y) - s_Swerve.getPose().getY();
 
