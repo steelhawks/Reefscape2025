@@ -189,7 +189,7 @@ public class Robot extends LoggedRobot {
     }
 
     private void updateSimPoseVisualizer() {
-        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L1));
+        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L4));
         Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getRetrievePose());
         Logger.recordOutput("Align/ClosestAlgaeClearance", ReefUtil.getClosestAlgae().getClearancePose());
         Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
@@ -197,6 +197,7 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("Align/Right", FieldConstants.Cage.RIGHT.getClimbPose());
         Logger.recordOutput("Align/Center", FieldConstants.Cage.CENTER.getClimbPose());
         Logger.recordOutput("Align/ClosestBargePoint", FieldConstants.Barge.SCORE.getClearancePose());
+        Logger.recordOutput("Align/StagingPositionReef", ReefUtil.getClosestCoralBranch().getStagingPose(ElevatorConstants.State.L4));
 
         Logger.recordOutput("Clearances/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
 

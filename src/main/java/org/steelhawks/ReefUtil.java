@@ -90,7 +90,7 @@ public class ReefUtil {
             return getScorePose(level)
                 .transformBy(
                     new Transform2d(
-                        -15.0,
+                        Units.inchesToMeters(-15.0),
                         0.0,
                         new Rotation2d()));
         }

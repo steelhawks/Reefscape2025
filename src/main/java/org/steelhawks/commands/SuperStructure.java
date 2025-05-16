@@ -40,7 +40,7 @@ public class SuperStructure {
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.defer(
             () -> Commands.sequence(
-                Align.directPathFollow(ReefState.getFreeBranch(state).getScorePose(state), true)
+                Align.alignWithSetpoint(ReefState.getFreeBranch(state), state, true)
                     .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
                 s_Elevator.setDesiredState(state),
                 Commands.either(
