@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Autos;
 import org.steelhawks.Autos.Misalignment;
+import org.steelhawks.ReefState;
 import org.steelhawks.Robot;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.RobotContainer;
@@ -49,9 +50,9 @@ public class LEDDefaultCommand extends Command {
         }
     }
 
-//    private LEDColor getLevelPriorityColor() {
-//
-//    }
+    private LEDColor getLevelPriorityColor() {
+        return levelColors.get(ReefState.dynamicScoreRoutine().state());
+    }
 
     @Override
     public synchronized void execute() {
@@ -89,7 +90,7 @@ public class LEDDefaultCommand extends Command {
             s_LED.blockyRainbow();
             return;
         }
-        if (Robot.getState() == RobotState.AUTON && !s_Claw.hasCoral().getAsBoolean()) {
+        if (Robot.getState() == RobotState.AUTON) {
             s_LED.stop();
             s_LED.blockyRainbow();
         }
@@ -97,10 +98,13 @@ public class LEDDefaultCommand extends Command {
             s_LED.stop();
             s_LED.wave(AllianceFlip.shouldFlip() ? LEDColor.RED : LEDColor.BLUE);
         }
-        if (DriverStation.isEnabled()) {
+        if (DriverStation.isEnabled() && Robot.getState() == RobotState.TELEOP) {
             s_LED.stop();
             if (s_Claw.hasCoral().getAsBoolean()) {
-                s_LED.setColor(LEDColor.GREEN);
+                s_LED.setColor(
+                    !ReefState.hasOverriden()
+                        ? getLevelPriorityColor()
+                        : LEDColor.GREEN);
             }
         }
     }
