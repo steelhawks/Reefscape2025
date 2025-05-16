@@ -13,6 +13,7 @@ import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.claw.Claw;
+import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 
 public class LEDDefaultCommand extends Command {
 
+    private final Elevator s_Elevator = RobotContainer.s_Elevator;
     private final Swerve s_Swerve = RobotContainer.s_Swerve;
     private final Claw s_Claw = RobotContainer.s_Claw;
     private final LED s_LED = LED.getInstance();
@@ -56,6 +58,10 @@ public class LEDDefaultCommand extends Command {
 
     @Override
     public synchronized void execute() {
+        if (!s_Elevator.atLimit().getAsBoolean()) {
+            s_LED.setColor(LEDColor.WHITE);
+            return;
+        }
         if (DriverStation.isDisabled()) {
             if (!Robot.isFirstRun()) {
                 s_LED.stop();
@@ -86,25 +92,24 @@ public class LEDDefaultCommand extends Command {
                     flash(LEDColor.RED, 0.2);
             }
         }
-        if (s_Swerve.isPathfinding().getAsBoolean()) {
-            s_LED.blockyRainbow();
-            return;
-        }
-        if (Robot.getState() == RobotState.AUTON) {
+        if (Robot.getState() == RobotState.AUTON || s_Swerve.isPathfinding().getAsBoolean()) {
             s_LED.stop();
             s_LED.blockyRainbow();
+            if (Robot.getState() == RobotState.TELEOP) return;
         }
-        if (Robot.getState() == RobotState.TELEOP && !s_Claw.hasCoral().getAsBoolean()) {
-            s_LED.stop();
-            s_LED.wave(AllianceFlip.shouldFlip() ? LEDColor.RED : LEDColor.BLUE);
-        }
-        if (DriverStation.isEnabled() && Robot.getState() == RobotState.TELEOP) {
-            s_LED.stop();
-            if (s_Claw.hasCoral().getAsBoolean()) {
-                s_LED.setColor(
-                    !ReefState.hasOverriden()
-                        ? getLevelPriorityColor()
-                        : LEDColor.GREEN);
+        if (Robot.getState() == RobotState.TELEOP) {
+            if (!s_Claw.hasCoral().getAsBoolean()) {
+                s_LED.stop();
+                s_LED.wave(AllianceFlip.shouldFlip() ? LEDColor.RED : LEDColor.BLUE);
+            }
+            if (DriverStation.isEnabled()) {
+                s_LED.stop();
+                if (s_Claw.hasCoral().getAsBoolean()) {
+                    s_LED.setColor(
+                        !ReefState.hasOverriden()
+                            ? getLevelPriorityColor()
+                            : LEDColor.GREEN);
+                }
             }
         }
     }

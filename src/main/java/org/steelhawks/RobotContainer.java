@@ -324,9 +324,7 @@ public class RobotContainer {
     private void configureTriggers() {
         s_Elevator.atLimit()
             .onTrue(
-                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false))
-            .whileFalse(
-                s_LED.setColorCommand(LEDColor.WHITE).repeatedly());
+                s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false));
 
         s_Claw.hasCoral()
             .onTrue(
