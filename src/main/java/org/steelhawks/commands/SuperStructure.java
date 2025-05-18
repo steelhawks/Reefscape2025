@@ -53,7 +53,7 @@ public class SuperStructure {
                                 (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
                                     s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
-                        s_Elevator.noSlamCommand()),
+                        s_Elevator.homeCommand()),
                     Commands.none(),
                     () -> s_Swerve.getPose().getTranslation()
                         .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))

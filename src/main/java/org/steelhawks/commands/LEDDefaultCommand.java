@@ -71,11 +71,8 @@ public class LEDDefaultCommand extends Command {
             Misalignment currentState = Autos.getMisalignment();
             Logger.recordOutput("Align/AutonMisalignment", currentState);
             switch (currentState) {
-                case NONE -> {
-                    if (s_LED.getCurrentCommand() != null)
-                        s_LED.getCurrentCommand().cancel();
+                case NONE ->
                     s_LED.setColor(LEDColor.GREEN);
-                }
                 case ROTATION_CCW ->
                     flash(LEDColor.BLUE, 0.3);
                 case ROTATION_CW ->

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -308,15 +309,16 @@ public class Elevator extends SubsystemBase {
                 Commands.runOnce(this::disable),
                 Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
             .until(this::limitPressed)
-            .finallyDo(io::stop)
+            .finallyDo(
+                () -> {
+                    io.stop();
+                    io.zeroEncoders();
+                })
             .withName("No Slam Elevator");
     }
 
     public Command homeCommand() {
-        return setDesiredState(ElevatorConstants.State.HOME)
-            .until(this::limitPressed)
-            .finallyDo(io::stop)
-            .withName("Home Elevator");
+        return new ScheduleCommand(noSlamCommand());
     }
 
     public Command applykS() {

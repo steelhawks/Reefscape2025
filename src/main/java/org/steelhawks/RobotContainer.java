@@ -329,7 +329,7 @@ public class RobotContainer {
         s_Claw.hasCoral()
             .onTrue(
                 Commands.parallel(
-                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
+                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 0.5),
                     new VibrateController(1.0, 1.0, driver))
                 .ignoringDisable(false));
 
@@ -379,7 +379,7 @@ public class RobotContainer {
                                 (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
                                     s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
-                        s_Elevator.noSlamCommand()
+                        s_Elevator.homeCommand()
                             .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * driver.getLeftX()) + driver.getLeftY()) < 0.6))))
             .onFalse(
                 Commands.waitUntil(Clearances.ClawClearances::isClearFromReef)
@@ -418,7 +418,7 @@ public class RobotContainer {
 
         driver.b()
             .or(new DashboardTrigger("elevatorHome"))
-            .onTrue(s_Elevator.noSlamCommand());
+            .onTrue(s_Elevator.homeCommand());
 
         /* ------------- Intake Controls ------------- */
 
