@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
@@ -317,12 +318,13 @@ public class Swerve extends SubsystemBase {
 
         Pathfinding.setPathfinder(new LocalADStarAK());
         PathPlannerLogging.setLogActivePathCallback(
-            (activePath) ->
+            (activePath) -> {
+                FieldConstants.FIELD_2D.getObject("Path").setPoses(activePath);
                 Logger.recordOutput(
-                    "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()])));
+                    "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+            });
         PathPlannerLogging.setLogTargetPoseCallback(
-            (targetPose) ->
-                Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
+            (targetPose) -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
         PathfindingCommand.warmupCommand().schedule();
 
         driveSysId =
@@ -790,5 +792,14 @@ public class Swerve extends SubsystemBase {
     public Command testZeroedModules() {
         return Commands.run(
             () -> runDriveCharacterization(0.0), this);
+    }
+
+    public boolean isStalling() {
+        for (int i = 0; i < 4; i++) {
+            if (swerveModules[i].getIsStalling()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

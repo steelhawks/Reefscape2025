@@ -10,6 +10,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
+import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.generated.TunerConstantsAlpha;
+import org.steelhawks.generated.TunerConstantsHawkRider;
 
 public class SwerveModule {
 
@@ -172,5 +176,18 @@ public class SwerveModule {
      */
     public double getFFCharacterizationVelocity() {
         return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
+    }
+
+    /**
+     * Returns if the drive motors are stalling, up against a wall
+     */
+    public boolean getIsStalling() {
+        double stallCurrent =
+            switch (Constants.getRobot()) {
+                case ALPHABOT -> TunerConstantsAlpha.FrontLeft.SlipCurrent;
+                case HAWKRIDER -> TunerConstantsHawkRider.FrontLeft.SlipCurrent;
+                default -> TunerConstants.FrontLeft.SlipCurrent;
+            };
+        return inputs.driveCurrentAmps >= stallCurrent;
     }
 }

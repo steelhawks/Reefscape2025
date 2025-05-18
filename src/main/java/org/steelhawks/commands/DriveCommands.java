@@ -1,6 +1,7 @@
 package org.steelhawks.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -116,15 +117,53 @@ public class DriveCommands {
      *
      * @param target        The target position the robot should drive to. Make sure this is a blue alliance
      *                      pose if you want it to be flipped correctly.
+     * @param constraints The constraints the robot should follow during this procedure
+     * @param emergencyStop The supplier that will stop the command if it returns true.
+     * @return The command to drive to the target position.
+     */
+    public static Command driveToPosition(Pose2d target, PathConstraints constraints, BooleanSupplier emergencyStop) {
+        return AutoBuilder.pathfindToPose(target, constraints)
+            .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
+            .beforeStarting(() -> s_Swerve.setPathfinding(true))
+            .finallyDo(() -> s_Swerve.setPathfinding(false))
+            .withName("Drive to Position");
+    }
+
+    /**
+     * Command to drive to a specific position.
+     *
+     * @param target        The target position the robot should drive to. Make sure this is a blue alliance
+     *                      pose if you want it to be flipped correctly.
      * @param emergencyStop The supplier that will stop the command if it returns true.
      * @return The command to drive to the target position.
      */
     public static Command driveToPosition(Pose2d target, BooleanSupplier emergencyStop) {
-        return AutoBuilder.pathfindToPose(target, AutonConstants.CONSTRAINTS)
-            .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
-                .beforeStarting(() -> s_Swerve.setPathfinding(true))
-                    .finallyDo(() -> s_Swerve.setPathfinding(false))
-                        .withName("Drive to Position");
+        return driveToPosition(target, AutonConstants.CONSTRAINTS, emergencyStop);
+    }
+
+    /**
+     * Command to drive to a specific position. This command will not stop until it reaches the target
+     * position.
+     *
+     * @param target The target position the robot should drive to. Make sure this is a blue alliance
+     *               pose if you want it to be flipped correctly.
+     * @param constraints The constraints the robot should follow during this procedure.
+     * @return The command to drive to the target position.
+     */
+    public static Command driveToPosition(Pose2d target, PathConstraints constraints) {
+        return driveToPosition(target, constraints, () -> false);
+    }
+
+    /**
+     * Command to drive to a specific position. This command will not stop until it reaches the target
+     * position.
+     *
+     * @param target The target position the robot should drive to. Make sure this is a blue alliance
+     *               pose if you want it to be flipped correctly.
+     * @return The command to drive to the target position.
+     */
+    public static Command driveToPosition(Pose2d target) {
+        return driveToPosition(target, () -> false);
     }
 
     /**
@@ -140,18 +179,6 @@ public class DriveCommands {
                 .beforeStarting(() -> s_Swerve.setPathfinding(true))
                     .finallyDo(() -> s_Swerve.setPathfinding(false))
                         .withName("Drive to Path");
-    }
-
-    /**
-     * Command to drive to a specific position. This command will not stop until it reaches the target
-     * position.
-     *
-     * @param target The target position the robot should drive to. Make sure this is a blue alliance
-     *               pose if you want it to be flipped correctly.
-     * @return The command to drive to the target position.
-     */
-    public static Command driveToPosition(Pose2d target) {
-        return driveToPosition(target, () -> false);
     }
 
     /**

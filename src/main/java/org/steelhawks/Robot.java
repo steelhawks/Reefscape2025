@@ -4,6 +4,8 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
@@ -26,6 +28,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.steelhawks.Autos.Misalignment;
+import org.steelhawks.commands.autos.RC2_Pathless;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -167,6 +170,10 @@ public class Robot extends LoggedRobot {
         robotContainer = new RobotContainer();
         OperatorDashboard.INSTANCE.initialize();
 
+        for (ReefUtil.CoralBranch branch : ReefUtil.CoralBranch.values()) {
+            Logger.recordOutput("ReefUtil/" + branch.toString(), branch.getAutonSlowDrivePose(ElevatorConstants.State.L4));
+        }
+
         if (Constants.getRobot() == SIMBOT) {
             DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
             DriverStationSim.notifyNewData();
@@ -202,12 +209,13 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("Align/ClosestBargePoint", FieldConstants.Barge.SCORE.getClearancePose());
 
         Logger.recordOutput("Clearances/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
-        Logger.recordOutput("Clearances/ClearFromBarge", Clearances.AlgaeClawClearances.isClearFromBarge());
 
         Logger.recordOutput("Align/MaximizeScore", RobotContainer.s_ReefState.getNextBestScorePosition());
         Logger.recordOutput("Align/CoralRP", RobotContainer.s_ReefState.getNextForCoralRP());
         Logger.recordOutput("Align/QuickestScorer", RobotContainer.s_ReefState.getQuickestScoring());
         Logger.recordOutput("Align/DynamicRoutine", RobotContainer.s_ReefState.dynamicScoreRoutine());
+
+        Logger.recordOutput("Align/AutoStagingPosition", ReefUtil.getClosestCoralBranch().getAutonSlowDrivePose(ElevatorConstants.State.L4));
     }
 
     @Override
@@ -268,7 +276,8 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         setState(RobotState.AUTON);
         Elastic.selectTab("Autonomous");
-        autonomousCommand = Autos.getAuto();
+//        autonomousCommand = Autos.getAuto();
+        autonomousCommand = new RC2_Pathless(true);
 
         if (autonomousCommand != null)
             autonomousCommand.schedule();
