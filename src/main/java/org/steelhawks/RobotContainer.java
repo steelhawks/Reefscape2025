@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -64,17 +63,6 @@ public class RobotContainer {
         new CommandXboxController(OIConstants.OPERATOR_CONTROLLER_PORT);
     private final ButtonBoard buttonBoard
         = new ButtonBoard(OIConstants.BUTTON_BOARD_PORT);
-
-    public void waitForDs() {
-        boolean isRed = AllianceFlip.shouldFlip();
-        Color c1 = isRed ? Color.kBlue : Color.kRed;
-        Color c2 = isRed ? Color.kRed : Color.kBlue;
-
-        s_LED.setDefaultLighting(
-            s_LED.movingDiscontinuousGradient(
-                c1, c2)
-            .ignoringDisable(false));
-    }
 
     public RobotContainer() {
         SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
@@ -321,6 +309,8 @@ public class RobotContainer {
         configureTriggers();
         configureOperator();
         configureDriver();
+
+        s_LED.setDefaultCommand(new LEDDefaultCommand());
     }
 
     private void checkIfDevicesConnected() {
@@ -341,10 +331,6 @@ public class RobotContainer {
     }
 
     private void configureTriggers() {
-        s_Swerve.isPathfinding()
-            .whileTrue(
-                s_LED.getBlockyRainbowCommand());
-
         s_Elevator.atLimit()
             .onTrue(
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false))
@@ -371,7 +357,7 @@ public class RobotContainer {
 
         topCoralStationTrigger
         .or(bottomCoralStationTrigger)
-        .and(() -> Robot.getState() != RobotState.AUTON) // AUTON WILL BREAK IF IT RUNS THIS COMMAND
+        .and(() -> Robot.getState() != RobotState.AUTON) // due to the nature of triggers, if this runs during auton, the autonomous command will be interrupted
             .whileTrue(
                 s_Claw.intakeCoral()
             .until(s_Claw.hasCoral()));
