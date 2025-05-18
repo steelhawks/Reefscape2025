@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.SuperStructure;
 import org.steelhawks.commands.SwerveDriveAlignment;
+import org.steelhawks.commands.autos.BC2_Pathless;
 import org.steelhawks.commands.autos.BottomG;
 import org.steelhawks.commands.autos.RC2_Pathless;
 import org.steelhawks.commands.autos.TopG;
@@ -262,13 +263,14 @@ public final class Autos {
     }
 
     public static Command getBC2Auton() {
-        return createAuto(StartEndPosition.BC2,
-            "BC2 to TR1",
-            "TR1 to Upper Source",
-            "Upper Source to TL1",
-            "TL1 to Upper Source",
-            "Upper Source to TL2")
-            .withName("BC2");
+//        return createAuto(StartEndPosition.BC2,
+//            "BC2 to TR1",
+//            "TR1 to Upper Source",
+//            "Upper Source to TL1",
+//            "TL1 to Upper Source",
+//            "Upper Source to TL2")
+//            .withName("BC2");
+        return new BC2_Pathless(true);
     }
 
     public static Command getBC3Auton() {
