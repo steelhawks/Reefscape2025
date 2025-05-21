@@ -11,10 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.net.WebServer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -201,6 +198,12 @@ public class Robot extends LoggedRobot {
 
         Logger.recordOutput("Clearances/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
 
+        Logger.recordOutput("Align/MaximizeScore", RobotContainer.s_ReefState.getNextBestScorePosition());
+        Logger.recordOutput("Align/CoralRP", RobotContainer.s_ReefState.getNextForCoralRP());
+        Logger.recordOutput("Align/QuickestScorer", RobotContainer.s_ReefState.getQuickestScoring());
+        Logger.recordOutput("Align/DynamicRoutine", RobotContainer.s_ReefState.dynamicScoreRoutine());
+
+        Logger.recordOutput("Align/AutoStagingPosition", ReefUtil.getClosestCoralBranch().getAutonSlowDrivePose(ElevatorConstants.State.L4));
         Logger.recordOutput("Align/MaximizeScore", ReefState.getNextBestScorePosition());
         Logger.recordOutput("Align/CoralRP", ReefState.getNextForCoralRP());
         Logger.recordOutput("Align/QuickestScorer", ReefState.getQuickestScoring());

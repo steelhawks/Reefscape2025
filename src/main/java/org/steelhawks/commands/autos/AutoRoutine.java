@@ -12,10 +12,12 @@ import org.steelhawks.subsystems.swerve.Swerve;
 public abstract class AutoRoutine extends SequentialCommandGroup {
 
     protected static final double WAIT_TIME_BEFORE_ELEVATOR_UP = 0.5;
-    protected static final double AUTO_ALIGNMENT_TIMEOUT = 3.0;
-    protected static final double SHOOT_TIMEOUT_SLOW = 0.6;
+    protected static final double AUTO_ALIGNMENT_TIMEOUT = 1.0;
+    protected static final double SHOOT_TIMEOUT_SLOW = 0.4;
     protected static final double SHOOT_TIMEOUT = 0.3;
-    protected static final double ELEVATOR_TIMEOUT = 0.8;
+    protected static final double ELEVATOR_TIMEOUT = 0.2;
+    protected static final double WAIT_FOR_CORAL_TIMEOUT = 1.0;
+    protected static final double WAIT_FOR_CORAL_TIMEOUT_LAST_EFFORT = 3.0;
 
     protected static final ElevatorConstants.State desiredScoreLevel = ElevatorConstants.State.L4;
     protected static final Swerve s_Swerve = RobotContainer.s_Swerve;

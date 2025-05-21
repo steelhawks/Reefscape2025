@@ -95,6 +95,7 @@ public final class Constants {
     }
 
     public static final class RobotConstants {
+        public static final double BAD_BATTERY_THRESHOLD = 11.6;
         public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(30.0 + (3.125 * 2.0));
 
         // for distance between robot center and claw
@@ -270,8 +271,8 @@ public final class Constants {
                     ANGLE_KD = 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 4.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4.5;
-                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 6.0;
-                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 15.0;
+                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Units.degreesToRadians(540.0);
+                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Units.degreesToRadians(920.000);
                 }
             }
 

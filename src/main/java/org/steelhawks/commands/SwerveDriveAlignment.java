@@ -9,9 +9,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants.AutonConstants;
+import org.steelhawks.FieldConstants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
@@ -28,6 +30,7 @@ public class SwerveDriveAlignment extends Command {
 
     protected static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
+    protected final FieldObject2d dashboardTargetPosePublisher;
     protected final SwerveDriveController mController;
     protected final Supplier<Pose2d> targetPose;
     protected final Debouncer debouncer;
@@ -51,6 +54,7 @@ public class SwerveDriveAlignment extends Command {
 
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose, boolean endsWhenAligned) {
         addRequirements(s_Swerve);
+        dashboardTargetPosePublisher = FieldConstants.FIELD_2D.getObject("Trajectory Setpoint");
         this.targetPose = targetPose;
         this.debouncer = new Debouncer(0.2, Debouncer.DebounceType.kRising);
         this.filter = LinearFilter.movingAverage(5);
@@ -116,6 +120,7 @@ public class SwerveDriveAlignment extends Command {
     }
 
     protected void log() {
+        dashboardTargetPosePublisher.setPose(targetPose.get());
         velocityError =
             Math.hypot(
                 mController.getError().vxMetersPerSecond,

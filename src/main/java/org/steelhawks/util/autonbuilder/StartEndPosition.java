@@ -11,15 +11,17 @@ import static org.steelhawks.util.autonbuilder.BuilderConstants.*;
 public enum StartEndPosition {
     NOTHING_AUTO(3.0, 3.0, 0.0),
     BC1(7.58, 7.2524, Units.degreesToRadians(-60.0)),
-    BC2(7.000, 6.024, Units.degreesToRadians(-120)),
+    BC2(7.000, 6.024, Units.degreesToRadians(-120.0)),
+    BC2_PATHLESS(7.000, 6.024, Units.degreesToRadians(-120.0)),
     BC3(7.18, 5.0812, Math.PI),
 
     CENTER(7.085, 4.0, Math.PI),
     TOPG(7.085, 4.0, Math.PI),
     BOTTOMG(7.085, 4.0, Math.PI),
 
-    RC1(7.58, 3, Math.PI),
-    RC2(7.000, 2.059, Units.degreesToRadians(120)),
+    RC1(7.58, 3.0, Math.PI),
+    RC2(7.000, 2.059, Units.degreesToRadians(120.0)),
+    RC2_PATHLESS(7.000, 2.059, Units.degreesToRadians(120.0)),
     RC3(7.58, 0.8137, Math.PI),
 
     TR1(ReefUtil.CoralBranch.TR1.getScorePose(ElevatorConstants.State.L4).getX(),

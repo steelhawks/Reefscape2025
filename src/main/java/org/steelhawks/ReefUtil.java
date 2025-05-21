@@ -94,6 +94,12 @@ public class ReefUtil {
                         0.0,
                         new Rotation2d()));
         }
+
+        public Pose2d getAutonSlowDrivePose(ElevatorConstants.State level) {
+            return getScorePose(level)
+                .transformBy(
+                    new Transform2d(-Units.inchesToMeters(20.0), 0.0, new Rotation2d()));
+        }
     }
 
     public static CoralBranch getClosestCoralBranch() {
