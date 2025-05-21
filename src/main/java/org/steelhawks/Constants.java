@@ -94,6 +94,7 @@ public final class Constants {
     }
 
     public static final class RobotConstants {
+        public static final double BAD_BATTERY_THRESHOLD = 11.6;
         public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(30.0 + (3.125 * 2.0));
 
         // for distance between robot center and claw
