@@ -19,6 +19,8 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Clearances;
 import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
+import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.TunableNumber;
 
@@ -227,6 +229,7 @@ public class Elevator extends SubsystemBase {
     public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
             () -> {
+                LED.getInstance().flashCommand(LEDColor.WHITE, 0.1, 1.0).schedule();
                 double goal =
                     MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
                 inputs.goal = goal;
