@@ -27,9 +27,14 @@ public class RC2_Pathless extends AutoRoutine {
             "RC2_PATHLESS",
             Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose()))),
 
-            Commands.defer(() ->
-                Autos.followTrajectory("RC2 to " + "BR" + (startingBR1 ? "1" : "2")), Set.of()),
-            s_Elevator.setDesiredState(desiredScoreLevel),
+            Commands.parallel(
+                Commands.defer(() ->
+                    Autos.followTrajectory("RC2 to " + "BR" + (startingBR1 ? "1" : "2")), Set.of()),
+                Commands.sequence(
+                    Commands.waitSeconds(0.6),
+                    s_Elevator.setDesiredState(desiredScoreLevel)
+                )
+            ),
 
             Commands.defer(() ->
                 new SwerveDriveAlignment(
@@ -63,7 +68,7 @@ public class RC2_Pathless extends AutoRoutine {
             DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL2.getAutonSlowDrivePose(desiredScoreLevel)),
             s_Elevator.setDesiredState(desiredScoreLevel),
             
-            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL2.getScorePose(desiredScoreLevel), constraints),
+//            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL2.getScorePose(desiredScoreLevel), constraints),
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL2.getScorePose(desiredScoreLevel)),
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
@@ -90,7 +95,7 @@ public class RC2_Pathless extends AutoRoutine {
             DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL1.getAutonSlowDrivePose(desiredScoreLevel)),
             s_Elevator.setDesiredState(desiredScoreLevel),
 
-            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL1.getScorePose(desiredScoreLevel), constraints),
+//            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL1.getScorePose(desiredScoreLevel), constraints),
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL1.getScorePose(desiredScoreLevel)),
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
