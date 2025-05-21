@@ -1,11 +1,13 @@
 package org.steelhawks.commands;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Autos;
 import org.steelhawks.Autos.Misalignment;
+import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.Robot;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.RobotContainer;
@@ -56,6 +58,10 @@ public class LEDDefaultCommand extends Command {
     @Override
     public synchronized void execute() {
         if (DriverStation.isDisabled()) {
+            if (RobotController.getBatteryVoltage() <= RobotConstants.BAD_BATTERY_THRESHOLD) {
+                flash(LEDColor.RED, 0.1);
+                return;
+            }
             if (!Robot.isFirstRun()) {
                 s_LED.stop();
                 s_LED.rainbow();
