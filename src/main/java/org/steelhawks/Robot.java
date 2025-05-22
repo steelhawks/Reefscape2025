@@ -40,6 +40,9 @@ public class Robot extends LoggedRobot {
     private static boolean isFirstRun = true;
     private Command autonomousCommand;
 
+    private final CANBus canivoreBus = new CANBus("canivore");
+    private final CANBus rioBus = new CANBus();
+
     public enum RobotState {
         DISABLED,
         TELEOP,
@@ -178,8 +181,8 @@ public class Robot extends LoggedRobot {
         Threads.setCurrentThreadPriority(false, 10);
 
         if (Constants.getRobot() != ALPHABOT)
-            Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);
-        Logger.recordOutput("CANbus/Rio", new CANBus().getStatus().BusUtilization);
+            Logger.recordOutput("CANbus/CANivore", canivoreBus.getStatus().BusUtilization);
+        Logger.recordOutput("CANbus/Rio", rioBus.getStatus().BusUtilization);
 
         if (Constants.getRobot() == SIMBOT)
             updateSimPoseVisualizer();
