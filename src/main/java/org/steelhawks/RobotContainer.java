@@ -370,6 +370,7 @@ public class RobotContainer {
                             Align.alignWithSetpoint(ReefState.dynamicScoreRoutine().branch(), ReefState.dynamicScoreRoutine().state(), true),
                             ReefState::hasOverriden)
                         .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
+                        Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
                         s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),
                         Commands.waitUntil(s_Elevator.atThisGoal(ReefState.dynamicScoreRoutine().state())),
                         Commands.either(
@@ -379,6 +380,7 @@ public class RobotContainer {
                                 (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
                                     s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
+                        Commands.runOnce(() -> LEDDefaultCommand.isAligned = false),
                         s_Elevator.homeCommand()
                             .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * driver.getLeftX()) + driver.getLeftY()) < 0.6))))
             .onFalse(

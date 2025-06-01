@@ -43,6 +43,7 @@ public class SuperStructure {
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME), // cancel other trigger setting elevator state so robot can move without tipping
                 Align.alignWithSetpoint(ReefState.getFreeBranch(state), state, true)
                     .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
+                Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
                 s_Elevator.setDesiredState(state),
                 Commands.either(
                     Commands.sequence(
@@ -57,7 +58,8 @@ public class SuperStructure {
                         s_Elevator.homeCommand()),
                     Commands.none(),
                     () -> s_Swerve.getPose().getTranslation()
-                        .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5))
+                        .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
+                Commands.runOnce(() -> LEDDefaultCommand.isAligned = false)) // set led state false
             .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.6),
         Set.of());
     }

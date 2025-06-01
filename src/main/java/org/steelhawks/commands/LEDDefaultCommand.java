@@ -37,6 +37,8 @@ public class LEDDefaultCommand extends Command {
             put(ElevatorConstants.State.L1, LEDColor.ORANGE);
         }};
 
+    public static boolean isAligned = false;
+    private double lastAlignedIndicated = 0;
     private double lastFlashTime = 0;
     private boolean ledOn = false;
 
@@ -60,6 +62,10 @@ public class LEDDefaultCommand extends Command {
 
     @Override
     public synchronized void execute() {
+        if (isAligned) {
+            s_LED.setColor(LEDColor.GREEN);
+            return;
+        }
         if (!s_Elevator.atLimit().getAsBoolean()) {
             s_LED.setColor(LEDColor.WHITE);
             return;
