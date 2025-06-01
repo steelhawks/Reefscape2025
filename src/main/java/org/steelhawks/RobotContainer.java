@@ -399,22 +399,32 @@ public class RobotContainer {
         /* ------------- Elevator Controls ------------- */
 
         driver.rightBumper()
+            .onTrue(s_Elevator.setDesiredState(State.L1));
+
+        driver.rightBumper().debounce(0.25)
             .or(new DashboardTrigger("l1"))
             .onTrue(SuperStructure.scoringSequence(State.L1, driver::getLeftX, driver::getLeftY));
 
-        driver.x()
+        driver.x().debounce(0.25)
             .or(new DashboardTrigger("l2"))
             .onTrue(SuperStructure.scoringSequence(State.L2, driver::getLeftX, driver::getLeftY));
 
+        driver.x()
+            .onTrue(s_Elevator.setDesiredState(State.L2));
 
-        driver.y()
+        driver.y().debounce(0.25)
             .or(new DashboardTrigger("l3"))
             .onTrue(SuperStructure.scoringSequence(State.L3, driver::getLeftX, driver::getLeftY));
 
+        driver.y()
+            .onTrue(s_Elevator.setDesiredState(State.L3));
 
-        driver.a()
+        driver.a().debounce(0.25)
             .or(new DashboardTrigger("l4"))
             .onTrue(SuperStructure.scoringSequence(State.L4, driver::getLeftX, driver::getLeftY));
+
+        driver.a()
+            .onTrue(s_Elevator.setDesiredState(State.L4));
 
         driver.b()
             .or(new DashboardTrigger("elevatorHome"))
