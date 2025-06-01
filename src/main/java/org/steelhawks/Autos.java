@@ -1,6 +1,5 @@
 package org.steelhawks;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,12 +11,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.steelhawks.commands.SuperStructure;
-import org.steelhawks.commands.SwerveDriveAlignment;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.commands.autos.BC2_Pathless;
-import org.steelhawks.commands.autos.BottomG;
 import org.steelhawks.commands.autos.RC2_Pathless;
-import org.steelhawks.commands.autos.TopG;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;

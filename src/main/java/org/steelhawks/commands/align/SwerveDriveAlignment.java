@@ -1,7 +1,6 @@
-package org.steelhawks.commands;
+package org.steelhawks.commands.align;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -32,7 +31,7 @@ public class SwerveDriveAlignment extends Command {
 
     protected final FieldObject2d dashboardTargetPosePublisher;
     protected final SwerveDriveController mController;
-    protected final Supplier<Pose2d> targetPose;
+    protected Supplier<Pose2d> targetPose;
     protected final Debouncer debouncer;
     protected final LinearFilter filter;
     protected Pose2d startingPose;
@@ -146,12 +145,23 @@ public class SwerveDriveAlignment extends Command {
     @Override
     public void execute() {
         ChassisSpeeds speeds = getOutput();
-        s_Swerve.runVelocity(
-            new ChassisSpeeds(
-                Math.abs(speeds.vxMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vxMetersPerSecond,
-                Math.abs(speeds.vyMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vyMetersPerSecond,
-                Math.abs(speeds.omegaRadiansPerSecond) < SWERVE_DEADBAND ? 0 : speeds.omegaRadiansPerSecond));
-
+        boolean nearZeroTrans = // tune these deadbands
+            Math.abs(speeds.vxMetersPerSecond) < 0.02
+                && Math.abs(speeds.vyMetersPerSecond) < 0.02;
+        boolean nearZeroRot =
+            Math.abs(speeds.omegaRadiansPerSecond)
+                < Units.degreesToRadians(1);
+        if (nearZeroTrans && nearZeroRot) {
+            s_Swerve.runVelocity(new ChassisSpeeds());
+        } else {
+            s_Swerve.runVelocity(
+                new ChassisSpeeds(
+                    Math.abs(speeds.vxMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vxMetersPerSecond,
+                    Math.abs(speeds.vyMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vyMetersPerSecond,
+                    Math.abs(speeds.omegaRadiansPerSecond) < SWERVE_DEADBAND ? 0 : speeds.omegaRadiansPerSecond
+                )
+            );
+        }
         log();
     }
 

@@ -3,7 +3,7 @@ package org.steelhawks.commands.autos;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.SuperStructure;
-import org.steelhawks.commands.SwerveDriveAlignment;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.autonbuilder.StartEndPosition;
