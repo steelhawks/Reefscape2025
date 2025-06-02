@@ -110,12 +110,31 @@ public class SwerveDriveAlignment extends Command {
         s_Swerve.setPathfinding(true);
     }
 
+    /**
+     * Runs the PID loop and returns a filtered output with a deadband to stop wheel oscillation.
+     *
+     * @return The ChassisSpeeds output
+     */
     protected ChassisSpeeds getOutput() {
         ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
         Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
-        return speeds;
+
+        boolean nearZeroTrans = // tune these deadbands
+            Math.abs(speeds.vxMetersPerSecond) < 0.02
+                && Math.abs(speeds.vyMetersPerSecond) < 0.02;
+        boolean nearZeroRot =
+            Math.abs(speeds.omegaRadiansPerSecond)
+                < Units.degreesToRadians(1);
+        if (nearZeroTrans && nearZeroRot)
+            return new ChassisSpeeds();
+
+        return new ChassisSpeeds(
+            Math.abs(speeds.vxMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vxMetersPerSecond,
+            Math.abs(speeds.vyMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vyMetersPerSecond,
+            Math.abs(speeds.omegaRadiansPerSecond) < SWERVE_DEADBAND ? 0 : speeds.omegaRadiansPerSecond
+        );
     }
 
     protected void log() {
@@ -144,24 +163,7 @@ public class SwerveDriveAlignment extends Command {
 
     @Override
     public void execute() {
-        ChassisSpeeds speeds = getOutput();
-        boolean nearZeroTrans = // tune these deadbands
-            Math.abs(speeds.vxMetersPerSecond) < 0.02
-                && Math.abs(speeds.vyMetersPerSecond) < 0.02;
-        boolean nearZeroRot =
-            Math.abs(speeds.omegaRadiansPerSecond)
-                < Units.degreesToRadians(1);
-        if (nearZeroTrans && nearZeroRot) {
-            s_Swerve.runVelocity(new ChassisSpeeds());
-        } else {
-            s_Swerve.runVelocity(
-                new ChassisSpeeds(
-                    Math.abs(speeds.vxMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vxMetersPerSecond,
-                    Math.abs(speeds.vyMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vyMetersPerSecond,
-                    Math.abs(speeds.omegaRadiansPerSecond) < SWERVE_DEADBAND ? 0 : speeds.omegaRadiansPerSecond
-                )
-            );
-        }
+        s_Swerve.runVelocity(getOutput());
         log();
     }
 

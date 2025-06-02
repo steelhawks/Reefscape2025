@@ -2,6 +2,7 @@ package org.steelhawks.commands.align;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -23,17 +24,14 @@ public class FusedSwerveDriveAlignment extends SwerveDriveAlignment {
 
     @Override
     public void execute() {
-        ChassisSpeeds speeds = super.getOutput();
-        s_Swerve.runVelocity(
-            new ChassisSpeeds(
-                Math.abs(speeds.vxMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vxMetersPerSecond,
-                Math.abs(speeds.vyMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vyMetersPerSecond,
-                Math.abs(speeds.omegaRadiansPerSecond) < SWERVE_DEADBAND ? 0 : speeds.omegaRadiansPerSecond)
+        ChassisSpeeds speeds =
+            super.getOutput()
                 .plus(
                     new ChassisSpeeds(
                         xSupplier.getAsDouble(),
                         ySupplier.getAsDouble(),
-                        0)));
+                        0));
+        s_Swerve.runVelocity(speeds);
         super.log();
     }
 }
