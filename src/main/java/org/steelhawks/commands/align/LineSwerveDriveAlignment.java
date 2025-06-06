@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import org.dyn4j.geometry.Vector2;
 import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.FieldConstants;
@@ -29,8 +28,6 @@ public class LineSwerveDriveAlignment extends SwerveDriveAlignment {
     private final DoubleSupplier ySupplier;
 
     /**
-     *
-     *
      * @param desiredRotation Desired rotational heading.
      * @param lineStart The start of the line to lock to.
      * @param lineEnd The end of the line to lock to.
