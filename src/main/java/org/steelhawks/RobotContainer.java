@@ -28,6 +28,7 @@ import org.steelhawks.subsystems.claw.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
+import org.steelhawks.subsystems.elevator.ElevatorIOSim;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
@@ -366,11 +367,11 @@ public class RobotContainer {
     private void configureDriver() {
         /* ------------- Swerve Controls ------------- */
 
-//        s_Swerve.setDefaultCommand(
-//            DriveCommands.joystickDrive(
-//                () -> -driver.getLeftY(),
-//                () -> -driver.getLeftX(),
-//                () -> -driver.getRightX()));
+        s_Swerve.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX()));
 
         driver.x().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
@@ -432,7 +433,7 @@ public class RobotContainer {
         operator.b()
             .or(new DashboardTrigger("elevatorHome"))
             .or(buttonBoard.getHome().and(() -> usingButtonBoard))
-            .onTrue(s_Elevator.noSlamCommand());
+            .onTrue(s_Elevator.homeCommand());
 
         /* ------------- Intake Controls ------------- */
 

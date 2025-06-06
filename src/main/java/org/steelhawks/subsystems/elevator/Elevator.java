@@ -1,74 +1,63 @@
 package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Clearances;
-import org.steelhawks.Constants.Deadbands;
-import org.steelhawks.OperatorLock;
-import org.steelhawks.util.AlertUtil;
-import org.steelhawks.util.TunableNumber;
+import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 
 import java.util.function.DoubleSupplier;
+
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
-@SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
 
-    private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
-    private OperatorLock mOperatorLock;
-    private final SysIdRoutine mSysId;
-    private boolean shouldEStop = false;
-    private boolean mEnabled = false;
     private final ElevatorIO io;
+    private final ElevatorIOInputsAutoLogged inputs;
+    private final TrapezoidProfile profile;
+    private final SysIdRoutine sysIdRoutine;
 
-    private final ProfiledPIDController mController;
-    private final ElevatorFeedforward mFeedforward;
-    private final SlewRateLimiter mSlewRateLimiter;
+    private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
+    private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
 
-    private final Alert leftMotorDisconnected =
-        new AlertUtil("Left Elevator Motor Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.leftConnected);
-    private final Alert rightMotorDisconnected =
-        new AlertUtil("Right Elevator Motor Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.rightConnected);
-    private final Alert canCoderDisconnected =
-        new AlertUtil("Elevator CANcoder Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.encoderConnected);
-    private final Alert limitSwitchDisconnected =
-        new AlertUtil("Elevator Limit Switch Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.limitSwitchConnected);
-    private final Alert canCoderMagnetBad =
-        new AlertUtil("Elevator CANcoder Magnet Bad", AlertType.kError)
-            .withCondition(() -> !inputs.magnetGood);
-    private final Alert eStopped =
-        new AlertUtil("Elevator is E-Stopped", AlertType.kError)
-            .withCondition(() -> shouldEStop);
-
-    public void enable() {
-        mEnabled = true;
-        mController.reset(getPosition());
+    static {
+        // (height in radians) -> (chassis‐speed multiplier)
+        // at 0 radians, home, go full speed
+        elevatorLimiterMap.put(0.0, 1.0);
+        elevatorLimiterMap.put(12.0, 0.5);
+        elevatorLimiterMap.put(24.0, 0.1);
     }
 
-    public void disable() {
-        mEnabled = false;
-        runElevator(0, new TrapezoidProfile.State());
-    }
+    private boolean isEStopped = false;
+    private boolean isHomed = true;
+    private boolean isManual = false;
+    private boolean atGoal = false;
 
-    public boolean isEnabled() {
-        return mEnabled;
+    public Elevator(ElevatorIO io) {
+        this.io = io;
+        this.inputs = new ElevatorIOInputsAutoLogged();
+        profile =
+            new TrapezoidProfile(
+                new TrapezoidProfile.Constraints(
+                    ElevatorConstants.MAX_VELOCITY,
+                    ElevatorConstants.MAX_ACCELERATION));
+        sysIdRoutine =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    Volts.of(1.0).per(Second),
+                    Volts.of(0.5),
+                    null,
+                    (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
+                new SysIdRoutine.Mechanism(
+                    (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
     }
 
     public ElevatorConstants.State getState() {
@@ -83,201 +72,132 @@ public class Elevator extends SubsystemBase {
         return state;
     }
 
-    public Elevator(ElevatorIO io) {
-        mController =
-            new ProfiledPIDController(
-                ElevatorConstants.KP,
-                ElevatorConstants.KI,
-                ElevatorConstants.KD,
-                new TrapezoidProfile.Constraints(
-                    ElevatorConstants.MAX_VELOCITY_PER_SEC,
-                    ElevatorConstants.MAX_ACCELERATION_PER_SEC_SQUARED));
-        mController.setTolerance(ElevatorConstants.TOLERANCE);
-        mFeedforward =
-            new ElevatorFeedforward(
-                ElevatorConstants.KS,
-                ElevatorConstants.KG,
-                ElevatorConstants.KV);
-        mSlewRateLimiter = new SlewRateLimiter(ElevatorConstants.MAX_VELOCITY_PER_SEC);
-
-        mSysId =
-            new SysIdRoutine(
-                new SysIdRoutine.Config(
-                    null,
-                    null,
-                    null,
-                    (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
-                new SysIdRoutine.Mechanism(
-                    (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
-
-        mOperatorLock = OperatorLock.LOCKED;
-
-        this.io = io;
-        disable();
-
-        io.zeroEncoders();
-//        if (inputs.limitSwitchPressed) {
-//            io.zeroEncoders();
-//        } else {
-//            homeCommand()
-//                .andThen(io::zeroEncoders)
-//                .schedule();
-//        }
+    public double getSpeedMultiplierBasedOnElevator() {
+        return elevatorLimiterMap.get(getPosition());
     }
 
-    private boolean limitPressed() {
-        return inputs.limitSwitchPressed;
-    }
-
-    public boolean willTipAtFastSpeeds() {
-        return getPosition() > ElevatorConstants.MAX_RADIANS - ElevatorConstants.TIP_THRESHOLD;
-    }
-
-    @Override
-    public void periodic() {
-        inputs.atTopLimit = getPosition() >= ElevatorConstants.MAX_RADIANS;
-        io.updateInputs(inputs);
-        Logger.processInputs("Elevator", inputs);
-        Logger.recordOutput("Elevator/Enabled", mEnabled);
-
-        // stop adding up pid error while disabled
-        if (DriverStation.isDisabled()) {
-            mController.reset(getPosition());
-        }
-
-        Logger.recordOutput("Elevator/Error-kP", mController.getPositionError());
-        Logger.recordOutput("Elevator/AccumulatedError-kI", mController.getAccumulatedError());
-        Logger.recordOutput("Elevator/ErrorDerivativeTolerance-kD", mController.getVelocityError());
-
-        if (getCurrentCommand() != null) {
-            Logger.recordOutput("Elevator/CurrentCommand", getCurrentCommand().getName());
-        }
-
-        shouldEStop =
-            !Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam()
-                && Math.signum(inputs.encoderVelocityRadPerSec) == -1;
-        Logger.recordOutput("Elevator/EStopped", shouldEStop);
-
-        if (limitPressed()) {
-            io.zeroEncoders();
-        }
-
-        if (shouldEStop) {
-            io.stop();
-            disable();
-            return;
-        }
-
-        if (mEnabled) {
-            runElevator(mController.calculate(getPosition()), mController.getSetpoint());
-        }
-    }
-
-    private void runElevator(double fb, TrapezoidProfile.State setpoint) {
-        double ff = mFeedforward.calculate(setpoint.velocity);
-        Logger.recordOutput("Elevator/Feedback", fb);
-        Logger.recordOutput("Elevator/Feedforward", ff);
-        double volts = fb + ff;
-
-        if ((inputs.atTopLimit && volts >= 0) || (limitPressed() && volts <= 0)) {
-            io.stop();
-            return;
-        }
-
-        io.runElevator(volts);
-    }
-
-    @AutoLogOutput(key = "Elevator/AdjustedPosition")
-    public double getPosition() {
-        return inputs.encoderPositionRad;
-    }
-
-    public Trigger atGoal() {
-        return new Trigger(mController::atGoal);
-    }
-
-    public Trigger atThisGoal(ElevatorConstants.State state) {
-        return new Trigger(
-            () -> Math.abs(getPosition() - state.getAngle().getRadians()) <= ElevatorConstants.TOLERANCE * 3.0);
-    }
-
-    public Trigger atLimit() {
-        return new Trigger(() -> inputs.atTopLimit || limitPressed());
-    }
-
-    public Trigger atHome() {
-        return new Trigger(this::limitPressed);
-    }
-
-    ///////////////////////
-    /* COMMAND FACTORIES */
-    ///////////////////////
-
-    public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
-        return mSysId.quasistatic(dir)
-            .finallyDo(io::stop);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction dir) {
-        return mSysId.dynamic(dir)
-            .finallyDo(io::stop);
-    }
-
-    public Command setDesiredState(ElevatorConstants.State state) {
-        return Commands.runOnce(
-            () -> {
-                double goal =
-                    MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
-                inputs.goal = goal;
-                mController.setGoal(new TrapezoidProfile.State(goal, 0));
-                enable();
-            }, this)
-            .withName("Set Desired State");
+    public boolean isEnabled() {
+        return !isManual;
     }
 
     public double getDesiredState() {
         return inputs.goal;
     }
 
+    private boolean hitTopLimit() {
+        return getPosition() > ElevatorConstants.MAX_RADIANS;
+    }
+
+    private boolean hitBottomLimit() {
+        return getPosition() < 0.0;
+    }
+
+    public double getPosition() {
+        return inputs.leftPositionRad;
+    }
+
+    private int getStage() {
+        // if we ever get the continuous on, use this to select between which stages the elevator is in,
+        //  then update the kS, kG values accordingly, logic for this is already done
+        return 0;
+    }
+
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Elevator", inputs);
+
+        final boolean shouldRun =
+            DriverStation.isEnabled()
+                && (isHomed || Constants.getRobot() == RobotType.SIMBOT)
+                && !isEStopped
+                && !isManual
+                && !hitBottomLimit()
+            && !hitTopLimit();
+        Logger.recordOutput("Elevator/Running", shouldRun);
+
+        if (shouldRun) {
+            double previousVelocity = setpoint.velocity;
+            setpoint =
+                profile
+                    .calculate(Constants.UPDATE_LOOP_DT, setpoint, new TrapezoidProfile.State(inputs.goal,
+                        0.0));
+            if (setpoint.position < 0.0
+                || setpoint.position > ElevatorConstants.MAX_RADIANS) {
+                setpoint =
+                    new TrapezoidProfile.State(
+                        MathUtil.clamp(setpoint.position, 0.0, ElevatorConstants.MAX_RADIANS),
+                        0.0);
+            }
+            atGoal = Math.abs(setpoint.position - getPosition()) <= ElevatorConstants.TOLERANCE;
+            if (atGoal) {
+                io.stop();
+            } else {
+                double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
+                io.runPosition(
+                    setpoint.position,
+                    ElevatorConstants.kS[getStage()] * Math.signum(setpoint.velocity)
+                        + ElevatorConstants.kG[getStage()]
+                        + ElevatorConstants.kA[getStage()] * acceleration);
+            }
+            Logger.recordOutput("Elevator/SetpointPosition", setpoint.position);
+            Logger.recordOutput("Elevator/SetpointVelocity", setpoint.velocity);
+            Logger.recordOutput("Elevator/GoalPosition", inputs.goal);
+            Logger.recordOutput("Elevator/GoalVelocity", 0.0);
+        } else {
+            setpoint = new TrapezoidProfile.State(getPosition(), 0.0);
+            Logger.recordOutput("Elevator/SetpointPosition", 0.0);
+            Logger.recordOutput("Elevator/SetpointVelocity", 0.0);
+            Logger.recordOutput("Elevator/GoalPosition", 0.0);
+            Logger.recordOutput("Elevator/GoalVelocity", 0.0);
+        }
+
+        if (isEStopped) {
+            io.stop();
+        }
+    }
+
+    public Command setDesiredState(ElevatorConstants.State state){
+        return Commands.runOnce(
+                () -> inputs.goal = MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS), this)
+            .withName("Set Desired State");
+    }
+
     public Command toggleManualControl(DoubleSupplier joystickAxis) {
         return Commands.runOnce(
             () -> {
                 Logger.recordOutput("Elevator/RequestedElevatorSpeed", joystickAxis.getAsDouble());
-
-                if (mOperatorLock == OperatorLock.LOCKED) {
-                    disable();
+                if (!isManual) {
                     setDefaultCommand(
                         elevatorManual(
                             () -> MathUtil.clamp(
-                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Deadbands.ELEVATOR_DEADBAND),
+                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Constants.Deadbands.ELEVATOR_DEADBAND),
                                 -ElevatorConstants.MANUAL_ELEVATOR_INCREMENT,
                                 ElevatorConstants.MANUAL_ELEVATOR_INCREMENT)));
-                    mOperatorLock = OperatorLock.UNLOCKED;
+                    isManual = true;
                 } else {
                     if (getDefaultCommand() != null) {
                         getDefaultCommand().cancel();
                         removeDefaultCommand();
                     }
                     slamCommand().schedule();
-                    mOperatorLock = OperatorLock.LOCKED;
+                    isManual = false;
                 }
 
-                Logger.recordOutput("Elevator/IsLocked", mOperatorLock == OperatorLock.LOCKED);
+                Logger.recordOutput("Elevator/IsLocked", !isManual);
             }, this)
-            .withName("Toggle Manual Control");
+        .withName("Toggle Manual Control");
     }
 
     private Command elevatorManual(DoubleSupplier speed) {
-        return Commands.runOnce(this::disable, this)
+        return Commands.runOnce(() -> isManual = true, this)
             .andThen(
                 Commands.run(
                     () -> {
                         double appliedSpeed = speed.getAsDouble();
-
                         if (speed.getAsDouble() == 0.0) {
-                            appliedSpeed = ElevatorConstants.KG / 12.0;
+                            appliedSpeed = ElevatorConstants.kG[getStage()] / 12.0;
                         }
-
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
                         io.runElevatorViaSpeed(appliedSpeed);
                     }, this))
@@ -287,67 +207,46 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command slamCommand() {
-        return Commands.runOnce(this::disable)
+        return Commands.runOnce(() -> isManual = true)
             .andThen(
                 Commands.run(
                     () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT), this))
-        .until(this::limitPressed)
-        .finallyDo(
-            () -> {
-                io.stop();
-                io.zeroEncoders();
-            }
-        )
-        .withName("Slam Elevator");
-    }
-
-    public Command noSlamCommand() {
-        return setDesiredState(ElevatorConstants.State.HOME_ABOVE_BAR)
-            .andThen(
-                Commands.waitUntil(atThisGoal(ElevatorConstants.State.HOME_ABOVE_BAR)),
-                Commands.runOnce(this::disable),
-                Commands.run(() -> io.runElevatorViaSpeed(-0.1)))
-            .until(this::limitPressed)
-            .finallyDo(io::stop)
-            .withName("No Slam Elevator");
+            .until(this::hitBottomLimit)
+            .finallyDo(
+                () -> {
+                    io.stop();
+                    io.zeroEncoders();
+                }
+            )
+            .withName("Slam Elevator");
     }
 
     public Command homeCommand() {
-        return setDesiredState(ElevatorConstants.State.HOME)
-            .until(this::limitPressed)
-            .finallyDo(io::stop)
-            .withName("Home Elevator");
+        return setDesiredState(ElevatorConstants.State.HOME);
     }
 
-    public Command applykS() {
-        return Commands.run(
-            () -> io.runElevator(ElevatorConstants.KS), this)
-            .finallyDo(io::stop);
+    public Trigger atGoal() {
+        return new Trigger(() -> atGoal);
     }
 
-    public Command applykG() {
-        return Commands.run(
-            () -> io.runElevator(ElevatorConstants.KG), this)
-            .finallyDo(io::stop);
+    public Trigger atThisGoal(ElevatorConstants.State state) {
+        return new Trigger(
+            () -> Math.abs(getPosition() - state.getAngle().getRadians()) <= ElevatorConstants.TOLERANCE * 3.0);
     }
 
-    public Command applykV() {
-        return Commands.run(
-            () -> {
-                double volts = ElevatorConstants.KS + ElevatorConstants.KV;
-                io.runElevator(volts);
-            }, this)
-            .finallyDo(io::stop);
+    public Trigger atLimit() {
+        return new Trigger(() -> hitTopLimit() || hitBottomLimit());
     }
 
-    TunableNumber s = new TunableNumber("Elevator/ApplyVolts");
-    public Command applyVolts(double volts) {
-        return Commands.run(
-            () -> {
-                Logger.recordOutput("Elevator/AppliedVolts", volts);
-                io.runElevator(s.getAsDouble());
-//                io.runElevator(volts);
-            }, this)
-            .finallyDo(io::stop);
+    public Trigger atHome() {
+        return new Trigger(this::hitBottomLimit);
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return Commands.runOnce(() -> isManual = true).andThen(sysIdRoutine.quasistatic(direction));
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return Commands.runOnce(() -> isManual = true).andThen(sysIdRoutine.dynamic(direction));
     }
 }

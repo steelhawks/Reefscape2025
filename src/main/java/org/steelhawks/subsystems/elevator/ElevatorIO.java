@@ -55,6 +55,16 @@ public interface ElevatorIO {
     default void zeroEncoders() {}
 
     /**
+     * Sets the motor controller's PID
+     */
+    default void setPID(double kP, double kI, double kD) {}
+
+    /**
+     * Sets the brake mode
+     */
+    default void setBrakeMode(boolean enabled) {}
+
+    /**
      * Stops the elevator.
      */
     default void stop() {}
