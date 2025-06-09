@@ -199,15 +199,21 @@ public class Elevator extends SubsystemBase {
     }
 
     private Command elevatorManual(DoubleSupplier speed) {
-        return Commands.runOnce(() -> isManual = true, this)
+        return Commands.runOnce(() -> isManual = true)
             .andThen(
                 Commands.run(
                     () -> {
-                        double appliedSpeed = speed.getAsDouble();
-                        if (speed.getAsDouble() == 0.0) {
-                            appliedSpeed = ElevatorConstants.kG[getStage()] / 12.0;
-                        }
+                        double appliedSpeed =
+                            speed.getAsDouble() == 0.0
+                                ? ElevatorConstants.kG[getStage()] / 12.0
+                                : speed.getAsDouble();
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
+                        final boolean requestedUp = Math.signum(appliedSpeed) == 1;
+                        if ((!requestedUp && hitBottomLimit())
+                            || (requestedUp && hitTopLimit())) {
+                            io.stop();
+                            return;
+                        }
                         io.runElevatorViaSpeed(appliedSpeed);
                     }, this))
             .finallyDo(

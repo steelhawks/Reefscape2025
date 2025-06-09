@@ -111,11 +111,6 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void runElevatorViaSpeed(double speed) {
-        boolean isUp = Math.abs(speed) == speed;
-        if ((mElevatorSim.hasHitLowerLimit() && !isUp) || (mElevatorSim.hasHitUpperLimit() && isUp)) {
-            stop();
-            return;
-        }
         double convertToVolts = speed * 12;
         mElevatorSim.setInputVoltage(MathUtil.clamp(convertToVolts, -12, 12));
     }
