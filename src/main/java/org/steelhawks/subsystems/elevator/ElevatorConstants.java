@@ -39,15 +39,21 @@ public class ElevatorConstants {
     public static final double TOLERANCE = 0.03;
     public static final double REDUCTION = 0.0;
 
-    public static final double MAX_VELOCITY = 0.0;
-    public static final double MAX_ACCELERATION = 0.0;
+    public static final double MAX_VELOCITY = 40.0;
+    public static final double MAX_ACCELERATION = 70.0;
     public static final double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final double KP = 0.0;
+    public static final double KP = 7.0;
     public static final double KI = 0.0;
     public static final double KD = 0.0;
 
     public static final double[] kS = {
+        0.0,
+        0.0,
+        0.0
+    };
+
+    public static final double[] kV = {
         0.0,
         0.0,
         0.0

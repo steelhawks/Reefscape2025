@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
+import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.LED.LEDColor;
 
 import java.util.function.DoubleSupplier;
 
@@ -112,9 +114,12 @@ public class Elevator extends SubsystemBase {
                 && (isHomed || Constants.getRobot() == RobotType.SIMBOT)
                 && !isEStopped
                 && !isManual
-                && !hitBottomLimit()
-            && !hitTopLimit();
+                && !(hitBottomLimit() &&
+                    Math.signum(MathUtil.applyDeadband(inputs.leftVelocityRadPerSec, 0.1)) == -1)
+            && !(hitTopLimit() &&
+                Math.signum(MathUtil.applyDeadband(inputs.leftVelocityRadPerSec, 0.1)) == 1);
         Logger.recordOutput("Elevator/Running", shouldRun);
+        inputs.shouldRunProfile = shouldRun;
 
         if (shouldRun) {
             double previousVelocity = setpoint.velocity;
@@ -138,6 +143,7 @@ public class Elevator extends SubsystemBase {
                     setpoint.position,
                     ElevatorConstants.kS[getStage()] * Math.signum(setpoint.velocity)
                         + ElevatorConstants.kG[getStage()]
+//                        + ElevatorConstants.kV[getStage()] * setpoint.velocity
                         + ElevatorConstants.kA[getStage()] * acceleration);
             }
             Logger.recordOutput("Elevator/SetpointPosition", setpoint.position);
@@ -159,9 +165,12 @@ public class Elevator extends SubsystemBase {
 
     public Command setDesiredState(ElevatorConstants.State state){
         return Commands.runOnce(
-                () -> inputs.goal = MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS), this)
-            .withName("Set Desired State");
-    }
+            () -> {
+                LED.getInstance().flashCommand(LEDColor.WHITE, 0.1, 1.0).schedule();
+                inputs.goal = MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
+            }, this)
+        .withName("Set Desired State");
+}
 
     public Command toggleManualControl(DoubleSupplier joystickAxis) {
         return Commands.runOnce(

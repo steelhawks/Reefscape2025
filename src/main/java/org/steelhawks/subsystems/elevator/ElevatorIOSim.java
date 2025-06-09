@@ -1,6 +1,7 @@
 package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
@@ -17,20 +18,29 @@ public class ElevatorIOSim implements ElevatorIO {
         Units.inchesToMeters(1.888);
     private static final double ELEVATOR_GEARING = 10.0 / 1.0;
     private static final double MIN_HEIGHT = 0; //m
-    public static final double MAX_HEIGHT = Conversions.rotationsToMeters(Units.radiansToRotations(ElevatorConstants.MAX_RADIANS), 2 * Math.PI * SPROCKET_RAD); //m
+    public static final double MAX_HEIGHT =
+        Conversions.rotationsToMeters(
+            Units.radiansToRotations(ElevatorConstants.MAX_RADIANS), 2 * Math.PI * SPROCKET_RAD); //m
     private static final double ELEVATOR_WIDTH =
         Units.inchesToMeters(27);
 
+    private final PIDController mController;
     private final ElevatorVisualizer mVisualizer;
     private final ElevatorSim mElevatorSim;
     private final EncoderSim mEncoderSim;
     private final DCMotor mMotor;
 
-    double appliedVolts = 0;
+    private boolean runningProfile = false;
+    private double appliedVolts = 0;
+    private double goal = 0;
 
     public ElevatorIOSim() {
+        mController =
+            new PIDController(
+                ElevatorConstants.KP,
+                ElevatorConstants.KI,
+                ElevatorConstants.KD);
         mMotor = DCMotor.getFalcon500(2);
-
         mElevatorSim =
             new ElevatorSim(
                 LinearSystemId.createElevatorSystem(
@@ -43,13 +53,11 @@ public class ElevatorIOSim implements ElevatorIO {
                 MAX_HEIGHT,
                 true,
                 0);
-
         mVisualizer =
             new ElevatorVisualizer(
                 mElevatorSim::getPositionMeters,
                 ELEVATOR_WIDTH,
                 MAX_HEIGHT);
-
         mEncoderSim =
             new EncoderSim(
                 new Encoder(0, 1));
@@ -58,6 +66,8 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         mElevatorSim.update(Constants.UPDATE_LOOP_DT);
+        runningProfile = inputs.shouldRunProfile;
+        goal = inputs.goal;
 
         inputs.leftConnected = true;
         inputs.leftPositionRad =
@@ -102,14 +112,22 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void runElevatorViaSpeed(double speed) {
         boolean isUp = Math.abs(speed) == speed;
-
         if ((mElevatorSim.hasHitLowerLimit() && !isUp) || (mElevatorSim.hasHitUpperLimit() && isUp)) {
             stop();
             return;
         }
-
         double convertToVolts = speed * 12;
         mElevatorSim.setInputVoltage(MathUtil.clamp(convertToVolts, -12, 12));
+    }
+
+    @Override
+    public void runPosition(double positionRad, double feedforward) {
+        double fb = mController.calculate(positionRad, goal);
+        if (runningProfile) {
+            double volts = MathUtil.clamp(fb + feedforward, -12, 12);
+            appliedVolts = volts;
+            mElevatorSim.setInputVoltage(volts);
+        }
     }
 
     @Override

@@ -131,6 +131,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void runPosition(double positionRad, double feedforward) {
+        // you should use PositionVoltage instead because we already motion profile in Elevator.java
+        // if you want to you could keep motion magic but then change positionRad to use inputs.goal by caching it in an object and using that.
+        // at this state this would most likely not work
         leftMotor.setControl(
             motionMagicVoltage
                 .withPosition(Units.radiansToRotations(positionRad))
@@ -160,6 +163,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void stop() {
-        ElevatorIO.super.stop();
+        leftMotor.stopMotor();
+        rightMotor.stopMotor();
     }
 }

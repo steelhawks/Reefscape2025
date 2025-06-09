@@ -6,6 +6,7 @@ public interface ElevatorIO {
 
     @AutoLog
     class ElevatorIOInputs {
+        public boolean shouldRunProfile = false;
         public double goal = 0;
 
         public boolean leftConnected = false;
