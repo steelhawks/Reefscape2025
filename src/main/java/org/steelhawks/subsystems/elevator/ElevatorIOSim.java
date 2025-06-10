@@ -31,8 +31,8 @@ public class ElevatorIOSim implements ElevatorIO {
     private final DCMotor mMotor;
 
     private boolean runningProfile = false;
-    private double appliedVolts = 0;
-    private double goal = 0;
+    private double elevatorPosition = 0.0;
+    private double appliedVolts = 0.0;
 
     public ElevatorIOSim() {
         mController =
@@ -67,7 +67,6 @@ public class ElevatorIOSim implements ElevatorIO {
     public void updateInputs(ElevatorIOInputs inputs) {
         mElevatorSim.update(Constants.UPDATE_LOOP_DT);
         runningProfile = inputs.shouldRunProfile;
-        goal = inputs.goal;
 
         inputs.leftConnected = true;
         inputs.leftPositionRad =
@@ -78,6 +77,7 @@ public class ElevatorIOSim implements ElevatorIO {
                 Conversions.metersToRotations(mElevatorSim.getVelocityMetersPerSecond(), 2 * Math.PI * SPROCKET_RAD));
         inputs.leftAppliedVolts = appliedVolts;
         inputs.leftCurrentAmps = mElevatorSim.getCurrentDrawAmps();
+        elevatorPosition = inputs.leftPositionRad;
 
         inputs.rightConnected = true;
         inputs.rightPositionRad =
@@ -117,7 +117,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void runPosition(double positionRad, double feedforward) {
-        double fb = mController.calculate(positionRad, goal);
+        double fb = mController.calculate(elevatorPosition, positionRad);
         if (runningProfile) {
             double volts = MathUtil.clamp(fb + feedforward, -12, 12);
             appliedVolts = volts;

@@ -1,6 +1,7 @@
 package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import org.steelhawks.util.ConstantsFactory;
 
 public class ElevatorConstants {
 
@@ -43,12 +44,12 @@ public class ElevatorConstants {
     public static final double MAX_ACCELERATION = 70.0;
     public static final double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final double KP = 7.0;
+    public static final double KP = ConstantsFactory.value(7.0, 6.0);
     public static final double KI = 0.0;
-    public static final double KD = 0.0;
+    public static final double KD = ConstantsFactory.value(0.0, 0.4);
 
     public static final double[] kS = {
-        0.0,
+        ConstantsFactory.value(0.0, 0.2),
         0.0,
         0.0
     };

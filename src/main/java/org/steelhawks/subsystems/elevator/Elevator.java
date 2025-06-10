@@ -134,7 +134,7 @@ public class Elevator extends SubsystemBase {
                         MathUtil.clamp(setpoint.position, 0.0, ElevatorConstants.MAX_RADIANS),
                         0.0);
             }
-            atGoal = Math.abs(setpoint.position - getPosition()) <= ElevatorConstants.TOLERANCE;
+            atGoal = Math.abs(getPosition() - inputs.goal) <= ElevatorConstants.TOLERANCE;
             if (atGoal) {
                 io.stop();
             } else {
@@ -161,6 +161,8 @@ public class Elevator extends SubsystemBase {
         if (isEStopped) {
             io.stop();
         }
+        Logger.recordOutput("Elevator/EStopped", isEStopped);
+        Logger.recordOutput("Elevator/AtGoal", atGoal);
     }
 
     public Command setDesiredState(ElevatorConstants.State state){
