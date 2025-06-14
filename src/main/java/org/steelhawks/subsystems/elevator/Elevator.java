@@ -24,6 +24,7 @@ public class Elevator extends SubsystemBase {
 
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs;
+    private final ElevatorCharacterizer characterizer;
     private final TrapezoidProfile profile;
     private final SysIdRoutine sysIdRoutine;
 
@@ -46,6 +47,7 @@ public class Elevator extends SubsystemBase {
     public Elevator(ElevatorIO io) {
         this.io = io;
         this.inputs = new ElevatorIOInputsAutoLogged();
+        this.characterizer = new ElevatorCharacterizer(this::runCharacterizer, this);
         profile =
             new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(
@@ -265,5 +267,9 @@ public class Elevator extends SubsystemBase {
 
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return Commands.runOnce(() -> isManual = true).andThen(sysIdRoutine.dynamic(direction));
+    }
+
+    public void runCharacterizer(double volts) {
+        io.runElevator(volts);
     }
 }
