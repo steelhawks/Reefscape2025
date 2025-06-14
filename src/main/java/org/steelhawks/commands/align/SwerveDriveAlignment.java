@@ -122,11 +122,11 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
 
         boolean nearZeroTrans = // tune these deadbands
-            Math.abs(speeds.vxMetersPerSecond) < 0.02
-                && Math.abs(speeds.vyMetersPerSecond) < 0.02;
+            Math.abs(speeds.vxMetersPerSecond) < XY_TOLERANCE
+                && Math.abs(speeds.vyMetersPerSecond) < XY_TOLERANCE;
         boolean nearZeroRot =
             Math.abs(speeds.omegaRadiansPerSecond)
-                < Units.degreesToRadians(1);
+                < Units.degreesToRadians(3);
         if (nearZeroTrans && nearZeroRot)
             return new ChassisSpeeds();
 

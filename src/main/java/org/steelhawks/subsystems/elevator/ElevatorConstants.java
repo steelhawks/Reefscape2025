@@ -121,8 +121,9 @@ public class ElevatorConstants {
                 RIGHT_ID = 14;
                 CANCODER_ID = 16; // 16 cancoder
                 GEAR_RATIO = 25;
-                KS = RobotBase.isReal() ? 0.23 : 0.1; // recalc prolly too high
-                KG = 0.166;
+//                KS = RobotBase.isReal() ? 0.23 : 0.1; // recalc prolly too high
+                KS = 0.0;
+                KG = 0.15;
                 KV = (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0;
                 KP = RobotBase.isReal() ? 7.0 : 1.0; // 7
                 KI = 0.0;

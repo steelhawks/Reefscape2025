@@ -2,6 +2,8 @@ package org.steelhawks.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.steelhawks.*;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
@@ -48,12 +50,16 @@ public class SuperStructure {
                 Commands.either(
                     Commands.sequence(
                         Commands.waitUntil(s_Elevator.atThisGoal(state)),
-                        Commands.either(
-                            s_Claw.shootCoralSlow(),
-                            s_Claw.shootCoral(),
-                            () ->
-                                (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                    s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
+                        new ParallelDeadlineGroup(
+                            Commands.waitUntil(s_Claw.hasCoral().negate())
+                                .andThen(new WaitCommand(0.5)),
+                            Commands.either(
+                                s_Claw.shootCoralSlow(),
+                                s_Claw.shootCoral(),
+                                () ->
+                                    (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                                        s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
+                        ),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         s_Elevator.homeCommand()),
                     Commands.none(),
