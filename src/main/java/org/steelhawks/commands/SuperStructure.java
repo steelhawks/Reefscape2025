@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.steelhawks.*;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
@@ -15,6 +16,7 @@ import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.subsystems.vision.Vision;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -29,6 +31,8 @@ public class SuperStructure {
     private static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
     private static final Align s_Align = RobotContainer.s_Align;
 
+    public static boolean scoringTriggered = false;
+
     public static Command elevatorToPosition(ElevatorConstants.State state) {
         return Commands.sequence(
             Commands.either(
@@ -39,10 +43,26 @@ public class SuperStructure {
             s_Elevator.setDesiredState(state));
     }
 
+    public static void smartScoreTrigger(Trigger button, ElevatorConstants.State state, DoubleSupplier joystick, DoubleSupplier cancelJoystick) {
+        var scoringTriggered = new AtomicBoolean(false);
+
+        button.debounce(0.25)
+            .onTrue(Commands.runOnce(() -> scoringTriggered.set(true))
+                .andThen(scoringSequence(state, joystick, cancelJoystick)));
+
+        button.onFalse(Commands.runOnce(() -> {
+            if (!scoringTriggered.get()) {
+                s_Elevator.setDesiredState(state);
+            }
+            scoringTriggered.set(false);
+        }));
+    }
+
+
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.defer(
             () -> Commands.sequence(
-                s_Elevator.setDesiredState(ElevatorConstants.State.HOME), // cancel other trigger setting elevator state so robot can move without tipping
+                Commands.runOnce(() -> scoringTriggered = true),
                 Align.alignWithSetpoint(ReefState.getFreeBranch(state), state, true)
                     .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
                 Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
@@ -52,7 +72,7 @@ public class SuperStructure {
                         Commands.waitUntil(s_Elevator.atThisGoal(state)),
                         new ParallelDeadlineGroup(
                             Commands.waitUntil(s_Claw.hasCoral().negate())
-                                .andThen(new WaitCommand(0.5)),
+                                .andThen(new WaitCommand(0.25)), // shortened was .5
                             Commands.either(
                                 s_Claw.shootCoralSlow(),
                                 s_Claw.shootCoral(),
@@ -66,7 +86,7 @@ public class SuperStructure {
                     () -> s_Swerve.getPose().getTranslation()
                         .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
                 Commands.runOnce(() -> LEDDefaultCommand.isAligned = false)) // set led state false
-            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.6),
+            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.3),
         Set.of());
     }
 }
