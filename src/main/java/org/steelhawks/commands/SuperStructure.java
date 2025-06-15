@@ -43,22 +43,38 @@ public class SuperStructure {
             s_Elevator.setDesiredState(state));
     }
 
+    /**
+     * Smart score trigger that handles both debounced hold for full scoring sequence and quick tap to set elevator state.
+     *
+     * @param button The trigger button to listen for.
+     * @param state The elevator state to score at.
+     * @param joystick Supplier for joystick axis input.
+     * @param cancelJoystick Supplier for joystick axis input to cancel scoring.
+     */
     public static void smartScoreTrigger(Trigger button, ElevatorConstants.State state, DoubleSupplier joystick, DoubleSupplier cancelJoystick) {
         var scoringTriggered = new AtomicBoolean(false);
 
-        button.debounce(0.25)
-            .onTrue(Commands.runOnce(() -> scoringTriggered.set(true))
+        button.debounce(0.25).onTrue(
+            Commands.runOnce(() -> scoringTriggered.set(true))
                 .andThen(scoringSequence(state, joystick, cancelJoystick)));
 
-        button.onFalse(Commands.runOnce(() -> {
-            if (!scoringTriggered.get()) {
-                s_Elevator.setDesiredState(state);
-            }
-            scoringTriggered.set(false);
-        }));
+        button.onFalse(
+            Commands.runOnce(() -> {
+                if (!scoringTriggered.get()) {
+                    s_Elevator.setDesiredState(state).schedule();
+                }
+                scoringTriggered.set(false);
+            }));
     }
 
-
+    /**
+     * Command to score coral at a specific state, aligning with the reef branch.
+     *
+     * @param state The elevator state to score at.
+     * @param joystickAxis Supplier for joystick axis input.
+     * @param joystickAxisToCancel Supplier for joystick axis input to cancel scoring.
+     * @return A command that executes the scoring sequence.
+     */
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.defer(
             () -> Commands.sequence(

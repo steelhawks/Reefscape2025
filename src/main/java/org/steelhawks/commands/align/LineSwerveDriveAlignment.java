@@ -78,7 +78,7 @@ public class LineSwerveDriveAlignment extends SwerveDriveAlignment {
         Vector2 lineDir = lineVec.divide(lineVec.getNormalized().getMagnitude()); // normalize
 
         Vector2 raw = new Vector2(x, y); // raw input after deadband
-        double distAlongLine = raw.dot(lineDir); // dot product gives “how much of raw is along lineDir”
+        double distAlongLine = raw.dot(lineDir); // dot product gives "how much of raw is along lineDir"
 
         // get current aligned point on the line
         Pose2d current = targetPose.get();
