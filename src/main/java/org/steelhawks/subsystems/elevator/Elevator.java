@@ -30,6 +30,7 @@ public class Elevator extends SubsystemBase {
 
     private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
+    private TrapezoidProfile.State goal = new TrapezoidProfile.State();
 
     static {
         // (height in radians) -> (chassis‐speed multiplier)
@@ -66,11 +67,11 @@ public class Elevator extends SubsystemBase {
 
     public ElevatorConstants.State getState() {
         ElevatorConstants.State state = ElevatorConstants.State.L4;
-        if (inputs.goal == ElevatorConstants.State.L3.getAngle().getRadians()) {
+        if (getDesiredState() == ElevatorConstants.State.L3.getAngle().getRadians()) {
             state = ElevatorConstants.State.L3;
-        } else if (inputs.goal == ElevatorConstants.State.L2.getAngle().getRadians()) {
+        } else if (getDesiredState() == ElevatorConstants.State.L2.getAngle().getRadians()) {
             state = ElevatorConstants.State.L2;
-        } else if (inputs.goal == ElevatorConstants.State.L1.getAngle().getRadians()) {
+        } else if (getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians()) {
             state = ElevatorConstants.State.L1;
         }
         return state;
@@ -85,7 +86,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getDesiredState() {
-        return inputs.goal;
+        return goal.position;
     }
 
     private boolean hitTopLimit() {
@@ -127,8 +128,7 @@ public class Elevator extends SubsystemBase {
             double previousVelocity = setpoint.velocity;
             setpoint =
                 profile
-                    .calculate(Constants.UPDATE_LOOP_DT, setpoint, new TrapezoidProfile.State(inputs.goal,
-                        0.0));
+                    .calculate(Constants.UPDATE_LOOP_DT, setpoint, goal);
             if (setpoint.position < 0.0
                 || setpoint.position > ElevatorConstants.MAX_RADIANS) {
                 setpoint =
@@ -150,8 +150,8 @@ public class Elevator extends SubsystemBase {
             }
             Logger.recordOutput("Elevator/SetpointPosition", setpoint.position);
             Logger.recordOutput("Elevator/SetpointVelocity", setpoint.velocity);
-            Logger.recordOutput("Elevator/GoalPosition", inputs.goal);
-            Logger.recordOutput("Elevator/GoalVelocity", 0.0);
+            Logger.recordOutput("Elevator/GoalPosition", goal.position);
+            Logger.recordOutput("Elevator/GoalVelocity", goal.velocity);
         } else {
             setpoint = new TrapezoidProfile.State(getPosition(), 0.0);
             Logger.recordOutput("Elevator/SetpointPosition", 0.0);
@@ -172,6 +172,7 @@ public class Elevator extends SubsystemBase {
             () -> {
                 LED.getInstance().flashCommand(LEDColor.WHITE, 0.1, 1.0).schedule();
                 inputs.goal = MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
+                goal = new TrapezoidProfile.State(inputs.goal, 0.0);
             }, this)
         .withName("Set Desired State");
 }

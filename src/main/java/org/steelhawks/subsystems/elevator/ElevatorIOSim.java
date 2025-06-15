@@ -5,9 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import org.steelhawks.Constants;
 import org.steelhawks.util.Conversions;
 
@@ -27,7 +25,6 @@ public class ElevatorIOSim implements ElevatorIO {
     private final PIDController mController;
     private final ElevatorVisualizer mVisualizer;
     private final ElevatorSim mElevatorSim;
-    private final EncoderSim mEncoderSim;
     private final DCMotor mMotor;
 
     private boolean runningProfile = false;
@@ -58,15 +55,15 @@ public class ElevatorIOSim implements ElevatorIO {
                 mElevatorSim::getPositionMeters,
                 ELEVATOR_WIDTH,
                 MAX_HEIGHT);
-        mEncoderSim =
-            new EncoderSim(
-                new Encoder(0, 1));
     }
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         mElevatorSim.update(Constants.UPDATE_LOOP_DT);
         runningProfile = inputs.shouldRunProfile;
+        if (!runningProfile) {
+            mController.setSetpoint(inputs.leftPositionRad);
+        }
 
         inputs.leftConnected = true;
         inputs.leftPositionRad =
@@ -86,15 +83,6 @@ public class ElevatorIOSim implements ElevatorIO {
             inputs.leftVelocityRadPerSec;
         inputs.rightAppliedVolts = appliedVolts;
         inputs.rightCurrentAmps = inputs.leftCurrentAmps;
-
-        mEncoderSim.setDistance(mElevatorSim.getPositionMeters());
-
-        inputs.encoderConnected = true;
-        inputs.magnetGood = true;
-        inputs.encoderPositionRad =
-            Conversions.metersToRotations(mEncoderSim.getDistance(), SPROCKET_RAD);
-        inputs.encoderVelocityRadPerSec =
-            Conversions.metersToRotations(mEncoderSim.getRate(), SPROCKET_RAD);
 
         inputs.limitSwitchConnected = true;
         inputs.limitSwitchPressed = mElevatorSim.hasHitLowerLimit();
