@@ -141,7 +141,7 @@ public class Align extends VirtualSubsystem {
 
     public static Command alignWithSetpoint(CoralBranch branch, State level, boolean endsWhenAligned) {
         return DriveCommands.driveToPosition(branch.getStagingPose(level))
-            .andThen(new SwerveDriveAlignment(branch.getScorePose(level), endsWhenAligned));
+            .andThen(new SwerveDriveAlignment(branch.getScorePose(level), endsWhenAligned).withTimeout(1.0));
     }
 
     public Command forwardUntil(Rotation2d angle) {

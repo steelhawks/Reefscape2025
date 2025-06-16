@@ -1,12 +1,15 @@
 package org.steelhawks.commands;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
 import org.steelhawks.Robot.RobotState;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.align.Align;
 import org.steelhawks.subsystems.claw.Claw;
@@ -14,9 +17,11 @@ import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.subsystems.vision.Vision;
+import org.steelhawks.util.AllianceFlip;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -86,6 +91,7 @@ public class SuperStructure {
                 Commands.either(
                     Commands.sequence(
                         Commands.waitUntil(s_Elevator.atThisGoal(state)),
+                        continueIfTagInView(state),
                         new ParallelDeadlineGroup(
                             Commands.waitUntil(s_Claw.hasCoral().negate())
                                 .andThen(new WaitCommand(0.25)), // shortened was .5
@@ -101,8 +107,43 @@ public class SuperStructure {
                     Commands.none(),
                     () -> s_Swerve.getPose().getTranslation()
                         .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
+                Commands.runOnce(() -> scoringTriggered = false),
                 Commands.runOnce(() -> LEDDefaultCommand.isAligned = false)) // set led state false
             .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.3),
         Set.of());
+    }
+
+    private static Command continueIfTagInView(ElevatorConstants.State state) {
+        final double BACKUP_TIMEOUT = 1.5;
+        final double FINAL_ALIGN_TIMEOUT = 1.0;
+        final int minTag = AllianceFlip.shouldFlip() ? 6 : 17;
+        final int maxTag = minTag + 5;
+
+        BooleanSupplier needsToGetBack = () -> {
+            // 0 is left mount, 1 is right mount
+            int leftId = s_Vision.getTargetId(0);
+            int rightId = s_Vision.getTargetId(1);
+
+            return (leftId == -1 || leftId < minTag || leftId > maxTag)
+                || (rightId == -1 || rightId < minTag || rightId > maxTag);
+        };
+        Logger.recordOutput("Align/HasVisionOfTag", !needsToGetBack.getAsBoolean());
+        LEDDefaultCommand.isAligned = !needsToGetBack.getAsBoolean();
+        if (!needsToGetBack.getAsBoolean()) {
+            return Commands.none();
+        }
+
+        return Commands.run(
+            () ->
+                s_Swerve.runVelocity(
+                    new ChassisSpeeds(
+                        -0.1,
+                        0.0,
+                        0.0)))
+            .until(() -> !needsToGetBack.getAsBoolean())
+            .withTimeout(BACKUP_TIMEOUT)
+            .andThen(
+                new SwerveDriveAlignment(ReefUtil.getClosestCoralBranch().getScorePose(state)).withTimeout(FINAL_ALIGN_TIMEOUT),
+                Commands.runOnce(() -> LEDDefaultCommand.isAligned = true));
     }
 }

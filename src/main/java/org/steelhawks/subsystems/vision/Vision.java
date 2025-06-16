@@ -61,12 +61,30 @@ public class Vision extends SubsystemBase {
     }
 
     /**
+     * Returns the fiducial ID of the best target.
+     *
+     * @param cameraIndex The index of the camera to use.
+     */
+    public int getTargetId(int cameraIndex) {
+        return inputs[cameraIndex].latestTargetObservation.fiducialId();
+    }
+
+    /**
      * Returns the Y angle to the best target, which can be used for simple servoing with vision.
      *
      * @param cameraIndex The index of the camera to use.
      */
     public Rotation2d getTargetY(int cameraIndex) {
         return inputs[cameraIndex].latestTargetObservation.ty();
+    }
+
+    /**
+     * Returns true if an AprilTag target is in view.
+     *
+     * @param cameraIndex The index of the camera to use.
+     */
+    public boolean hasTarget(int cameraIndex) {
+        return inputs[cameraIndex].latestTargetObservation.fiducialId() != -1;
     }
 
     @Override

@@ -40,9 +40,10 @@ public class VisionIOPhoton implements VisionIO {
                 inputs.latestTargetObservation =
                     new TargetObservation(
                         Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
-                        Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
+                        Rotation2d.fromDegrees(result.getBestTarget().getPitch()),
+                        result.getBestTarget().fiducialId);
             } else {
-                inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
+                inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d(), -1);
             }
 
             // Add pose observation
