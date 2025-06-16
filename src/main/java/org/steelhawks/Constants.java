@@ -73,7 +73,11 @@ public final class Constants {
         return switch (ROBOT_TYPE) {
             case ALPHABOT, OMEGABOT, HAWKRIDER ->
                 RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
-            case SIMBOT -> Mode.SIM;
+            case SIMBOT -> {
+                new Alert("Invalid robot selected, using omega robot as default.", AlertType.kError)
+                    .set(RobotBase.isReal());
+                yield RobotBase.isReal() ? Mode.REAL : Mode.SIM;
+            }
         };
     }
 
