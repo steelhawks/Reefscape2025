@@ -67,12 +67,12 @@ public class ReefState extends VirtualSubsystem {
     private static final String goal = "goal";
 
     // for levels 2–4 each reef has 3 branches; level1 uses troughCount
-    private static Map<String, boolean[]> coralMap;
-    private static Map<String, Boolean> algaeMap;
+    private static final Map<String, boolean[]> coralMap;
+    private static final Map<String, Boolean> algaeMap;
     private static int troughCount;
     private static boolean coop;
 
-    public ReefState() {
+    static {
         coralMap = new HashMap<>();
         for (String name : REEF_NAMES) {
             coralMap.put(name, new boolean[3]);

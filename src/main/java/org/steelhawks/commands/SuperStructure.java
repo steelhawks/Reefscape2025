@@ -113,6 +113,13 @@ public class SuperStructure {
         Set.of());
     }
 
+    /**
+     * Wheel odometry is pretty inaccurate so to prevent misalignment, we run this command to back up until we see a tag to relocalize.
+     * If a tag is already in view, this command does nothing and continues the composition it is ran in.
+     *
+     * @param state Elevator level
+     * @return Backup command or Commands.none().
+     */
     private static Command continueIfTagInView(ElevatorConstants.State state) {
         final double BACKUP_TIMEOUT = 1.5;
         final double FINAL_ALIGN_TIMEOUT = 1.0;

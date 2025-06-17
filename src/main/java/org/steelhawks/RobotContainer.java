@@ -35,6 +35,7 @@ import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.*;
 
 import java.util.Objects;
+import java.util.Set;
 
 
 public class RobotContainer {
@@ -45,7 +46,6 @@ public class RobotContainer {
     private final Trigger topCoralStationTrigger;
     private final Trigger bottomCoralStationTrigger;
 
-    public static final ReefState s_ReefState = new ReefState();
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
     public static Vision s_Vision;
@@ -363,7 +363,7 @@ public class RobotContainer {
 
         driver.leftBumper()
             .whileTrue(
-                Commands.deferredProxy(
+                Commands.defer(
                     () -> Commands.sequence(
                         Commands.either(
                             Align.directPathFollow(ReefUtil.getCoralBranchWithFusedDriverInput(driver::getLeftX).get().getScorePose(State.L4), true),
@@ -382,19 +382,31 @@ public class RobotContainer {
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         Commands.runOnce(() -> LEDDefaultCommand.isAligned = false),
                         s_Elevator.homeCommand()
-                            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * driver.getLeftX()) + driver.getLeftY()) < 0.6))))
+                            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * driver.getLeftX()) + driver.getLeftY()) < 0.6)),
+                    Set.of()))
             .onFalse(
                 Commands.waitUntil(Clearances.ClawClearances::isClearFromReef)
                     .andThen(s_Elevator.setDesiredState(State.HOME)));
 
         driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
+                new VibrateController(driver),
                 Commands.either(
                     s_LED.flashCommand(LEDColor.GREEN, 0.2, 2),
                     s_LED.flashCommand(LEDColor.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
 
         driver.rightStick()
+            .onTrue(
+                Commands.defer(() ->
+                    DriveCommands.joystickDriveAtAngle(
+                        () -> -driver.getLeftY(),
+                        () -> -driver.getLeftX(),
+                        () -> FieldConstants.getClosestCoralStation().getIntakePose().getRotation()),
+                    Set.of())
+                .until(s_Swerve.alignAtGoal()));
+
+        driver.rightStick().debounce(0.25)
             .whileTrue(
                 s_Align.alignToClosestCoralStation(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
 
