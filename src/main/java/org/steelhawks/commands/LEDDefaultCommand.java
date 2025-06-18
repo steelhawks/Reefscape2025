@@ -110,15 +110,11 @@ public class LEDDefaultCommand extends Command {
             if (!s_Claw.hasCoral().getAsBoolean()) {
                 s_LED.stop();
                 s_LED.wave(AllianceFlip.shouldFlip() ? LEDColor.RED : LEDColor.BLUE);
-            }
-            if (DriverStation.isEnabled()) {
-                s_LED.stop();
-                if (s_Claw.hasCoral().getAsBoolean()) {
-                    s_LED.setColor(
-                        !ReefState.hasOverriden()
-                            ? getLevelPriorityColor()
-                            : LEDColor.GREEN);
-                }
+            } else {
+                s_LED.setColor(
+                    !ReefState.hasOverriden()
+                        ? getLevelPriorityColor()
+                        : LEDColor.GREEN);
             }
         }
     }

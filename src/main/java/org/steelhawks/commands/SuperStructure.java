@@ -1,10 +1,7 @@
 package org.steelhawks.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
@@ -46,6 +43,14 @@ public class SuperStructure {
                 s_AlgaeClaw.hasAlgae()),
             Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
             s_Elevator.setDesiredState(state));
+    }
+
+    public static Command scoreL1() {
+        return Commands.sequence(
+            s_Elevator.setDesiredState(ElevatorConstants.State.L1_JUMP),
+            Commands.waitUntil(s_Elevator.atThisGoal(ElevatorConstants.State.L1_JUMP)),
+            new ScheduleCommand(s_Claw.shootCoralSlow().withTimeout(0.25)),
+            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
     }
 
     /**
@@ -91,17 +96,20 @@ public class SuperStructure {
                 Commands.either(
                     Commands.sequence(
                         Commands.waitUntil(s_Elevator.atThisGoal(state)),
-                        continueIfTagInView(state),
-                        new ParallelDeadlineGroup(
-                            Commands.waitUntil(s_Claw.hasCoral().negate())
-                                .andThen(new WaitCommand(0.25)), // shortened was .5
-                            Commands.either(
-                                s_Claw.shootCoralSlow(),
-                                s_Claw.shootCoral(),
-                                () ->
-                                    (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                        s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
-                        ),
+                        Commands.either(
+                            scoreL1(),
+                            Commands.sequence(
+                                continueIfTagInView(state),
+                                new ParallelDeadlineGroup(
+                                    Commands.waitUntil(s_Claw.hasCoral().negate())
+                                        .andThen(new WaitCommand(0.25)), // shortened was .5
+                                    Commands.either(
+                                        s_Claw.shootCoralSlow(),
+                                        s_Claw.shootCoral(),
+                                        () ->
+                                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()))),
+                            () -> state == ElevatorConstants.State.L1),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         s_Elevator.homeCommand()),
                     Commands.none(),
@@ -120,7 +128,7 @@ public class SuperStructure {
      * @param state Elevator level
      * @return Backup command or Commands.none().
      */
-    private static Command continueIfTagInView(ElevatorConstants.State state) {
+    public static Command continueIfTagInView(ElevatorConstants.State state) {
         final double BACKUP_TIMEOUT = 1.5;
         final double FINAL_ALIGN_TIMEOUT = 1.0;
         final int minTag = AllianceFlip.shouldFlip() ? 6 : 17;

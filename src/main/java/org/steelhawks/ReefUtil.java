@@ -81,8 +81,7 @@ public class ReefUtil {
                 : getAprilTagPose().transformBy(
                     new Transform2d(
                         RobotConstants.ROBOT_LENGTH_WITH_BUMPERS / 2.0 + distFromReef,
-                        FieldConstants.ROBOT_PERPENDICULAR_TO_NEXT_REEF * (isLeftBranch() ? 1.0 : -1.0)
-                            + RobotConstants.CLAW_Y_OFFSET * (isLeftBranch() ? 1.0 : -1.0),
+                        RobotConstants.CLAW_Y_OFFSET,
                         new Rotation2d(Math.PI)));
         }
 
@@ -98,7 +97,7 @@ public class ReefUtil {
         public Pose2d getAutonSlowDrivePose(ElevatorConstants.State level) {
             return getScorePose(level)
                 .transformBy(
-                    new Transform2d(-Units.inchesToMeters(20.0), 0.0, new Rotation2d()));
+                    new Transform2d(Units.inchesToMeters(-20.0), 0.0, new Rotation2d()));
         }
     }
 

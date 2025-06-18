@@ -2,9 +2,7 @@ package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
 import org.steelhawks.Constants;
-import org.steelhawks.Robot;
 
 import java.util.Arrays;
 
@@ -14,6 +12,7 @@ public class ElevatorConstants {
         L4(59.905784718904, 23.299634187195004, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21
         L3(35.3237425930366, 12.988215331027725, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687
         L2(19.376478322177476, 7.059379585849721, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128
+        L1_JUMP(0.0, 7.0, 0.0),
         L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
         HOME(0.0, 0.0, 0.0),
 
