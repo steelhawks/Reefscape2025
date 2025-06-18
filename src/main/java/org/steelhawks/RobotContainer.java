@@ -41,10 +41,7 @@ import java.util.Set;
 public class RobotContainer {
 
     public static final boolean useVision = true;
-
     private final Trigger notifyAtEndgame;
-    private final Trigger topCoralStationTrigger;
-    private final Trigger bottomCoralStationTrigger;
 
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
@@ -286,22 +283,12 @@ public class RobotContainer {
         new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
         Autos.init();
 
-        topCoralStationTrigger =
-            new FieldBoundingBox(
-                "Top Coral Station",
-                0.0, 2.0, 6.2, 8.0,
-                s_Swerve::getPose);
-        bottomCoralStationTrigger =
-            new FieldBoundingBox(
-                "Bottom Coral Station",
-                0.0, 2.0, 0.0, 8.0 - 6.2,
-                s_Swerve::getPose);
-
         checkIfDevicesConnected();
         configureTriggers();
         configureDriver();
 
         s_LED.setDefaultCommand(new LEDDefaultCommand());
+        s_Claw.setDefaultCommand(new ClawDefaultCommand());
     }
 
     private void checkIfDevicesConnected() {
@@ -343,13 +330,6 @@ public class RobotContainer {
         notifyAtEndgame
             .whileTrue(
                 new VibrateController(1.0, 5.0, driver));
-
-        topCoralStationTrigger
-        .or(bottomCoralStationTrigger)
-        .and(() -> Robot.getState() != RobotState.AUTON) // due to the nature of triggers, if this runs during auton, the autonomous command will be interrupted
-            .whileTrue(
-                s_Claw.intakeCoral()
-            .until(s_Claw.hasCoral()));
     }
 
     private void configureDriver() {
