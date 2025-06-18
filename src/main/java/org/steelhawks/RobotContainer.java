@@ -43,6 +43,7 @@ public class RobotContainer {
     public static final boolean useVision = true;
     private final Trigger notifyAtEndgame;
 
+    private final ReefState s_State = new ReefState();
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
     public static Vision s_Vision;
@@ -383,8 +384,9 @@ public class RobotContainer {
                         () -> -driver.getLeftY(),
                         () -> -driver.getLeftX(),
                         () -> FieldConstants.getClosestCoralStation().getIntakePose().getRotation()),
-                    Set.of())
-                .until(s_Swerve.alignAtGoal()));
+                    Set.of(s_Swerve))
+                .until(() -> s_Swerve.alignAtGoal())
+                .withName("Angle to Coral Station"));
 
         driver.rightStick().debounce(0.25)
             .whileTrue(
