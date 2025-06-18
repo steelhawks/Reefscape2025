@@ -9,6 +9,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -365,16 +366,19 @@ public class Swerve extends SubsystemBase {
                     AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
-        mAlignDebouncer = new Debouncer(1, DebounceType.kRising);
+//        mAlignController.setTolerance(Units.degreesToRadians(3));
+        mAlignDebouncer = new Debouncer(0.5, DebounceType.kRising);
     }
 
     public ProfiledPIDController getAlign() {
         return mAlignController;
     }
 
-    public Trigger alignAtGoal() {
-        return new Trigger(
-            () -> mAlignDebouncer.calculate(mAlignController.atGoal()));
+    @AutoLogOutput(key = "Swerve/AlignAtGoal")
+    public boolean alignAtGoal() {
+        double goal = mAlignController.getGoal().position;
+        double angleDifference = MathUtil.angleModulus(goal - getPose().getRotation().getRadians());
+        return mAlignDebouncer.calculate(Math.abs(angleDifference) <= Units.degreesToRadians(5));
     }
 
     @Override

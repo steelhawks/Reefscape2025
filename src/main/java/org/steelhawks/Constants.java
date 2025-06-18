@@ -270,9 +270,9 @@ public final class Constants {
                     ALIGN_ANGLE_KP = 3.0;
                     ALIGN_ANGLE_KI = 0.0;
                     ALIGN_ANGLE_KD = 0.0;
-                    ANGLE_KP = 3.0;
+                    ANGLE_KP = Constants.getRobot() == RobotType.SIMBOT ? 2.5 : 3.0;
                     ANGLE_KI = 0.0;
-                    ANGLE_KD = 0.0;
+                    ANGLE_KD = Constants.getRobot() == RobotType.SIMBOT ? 1.0 : 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 4.0;
                     MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Units.degreesToRadians(540.0);

@@ -233,7 +233,7 @@ public class Align extends VirtualSubsystem {
         return Commands.defer(
             () -> DriveCommands.driveToPosition(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine())
                 .andThen(new FusedSwerveDriveAlignment(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine(), xSupplier, ySupplier)),
-            Set.of(s_Swerve));
+            Set.of(s_Swerve)).withName("Drive to Coral Station");
     }
 
     public Command alignToClosestBargePoint(DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
