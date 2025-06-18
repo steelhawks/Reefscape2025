@@ -122,8 +122,8 @@ public class SuperStructure {
     }
 
     /**
-     * Wheel odometry is pretty inaccurate so to prevent misalignment, we run this command to back up until we see a tag to relocalize.
-     * If a tag is already in view, this command does nothing and continues the composition it is ran in.
+     * Wheel odometry is pretty inaccurate, so to prevent misalignment, we run this command to back up until we see a tag to relocalize.
+     * If a tag is already in view, this command does nothing and continues the composition it is run in.
      *
      * @param state Elevator level
      * @return Backup command or Commands.none().

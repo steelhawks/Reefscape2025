@@ -40,9 +40,6 @@ import java.util.Set;
 
 public class RobotContainer {
 
-    public static final boolean useVision = true;
-    private final Trigger notifyAtEndgame;
-
     private final ReefState s_State = new ReefState();
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve;
@@ -54,6 +51,7 @@ public class RobotContainer {
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
+    private final Trigger notifyAtEndgame;
 
     public RobotContainer() {
         SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
@@ -281,7 +279,7 @@ public class RobotContainer {
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
-        new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
+        new Alert("Use Vision is Off", AlertType.kWarning).set(!Constants.acceptVisionMeasurements);
         Autos.init();
 
         checkIfDevicesConnected();

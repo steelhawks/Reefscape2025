@@ -15,6 +15,7 @@ public final class Constants {
     public static final double ENDGAME_PERIOD = 20;
     public static final double MATCH_TIME_SECONDS = 150;
 
+    public static final boolean acceptVisionMeasurements = true;
     public static final boolean USE_MOTION_MAGIC = false;
     public static final boolean TUNING_MODE = false;
 

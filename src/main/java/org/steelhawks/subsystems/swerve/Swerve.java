@@ -52,6 +52,7 @@ import org.steelhawks.RobotContainer;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
+import org.steelhawks.subsystems.vision.Vision;
 import org.steelhawks.util.LocalADStarAK;
 
 public class Swerve extends SubsystemBase {
@@ -480,7 +481,7 @@ public class Swerve extends SubsystemBase {
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs) {
 
-        if (!RobotContainer.useVision) return;
+        if (!Constants.acceptVisionMeasurements) return;
 
         mPoseEstimator.addVisionMeasurement(
             visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
