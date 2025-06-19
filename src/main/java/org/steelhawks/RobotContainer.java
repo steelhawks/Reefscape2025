@@ -419,5 +419,24 @@ public class RobotContainer {
             .whileTrue(
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
+
+        driver.povDown()
+            .whileTrue(
+                s_AlgaeClaw.outtakeAlgae());
+
+        driver.povRight() // use if aligns to an already taken branch part, marks it as taken on reefstate
+            .onTrue(
+                Commands.runOnce(() -> {
+                    if (s_Claw.hasCoral().getAsBoolean()
+                        && s_Elevator.isScoringLevel()
+                        && ReefUtil.getClosestCoralBranch()
+                            .getScorePose(s_Elevator.getState())
+                            .getTranslation()
+                        .getDistance(s_Swerve.getPose().getTranslation()) <= 1.5
+                    ) {
+                        ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), s_Elevator.getState());
+                        s_LED.flashCommand(LEDColor.BLUE, 0.2, 2.0).schedule();
+                    }
+                }));
     }
 }

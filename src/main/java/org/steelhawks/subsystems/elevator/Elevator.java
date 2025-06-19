@@ -239,6 +239,20 @@ public class Elevator extends SubsystemBase {
             .withName("Set Desired State");
     }
 
+    /**
+     * Returns if the current setpoint of the elevator is a scoring level.
+     * <p>
+     * L1, L2, L3, L4 -> true
+     * <p>
+     * HOME, PREPARE_CLIMB -> false
+     */
+    public boolean isScoringLevel() {
+        return getState() == ElevatorConstants.State.L1
+            || getState() == ElevatorConstants.State.L2
+            || getState() == ElevatorConstants.State.L3
+            || getState() == ElevatorConstants.State.L4;
+    }
+
     public double getDesiredState() {
         return inputs.goal;
     }
