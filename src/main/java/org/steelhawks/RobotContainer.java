@@ -49,6 +49,9 @@ public class RobotContainer {
     public static Align s_Align;
     public static AlgaeClaw s_AlgaeClaw;
 
+    private final Alert autoMarkingDisabled = new Alert("Auto-Marking is currently disabled", AlertType.kWarning);
+    private boolean toggleTriggered = false;
+
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
     private final Trigger notifyAtEndgame;
@@ -407,12 +410,12 @@ public class RobotContainer {
             .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
                 Commands.either(
-                        s_Claw.shootCoralSlow(),
-                        s_Claw.shootCoral(),
-                        () ->
-                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
+                    s_Claw.shootCoralSlow(),
+                    s_Claw.shootCoral(),
+                    () ->
+                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
+                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
+                .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
 
         driver.povLeft()
             .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
@@ -423,6 +426,30 @@ public class RobotContainer {
         driver.povDown()
             .whileTrue(
                 s_AlgaeClaw.outtakeAlgae());
+
+        driver.povUp().debounce(0.5)
+            .onTrue(
+                Commands.runOnce(() -> {
+                    toggleTriggered = true;
+                    ReefState.ScoreGoal lastPosition = ReefState.getLastScoredPosition();
+                    if (lastPosition != null) {
+                        ReefState.removeScoredCoral(lastPosition);
+                        s_LED.flashCommand(LEDColor.GREEN, 0.2, 2.0);
+                    }
+                }))
+            .onFalse(
+                Commands.runOnce(() -> {
+                    if (!toggleTriggered) {
+                        ReefState.autoMark = !ReefState.autoMark;
+                        autoMarkingDisabled.set(!ReefState.autoMark);
+                        if (ReefState.autoMark) {
+                            s_LED.flashCommand(LEDColor.GREEN, 0.2, 2.0).schedule();
+                        } else {
+                            s_LED.flashCommand(LEDColor.RED, 0.2, 2.0).schedule();
+                        }
+                    }
+                    toggleTriggered = false;
+                }));
 
         driver.povRight() // use if aligns to an already taken branch part, marks it as taken on reefstate
             .onTrue(

@@ -83,7 +83,9 @@ public class Claw extends SubsystemBase {
                 if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
                     if (hasCoral().getAsBoolean()
                         && RobotContainer.s_Swerve.getPose().getTranslation()
-                            .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
+                            .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6
+                        && (ReefState.autoMark || Constants.getRobot() == Constants.RobotType.SIMBOT)
+                    ) {
                         ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
                     }
                     if (Constants.getRobot() == Constants.RobotType.SIMBOT) {

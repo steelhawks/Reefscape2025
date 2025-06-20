@@ -12,6 +12,8 @@ import java.util.*;
 
 public class ReefState extends VirtualSubsystem {
 
+    private static final List<ScoreGoal> scoredGoals = new ArrayList<>();
+    public static boolean autoMark = true;
     private static final String[] REEF_NAMES = {
         "leftOne", "leftTwo",
         "topLeftOne", "topLeftTwo",
@@ -179,10 +181,45 @@ public class ReefState extends VirtualSubsystem {
                 ? 0 : level == ElevatorConstants.State.L3
                 ? 1 : 2;
         coralMap.get(toCodeFromBranch(branch))[index] = true;
-        // push to NetworkTables
+        scoredGoals.add(new ScoreGoal(level, branch));
+
         NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
         table.getEntry(toCodeFromBranch(branch) + "_" + index).setBoolean(true);
     }
+
+    public static void removeScoredCoral(ScoreGoal goal) {
+        removeScoredCoral(goal.branch, goal.state);
+    }
+
+    public static void removeScoredCoral(CoralBranch branch, ElevatorConstants.State level) {
+        int index = switch (level) {
+            case L4 -> 0;
+            case L3 -> 1;
+            case L2 -> 2;
+            default -> -1;
+        };
+        if (index < 0) return;
+
+        String key = toCodeFromBranch(branch);
+        boolean[] levels = coralMap.get(key);
+        if (levels == null) return;
+
+        levels[index] = false;
+
+        NetworkTableInstance.getDefault()
+            .getTable("ReefData")
+            .getEntry(key + "_" + index)
+            .setBoolean(false);
+
+        for (int i = scoredGoals.size() - 1; i >= 0; i--) {
+            ScoreGoal goal = scoredGoals.get(i);
+            if (goal.state() == level && goal.branch() == branch) {
+                scoredGoals.remove(i);
+                break;
+            }
+        }
+    }
+
 
     /**
      * Called when you change troughCount (level1).
@@ -453,6 +490,13 @@ public class ReefState extends VirtualSubsystem {
     // getters for dashboard
     public static Map<String, boolean[]> getAllCoralMaps() {
         return coralMap;
+    }
+
+    public static ScoreGoal getLastScoredPosition() {
+        if (scoredGoals.isEmpty()) {
+            return null;
+        }
+        return scoredGoals.get(scoredGoals.size() - 1);
     }
 
     public static int getTroughCount() {
