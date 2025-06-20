@@ -54,32 +54,32 @@ public class RobotContainer {
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
-    private final Trigger notifyAtEndgame;
+//    private final Trigger notifyAtEndgame;
 
     public RobotContainer() {
         SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
         SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
-        notifyAtEndgame = new Trigger(() -> {
-//            When connected to the real field, this number only changes in full integer increments, and always counts down.
-//                When the DS is in practice mode, this number is a floating point number, and counts down.
-//            When the DS is in teleop or autonomous mode, this number is a floating point number, and counts up.
-//            Simulation matches DS behavior without an FMS connected.
-
-            double matchTime = DriverStation.getMatchTime();
-
-            // If connected to FMS, matchTime counts down in whole numbers
-            // If in Practice Mode, matchTime is a floating-point number and counts down
-            if (DriverStation.isFMSAttached()) {
-                return Robot.getState() == RobotState.TELEOP && matchTime <= Constants.ENDGAME_PERIOD;
-            }
-
-            // If in Teleop/Autonomous mode (not connected to FMS), matchTime counts up
-            if (Robot.getState() == RobotState.TELEOP) {
-                return matchTime >= (Constants.MATCH_TIME_SECONDS - Constants.ENDGAME_PERIOD);
-            }
-
-            return false;
-        });
+//        notifyAtEndgame = new Trigger(() -> {
+////            When connected to the real field, this number only changes in full integer increments, and always counts down.
+////                When the DS is in practice mode, this number is a floating point number, and counts down.
+////            When the DS is in teleop or autonomous mode, this number is a floating point number, and counts up.
+////            Simulation matches DS behavior without an FMS connected.
+//
+//            double matchTime = DriverStation.getMatchTime();
+//
+//            // If connected to FMS, matchTime counts down in whole numbers
+//            // If in Practice Mode, matchTime is a floating-point number and counts down
+//            if (DriverStation.isFMSAttached()) {
+//                return Robot.getState() == RobotState.TELEOP && matchTime <= Constants.ENDGAME_PERIOD;
+//            }
+//
+//            // If in Teleop/Autonomous mode (not connected to FMS), matchTime counts up
+//            if (Robot.getState() == RobotState.TELEOP) {
+//                return matchTime >= (Constants.MATCH_TIME_SECONDS - Constants.ENDGAME_PERIOD);
+//            }
+//
+//            return false;
+//        });
 
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
@@ -289,8 +289,8 @@ public class RobotContainer {
         configureTriggers();
         configureDriver();
 
-        s_LED.setDefaultCommand(new LEDDefaultCommand());
-        s_Claw.setDefaultCommand(new ClawDefaultCommand());
+//        s_LED.setDefaultCommand(new LEDDefaultCommand());
+//        s_Claw.setDefaultCommand(new ClawDefaultCommand());
     }
 
     private void checkIfDevicesConnected() {
@@ -329,9 +329,9 @@ public class RobotContainer {
                     new VibrateController(1.0, 1.0, driver))
                 .ignoringDisable(false));
 
-        notifyAtEndgame
-            .whileTrue(
-                new VibrateController(1.0, 5.0, driver));
+//        notifyAtEndgame
+//            .whileTrue(
+//                new VibrateController(1.0, 5.0, driver));
     }
 
     private void configureDriver() {
