@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
+import org.steelhawks.util.PhoenixUtil;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -123,7 +124,19 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             rightVoltage,
             rightCurrent,
             rightTemp);
+        PhoenixUtil.registerSignals(
+            Constants.getCANBus().isNetworkFD(),
+            leftPosition,
+            leftVelocity,
+            leftVoltage,
+            leftCurrent,
+            leftTemp,
 
+            rightPosition,
+            rightVelocity,
+            rightVoltage,
+            rightCurrent,
+            rightTemp);
         ParentDevice.optimizeBusUtilizationForAll(mLeftMotor, mRightMotor);
     }
 
@@ -131,12 +144,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         inputs.leftConnected =
-            BaseStatusSignal.refreshAll(
+            BaseStatusSignal.isAllGood(
                 leftPosition,
                 leftVelocity,
                 leftVoltage,
                 leftCurrent,
-                leftTemp).isOK();
+                leftTemp);
         inputs.leftPositionRad = Units.rotationsToRadians(leftPosition.getValueAsDouble());
         inputs.leftVelocityRadPerSec = Units.rotationsToRadians(leftVelocity.getValueAsDouble());
         inputs.leftAppliedVolts = leftVoltage.getValueAsDouble();
@@ -144,12 +157,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.leftTempCelsius = leftTemp.getValueAsDouble();
 
         inputs.rightConnected =
-            BaseStatusSignal.refreshAll(
+            BaseStatusSignal.isAllGood(
                 rightPosition,
                 rightVelocity,
                 rightVoltage,
                 rightCurrent,
-                rightTemp).isOK();
+                rightTemp);
         inputs.rightPositionRad = Units.rotationsToRadians(rightPosition.getValueAsDouble());
         inputs.rightVelocityRadPerSec = Units.rotationsToRadians(rightVelocity.getValueAsDouble());
         inputs.rightAppliedVolts = rightVoltage.getValueAsDouble();

@@ -1,6 +1,7 @@
 package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -65,6 +66,7 @@ public class Robot extends LoggedRobot {
 
     @SuppressWarnings("resource")
     public Robot() {
+        SignalLogger.enableAutoLogging(false); // dont log when on fms
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
         for (int i = 5800; i < 5810; i++) {
             PortForwarder.add(i, "10.26.1.11", i);
@@ -172,13 +174,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-//        VirtualSubsystem.periodicAll();
-
-        // Switch thread to high priority to improve loop timing
-//        Threads.setCurrentThreadPriority(true, 99);
+        VirtualSubsystem.periodicAll();
         CommandScheduler.getInstance().run();
-        // Return to normal thread priority
-//        Threads.setCurrentThreadPriority(false, 10);
 
         if (Constants.getRobot() != ALPHABOT)
             Logger.recordOutput("CANbus/CANivore", canivoreBus.getStatus().BusUtilization);

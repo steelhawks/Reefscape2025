@@ -22,6 +22,7 @@ import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.util.AlertUtil;
+import org.steelhawks.util.LoopTimeUtil;
 import org.steelhawks.util.TunableNumber;
 
 import java.util.function.DoubleSupplier;
@@ -174,6 +175,8 @@ public class Elevator extends SubsystemBase {
         if (mEnabled) {
             runElevator(mController.calculate(getPosition()), mController.getSetpoint());
         }
+
+        LoopTimeUtil.record("Elevator");
     }
 
     private void runElevator(double fb, TrapezoidProfile.State setpoint) {

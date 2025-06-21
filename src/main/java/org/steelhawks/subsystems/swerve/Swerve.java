@@ -54,6 +54,7 @@ import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.vision.Vision;
 import org.steelhawks.util.LocalADStarAK;
+import org.steelhawks.util.LoopTimeUtil;
 
 public class Swerve extends SubsystemBase {
 
@@ -439,6 +440,8 @@ public class Swerve extends SubsystemBase {
 
         FieldConstants.FIELD_2D.setRobotPose(getPose());
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
+
+        LoopTimeUtil.record("Swerve");
     }
 
     /**

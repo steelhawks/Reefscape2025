@@ -17,6 +17,7 @@ import org.steelhawks.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.util.LoopTimeUtil;
 
 public class Vision extends SubsystemBase {
     private final VisionConsumer consumer;
@@ -214,6 +215,8 @@ public class Vision extends SubsystemBase {
         Logger.recordOutput(
             "Vision/Summary/RobotPosesRejected",
             allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+
+        LoopTimeUtil.record("Vision");
     }
 
     @FunctionalInterface
