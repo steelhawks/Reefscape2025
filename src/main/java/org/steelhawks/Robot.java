@@ -5,6 +5,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
@@ -66,6 +67,7 @@ public class Robot extends LoggedRobot {
 
     @SuppressWarnings("resource")
     public Robot() {
+        PathfindingCommand.warmupCommand().schedule(); // run on boot
         SignalLogger.enableAutoLogging(false); // dont log when on fms
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
         for (int i = 5800; i < 5810; i++) {

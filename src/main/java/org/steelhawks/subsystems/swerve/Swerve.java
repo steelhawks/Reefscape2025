@@ -327,7 +327,6 @@ public class Swerve extends SubsystemBase {
             });
         PathPlannerLogging.setLogTargetPoseCallback(
             (targetPose) -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
-        PathfindingCommand.warmupCommand().schedule();
 
         driveSysId =
             new SysIdRoutine(
