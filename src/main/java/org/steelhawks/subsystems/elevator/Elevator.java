@@ -120,13 +120,6 @@ public class Elevator extends SubsystemBase {
         disable();
 
         io.zeroEncoders();
-//        if (inputs.limitSwitchPressed) {
-//            io.zeroEncoders();
-//        } else {
-//            homeCommand()
-//                .andThen(io::zeroEncoders)
-//                .schedule();
-//        }
     }
 
     private boolean limitPressed() {
@@ -161,10 +154,6 @@ public class Elevator extends SubsystemBase {
             !Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam()
                 && Math.signum(inputs.encoderVelocityRadPerSec) == -1;
         Logger.recordOutput("Elevator/EStopped", shouldEStop);
-
-        if (limitPressed()) {
-            io.zeroEncoders();
-        }
 
         if (shouldEStop) {
             io.stop();

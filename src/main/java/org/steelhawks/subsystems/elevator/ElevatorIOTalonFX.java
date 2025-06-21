@@ -237,11 +237,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void zeroEncoders() {
-        if (mCANcoder != null) {
-            mCANcoder.setPosition(0);
-        }
-        mLeftMotor.setPosition(0);
-        mRightMotor.setPosition(0);
+        new Thread(() -> {
+            if (mCANcoder != null) {
+                mCANcoder.setPosition(0);
+            }
+            mLeftMotor.setPosition(0);
+            mRightMotor.setPosition(0);
+        }).start();
     }
 
     @Override
