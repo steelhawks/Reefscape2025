@@ -107,7 +107,7 @@ public class LEDDefaultCommand extends Command {
             if (Robot.getState() == RobotState.TELEOP) return;
         }
         if (Robot.getState() == RobotState.TELEOP) {
-            if (!s_Claw.hasCoral().getAsBoolean()) {
+            if (!s_Claw.hasCoral()) {
                 s_LED.stop();
                 s_LED.wave(AllianceFlip.shouldFlip() ? LEDColor.RED : LEDColor.BLUE);
             } else {

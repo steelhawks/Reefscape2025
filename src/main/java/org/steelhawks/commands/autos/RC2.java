@@ -28,7 +28,7 @@ public class RC2 extends AutoRoutine {
                     desiredScoreLevel == ElevatorConstants.State.L4),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
             followTrajectory("BR2 to Lower Source"),
-            Commands.waitUntil(s_Claw.hasCoral()),
+            Commands.waitUntil(s_Claw::hasCoral),
             Commands.parallel(
                 followTrajectory("Lower Source to BL2"),
                 Commands.sequence(
@@ -48,7 +48,7 @@ public class RC2 extends AutoRoutine {
                     desiredScoreLevel == ElevatorConstants.State.L4),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
             followTrajectory("BL2 to Lower Source"),
-            Commands.waitUntil(s_Claw.hasCoral()),
+            Commands.waitUntil(s_Claw::hasCoral),
             Commands.parallel(
                 followTrajectory("Lower Source to BL1"),
                 Commands.sequence(
@@ -68,7 +68,7 @@ public class RC2 extends AutoRoutine {
                     desiredScoreLevel == ElevatorConstants.State.L4),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
             followTrajectory("BL1 to Lower Source"),
-            Commands.waitUntil(s_Claw.hasCoral()),
+            Commands.waitUntil(s_Claw::hasCoral),
             Commands.parallel(
                 followTrajectory("Lower Source to L2"),
                 Commands.sequence(

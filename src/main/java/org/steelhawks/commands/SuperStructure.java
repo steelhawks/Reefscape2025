@@ -101,7 +101,7 @@ public class SuperStructure {
                             Commands.sequence(
                                 continueIfTagInView(state),
                                 new ParallelDeadlineGroup(
-                                    Commands.waitUntil(s_Claw.hasCoral().negate())
+                                    Commands.waitUntil(() -> !s_Claw.hasCoral())
                                         .andThen(new WaitCommand(0.25)), // shortened was .5
                                     Commands.either(
                                         s_Claw.shootCoralSlow(),
@@ -154,7 +154,8 @@ public class SuperStructure {
                     new ChassisSpeeds(
                         -0.1,
                         0.0,
-                        0.0)))
+                        0.0)),
+                s_Swerve)
             .until(() -> !needsToGetBack.getAsBoolean())
             .withTimeout(BACKUP_TIMEOUT)
             .andThen(

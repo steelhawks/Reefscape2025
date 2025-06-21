@@ -207,7 +207,7 @@ public final class Autos {
                                         () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
                                             desiredScoreLevel == ElevatorConstants.State.L4),
                                     s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
-                            Commands.waitUntil(s_Claw.hasCoral()),
+                            Commands.waitUntil(s_Claw::hasCoral),
                             () -> atReef)));
         }
 

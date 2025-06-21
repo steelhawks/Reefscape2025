@@ -27,13 +27,12 @@ public class Claw extends SubsystemBase {
     private final BeamIO beamIO;
     private final ClawIO io;
 
-    public Trigger hasCoral() {
+    public boolean hasCoral() {
         return switch (Constants.getRobot()) {
             case ALPHABOT ->
-                new Trigger(
-                    () -> inputs.currentAmps > CURRENT_THRESHOLD && isIntaking);
-            case HAWKRIDER -> new Trigger(() -> false);
-            default -> new Trigger(() -> beamDebounce.calculate(beamInputs.broken));
+                inputs.currentAmps > CURRENT_THRESHOLD && isIntaking;
+            case HAWKRIDER -> false;
+            default -> beamDebounce.calculate(beamInputs.broken);
         };
     }
 
@@ -49,7 +48,7 @@ public class Claw extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("BeamBreak", beamInputs);
         Logger.processInputs("Claw", inputs);
-        Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
+        Logger.recordOutput("Claw/HasCoral", hasCoral());
     }
 
     public Command intakeCoral() {
@@ -81,7 +80,7 @@ public class Claw extends SubsystemBase {
                 Clearances.ClawClearances.hasShot = true;
                 isIntaking = true;
                 if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
-                    if (hasCoral().getAsBoolean()
+                    if (hasCoral()
                         && RobotContainer.s_Swerve.getPose().getTranslation()
                             .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6
                         && (ReefState.autoMark || Constants.getRobot() == Constants.RobotType.SIMBOT)

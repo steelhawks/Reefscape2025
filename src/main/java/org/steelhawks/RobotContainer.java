@@ -4,7 +4,6 @@ import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -54,33 +53,10 @@ public class RobotContainer {
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
-//    private final Trigger notifyAtEndgame;
 
     public RobotContainer() {
         SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
         SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
-//        notifyAtEndgame = new Trigger(() -> {
-////            When connected to the real field, this number only changes in full integer increments, and always counts down.
-////                When the DS is in practice mode, this number is a floating point number, and counts down.
-////            When the DS is in teleop or autonomous mode, this number is a floating point number, and counts up.
-////            Simulation matches DS behavior without an FMS connected.
-//
-//            double matchTime = DriverStation.getMatchTime();
-//
-//            // If connected to FMS, matchTime counts down in whole numbers
-//            // If in Practice Mode, matchTime is a floating-point number and counts down
-//            if (DriverStation.isFMSAttached()) {
-//                return Robot.getState() == RobotState.TELEOP && matchTime <= Constants.ENDGAME_PERIOD;
-//            }
-//
-//            // If in Teleop/Autonomous mode (not connected to FMS), matchTime counts up
-//            if (Robot.getState() == RobotState.TELEOP) {
-//                return matchTime >= (Constants.MATCH_TIME_SECONDS - Constants.ENDGAME_PERIOD);
-//            }
-//
-//            return false;
-//        });
-
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
                 case OMEGABOT -> {
@@ -315,7 +291,7 @@ public class RobotContainer {
             .onTrue(
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false));
 
-        s_Claw.hasCoral()
+        new Trigger(() -> s_Claw.hasCoral())
             .onTrue(
                 Commands.parallel(
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 0.5),
@@ -360,7 +336,7 @@ public class RobotContainer {
                             s_Claw.shootCoral(),
                             () ->
                                 (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                    s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(s_Claw.hasCoral().negate()),
+                                    s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(() -> !s_Claw.hasCoral()),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         Commands.runOnce(() -> LEDDefaultCommand.isAligned = false),
                         s_Elevator.homeCommand()
@@ -454,7 +430,7 @@ public class RobotContainer {
         driver.povRight() // use if aligns to an already taken branch part, marks it as taken on reefstate
             .onTrue(
                 Commands.runOnce(() -> {
-                    if (s_Claw.hasCoral().getAsBoolean()
+                    if (s_Claw.hasCoral()
                         && s_Elevator.isScoringLevel()
                         && ReefUtil.getClosestCoralBranch()
                             .getScorePose(s_Elevator.getState())
