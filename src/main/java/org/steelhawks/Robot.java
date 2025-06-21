@@ -69,7 +69,6 @@ public class Robot extends LoggedRobot {
 
     @SuppressWarnings("resource")
     public Robot() {
-        PathfindingCommand.warmupCommand().schedule(); // run on boot
         VisionConstants.APRIL_TAG_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide); // apriltag field layout is slow, so invoke it to warmup even though blue is default
         SignalLogger.enableAutoLogging(false); // dont log when on fms
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());

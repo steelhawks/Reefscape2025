@@ -367,8 +367,9 @@ public class Swerve extends SubsystemBase {
                     AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
-//        mAlignController.setTolerance(Units.degreesToRadians(3));
+        mAlignController.setTolerance(Units.degreesToRadians(3));
         mAlignDebouncer = new Debouncer(0.5, DebounceType.kRising);
+        PathfindingCommand.warmupCommand().schedule();
     }
 
     public ProfiledPIDController getAlign() {
