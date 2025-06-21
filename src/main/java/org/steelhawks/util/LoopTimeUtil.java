@@ -17,7 +17,7 @@ public class LoopTimeUtil {
 
     public static void record(String subsystem) {
         double now = Timer.getFPGATimestamp();
-        Logger.recordOutput("LoopTimes/" + subsystem + "ms", (now - startTime) * 1000.0);
+        Logger.recordOutput("LoopTimes/" + subsystem + " ms", (now - startTime) * 1000.0);
         startTime = now;
     }
 }
