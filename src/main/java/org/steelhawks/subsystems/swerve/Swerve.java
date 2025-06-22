@@ -704,8 +704,8 @@ public class Swerve extends SubsystemBase {
         isPathfinding = pathfinding;
     }
 
-    public Trigger isPathfinding() {
-        return new Trigger(() -> isPathfinding);
+    public boolean isPathfinding() {
+        return isPathfinding;
     }
 
     ///////////////////////

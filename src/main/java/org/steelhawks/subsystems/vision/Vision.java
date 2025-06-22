@@ -95,7 +95,7 @@ public class Vision extends SubsystemBase {
             Logger.processInputs("Vision/Camera" + i, inputs[i]);
         }
 
-        if (RobotContainer.s_Swerve.isPathfinding().getAsBoolean()) {
+        if (RobotContainer.s_Swerve.isPathfinding()) {
             whitelistTagIds(ONLY_REEF_TAGS);
         } else {
             whitelistTagIds(ALL_ALLOWED_TAGS);
