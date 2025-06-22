@@ -35,7 +35,7 @@ public class SuperStructure {
 
     public static boolean scoringTriggered = false;
 
-    public static Command elevatorToPosition(ElevatorConstants.State state) {
+    public static Command setDesiredState(ElevatorConstants.State state) {
         return Commands.sequence(
             Commands.either(
                 s_AlgaeClaw.catapult(),
@@ -47,10 +47,10 @@ public class SuperStructure {
 
     public static Command scoreL1() {
         return Commands.sequence(
-            s_Elevator.setDesiredState(ElevatorConstants.State.L1_JUMP),
+            setDesiredState(ElevatorConstants.State.L1_JUMP),
             Commands.waitUntil(s_Elevator.atThisGoal(ElevatorConstants.State.L1_JUMP)),
             new ScheduleCommand(s_Claw.shootCoralSlow().withTimeout(0.25)),
-            s_Elevator.setDesiredState(ElevatorConstants.State.L1));
+            setDesiredState(ElevatorConstants.State.L1));
     }
 
     /**
@@ -71,7 +71,7 @@ public class SuperStructure {
         button.onFalse(
             Commands.runOnce(() -> {
                 if (!scoringTriggered.get()) {
-                    s_Elevator.setDesiredState(state).schedule();
+                    setDesiredState(state).schedule();
                 }
                 scoringTriggered.set(false);
             }));
@@ -92,7 +92,7 @@ public class SuperStructure {
                 Align.alignWithSetpoint(ReefState.getFreeBranch(state), state, true)
                     .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
                 Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
-                s_Elevator.setDesiredState(state),
+                setDesiredState(state),
                 Commands.either(
                     Commands.sequence(
                         Commands.waitUntil(s_Elevator.atThisGoal(state)),

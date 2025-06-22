@@ -17,7 +17,7 @@ public class BottomG extends AutoRoutine {
         super(
             "BOTTOMG",
             Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.CENTER.getPose()))),
-            SuperStructure.elevatorToPosition(ElevatorConstants.State.L4),
+            SuperStructure.setDesiredState(ElevatorConstants.State.L4),
             followTrajectory("Center to R2"),
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.R2.getScorePose(ElevatorConstants.State.L4)).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
             Commands.deadline(
@@ -29,8 +29,8 @@ public class BottomG extends AutoRoutine {
                 () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
                     desiredScoreLevel == ElevatorConstants.State.L4),
             Commands.either(
-                SuperStructure.elevatorToPosition(ElevatorConstants.State.KNOCK_L3),
-                SuperStructure.elevatorToPosition(ElevatorConstants.State.KNOCK_L2),
+                SuperStructure.setDesiredState(ElevatorConstants.State.KNOCK_L3),
+                SuperStructure.setDesiredState(ElevatorConstants.State.KNOCK_L2),
                 ReefUtil.Algae.R::isOnL3
             ),
             followTrajectory("R2 to R"),
@@ -39,12 +39,12 @@ public class BottomG extends AutoRoutine {
             s_AlgaeClaw.intakeAlgae().until(s_AlgaeClaw.hasAlgae()),
             followTrajectory("R to Barge"),
             new SwerveDriveAlignment(FieldConstants.Barge.SCORE.getCatapultPose()).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
-            SuperStructure.elevatorToPosition(ElevatorConstants.State.BARGE_SCORE),
+            SuperStructure.setDesiredState(ElevatorConstants.State.BARGE_SCORE),
 //            s_AlgaeClaw.outtakeAlgae().until(s_AlgaeClaw.hasAlgae().negate()),
             s_AlgaeClaw.outtakeAlgae().withTimeout(SHOOT_TIMEOUT),
             Commands.either(
-                SuperStructure.elevatorToPosition(ElevatorConstants.State.KNOCK_L3),
-                SuperStructure.elevatorToPosition(ElevatorConstants.State.KNOCK_L2),
+                SuperStructure.setDesiredState(ElevatorConstants.State.KNOCK_L3),
+                SuperStructure.setDesiredState(ElevatorConstants.State.KNOCK_L2),
                 ReefUtil.Algae.BR::isOnL3
             ),
             followTrajectory("Barge to BR"),
@@ -53,7 +53,7 @@ public class BottomG extends AutoRoutine {
             s_AlgaeClaw.intakeAlgae().until(s_AlgaeClaw.hasAlgae()),
             followTrajectory("BR to Barge"),
             new SwerveDriveAlignment(FieldConstants.Barge.SCORE.getCatapultPose()).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
-            SuperStructure.elevatorToPosition(ElevatorConstants.State.BARGE_SCORE),
+            SuperStructure.setDesiredState(ElevatorConstants.State.BARGE_SCORE),
 //            s_AlgaeClaw.outtakeAlgae().until(s_AlgaeClaw.hasAlgae().negate())
             s_AlgaeClaw.outtakeAlgae().withTimeout(SHOOT_TIMEOUT)
         );

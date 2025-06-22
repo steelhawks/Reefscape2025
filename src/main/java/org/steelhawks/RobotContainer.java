@@ -49,8 +49,10 @@ public class RobotContainer {
     public static Align s_Align;
     public static AlgaeClaw s_AlgaeClaw;
 
-    private final Alert autoMarkingDisabled = new Alert("Auto-Marking is currently disabled", AlertType.kWarning);
-    private final Alert manualModeToggled = new Alert("Manual Mode is currently toggled", AlertType.kWarning);
+    private final Alert autoMarkingDisabled =
+        new Alert("Auto-Marking is currently disabled", AlertType.kWarning);
+    private final Alert manualModeToggled =
+        new Alert("Manual Mode is currently toggled", AlertType.kWarning);
     private boolean manualToggled = false;
     private boolean toggleTriggered = false;
 
@@ -367,7 +369,7 @@ public class RobotContainer {
                             ReefState::hasOverriden)
                         .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
                         Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
-                        s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),
+                        SuperStructure.setDesiredState(ReefState.dynamicScoreRoutine().state()),
                         Commands.waitUntil(s_Elevator.atThisGoal(ReefState.dynamicScoreRoutine().state())),
                         Commands.either(
                             s_Claw.shootCoralSlow(),
@@ -382,7 +384,7 @@ public class RobotContainer {
                     Set.of()))
             .onFalse(
                 Commands.waitUntil(Clearances.ClawClearances::isClearFromReef)
-                    .andThen(s_Elevator.setDesiredState(State.HOME)));
+                    .andThen(SuperStructure.setDesiredState(State.HOME)));
 
         driver.back().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
@@ -449,7 +451,7 @@ public class RobotContainer {
                             Set.of(s_Swerve)),
                         s_AlgaeClaw.catapult(),
                         Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                        s_Elevator.setDesiredState(State.BARGE_SCORE),
+                        SuperStructure.setDesiredState(State.BARGE_SCORE),
                         Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE)),
                         new SwerveDriveAlignment(FieldConstants.Barge.SCORE.getCatapultPose(), true),
                         s_AlgaeClaw.outtakeAlgae().withTimeout(0.5)),
@@ -461,8 +463,8 @@ public class RobotContainer {
                         s_AlgaeClaw.intake(),
                         Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                         Commands.either(
-                            s_Elevator.setDesiredState(State.KNOCK_L3),
-                            s_Elevator.setDesiredState(State.KNOCK_L2),
+                            SuperStructure.setDesiredState(State.KNOCK_L3),
+                            SuperStructure.setDesiredState(State.KNOCK_L2),
                             () -> ReefUtil.getClosestAlgae().isOnL3()),
                         Commands.defer(
                             () -> Commands.waitUntil(

@@ -9,6 +9,7 @@ import org.steelhawks.Clearances;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.DriveCommands;
+import org.steelhawks.commands.SuperStructure;
 import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.AllianceFlip;
@@ -34,7 +35,7 @@ public class RC2_Pathless extends AutoRoutine {
                 Commands.sequence(
                     Commands.waitSeconds(0.6),
                     Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
-                    s_Elevator.setDesiredState(desiredScoreLevel)
+                    SuperStructure.setDesiredState(desiredScoreLevel)
                 )
             ),
 
@@ -52,7 +53,7 @@ public class RC2_Pathless extends AutoRoutine {
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
                 () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
                     desiredScoreLevel == ElevatorConstants.State.L4).until(() -> !s_Claw.hasCoral()),
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
+            SuperStructure.setDesiredState(ElevatorConstants.State.HOME),
 
 
             Commands.defer(() -> Autos.followTrajectory("BR" + (startingBR1 ? "1" : "2") + " to Lower Source"), Set.of()),
@@ -68,7 +69,7 @@ public class RC2_Pathless extends AutoRoutine {
                 s_Claw::hasCoral),
 
             DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL2.getAutonSlowDrivePose(desiredScoreLevel)),
-            s_Elevator.setDesiredState(desiredScoreLevel),
+            SuperStructure.setDesiredState(desiredScoreLevel),
             
 //            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL2.getScorePose(desiredScoreLevel), constraints),
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL2.getScorePose(desiredScoreLevel)),
@@ -80,7 +81,7 @@ public class RC2_Pathless extends AutoRoutine {
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
                 () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
                     desiredScoreLevel == ElevatorConstants.State.L4).until(() -> !s_Claw.hasCoral()),
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
+            SuperStructure.setDesiredState(ElevatorConstants.State.HOME),
 
             Autos.followTrajectory("BL2 to Lower Source"),
             Commands.waitUntil(s_Claw::hasCoral).withTimeout(WAIT_FOR_CORAL_TIMEOUT),
@@ -95,7 +96,7 @@ public class RC2_Pathless extends AutoRoutine {
                 s_Claw::hasCoral),
 
             DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL1.getAutonSlowDrivePose(desiredScoreLevel)),
-            s_Elevator.setDesiredState(desiredScoreLevel),
+            SuperStructure.setDesiredState(desiredScoreLevel),
 
 //            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL1.getScorePose(desiredScoreLevel), constraints),
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL1.getScorePose(desiredScoreLevel)),
@@ -107,7 +108,7 @@ public class RC2_Pathless extends AutoRoutine {
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
                 () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
                     desiredScoreLevel == ElevatorConstants.State.L4).until(() -> !s_Claw.hasCoral()),
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
+            SuperStructure.setDesiredState(ElevatorConstants.State.HOME)
 
                 
                 
