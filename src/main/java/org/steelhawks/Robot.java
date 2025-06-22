@@ -179,7 +179,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         VirtualSubsystem.periodicAll();
-        LoopTimeUtil.record("Virtual Periodic");
+        LoopTimeUtil.record("VirtualPeriodic");
         CommandScheduler.getInstance().run();
         LoopTimeUtil.record("Commands");
 
