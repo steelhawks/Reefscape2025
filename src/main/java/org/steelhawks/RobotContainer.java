@@ -31,7 +31,6 @@ import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
-import org.steelhawks.util.*;
 
 import java.util.Objects;
 import java.util.Set;
@@ -392,6 +391,7 @@ public class RobotContainer {
                     () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
 
         driver.rightStick()
+            .and(() -> !manualToggled)
             .onTrue(
                 Commands.defer(() ->
                     DriveCommands.joystickDriveAtAngle(
@@ -403,6 +403,7 @@ public class RobotContainer {
                 .withName("Angle to Coral Station"));
 
         driver.rightStick().debounce(0.25)
+            .and(() -> !manualToggled)
             .whileTrue(
                 s_Align.alignToClosestCoralStation(() -> -driver.getLeftY(), () -> -driver.getLeftX()));
 
@@ -414,13 +415,11 @@ public class RobotContainer {
         SuperStructure.smartScoreTrigger(driver.a(), State.L4, driver::getLeftX, driver::getLeftY);
 
         driver.b()
-            .or(new DashboardTrigger("elevatorHome"))
             .onTrue(s_Elevator.homeCommand());
 
         /* ------------- Intake Controls ------------- */
 
         driver.leftTrigger()
-            .or(new DashboardTrigger("scoreCoral"))
             .whileTrue(
                 Commands.either(
                     s_Claw.shootCoralSlow(),
@@ -431,7 +430,6 @@ public class RobotContainer {
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
 
         driver.povLeft()
-            .or(new DashboardTrigger("intakeCoral")) // rename to reverseCoral on app
             .whileTrue(
                 s_Claw.reverseCoral()
                     .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
@@ -447,7 +445,9 @@ public class RobotContainer {
                     ReefState.ScoreGoal lastPosition = ReefState.getLastScoredPosition();
                     if (lastPosition != null) {
                         ReefState.removeScoredCoral(lastPosition);
-                        s_LED.flashCommand(LEDColor.GREEN, 0.2, 2.0);
+                        Commands.parallel(
+                            new VibrateController(1.0, 0.25, driver),
+                            s_LED.flashCommand(LEDColor.GREEN, 0.2, 2.0)).schedule();
                     }
                 }))
             .onFalse(
