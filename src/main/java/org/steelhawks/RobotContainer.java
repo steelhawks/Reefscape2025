@@ -49,6 +49,8 @@ public class RobotContainer {
     public static AlgaeClaw s_AlgaeClaw;
 
     private final Alert autoMarkingDisabled = new Alert("Auto-Marking is currently disabled", AlertType.kWarning);
+    private final Alert manualModeToggled = new Alert("Manual Mode is currently toggled", AlertType.kWarning);
+    private boolean manualToggled = false;
     private boolean toggleTriggered = false;
 
     private final CommandXboxController driver =
@@ -262,11 +264,17 @@ public class RobotContainer {
         Autos.init();
 
         checkIfDevicesConnected();
+        setManualToggled(false);
         configureTriggers();
         configureDriver();
 
-//        s_LED.setDefaultCommand(new LEDDefaultCommand());
-//        s_Claw.setDefaultCommand(new ClawDefaultCommand());
+        s_LED.setDefaultCommand(new LEDDefaultCommand(() -> manualToggled));
+        s_Claw.setDefaultCommand(new ClawDefaultCommand());
+    }
+
+    private void setManualToggled(boolean value) {
+        manualToggled = value;
+        Logger.recordOutput("Toggles/ManualMode", manualToggled);
     }
 
     private void checkIfDevicesConnected() {
@@ -304,10 +312,6 @@ public class RobotContainer {
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
                     new VibrateController(1.0, 1.0, driver))
                 .ignoringDisable(false));
-
-//        notifyAtEndgame
-//            .whileTrue(
-//                new VibrateController(1.0, 5.0, driver));
     }
 
     private void configureDriver() {
@@ -318,6 +322,39 @@ public class RobotContainer {
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
+
+        driver.start().and(driver.back())
+            .onTrue(
+                Commands.runOnce(() -> {
+                    if (!s_Elevator.isLocked() || !s_AlgaeClaw.isLocked()) {
+                        Commands.parallel(
+                            new VibrateController(1.0, 1.0, driver),
+                            s_LED.flashCommand(LEDColor.RED, 0.1, 1.0)).schedule();
+                        return;
+                    }
+                    setManualToggled(!manualToggled);
+                    manualModeToggled.set(manualToggled);
+                    s_Swerve.removeDefaultCommand();
+                    if (manualToggled) {
+                        s_Swerve.setDefaultCommand(Commands.idle(s_Swerve));
+                    } else {
+                        s_Swerve.setDefaultCommand(
+                            DriveCommands.joystickDrive(
+                                () -> -driver.getLeftY(),
+                                () -> -driver.getLeftX(),
+                                () -> -driver.getRightX()));
+                    }
+                }));
+
+        driver.leftStick()
+            .and(() -> manualToggled)
+            .onTrue(
+                s_Elevator.toggleManualControl(() -> -driver.getLeftY()));
+
+        driver.rightStick()
+            .and(() -> manualToggled)
+            .onTrue(
+                s_AlgaeClaw.toggleManualControl(() -> -driver.getRightY()));
 
         driver.leftBumper()
             .whileTrue(

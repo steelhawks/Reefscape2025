@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.OperatorLock;
@@ -66,6 +67,11 @@ public class AlgaeClaw extends SubsystemBase {
         return mEnabled;
     }
 
+    @AutoLogOutput(key = "Toggles/AlgaeClaw")
+    public boolean isLocked() {
+        return mOperatorLock == OperatorLock.LOCKED;
+    }
+
     public AlgaeClaw(AlgaeClawIO io) {
         this.io = io;
 
@@ -104,6 +110,10 @@ public class AlgaeClaw extends SubsystemBase {
 
     public double getPivotPosition() {
         return inputs.pivotPosition;
+    }
+
+    public boolean atThisGoal(AlgaeClawConstants.AlgaeClawState state) {
+        return Math.abs(state.getAngle().getRadians() - getPivotPosition()) <= AlgaeClawConstants.TOLERANCE;
     }
 
     @Override

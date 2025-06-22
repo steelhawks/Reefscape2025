@@ -75,6 +75,11 @@ public class Elevator extends SubsystemBase {
         return mEnabled;
     }
 
+    @AutoLogOutput(key = "Toggles/Elevator")
+    public boolean isLocked() {
+        return mOperatorLock == OperatorLock.LOCKED;
+    }
+
     public ElevatorConstants.State getState() {
         ElevatorConstants.State state = ElevatorConstants.State.L4;
         if (inputs.goal == ElevatorConstants.State.L3.getAngle().getRadians()) {

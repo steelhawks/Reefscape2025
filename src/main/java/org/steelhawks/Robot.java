@@ -181,10 +181,6 @@ public class Robot extends LoggedRobot {
         VirtualSubsystem.periodicAll();
         CommandScheduler.getInstance().run();
 
-        if (Constants.getRobot() != ALPHABOT)
-            Logger.recordOutput("CANbus/CANivore", canivoreBus.getStatus().BusUtilization);
-        Logger.recordOutput("CANbus/Rio", rioBus.getStatus().BusUtilization);
-
         if (Constants.getRobot() == SIMBOT)
             updateSimPoseVisualizer();
     }

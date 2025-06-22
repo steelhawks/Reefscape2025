@@ -5,13 +5,10 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Autos;
+import org.steelhawks.*;
 import org.steelhawks.Autos.Misalignment;
 import org.steelhawks.Constants.RobotConstants;
-import org.steelhawks.ReefState;
-import org.steelhawks.Robot;
 import org.steelhawks.Robot.RobotState;
-import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.subsystems.claw.Claw;
@@ -21,6 +18,7 @@ import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 
 import java.util.HashMap;
+import java.util.function.BooleanSupplier;
 
 public class LEDDefaultCommand extends Command {
 
@@ -29,6 +27,7 @@ public class LEDDefaultCommand extends Command {
     private final Claw s_Claw = RobotContainer.s_Claw;
     private final LED s_LED = LED.getInstance();
 
+    private final BooleanSupplier manualMode;
     private final HashMap<ElevatorConstants.State, LEDColor> levelColors =
         new HashMap<>() {{
             put(ElevatorConstants.State.L4, LEDColor.PURPLE);
@@ -42,9 +41,10 @@ public class LEDDefaultCommand extends Command {
     private double lastFlashTime = 0;
     private boolean ledOn = false;
 
-    public LEDDefaultCommand() {
+    public LEDDefaultCommand(BooleanSupplier manualMode) {
         addRequirements(s_LED);
         setName("LEDDefaultCommand");
+        this.manualMode = manualMode;
     }
 
     private void flash(LEDColor color, double interval) {
@@ -62,6 +62,11 @@ public class LEDDefaultCommand extends Command {
 
     @Override
     public synchronized void execute() {
+        if (manualMode.getAsBoolean() && Robot.getState() == RobotState.TELEOP) {
+            s_LED.stop();
+            s_LED.fade(LEDColor.HOT_PINK);
+            return;
+        }
         if (isAligned) {
             s_LED.setColor(LEDColor.GREEN);
             return;
