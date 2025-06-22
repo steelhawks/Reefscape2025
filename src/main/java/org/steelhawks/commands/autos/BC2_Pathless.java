@@ -5,6 +5,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.steelhawks.Autos;
+import org.steelhawks.Clearances;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.DriveCommands;
@@ -26,15 +27,22 @@ public class BC2_Pathless extends AutoRoutine {
             "BC2_PATHLESS",
             Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.BC2.getPose()))),
 
-            Commands.defer(() ->
-                Autos.followTrajectory("BC2 to " + "TR" + (startingTR1 ? "1" : "2")), Set.of()),
-            s_Elevator.setDesiredState(desiredScoreLevel),
+            Commands.parallel(
+                s_AlgaeClaw.avoid(),
+                Commands.defer(() ->
+                    Autos.followTrajectory("BC2 to " + "TR" + (startingTR1 ? "1" : "2")), Set.of()),
+                Commands.sequence(
+                    Commands.waitSeconds(0.6),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                    s_Elevator.setDesiredState(desiredScoreLevel)
+                )
+            ),
 
             Commands.defer(() ->
-                    new SwerveDriveAlignment(
-                        startingTR1
-                            ? ReefUtil.CoralBranch.TR1.getScorePose(desiredScoreLevel)
-                            : ReefUtil.CoralBranch.TR2.getScorePose(desiredScoreLevel)), Set.of())
+                new SwerveDriveAlignment(
+                    startingTR1
+                        ? ReefUtil.CoralBranch.TR1.getScorePose(desiredScoreLevel)
+                        : ReefUtil.CoralBranch.TR2.getScorePose(desiredScoreLevel)), Set.of())
                 .withTimeout(AUTO_ALIGNMENT_TIMEOUT),
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),

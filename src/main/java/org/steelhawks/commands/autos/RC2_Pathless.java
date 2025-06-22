@@ -5,6 +5,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.steelhawks.Autos;
+import org.steelhawks.Clearances;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.commands.DriveCommands;
@@ -27,10 +28,12 @@ public class RC2_Pathless extends AutoRoutine {
             Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose()))),
 
             Commands.parallel(
+                s_AlgaeClaw.avoid(),
                 Commands.defer(() ->
                     Autos.followTrajectory("RC2 to " + "BR" + (startingBR1 ? "1" : "2")), Set.of()),
                 Commands.sequence(
                     Commands.waitSeconds(0.6),
+                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                     s_Elevator.setDesiredState(desiredScoreLevel)
                 )
             ),
