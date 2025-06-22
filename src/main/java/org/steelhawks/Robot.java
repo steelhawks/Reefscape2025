@@ -5,7 +5,6 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
-import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.hal.FRCNetComm;
@@ -32,6 +31,7 @@ import org.steelhawks.Constants.Mode;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.Elastic;
+import org.steelhawks.util.LoopTimeUtil;
 import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
@@ -179,10 +179,14 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         VirtualSubsystem.periodicAll();
+        LoopTimeUtil.record("Virtual Periodic");
         CommandScheduler.getInstance().run();
+        LoopTimeUtil.record("Commands");
 
         if (Constants.getRobot() == SIMBOT)
             updateSimPoseVisualizer();
+
+        LoopTimeUtil.record("RobotPeriodic");
     }
 
     private void updateSimPoseVisualizer() {

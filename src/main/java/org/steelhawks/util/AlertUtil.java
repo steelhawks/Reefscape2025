@@ -17,6 +17,7 @@ public final class AlertUtil {
             for (AlertUtil alertUtil : alerts) {
                 alertUtil.update();
             }
+            LoopTimeUtil.record("AlertUtil");
         }
     };
 

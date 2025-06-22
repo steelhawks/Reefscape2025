@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.ReefUtil.CoralBranch;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.util.LoopTimeUtil;
 import org.steelhawks.util.VirtualSubsystem;
 
 import java.util.*;
@@ -93,6 +94,7 @@ public class ReefState extends VirtualSubsystem {
         updateFromNetworkTables();
         syncVisualizer(); // push our boolean‑map into the visualizer
         ReefVisualizer.updateVisualizer();
+        LoopTimeUtil.record("ReefState");
     }
 
     /**
