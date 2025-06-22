@@ -26,6 +26,7 @@ public class Vision extends SubsystemBase {
     private final Alert[] disconnectedAlerts;
 
     private static int[] allowedTagIds;
+    private boolean prevPathfinding;
 
     public Vision(VisionConsumer consumer, VisionIO... io) {
         this.consumer = consumer;
@@ -45,7 +46,8 @@ public class Vision extends SubsystemBase {
                     "Vision camera " + i + " is disconnected.", AlertType.kWarning);
         }
 
-        whitelistTagIds(ALL_ALLOWED_TAGS);
+        prevPathfinding = RobotContainer.s_Swerve.isPathfinding();
+        whitelistTagIds(prevPathfinding ? ONLY_REEF_TAGS : ALL_ALLOWED_TAGS);
     }
 
     public static void whitelistTagIds(int... tagIds) {
@@ -95,10 +97,10 @@ public class Vision extends SubsystemBase {
             Logger.processInputs("Vision/Camera" + i, inputs[i]);
         }
 
-        if (RobotContainer.s_Swerve.isPathfinding()) {
-            whitelistTagIds(ONLY_REEF_TAGS);
-        } else {
-            whitelistTagIds(ALL_ALLOWED_TAGS);
+        boolean currPathfinding = RobotContainer.s_Swerve.isPathfinding();
+        if (currPathfinding != prevPathfinding) {
+            prevPathfinding = currPathfinding;
+            whitelistTagIds(currPathfinding ? ONLY_REEF_TAGS : ALL_ALLOWED_TAGS);
         }
 
         // Initialize logging values
