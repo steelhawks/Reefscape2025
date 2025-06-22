@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.*;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -31,6 +32,7 @@ import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
+import org.steelhawks.util.DoublePressTrigger;
 
 import java.util.Objects;
 import java.util.Set;
@@ -322,8 +324,8 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-        driver.start().and(driver.back())
-            .onTrue(
+        new DoublePressTrigger(driver.start())
+            .onDoubleTap(
                 Commands.runOnce(() -> {
                     if (!s_Elevator.isLocked() || !s_AlgaeClaw.isLocked()) {
                         Commands.parallel(
@@ -382,7 +384,7 @@ public class RobotContainer {
                 Commands.waitUntil(Clearances.ClawClearances::isClearFromReef)
                     .andThen(s_Elevator.setDesiredState(State.HOME)));
 
-        driver.rightTrigger().onTrue(s_Swerve.toggleMultiplier()
+        driver.back().onTrue(s_Swerve.toggleMultiplier()
             .alongWith(
                 new VibrateController(driver),
                 Commands.either(
@@ -437,6 +439,50 @@ public class RobotContainer {
         driver.povDown()
             .whileTrue(
                 s_AlgaeClaw.outtakeAlgae());
+
+//        driver.rightTrigger()
+//            .whileTrue(
+//                Commands.either(
+//                    Commands.sequence(
+//                        Commands.defer(
+//                            () -> Align.directPathFollow(FieldConstants.Barge.SCORE.getClearancePose(), true),
+//                            Set.of(s_Swerve)),
+//                        s_AlgaeClaw.catapult(),
+//                        Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+//                        s_Elevator.setDesiredState(State.BARGE_SCORE),
+//                        Commands.waitUntil(s_Elevator.atThisGoal(State.BARGE_SCORE)),
+//                        new SwerveDriveAlignment(FieldConstants.Barge.SCORE.getCatapultPose(), true),
+//                        s_AlgaeClaw.outtakeAlgae().withTimeout(0.5)),
+//
+//                    Commands.sequence(
+//                        Commands.defer(
+//                            () -> Align.directPathFollow(ReefUtil.getClosestAlgae().getClearancePose(), true),
+//                            Set.of(s_Swerve)),
+//                        s_AlgaeClaw.intake(),
+//                        Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+//                        Commands.either(
+//                            s_Elevator.setDesiredState(State.KNOCK_L3),
+//                            s_Elevator.setDesiredState(State.KNOCK_L2),
+//                            () -> ReefUtil.getClosestAlgae().isOnL3()),
+//                        Commands.defer(
+//                            () -> Commands.waitUntil(
+//                                s_Elevator.atThisGoal(
+//                                    ReefUtil.getClosestAlgae().isOnL3()
+//                                        ? State.KNOCK_L3
+//                                        : State.KNOCK_L2)),
+//                            Set.of()),
+//                        Commands.defer(
+//                            () -> new SwerveDriveAlignment(() -> ReefUtil.getClosestAlgae().getRetrievePose()),
+//                            Set.of(s_Swerve)))
+//                        .alongWith(s_AlgaeClaw.intakeAlgae())
+//                        .until(s_AlgaeClaw.hasAlgae()),
+//
+//                    s_AlgaeClaw.hasAlgae())
+//                    .until(() -> Math.abs(driver.getLeftX() + driver.getLeftY()) <= 0.3))
+//            .onFalse(
+//                Commands.sequence(
+//                    Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromReef),
+//                    s_Elevator.homeCommand()));
 
         driver.povUp().debounce(0.5)
             .onTrue(
