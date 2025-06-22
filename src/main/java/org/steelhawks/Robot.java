@@ -251,6 +251,7 @@ public class Robot extends LoggedRobot {
         Elastic.selectTab("Teleoperated");
         if (autonomousCommand != null)
             autonomousCommand.cancel();
+        RobotContainer.s_AlgaeClaw.avoid().schedule();
     }
 
     @Override
