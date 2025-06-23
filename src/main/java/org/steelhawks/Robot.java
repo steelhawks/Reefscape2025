@@ -174,6 +174,8 @@ public class Robot extends LoggedRobot {
             DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
             DriverStationSim.notifyNewData();
         }
+
+//        Threads.setCurrentThreadPriority(true, 10);
     }
 
     @Override
