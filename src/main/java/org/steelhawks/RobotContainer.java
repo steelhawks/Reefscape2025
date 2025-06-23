@@ -58,8 +58,8 @@ public class RobotContainer {
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
 
     public RobotContainer() {
-        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
-        SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
+//        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
+//        SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
                 case OMEGABOT -> {

@@ -21,7 +21,6 @@ import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.AlgaeClawDefaultCommand;
 import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.ArmDriveFeedforward;
-import org.steelhawks.util.TunableNumber;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Second;
@@ -290,10 +289,9 @@ public class AlgaeClaw extends SubsystemBase {
         io.stopSpin();
     }
 
-    TunableNumber s = new TunableNumber("AlgaeClaw/kV", 0.0);
     public Command applyKV() {
         return Commands.run(
-            () -> io.runPivot(s.getAsDouble())
+            () -> io.runPivot(AlgaeClawConstants.PIVOT_KV)
         ).finallyDo(io::stopPivot);
     }
 

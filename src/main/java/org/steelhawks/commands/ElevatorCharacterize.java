@@ -62,9 +62,9 @@ public class ElevatorCharacterize extends Command {
         }
 
         // Display values on SmartDashboard
-        SmartDashboard.putNumber("Elevator Voltage", voltage);
-        SmartDashboard.putNumber("kS", kS);
-        SmartDashboard.putNumber("kG", kG);
+//        SmartDashboard.putNumber("Elevator Voltage", voltage);
+//        SmartDashboard.putNumber("kS", kS);
+//        SmartDashboard.putNumber("kG", kG);
     }
 
     @Override
