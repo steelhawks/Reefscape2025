@@ -66,9 +66,8 @@ public class SuperStructure {
 
         button.debounce(0.25).onTrue(
             Commands.runOnce(() -> scoringTriggered.set(true))
-                .andThen(scoringSequence(state, joystick, cancelJoystick)));
-
-        button.onFalse(
+                .andThen(scoringSequence(state, joystick, cancelJoystick)))
+        .onFalse(
             Commands.runOnce(() -> {
                 if (!scoringTriggered.get()) {
                     s_Elevator.setDesiredState(state).schedule();

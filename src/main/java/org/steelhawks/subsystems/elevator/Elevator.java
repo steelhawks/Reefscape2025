@@ -360,7 +360,6 @@ public class Elevator extends SubsystemBase {
             () -> {
                 Logger.recordOutput("Elevator/AppliedVolts", volts);
                 io.runElevator(volts);
-//                io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);
     }
