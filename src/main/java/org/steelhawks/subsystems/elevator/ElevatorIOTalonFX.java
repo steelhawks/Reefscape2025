@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
+import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 
 import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
@@ -47,13 +48,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightMotor.setControl(new Follower(leftMotor.getDeviceID(), true));
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.Slot0 = new Slot0Configs().withKP(ElevatorConstants.KP).withKI(ElevatorConstants.KP).withKD(ElevatorConstants.KP);
+        config.Slot0 = new Slot0Configs()
+            .withKP(ElevatorConstants.KP)
+            .withKI(ElevatorConstants.KI)
+            .withKD(ElevatorConstants.KD)
+            .withKV(ElevatorConstants.kV[0]);
         config.Feedback.SensorToMechanismRatio = ElevatorConstants.REDUCTION;
         config.CurrentLimits.SupplyCurrentLimit = 80.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
         config.CurrentLimits.SupplyCurrentLowerTime = 1.5;
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.MAX_VELOCITY;
         config.MotionMagic.MotionMagicAcceleration = ElevatorConstants.MAX_ACCELERATION;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
@@ -88,6 +93,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             rightCurrent,
             rightTemp);
         ParentDevice.optimizeBusUtilizationForAll(leftMotor, rightMotor);
+        zeroEncoders();
     }
 
     @Override
@@ -104,6 +110,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.leftAppliedVolts = leftVoltage.getValueAsDouble();
         inputs.leftCurrentAmps = leftCurrent.getValueAsDouble();
         inputs.leftTempCelsius = leftTemp.getValueAsDouble();
+        Logger.recordOutput("Elevator/VelocityRot", leftVelocity.getValueAsDouble());
 
         inputs.rightConnected =
             BaseStatusSignal.refreshAll(

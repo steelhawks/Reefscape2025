@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,10 +15,10 @@ import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
+import org.steelhawks.util.TunableNumber;
 
 import java.util.function.DoubleSupplier;
 
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 public class Elevator extends SubsystemBase {
@@ -52,13 +53,13 @@ public class Elevator extends SubsystemBase {
         profile =
             new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(
-                    ElevatorConstants.MAX_VELOCITY,
-                    ElevatorConstants.MAX_ACCELERATION));
+                    Units.rotationsToRadians(ElevatorConstants.MAX_VELOCITY),
+                    Units.rotationsToRadians(ElevatorConstants.MAX_ACCELERATION)));
         sysIdRoutine =
             new SysIdRoutine(
                 new SysIdRoutine.Config(
-                    Volts.of(1.0).per(Second),
-                    Volts.of(0.5),
+                    null,
+                    null,
                     null,
                     (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
@@ -124,6 +125,10 @@ public class Elevator extends SubsystemBase {
         Logger.recordOutput("Elevator/Running", shouldRun);
         inputs.shouldRunProfile = shouldRun;
 
+
+//        runCharacterizer(0);
+//        if (true) return;
+
         if (shouldRun) {
             double previousVelocity = setpoint.velocity;
             setpoint =
@@ -141,8 +146,9 @@ public class Elevator extends SubsystemBase {
                 io.stop();
             } else {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
-                io.runPosition(
-                    setpoint.position,
+            io.runPosition(
+                    goal.position,
+//                    setpoint.position,
                     ElevatorConstants.kS[getStage()] * Math.signum(setpoint.velocity)
                         + ElevatorConstants.kG[getStage()]
 //                        + ElevatorConstants.kV[getStage()] * setpoint.velocity
@@ -270,7 +276,10 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(() -> isManual = true).andThen(sysIdRoutine.dynamic(direction));
     }
 
+    TunableNumber s = new TunableNumber("Elevator/Volts", 0);
     public void runCharacterizer(double volts) {
-        io.runElevator(volts);
+        io.runElevator(s.get());
+        Logger.recordOutput("Elevator/PositionRotations", Units.radiansToRotations(getPosition()));
+        Logger.recordOutput("Elevator/VelocityRotations", Units.radiansToRotations(inputs.leftVelocityRadPerSec));
     }
 }

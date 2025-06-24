@@ -176,10 +176,10 @@ public class Robot extends LoggedRobot {
         VirtualSubsystem.periodicAll();
 
         // Switch thread to high priority to improve loop timing
-        Threads.setCurrentThreadPriority(true, 99);
+//        Threads.setCurrentThreadPriority(true, 99);
         CommandScheduler.getInstance().run();
         // Return to normal thread priority
-        Threads.setCurrentThreadPriority(false, 10);
+//        Threads.setCurrentThreadPriority(false, 10);
 
         if (Constants.getRobot() != ALPHABOT)
             Logger.recordOutput("CANbus/CANivore", new CANBus("canivore").getStatus().BusUtilization);

@@ -33,35 +33,38 @@ public class ElevatorConstants {
         }
     }
 
-    public static final int LEFT_MOTOR_ID = 0;
-    public static final int RIGHT_MOTOR_ID = 0;
+    public static final int LEFT_MOTOR_ID = 13;
+    public static final int RIGHT_MOTOR_ID = 14;
 
     public static final double MAX_RADIANS = 24.0;
     public static final double TOLERANCE = 0.03;
-    public static final double REDUCTION = 0.0;
+    public static final double REDUCTION = 25.0;
 
-    public static final double MAX_VELOCITY = 40.0;
-    public static final double MAX_ACCELERATION = 70.0;
+    public static final double MAX_VELOCITY = 5.0;
+    public static final double MAX_ACCELERATION = 7.0;
     public static final double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final double KP = ConstantsFactory.value(7.0, 6.0);
+    public static final double KP = ConstantsFactory.value(5.0, 6.0);
     public static final double KI = 0.0;
     public static final double KD = ConstantsFactory.value(0.0, 0.4);
 
     public static final double[] kS = {
-        ConstantsFactory.value(0.0, 0.2),
+        ConstantsFactory.value(0.1, 0.2),
         0.0,
         0.0
     };
 
     public static final double[] kV = {
-        0.0,
+        ConstantsFactory.value(
+        (2.0 - 1.0) / (0.6660156249999999 - 0.287109375),
+        0.0),
         0.0,
         0.0
     };
 
+
     public static final double[] kG = {
-        0.0,
+        ConstantsFactory.value(0.24, 0.0),
         0.0,
         0.0
     };
