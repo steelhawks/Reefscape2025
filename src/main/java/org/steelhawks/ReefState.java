@@ -70,6 +70,7 @@ public class ReefState extends VirtualSubsystem {
     private static final String goal = "goal";
 
     // for levels 2–4 each reef has 3 branches; level1 uses troughCount
+    private static final NetworkTable reefData = NetworkTableInstance.getDefault().getTable("ReefData");
     private static Map<String, boolean[]> coralMap;
     private static Map<String, Boolean> algaeMap;
     private static int troughCount;
@@ -145,25 +146,23 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public void updateFromNetworkTables() {
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
-
         // read troughCount
-        troughCount = (int) table.getEntry(troughKey).getInteger(0);
+        troughCount = (int) reefData.getEntry(troughKey).getInteger(0);
 
         // read coop flag
-        coop = table.getEntry(coopKey).getBoolean(false);
+        coop = reefData.getEntry(coopKey).getBoolean(false);
 
         // read every coral array entry
         for (String name : REEF_NAMES) {
             boolean[] arr = coralMap.get(name);
             for (int idx = 0; idx < arr.length; idx++) {
                 String key = name + "_" + idx;
-                arr[idx] = table.getEntry(key).getBoolean(false);
+                arr[idx] = reefData.getEntry(key).getBoolean(false);
             }
         }
 
         for (String code : algaeMap.keySet()) {
-            boolean removed = table.getEntry("algae_" + code).getBoolean(false);
+            boolean removed = reefData.getEntry("algae_" + code).getBoolean(false);
             algaeMap.put(code, removed);
         }
     }
@@ -175,8 +174,7 @@ public class ReefState extends VirtualSubsystem {
         if (!coralMap.containsKey(reefName) || levelIndex < 0 || levelIndex >= 3) return;
         coralMap.get(reefName)[levelIndex] = true;
         // push to NetworkTables
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
-        table.getEntry(reefName + "_" + levelIndex).setBoolean(true);
+        reefData.getEntry(reefName + "_" + levelIndex).setBoolean(true);
     }
 
     /**
@@ -190,8 +188,7 @@ public class ReefState extends VirtualSubsystem {
         coralMap.get(toCodeFromBranch(branch))[index] = true;
         scoredGoals.add(new ScoreGoal(level, branch));
 
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("ReefData");
-        table.getEntry(toCodeFromBranch(branch) + "_" + index).setBoolean(true);
+        reefData.getEntry(toCodeFromBranch(branch) + "_" + index).setBoolean(true);
     }
 
     public static void removeScoredCoral(ScoreGoal goal) {
@@ -213,8 +210,7 @@ public class ReefState extends VirtualSubsystem {
 
         levels[index] = false;
 
-        NetworkTableInstance.getDefault()
-            .getTable("ReefData")
+        reefData
             .getEntry(key + "_" + index)
             .setBoolean(false);
 
@@ -233,8 +229,7 @@ public class ReefState extends VirtualSubsystem {
      */
     public static void setTroughCount(int count) {
         troughCount = count;
-        NetworkTableInstance.getDefault()
-            .getTable("ReefData")
+        reefData
             .getEntry(troughKey)
             .setNumber(count);
     }
@@ -244,8 +239,7 @@ public class ReefState extends VirtualSubsystem {
      */
     public static void setCoop(boolean c) {
         coop = c;
-        NetworkTableInstance.getDefault()
-            .getTable("ReefData")
+        reefData
             .getEntry(coopKey)
             .setBoolean(c);
     }
@@ -280,7 +274,7 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public static boolean achievedCoralRP() {
-        return NetworkTableInstance.getDefault().getTable("ReefData").getEntry(coopKey).getBoolean(false);
+        return reefData.getEntry(coopKey).getBoolean(false);
     }
 
     /**
@@ -485,7 +479,7 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public static ScoreGoal dynamicScoreRoutine() {
-        String goal = NetworkTableInstance.getDefault().getTable("ReefData").getEntry(ReefState.goal).getString("");
+        String goal = reefData.getEntry(ReefState.goal).getString("");
         Logger.recordOutput("Align/AutoScoreGoal", goal);
         return switch (goal) {
             case "CORALRP" -> getNextForCoralRP();
@@ -515,7 +509,7 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public static boolean hasOverriden() {
-        return NetworkTableInstance.getDefault().getTable("ReefData").getEntry("override").getBoolean(false);
+        return reefData.getEntry("override").getBoolean(false);
     }
 
     public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) {}
