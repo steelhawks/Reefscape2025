@@ -37,8 +37,8 @@ public final class Autos {
 
 //    public static final LoggedDashboardChooser<Command> sysIdChooser =
 //        new LoggedDashboardChooser<>("SysId Chooser");
-    private static final LoggedDashboardChooser<Command> autoChooser =
-        new LoggedDashboardChooser<>("Auto Chooser");
+//    private static final LoggedDashboardChooser<Command> autoChooser =
+//        new LoggedDashboardChooser<>("Auto Chooser");
 
     public enum Misalignment {
         NONE,
@@ -54,16 +54,16 @@ public final class Autos {
     public static void init() {
         /* ------------- Autons ------------- */
 
-        autoChooser.addDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
-        autoChooser.addOption("Use Auton Builder", Commands.none().withName("Use Auton Builder"));
-        autoChooser.addOption("BC1", getBC1Auton());
-        autoChooser.addOption("BC2", getBC2Auton());
-        autoChooser.addOption("BC3", getBC3Auton());
-        autoChooser.addOption("RC1", getRC1Auton());
-        autoChooser.addOption("RC2", getRC2Auton());
-        autoChooser.addOption("RC3", getRC3Auton());
-        autoChooser.addOption("Center R2", getCenterR2Auton());
-        autoChooser.addOption("Center R1", getCenterR1Auton());
+//        autoChooser.addDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
+//        autoChooser.addOption("Use Auton Builder", Commands.none().withName("Use Auton Builder"));
+//        autoChooser.addOption("BC1", getBC1Auton());
+//        autoChooser.addOption("BC2", getBC2Auton());
+//        autoChooser.addOption("BC3", getBC3Auton());
+//        autoChooser.addOption("RC1", getRC1Auton());
+//        autoChooser.addOption("RC2", getRC2Auton());
+//        autoChooser.addOption("RC3", getRC3Auton());
+//        autoChooser.addOption("Center R2", getCenterR2Auton());
+//        autoChooser.addOption("Center R1", getCenterR1Auton());
 //        autoChooser.addOption("Top G", new TopG());
 //        autoChooser.addOption("Bottom G", new BottomG());
 
@@ -335,6 +335,7 @@ public final class Autos {
 //        if (Constants.TUNING_MODE) {
 //            return sysIdChooser.get() != null ? Commands.none() : sysIdChooser.get();
 //        }
-        return autoChooser.get();
+//        return autoChooser.get();
+        return Commands.none();
     }
 }
