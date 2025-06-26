@@ -35,8 +35,8 @@ public final class Autos {
     private static final Claw s_Claw = RobotContainer.s_Claw;
     private static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
 
-    public static final LoggedDashboardChooser<Command> sysIdChooser =
-        new LoggedDashboardChooser<>("SysId Chooser");
+//    public static final LoggedDashboardChooser<Command> sysIdChooser =
+//        new LoggedDashboardChooser<>("SysId Chooser");
     private static final LoggedDashboardChooser<Command> autoChooser =
         new LoggedDashboardChooser<>("Auto Chooser");
 
@@ -69,39 +69,39 @@ public final class Autos {
 
         /* ------------- Swerve SysId ------------- */
 
-        sysIdChooser.addOption("Swerve Drive (Quasistatic Forward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Swerve Drive (Quasistatic Backward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        sysIdChooser.addOption("Swerve Drive (Dynamic Forward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Swerve Drive (Dynamic Backward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        sysIdChooser.addOption("Swerve Turn (Quasistatic Forward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Swerve Turn (Quasistatic Backward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        sysIdChooser.addOption("Swerve Turn (Dynamic Forward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Swerve Turn (Dynamic Backward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        sysIdChooser.addOption("Swerve Angular (Quasistatic Forward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Swerve Angular (Quasistatic Backward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        sysIdChooser.addOption("Swerve Angular (Dynamic Forward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Swerve Angular (Dynamic Backward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        /* ------------- Elevator SysId ------------- */
-
-        sysIdChooser.addOption("Elevator (Quasistatic Forward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Elevator (Quasistatic Backward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        sysIdChooser.addOption("Elevator (Dynamic Forward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("Elevator (Dynamic Backward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        /* ------------- AlgaeClaw SysId ------------- */
-
-        sysIdChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        sysIdChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        sysIdChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//        sysIdChooser.addOption("Swerve Drive (Quasistatic Forward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Swerve Drive (Quasistatic Backward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//
+//        sysIdChooser.addOption("Swerve Drive (Dynamic Forward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Swerve Drive (Dynamic Backward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
+//
+//        sysIdChooser.addOption("Swerve Turn (Quasistatic Forward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Swerve Turn (Quasistatic Backward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//
+//        sysIdChooser.addOption("Swerve Turn (Dynamic Forward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Swerve Turn (Dynamic Backward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kReverse));
+//
+//        sysIdChooser.addOption("Swerve Angular (Quasistatic Forward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Swerve Angular (Quasistatic Backward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//
+//        sysIdChooser.addOption("Swerve Angular (Dynamic Forward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Swerve Angular (Dynamic Backward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kReverse));
+//
+//        /* ------------- Elevator SysId ------------- */
+//
+//        sysIdChooser.addOption("Elevator (Quasistatic Forward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Elevator (Quasistatic Backward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//
+//        sysIdChooser.addOption("Elevator (Dynamic Forward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("Elevator (Dynamic Backward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//
+//        /* ------------- AlgaeClaw SysId ------------- */
+//
+//        sysIdChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//
+//        sysIdChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//        sysIdChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
     public static Misalignment getMisalignment() {
@@ -332,9 +332,9 @@ public final class Autos {
     }
 
     public static Command getAuto() {
-        if (Constants.TUNING_MODE) {
-            return sysIdChooser.get() != null ? Commands.none() : sysIdChooser.get();
-        }
+//        if (Constants.TUNING_MODE) {
+//            return sysIdChooser.get() != null ? Commands.none() : sysIdChooser.get();
+//        }
         return autoChooser.get();
     }
 }
