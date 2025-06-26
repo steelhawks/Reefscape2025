@@ -74,6 +74,7 @@ public class ReefState extends VirtualSubsystem {
     private static Map<String, Boolean> algaeMap;
     private static int troughCount;
     private static boolean coop;
+    private int counter = 0;
 
     public ReefState() {
         coralMap = new HashMap<>();
@@ -91,9 +92,13 @@ public class ReefState extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        updateFromNetworkTables();
-        syncVisualizer(); // push our boolean‑map into the visualizer
-        ReefVisualizer.updateVisualizer();
+        counter++;
+        if (counter >= 50) { // 50 * 20ms = 1 second
+            updateFromNetworkTables();
+            syncVisualizer(); // push our boolean‑map into the visualizer
+            ReefVisualizer.updateVisualizer();
+            counter = 0;
+        }
         LoopTimeUtil.record("ReefState");
     }
 
