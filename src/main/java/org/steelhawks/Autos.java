@@ -29,7 +29,6 @@ import java.util.ArrayList;
 @SuppressWarnings("unused")
 public final class Autos {
     private static final ElevatorConstants.State desiredScoreLevel = ElevatorConstants.State.L4;
-    private static final AutonBuilder s_Builder = new AutonBuilder("Auton Builder");
 
     private static final Elevator s_Elevator = RobotContainer.s_Elevator;
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
@@ -333,9 +332,7 @@ public final class Autos {
     }
 
     public static Command getAuto() {
-        if (autoChooser.get().getName().equals("Use Auton Builder")) {
-            return s_Builder.getAutonCommand();
-        } else if (Constants.TUNING_MODE) {
+        if (Constants.TUNING_MODE) {
             return sysIdChooser.get() != null ? Commands.none() : sysIdChooser.get();
         }
         return autoChooser.get();
