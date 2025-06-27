@@ -5,7 +5,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,7 +18,6 @@ import org.steelhawks.OperatorLock;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.AlgaeClawDefaultCommand;
-import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.ArmDriveFeedforward;
 import java.util.function.DoubleSupplier;
 
@@ -40,16 +38,6 @@ public class AlgaeClaw extends SubsystemBase {
     private boolean mEnabled = false;
     private boolean shouldEStop = false;
     private boolean brakeModeEnabled = true;
-
-    private final Alert pivotDisconnected =
-        new AlertUtil("Pivot Disconnected", Alert.AlertType.kError)
-            .withCondition(() -> !inputs.pivotConnected);
-    private final Alert spinDisconnected =
-        new AlertUtil("Spin Disconnected", Alert.AlertType.kError)
-            .withCondition(() -> !inputs.spinConnected);
-    private final Alert eStopped =
-        new AlertUtil("AlgaeClaw is E-Stopped", Alert.AlertType.kError)
-            .withCondition(() -> shouldEStop);
 
     private void enable() {
         mEnabled = true;
