@@ -336,6 +336,6 @@ public final class Autos {
 //            return sysIdChooser.get() != null ? Commands.none() : sysIdChooser.get();
 //        }
 //        return autoChooser.get();
-        return Commands.none();
+        return Commands.none().withName("NOTHING_AUTO");
     }
 }
