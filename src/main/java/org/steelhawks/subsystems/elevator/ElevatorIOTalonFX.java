@@ -64,7 +64,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         config.MotionMagic.MotionMagicAcceleration = ElevatorConstants.MAX_ACCELERATION_ROT_PER_SEC_2;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
-        motionMagicVoltage = new MotionMagicVoltage(0.0);
+        motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
         voltageOut = new VoltageOut(0.0);
         dutyCycle = new DutyCycleOut(0.0);
 
