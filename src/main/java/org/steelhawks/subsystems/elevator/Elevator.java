@@ -34,11 +34,11 @@ public class Elevator extends SubsystemBase {
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
 
     static {
-        // (height in radians) -> (chassis‐speed multiplier)
-        // at 0 radians, home, go full speed
+        // (height in rotations) -> (chassis‐speed multiplier)
+        // at 0 rotations, home, go full speed
         elevatorLimiterMap.put(0.0, 1.0);
-        elevatorLimiterMap.put(12.0, 0.5);
-        elevatorLimiterMap.put(24.0, 0.1);
+        elevatorLimiterMap.put(Units.radiansToRotations(12.0), 0.5);
+        elevatorLimiterMap.put(Units.radiansToRotations(24.0), 0.1);
     }
 
     private boolean isEStopped = false;
@@ -53,8 +53,8 @@ public class Elevator extends SubsystemBase {
         profile =
             new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(
-                    Units.rotationsToRadians(ElevatorConstants.MAX_VELOCITY),
-                    Units.rotationsToRadians(ElevatorConstants.MAX_ACCELERATION)));
+                    ElevatorConstants.MAX_VELOCITY_ROT_PER_SEC,
+                    ElevatorConstants.MAX_ACCELERATION_ROT_PER_SEC_2));
         sysIdRoutine =
             new SysIdRoutine(
                 new SysIdRoutine.Config(
@@ -68,11 +68,11 @@ public class Elevator extends SubsystemBase {
 
     public ElevatorConstants.State getState() {
         ElevatorConstants.State state = ElevatorConstants.State.L4;
-        if (getDesiredState() == ElevatorConstants.State.L3.getAngle().getRadians()) {
+        if (getDesiredState() == ElevatorConstants.State.L3.getAngle().getRotations()) {
             state = ElevatorConstants.State.L3;
-        } else if (getDesiredState() == ElevatorConstants.State.L2.getAngle().getRadians()) {
+        } else if (getDesiredState() == ElevatorConstants.State.L2.getAngle().getRotations()) {
             state = ElevatorConstants.State.L2;
-        } else if (getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians()) {
+        } else if (getDesiredState() == ElevatorConstants.State.L1.getAngle().getRotations()) {
             state = ElevatorConstants.State.L1;
         }
         return state;
@@ -91,7 +91,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private boolean hitTopLimit() {
-        return getPosition() > ElevatorConstants.MAX_RADIANS;
+        return getPosition() > ElevatorConstants.MAX_ROTATIONS;
     }
 
     private boolean hitBottomLimit() {
@@ -99,7 +99,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getPosition() {
-        return inputs.leftPositionRad;
+        return inputs.positionRot;
     }
 
     private int getStage() {
@@ -119,15 +119,11 @@ public class Elevator extends SubsystemBase {
                 && !isEStopped
                 && !isManual
                 && !(hitBottomLimit() &&
-                    Math.signum(MathUtil.applyDeadband(inputs.leftVelocityRadPerSec, 0.1)) == -1)
+                    Math.signum(MathUtil.applyDeadband(inputs.velocityRotPerSec, 0.1)) == -1)
             && !(hitTopLimit() &&
-                Math.signum(MathUtil.applyDeadband(inputs.leftVelocityRadPerSec, 0.1)) == 1);
+                Math.signum(MathUtil.applyDeadband(inputs.velocityRotPerSec, 0.1)) == 1);
         Logger.recordOutput("Elevator/Running", shouldRun);
         inputs.shouldRunProfile = shouldRun;
-
-
-//        runCharacterizer(0);
-//        if (true) return;
 
         if (shouldRun) {
             double previousVelocity = setpoint.velocity;
@@ -135,23 +131,22 @@ public class Elevator extends SubsystemBase {
                 profile
                     .calculate(Constants.UPDATE_LOOP_DT, setpoint, goal);
             if (setpoint.position < 0.0
-                || setpoint.position > ElevatorConstants.MAX_RADIANS) {
+                || setpoint.position > ElevatorConstants.MAX_ROTATIONS) {
                 setpoint =
                     new TrapezoidProfile.State(
-                        MathUtil.clamp(setpoint.position, 0.0, ElevatorConstants.MAX_RADIANS),
+                        MathUtil.clamp(setpoint.position, 0.0, ElevatorConstants.MAX_ROTATIONS),
                         0.0);
             }
-            atGoal = Math.abs(getPosition() - inputs.goal) <= ElevatorConstants.TOLERANCE;
+            atGoal = Math.abs(getPosition() - goal.position) <= ElevatorConstants.TOLERANCE;
             if (atGoal) {
                 io.stop();
             } else {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
-            io.runPosition(
-                    goal.position,
-//                    setpoint.position,
+                io.runPosition(
+                    setpoint.position,
                     ElevatorConstants.kS[getStage()] * Math.signum(setpoint.velocity)
                         + ElevatorConstants.kG[getStage()]
-//                        + ElevatorConstants.kV[getStage()] * setpoint.velocity
+                        + ElevatorConstants.kV[getStage()] * setpoint.velocity
                         + ElevatorConstants.kA[getStage()] * acceleration);
             }
             Logger.recordOutput("Elevator/SetpointPosition", setpoint.position);
@@ -177,7 +172,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(
             () -> {
                 LED.getInstance().flashCommand(LEDColor.WHITE, 0.1, 1.0).schedule();
-                inputs.goal = MathUtil.clamp(state.getAngle().getRadians(), 0, ElevatorConstants.MAX_RADIANS);
+                inputs.goal = MathUtil.clamp(state.getAngle().getRotations(), 0, ElevatorConstants.MAX_ROTATIONS);
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
             }, this)
         .withName("Set Desired State");
@@ -257,7 +252,7 @@ public class Elevator extends SubsystemBase {
 
     public Trigger atThisGoal(ElevatorConstants.State state) {
         return new Trigger(
-            () -> Math.abs(getPosition() - state.getAngle().getRadians()) <= ElevatorConstants.TOLERANCE * 3.0);
+            () -> Math.abs(getPosition() - state.getAngle().getRotations()) <= ElevatorConstants.TOLERANCE * 3.0);
     }
 
     public Trigger atLimit() {
@@ -279,7 +274,5 @@ public class Elevator extends SubsystemBase {
     TunableNumber s = new TunableNumber("Elevator/Volts", 0);
     public void runCharacterizer(double volts) {
         io.runElevator(s.get());
-        Logger.recordOutput("Elevator/PositionRotations", Units.radiansToRotations(getPosition()));
-        Logger.recordOutput("Elevator/VelocityRotations", Units.radiansToRotations(inputs.leftVelocityRadPerSec));
     }
 }

@@ -22,7 +22,7 @@ public class AlgaeClawIOSim implements AlgaeClawIO {
 
     public AlgaeClawIOSim() {
         width = AlgaeClawConstants.ARM_LENGTH * 2 + Units.inchesToMeters(3);
-        height = ElevatorConstants.MAX_RADIANS + AlgaeClawConstants.ARM_LENGTH + Units.inchesToMeters(3);
+        height = ElevatorConstants.MAX_ROTATIONS + AlgaeClawConstants.ARM_LENGTH + Units.inchesToMeters(3);
         canvas = new Mechanism2d(width, height);
 //        armPivot = canvas.getRoot("Arm Pivot", width / 2.0, Constants.Elevator.MIN_HEIGHT_METERS - Constants.Arm.DISTANCE_FROM_PIVOT_TO_TOP_OF_ELEVATOR);
         sim = new SingleJointedArmSim(

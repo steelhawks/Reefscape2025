@@ -18,7 +18,7 @@ public class ElevatorIOSim implements ElevatorIO {
     private static final double MIN_HEIGHT = 0; //m
     public static final double MAX_HEIGHT =
         Conversions.rotationsToMeters(
-            Units.radiansToRotations(ElevatorConstants.MAX_RADIANS), 2 * Math.PI * SPROCKET_RAD); //m
+            ElevatorConstants.MAX_ROTATIONS, 2 * Math.PI * SPROCKET_RAD); //m
     private static final double ELEVATOR_WIDTH =
         Units.inchesToMeters(27);
 
@@ -62,25 +62,19 @@ public class ElevatorIOSim implements ElevatorIO {
         mElevatorSim.update(Constants.UPDATE_LOOP_DT);
         runningProfile = inputs.shouldRunProfile;
         if (!runningProfile) {
-            mController.setSetpoint(inputs.leftPositionRad);
+            mController.setSetpoint(inputs.positionRot);
         }
 
         inputs.leftConnected = true;
-        inputs.leftPositionRad =
-            Units.rotationsToRadians(
-                Conversions.metersToRotations(mElevatorSim.getPositionMeters(), 2 * Math.PI * SPROCKET_RAD));
-        inputs.leftVelocityRadPerSec =
-            Units.rotationsToRadians(
-                Conversions.metersToRotations(mElevatorSim.getVelocityMetersPerSecond(), 2 * Math.PI * SPROCKET_RAD));
+        inputs.positionRot =
+            Conversions.metersToRotations(mElevatorSim.getPositionMeters(), 2 * Math.PI * SPROCKET_RAD);
+        inputs.velocityRotPerSec =
+            Conversions.metersToRotations(mElevatorSim.getVelocityMetersPerSecond(), 2 * Math.PI * SPROCKET_RAD);
         inputs.leftAppliedVolts = appliedVolts;
         inputs.leftCurrentAmps = mElevatorSim.getCurrentDrawAmps();
-        elevatorPosition = inputs.leftPositionRad;
+        elevatorPosition = inputs.positionRot;
 
         inputs.rightConnected = true;
-        inputs.rightPositionRad =
-            inputs.leftPositionRad;
-        inputs.rightVelocityRadPerSec =
-            inputs.leftVelocityRadPerSec;
         inputs.rightAppliedVolts = appliedVolts;
         inputs.rightCurrentAmps = inputs.leftCurrentAmps;
 
