@@ -33,6 +33,11 @@ public interface ElevatorIO {
     }
 
     /**
+     * Returns true if current ElevatorIO implementation is not anonymous.
+     */
+    boolean hasImpl();
+
+    /**
      * Updates the set of loggable inputs.
      */
     default void updateInputs(ElevatorIOInputs inputs) {}

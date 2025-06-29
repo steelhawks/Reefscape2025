@@ -56,6 +56,11 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     @Override
+    public boolean hasImpl() {
+        return true;
+    }
+
+    @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         mElevatorSim.update(Constants.UPDATE_LOOP_DT);
 

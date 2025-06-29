@@ -140,6 +140,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         ParentDevice.optimizeBusUtilizationForAll(mLeftMotor, mRightMotor);
     }
 
+    @Override
+    public boolean hasImpl() {
+        return true;
+    }
+
     boolean encoderOffsetFound = false;
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {

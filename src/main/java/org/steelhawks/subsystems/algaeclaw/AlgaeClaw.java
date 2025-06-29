@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,10 +15,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.Constants.RobotType;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.AlgaeClawDefaultCommand;
+import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.ArmDriveFeedforward;
 import java.util.function.DoubleSupplier;
 
@@ -38,6 +41,11 @@ public class AlgaeClaw extends SubsystemBase {
     private boolean mEnabled = false;
     private boolean shouldEStop = false;
     private boolean brakeModeEnabled = true;
+    private boolean isReal;
+
+    private final Alert pivotDisconnected;
+    private final Alert spinDisconnected;
+    private final Alert cancoderDisconnected;
 
     private void enable() {
         mEnabled = true;
@@ -60,7 +68,18 @@ public class AlgaeClaw extends SubsystemBase {
     }
 
     public AlgaeClaw(AlgaeClawIO io) {
+        isReal = io.hasImpl();
         this.io = io;
+
+        pivotDisconnected =
+            new AlertUtil("AlgaeClaw pivot motor is disconnected!", Alert.AlertType.kError)
+                .withCondition(() -> isReal && !inputs.pivotConnected && Constants.getRobot() == RobotType.OMEGABOT);
+        spinDisconnected =
+            new AlertUtil("AlgaeClaw spin motor is disconnected!", Alert.AlertType.kError)
+                .withCondition(() -> isReal && !inputs.spinConnected && Constants.getRobot() == RobotType.OMEGABOT);
+        cancoderDisconnected =
+            new AlertUtil("AlgaeClaw CANcoder is disconnected!", Alert.AlertType.kError)
+                .withCondition(() -> isReal && !inputs.encoderConnected && Constants.getRobot() == RobotType.OMEGABOT);
 
         mController =
             new ProfiledPIDController(
@@ -72,7 +91,6 @@ public class AlgaeClaw extends SubsystemBase {
                     AlgaeClawConstants.MAX_ACCELERATION));
         mController.setTolerance(AlgaeClawConstants.TOLERANCE);
         mController.setIZone(0.001);
-//        mController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
         mFeedforward =
             new ArmFeedforward(
                 AlgaeClawConstants.PIVOT_KS,
@@ -156,7 +174,7 @@ public class AlgaeClaw extends SubsystemBase {
 
     public Trigger hasAlgae() {
         return new Trigger(
-            Constants.getRobot() != Constants.RobotType.SIMBOT
+            Constants.getRobot() != RobotType.SIMBOT
                 ? () -> inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE
                 : () -> true);
     }

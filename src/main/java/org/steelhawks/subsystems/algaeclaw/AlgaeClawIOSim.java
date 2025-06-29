@@ -37,6 +37,11 @@ public class AlgaeClawIOSim implements AlgaeClawIO {
     }
 
     @Override
+    public boolean hasImpl() {
+        return true;
+    }
+
+    @Override
     public void updateInputs(AlgaeClawIOInputs inputs) {
         inputs.pivotConnected = true;
         inputs.pivotPosition = sim.getAngleRads();

@@ -5,6 +5,8 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,10 +17,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Clearances;
+import org.steelhawks.Constants;
 import org.steelhawks.Constants.Deadbands;
+import org.steelhawks.Constants.RobotType;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
+import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.LoopTimeUtil;
 
 import java.util.function.DoubleSupplier;
@@ -32,11 +37,16 @@ public class Elevator extends SubsystemBase {
     private final SysIdRoutine mSysId;
     private boolean shouldEStop = false;
     private boolean mEnabled = false;
+    private final boolean isReal;
     private final ElevatorIO io;
 
     private final ProfiledPIDController mController;
     private final ElevatorFeedforward mFeedforward;
     private final SlewRateLimiter mSlewRateLimiter;
+
+    private final Alert leftDisconnected;
+    private final Alert rightDisconnected;
+    private final Alert cancoderDisconnected;
 
     public void enable() {
         mEnabled = true;
@@ -70,6 +80,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Elevator(ElevatorIO io) {
+        isReal = io.hasImpl();
         mController =
             new ProfiledPIDController(
                 ElevatorConstants.KP,
@@ -85,7 +96,15 @@ public class Elevator extends SubsystemBase {
                 ElevatorConstants.KG,
                 ElevatorConstants.KV);
         mSlewRateLimiter = new SlewRateLimiter(ElevatorConstants.MAX_VELOCITY_PER_SEC);
-
+        leftDisconnected =
+            new AlertUtil("Left elevator motor is disconnected!", AlertType.kError)
+                .withCondition(() -> isReal && !inputs.leftConnected);
+        rightDisconnected =
+            new AlertUtil("Right elevator motor is disconnected!", AlertType.kError)
+                .withCondition(() -> isReal && !inputs.rightConnected);
+        cancoderDisconnected =
+            new AlertUtil("Elevator CANcoder is disconnected!", AlertType.kError)
+                .withCondition(() -> isReal && !inputs.encoderConnected && Constants.getRobot() != RobotType.ALPHABOT);
         mSysId =
             new SysIdRoutine(
                 new SysIdRoutine.Config(

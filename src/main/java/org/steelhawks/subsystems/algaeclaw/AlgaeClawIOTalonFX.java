@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
+import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 
 import static org.steelhawks.util.PhoenixUtil.tryUntilOk;

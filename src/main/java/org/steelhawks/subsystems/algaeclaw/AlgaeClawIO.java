@@ -28,6 +28,11 @@ public interface AlgaeClawIO {
         public double encoderAppliedVolts = 0.0;
     }
 
+    /**
+     * Returns true if the current AlgaeClawIO implementation is not anonymous.
+     */
+    boolean hasImpl();
+
     default void updateInputs(AlgaeClawIOInputs inputs) {}
 
     default void runSpin(double speed) {}

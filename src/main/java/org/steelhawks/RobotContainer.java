@@ -96,7 +96,7 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_AlgaeClaw =
                         new AlgaeClaw(
-                            new AlgaeClawIO() {});
+                            new AlgaeClawIOEmpty());
                 }
                 case ALPHABOT -> {
                     s_Swerve =
@@ -124,7 +124,7 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_AlgaeClaw =
                         new AlgaeClaw(
-                            new AlgaeClawIO() {});
+                            new AlgaeClawIOEmpty());
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -153,7 +153,7 @@ public class RobotContainer {
                             new AlignIO() {});
                     s_AlgaeClaw =
                         new AlgaeClaw(
-                            new AlgaeClawIO() {});
+                            new AlgaeClawIOEmpty());
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
@@ -251,10 +251,10 @@ public class RobotContainer {
             }
             s_Elevator =
                 new Elevator(
-                    new ElevatorIO() {});
+                    new ElevatorIOEmpty());
             s_AlgaeClaw =
                 new AlgaeClaw(
-                    new AlgaeClawIO() {});
+                    new AlgaeClawIOEmpty());
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
