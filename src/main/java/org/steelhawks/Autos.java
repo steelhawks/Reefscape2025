@@ -1,12 +1,10 @@
 package org.steelhawks;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -19,7 +17,6 @@ import org.steelhawks.commands.autos.RC2_Pathless;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
-import org.steelhawks.util.autonbuilder.AutonBuilder;
 import org.steelhawks.util.autonbuilder.StartEndPosition;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.Elevator;
@@ -37,12 +34,8 @@ public final class Autos {
     private static final Claw s_Claw = RobotContainer.s_Claw;
     private static final AlgaeClaw s_AlgaeClaw = RobotContainer.s_AlgaeClaw;
 
-//    public static final LoggedDashboardChooser<Command> autoChooser =
-//        new LoggedDashboardChooser<>("SysId Chooser");
-//    private static final LoggedDashboardChooser<Command> autoChooser =
-//        new LoggedDashboardChooser<>("Auto Chooser");
-//    private static final SendableChooser<Command> autoChooser =
-//        new SendableChooser<>();
+    private static final LoggedDashboardChooser<Command> autoChooser =
+        new LoggedDashboardChooser<>("Auto Chooser");
 
     public enum Misalignment {
         NONE,
@@ -58,53 +51,48 @@ public final class Autos {
     public static void init() {
         /* ------------- Autons ------------- */
 
-//        autoChooser.setDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
-//        autoChooser.addOption("Use Auton Builder", Commands.none().withName("Use Auton Builder"));
-//        autoChooser.addOption("BC1", getBC1Auton());
-//        autoChooser.addOption("BC2", getBC2Auton());
-//        autoChooser.addOption("BC3", getBC3Auton());
-//        autoChooser.addOption("RC1", getRC1Auton());
-//        autoChooser.addOption("RC2", getRC2Auton());
-//        autoChooser.addOption("RC3", getRC3Auton());
-//        autoChooser.addOption("Center R2", getCenterR2Auton());
-//        autoChooser.addOption("Center R1", getCenterR1Auton());
+        autoChooser.addDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
+        autoChooser.addOption("BC2", getBC2Auton());
+        autoChooser.addOption("RC2", getRC2Auton());
+        autoChooser.addOption("Center R2", getCenterR2Auton());
+        autoChooser.addOption("Center R1", getCenterR1Auton());
 
         if (Constants.TUNING_MODE) {
             /* ------------- Swerve SysId ------------- */
 
-//            autoChooser.addOption("Swerve Drive (Quasistatic Forward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Swerve Drive (Quasistatic Backward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//
-//            autoChooser.addOption("Swerve Drive (Dynamic Forward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Swerve Drive (Dynamic Backward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
-//
-//            autoChooser.addOption("Swerve Turn (Quasistatic Forward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Swerve Turn (Quasistatic Backward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//
-//            autoChooser.addOption("Swerve Turn (Dynamic Forward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Swerve Turn (Dynamic Backward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kReverse));
-//
-//            autoChooser.addOption("Swerve Angular (Quasistatic Forward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Swerve Angular (Quasistatic Backward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//
-//            autoChooser.addOption("Swerve Angular (Dynamic Forward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Swerve Angular (Dynamic Backward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kReverse));
-//
-//            /* ------------- Elevator SysId ------------- */
-//
-//            autoChooser.addOption("Elevator (Quasistatic Forward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Elevator (Quasistatic Backward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//
-//            autoChooser.addOption("Elevator (Dynamic Forward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("Elevator (Dynamic Backward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-//
-//            /* ------------- AlgaeClaw SysId ------------- */
-//
-//            autoChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//
-//            autoChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kForward));
-//            autoChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+            autoChooser.addOption("Swerve Drive (Quasistatic Forward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Swerve Drive (Quasistatic Backward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            autoChooser.addOption("Swerve Drive (Dynamic Forward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Swerve Drive (Dynamic Backward)", s_Swerve.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+            autoChooser.addOption("Swerve Turn (Quasistatic Forward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Swerve Turn (Quasistatic Backward)", s_Swerve.turnSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            autoChooser.addOption("Swerve Turn (Dynamic Forward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Swerve Turn (Dynamic Backward)", s_Swerve.turnSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+            autoChooser.addOption("Swerve Angular (Quasistatic Forward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Swerve Angular (Quasistatic Backward)", s_Swerve.angularSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            autoChooser.addOption("Swerve Angular (Dynamic Forward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Swerve Angular (Dynamic Backward)", s_Swerve.angularSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+            /* ------------- Elevator SysId ------------- */
+
+            autoChooser.addOption("Elevator (Quasistatic Forward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Elevator (Quasistatic Backward)", s_Elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            autoChooser.addOption("Elevator (Dynamic Forward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("Elevator (Dynamic Backward)", s_Elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+            /* ------------- AlgaeClaw SysId ------------- */
+
+            autoChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("AlgaeClaw (Quasistatic Forward)", s_AlgaeClaw.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            autoChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kForward));
+            autoChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kReverse));
         }
     }
 
@@ -221,7 +209,6 @@ public final class Autos {
     private static Command createAuto(StartEndPosition pose, String... trajectories) {
         return Commands.runOnce(
             () -> s_Swerve.setPose(AllianceFlip.apply(pose.getPose())))
-//            .andThen(s_Elevator.setDesiredState(desiredScoreLevel))
             .andThen(buildTrajectorySequence(trajectories));
     }
 
@@ -251,16 +238,6 @@ public final class Autos {
         return new PathPlannerAuto("curved auto");
     }
 
-    public static Command getBC1Auton() {
-        return createAuto(StartEndPosition.BC1,
-            "BC1 to TL2",
-            "TL2 to Upper Source",
-            "Upper Source to L1",
-            "L1 to Upper Source",
-            "Upper Source to L2"
-            ).withName("BC1");
-    }
-
     public static Command getBC2Auton() {
 //        return createAuto(StartEndPosition.BC2,
 //            "BC2 to TR1",
@@ -270,32 +247,6 @@ public final class Autos {
 //            "Upper Source to TL2")
 //            .withName("BC2");
         return new BC2_Pathless(true);
-    }
-
-    public static Command getBC3Auton() {
-        return createAuto(StartEndPosition.BC3,
-            "BC3 to R2",
-            "R2 to Upper Source",
-            "Upper Source to L2",
-            "L2 to Upper Source",
-            "Upper Source to L1",
-            "L1 to Upper Source",
-            "Upper Source to TL2")
-            .withName("BC3");
-    }
-
-    public static Command getRC1Auton() {
-//        return createAuto(StartEndPosition.RC1,
-//            new String[]{
-//                "RC1 to BR1",
-//                "BR1 to Lower Source",
-//                "Lower Source to BL1",
-//                "BL1 to Lower Source",
-//                "Lower Source to BL1",
-//                "BL1 to Lower Source",
-//                "Lower Source to BL2"
-//            }).withName("RC1 Auto");
-        return Commands.none();
     }
 
     public static Command getRC2Auton() {
@@ -308,35 +259,19 @@ public final class Autos {
 //            .withName("RC2");
         return new RC2_Pathless(true);
     }
-
-    public static Command getRC3Auton() {
-//        return createAuto(StartEndPosition.RC3,
-//            new String[]{
-//                "RC3 to BR1",
-//                "BR1 to Lower Source",
-//                "Lower Source to BL1",
-//                "BL1 to Lower Source",
-//                "Lower Source to BL1",
-//                "BL1 to Lower Source",
-//                "Lower Source to BL2"
-//            }).withName("RC3 Auto");
-        return Commands.none();
-    }
-
     public static Command getCenterR2Auton() {
         return createAuto(StartEndPosition.CENTER,
-            "Center to R2"
-            ).withName("CENTER");
+            "Center to R2")
+            .withName("CENTER");
     }
 
     public static Command getCenterR1Auton() {
         return createAuto(StartEndPosition.CENTER,
-            "Center to R1"
-        ).withName("CENTER");
+            "Center to R1")
+            .withName("CENTER");
     }
 
     public static Command getAuto() {
-//        return autoChooser.get();
-        return Commands.none().withName("NOTHING_AUTO");
+        return autoChooser.get();
     }
 }
