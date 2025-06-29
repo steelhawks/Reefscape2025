@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -283,10 +284,40 @@ public class AlgaeClaw extends SubsystemBase {
         ).finallyDo(io::stopPivot);
     }
 
+    public Command characterizer() {
+        final CharacterizationState state = new CharacterizationState();
+        final double RAMP_RATE = 0.2;
+        final double MAX_VELOCITY = 0.4;
+        Timer timer = new Timer();
+        return Commands.startRun(
+            () -> {
+                disable();
+                timer.restart();
+            },
+            () -> {
+                state.characterizationOutput = RAMP_RATE * timer.get();
+                io.runPivot(state.characterizationOutput);
+                Logger.recordOutput(
+                    "AlgaeClaw/CharacterizationOutput",  state.characterizationOutput);
+            })
+        .until(() -> inputs.encoderVelocity >= MAX_VELOCITY)
+        .andThen(io::stopPivot)
+        .andThen(Commands.idle())
+        .finallyDo(() -> {
+            enable();
+            timer.stop();
+            Logger.recordOutput("AlgaeClaw/CharacterizationOutputFinal", state.characterizationOutput);
+        });
+    }
+
     public Command spin(double speed) {
         return Commands.run(
             () -> io.runSpin(speed)
         ).finallyDo(io::stopSpin);
+    }
+
+    private static class CharacterizationState {
+        public double characterizationOutput = 0.0;
     }
 }
 
