@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import org.steelhawks.Constants;
+import org.steelhawks.RobotVisualizer;
 import org.steelhawks.util.Conversions;
 
 public class ElevatorIOSim implements ElevatorIO {
@@ -21,7 +22,6 @@ public class ElevatorIOSim implements ElevatorIO {
     private static final double ELEVATOR_WIDTH =
         Units.inchesToMeters(27);
 
-    private final ElevatorVisualizer mVisualizer;
     private final ElevatorSim mElevatorSim;
     private final EncoderSim mEncoderSim;
     private final DCMotor mMotor;
@@ -44,11 +44,11 @@ public class ElevatorIOSim implements ElevatorIO {
                 true,
                 0);
 
-        mVisualizer =
-            new ElevatorVisualizer(
-                mElevatorSim::getPositionMeters,
-                ELEVATOR_WIDTH,
-                MAX_HEIGHT);
+//        mVisualizer =
+//            new ElevatorVisualizer(
+//                mElevatorSim::getPositionMeters,
+//                ELEVATOR_WIDTH,
+//                MAX_HEIGHT);
 
         mEncoderSim =
             new EncoderSim(
@@ -90,7 +90,7 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.limitSwitchPressed = mElevatorSim.hasHitLowerLimit();
         inputs.atTopLimit = mElevatorSim.hasHitUpperLimit();
 
-        mVisualizer.update();
+        RobotVisualizer.getInstance().updateElevator(mElevatorSim.getPositionMeters());
     }
 
     @Override
