@@ -16,7 +16,7 @@ public class ElevatorIOSim implements ElevatorIO {
     private static final double ELEVATOR_WEIGHT = 40; // kg
     private static final double SPROCKET_RAD = // the driving drum
         Units.inchesToMeters(1.888);
-    private static final double ELEVATOR_GEARING = 10.0 / 1.0;
+    private static final double ELEVATOR_GEARING = 25.0 / 1.0;
     private static final double MIN_HEIGHT = 0; //m
     public static final double MAX_HEIGHT = Conversions.rotationsToMeters(Units.radiansToRotations(ElevatorConstants.MAX_RADIANS), 2 * Math.PI * SPROCKET_RAD); //m
     private static final double ELEVATOR_WIDTH =
@@ -43,13 +43,6 @@ public class ElevatorIOSim implements ElevatorIO {
                 MAX_HEIGHT,
                 true,
                 0);
-
-//        mVisualizer =
-//            new ElevatorVisualizer(
-//                mElevatorSim::getPositionMeters,
-//                ELEVATOR_WIDTH,
-//                MAX_HEIGHT);
-
         mEncoderSim =
             new EncoderSim(
                 new Encoder(0, 1));
