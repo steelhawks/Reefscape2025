@@ -102,6 +102,11 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     }
 
     @Override
+    public boolean hasImpl() {
+        return true;
+    }
+
+    @Override
     public void updateInputs(AlgaeClawIOInputs inputs) {
         inputs.pivotConnected =
             BaseStatusSignal.refreshAll(
