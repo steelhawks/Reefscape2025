@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -71,6 +72,7 @@ public class Robot extends LoggedRobot {
     public Robot() {
         VisionConstants.APRIL_TAG_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide); // apriltag field layout is slow, so invoke it to warmup even though blue is default
         SignalLogger.enableAutoLogging(false); // dont log when on fms
+        LiveWindow.disableAllTelemetry();
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
         for (int i = 5800; i < 5810; i++) {
             PortForwarder.add(i, "10.26.1.11", i);
@@ -174,12 +176,14 @@ public class Robot extends LoggedRobot {
             DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
             DriverStationSim.notifyNewData();
         }
+
+//        Threads.setCurrentThreadPriority(true, 10);
     }
 
     @Override
     public void robotPeriodic() {
         VirtualSubsystem.periodicAll();
-        LoopTimeUtil.record("Virtual Periodic");
+        LoopTimeUtil.record("VirtualPeriodic");
         CommandScheduler.getInstance().run();
         LoopTimeUtil.record("Commands");
 

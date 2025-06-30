@@ -5,8 +5,8 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,9 +19,7 @@ import org.steelhawks.OperatorLock;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.commands.AlgaeClawDefaultCommand;
-import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.ArmDriveFeedforward;
-import org.steelhawks.util.TunableNumber;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Second;
@@ -41,16 +39,6 @@ public class AlgaeClaw extends SubsystemBase {
     private boolean mEnabled = false;
     private boolean shouldEStop = false;
     private boolean brakeModeEnabled = true;
-
-    private final Alert pivotDisconnected =
-        new AlertUtil("Pivot Disconnected", Alert.AlertType.kError)
-            .withCondition(() -> !inputs.pivotConnected);
-    private final Alert spinDisconnected =
-        new AlertUtil("Spin Disconnected", Alert.AlertType.kError)
-            .withCondition(() -> !inputs.spinConnected);
-    private final Alert eStopped =
-        new AlertUtil("AlgaeClaw is E-Stopped", Alert.AlertType.kError)
-            .withCondition(() -> shouldEStop);
 
     private void enable() {
         mEnabled = true;
@@ -290,17 +278,46 @@ public class AlgaeClaw extends SubsystemBase {
         io.stopSpin();
     }
 
-    TunableNumber s = new TunableNumber("AlgaeClaw/kV", 0.0);
     public Command applyKV() {
         return Commands.run(
-            () -> io.runPivot(s.getAsDouble())
+            () -> io.runPivot(AlgaeClawConstants.PIVOT_KV)
         ).finallyDo(io::stopPivot);
+    }
+
+    public Command characterizer() {
+        final CharacterizationState state = new CharacterizationState();
+        final double RAMP_RATE = 0.2;
+        final double MAX_VELOCITY = 0.4;
+        Timer timer = new Timer();
+        return Commands.startRun(
+            () -> {
+                disable();
+                timer.restart();
+            },
+            () -> {
+                state.characterizationOutput = RAMP_RATE * timer.get();
+                io.runPivot(state.characterizationOutput);
+                Logger.recordOutput(
+                    "AlgaeClaw/CharacterizationOutput",  state.characterizationOutput);
+            })
+        .until(() -> inputs.encoderVelocity >= MAX_VELOCITY)
+        .andThen(io::stopPivot)
+        .andThen(Commands.idle())
+        .finallyDo(() -> {
+            enable();
+            timer.stop();
+            Logger.recordOutput("AlgaeClaw/CharacterizationOutputFinal", state.characterizationOutput);
+        });
     }
 
     public Command spin(double speed) {
         return Commands.run(
             () -> io.runSpin(speed)
         ).finallyDo(io::stopSpin);
+    }
+
+    private static class CharacterizationState {
+        public double characterizationOutput = 0.0;
     }
 }
 

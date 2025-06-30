@@ -29,7 +29,7 @@ public class SwerveDriveAlignment extends Command {
 
     protected static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
-    protected final FieldObject2d dashboardTargetPosePublisher;
+//    protected final FieldObject2d dashboardTargetPosePublisher;
     protected final SwerveDriveController mController;
     protected Supplier<Pose2d> targetPose;
     protected final Debouncer debouncer;
@@ -53,7 +53,7 @@ public class SwerveDriveAlignment extends Command {
 
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose, boolean endsWhenAligned) {
         addRequirements(s_Swerve);
-        dashboardTargetPosePublisher = FieldConstants.FIELD_2D.getObject("Trajectory Setpoint");
+//        dashboardTargetPosePublisher = FieldConstants.FIELD_2D.getObject("Trajectory Setpoint");
         this.targetPose = targetPose;
         this.debouncer = new Debouncer(0.2, Debouncer.DebounceType.kRising);
         this.filter = LinearFilter.movingAverage(5);
@@ -138,7 +138,7 @@ public class SwerveDriveAlignment extends Command {
     }
 
     protected void log() {
-        dashboardTargetPosePublisher.setPose(targetPose.get());
+//        dashboardTargetPosePublisher.setPose(targetPose.get());
         velocityError =
             Math.hypot(
                 mController.getError().vxMetersPerSecond,

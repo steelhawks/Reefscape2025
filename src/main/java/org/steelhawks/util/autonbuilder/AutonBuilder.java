@@ -15,7 +15,7 @@ import org.steelhawks.util.VirtualSubsystem;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class AutonBuilder extends VirtualSubsystem {
+public class AutonBuilder {
     private static StartEndPosition previousStartingPose = StartEndPosition.NOTHING_AUTO;
 
     private record AutoRoutine(
@@ -122,8 +122,7 @@ public class AutonBuilder extends VirtualSubsystem {
 
         return elevState;
     }
-        
-    @Override
+
     public void periodic() {
         StartEndPosition currentStartingPose = startingPositionChooser.get();
 

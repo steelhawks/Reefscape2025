@@ -5,8 +5,6 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,9 +19,7 @@ import org.steelhawks.Constants.Deadbands;
 import org.steelhawks.OperatorLock;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
-import org.steelhawks.util.AlertUtil;
 import org.steelhawks.util.LoopTimeUtil;
-import org.steelhawks.util.TunableNumber;
 
 import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Volts;
@@ -41,25 +37,6 @@ public class Elevator extends SubsystemBase {
     private final ProfiledPIDController mController;
     private final ElevatorFeedforward mFeedforward;
     private final SlewRateLimiter mSlewRateLimiter;
-
-    private final Alert leftMotorDisconnected =
-        new AlertUtil("Left Elevator Motor Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.leftConnected);
-    private final Alert rightMotorDisconnected =
-        new AlertUtil("Right Elevator Motor Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.rightConnected);
-    private final Alert canCoderDisconnected =
-        new AlertUtil("Elevator CANcoder Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.encoderConnected);
-    private final Alert limitSwitchDisconnected =
-        new AlertUtil("Elevator Limit Switch Disconnected", AlertType.kError)
-            .withCondition(() -> !inputs.limitSwitchConnected);
-    private final Alert canCoderMagnetBad =
-        new AlertUtil("Elevator CANcoder Magnet Bad", AlertType.kError)
-            .withCondition(() -> !inputs.magnetGood);
-    private final Alert eStopped =
-        new AlertUtil("Elevator is E-Stopped", AlertType.kError)
-            .withCondition(() -> shouldEStop);
 
     public void enable() {
         mEnabled = true;
@@ -356,13 +333,11 @@ public class Elevator extends SubsystemBase {
             .finallyDo(io::stop);
     }
 
-    TunableNumber s = new TunableNumber("Elevator/ApplyVolts");
     public Command applyVolts(double volts) {
         return Commands.run(
             () -> {
                 Logger.recordOutput("Elevator/AppliedVolts", volts);
-                io.runElevator(s.getAsDouble());
-//                io.runElevator(volts);
+                io.runElevator(volts);
             }, this)
             .finallyDo(io::stop);
     }

@@ -106,7 +106,7 @@ public class LEDDefaultCommand extends Command {
                     flash(LEDColor.RED, 0.2);
             }
         }
-        if (Robot.getState() == RobotState.AUTON || s_Swerve.isPathfinding().getAsBoolean()) {
+        if (Robot.getState() == RobotState.AUTON || s_Swerve.isPathfinding()) {
             s_LED.stop();
             s_LED.blockyRainbow();
             if (Robot.getState() == RobotState.TELEOP) return;

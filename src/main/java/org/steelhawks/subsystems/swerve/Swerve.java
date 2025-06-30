@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.swerve;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
@@ -369,6 +370,9 @@ public class Swerve extends SubsystemBase {
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
         mAlignController.setTolerance(Units.degreesToRadians(3));
         mAlignDebouncer = new Debouncer(0.5, DebounceType.kRising);
+
+        // warm up pathplanner lib
+        FollowPathCommand.warmupCommand().schedule();
         PathfindingCommand.warmupCommand().schedule();
     }
 
@@ -704,8 +708,8 @@ public class Swerve extends SubsystemBase {
         isPathfinding = pathfinding;
     }
 
-    public Trigger isPathfinding() {
-        return new Trigger(() -> isPathfinding);
+    public boolean isPathfinding() {
+        return isPathfinding;
     }
 
     ///////////////////////
