@@ -10,9 +10,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.Constants.RobotType;
+import org.steelhawks.ReefUtil;
+import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.util.TunableNumber;
@@ -30,6 +34,8 @@ public class Elevator extends SubsystemBase {
     private final SysIdRoutine sysIdRoutine;
 
     private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
+    private static final InterpolatingDoubleTreeMap elevatorDistanceMap = new InterpolatingDoubleTreeMap();
+    private ElevatorConstants.State desiredGoal = ElevatorConstants.State.HOME;
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
 
@@ -39,6 +45,11 @@ public class Elevator extends SubsystemBase {
         elevatorLimiterMap.put(0.0, 1.0);
         elevatorLimiterMap.put(Units.radiansToRotations(12.0), 0.5);
         elevatorLimiterMap.put(Units.radiansToRotations(24.0), 0.1);
+
+        // (distance in meters away from score pose) -> (rotations for elevator)
+        // at distance of zero, add zero additional rotations to the elevator height
+        elevatorDistanceMap.put(0.0, 0.0);
+        elevatorDistanceMap.put(Units.inchesToMeters(4.0), 0.5); // 4in is coral diameter, move elevator up by 0.5 rotations
     }
 
     private boolean isEStopped = false;
@@ -67,27 +78,30 @@ public class Elevator extends SubsystemBase {
     }
 
     public ElevatorConstants.State getState() {
-        ElevatorConstants.State state = ElevatorConstants.State.L4;
-        if (getDesiredState() == ElevatorConstants.State.L3.getAngle().getRotations()) {
-            state = ElevatorConstants.State.L3;
-        } else if (getDesiredState() == ElevatorConstants.State.L2.getAngle().getRotations()) {
-            state = ElevatorConstants.State.L2;
-        } else if (getDesiredState() == ElevatorConstants.State.L1.getAngle().getRotations()) {
-            state = ElevatorConstants.State.L1;
-        }
-        return state;
+        return desiredGoal;
     }
 
+    @AutoLogOutput(key = "Elevator/InterpolatedSpeedMultiplier")
     public double getSpeedMultiplierBasedOnElevator() {
         return elevatorLimiterMap.get(getPosition());
     }
 
-    public boolean isEnabled() {
-        return !isManual;
+    /**
+     * Returns if the current setpoint of the elevator is a scoring level.
+     * <p>
+     * L1, L2, L3, L4 -> true
+     * <p>
+     * HOME, PREPARE_CLIMB -> false
+     */
+    public boolean isScoringLevel() {
+        return getState() == ElevatorConstants.State.L1
+            || getState() == ElevatorConstants.State.L2
+            || getState() == ElevatorConstants.State.L3
+            || getState() == ElevatorConstants.State.L4;
     }
 
-    public double getDesiredState() {
-        return goal.position;
+    public boolean isEnabled() {
+        return !isManual;
     }
 
     private boolean hitTopLimit() {
@@ -95,7 +109,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private boolean hitBottomLimit() {
-        return getPosition() < 0.0;
+        return getPosition() < ElevatorConstants.TOLERANCE;
     }
 
     public double getPosition() {
@@ -126,6 +140,29 @@ public class Elevator extends SubsystemBase {
         inputs.shouldRunProfile = shouldRun;
 
         if (shouldRun) {
+            if (desiredGoal != ElevatorConstants.State.L4
+                && desiredGoal != ElevatorConstants.State.L1
+                && Toggles.Elevator.autoElevatorLeveling.get()
+                && isScoringLevel()
+            ) {
+                double interpolated = elevatorDistanceMap.get(
+                    RobotContainer.s_Swerve
+                        .getPose()
+                        .getTranslation()
+                        .getDistance(ReefUtil.getClosestCoralBranch()
+                            .getScorePose(desiredGoal)
+                            .getTranslation()));
+                Logger.recordOutput("Elevator/InterpolatedDistance", interpolated);
+                inputs.goal =
+                    MathUtil.clamp(desiredGoal.getAngle().getRotations()
+                        + interpolated,
+                        desiredGoal.getAngle().getRotations(), // low is static score position
+                        Math.min(
+                            desiredGoal.getAngle().getRotations() + 0.5,
+                            ElevatorConstants.MAX_ROTATIONS)); // give up if way over
+                goal = new TrapezoidProfile.State(inputs.goal, 0.0);
+            }
+
             double previousVelocity = setpoint.velocity;
             setpoint =
                 profile
@@ -168,15 +205,16 @@ public class Elevator extends SubsystemBase {
         Logger.recordOutput("Elevator/AtGoal", atGoal);
     }
 
-    public Command setDesiredState(ElevatorConstants.State state){
+    public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
             () -> {
                 LED.getInstance().flashCommand(LEDColor.WHITE, 0.1, 1.0).schedule();
                 inputs.goal = MathUtil.clamp(state.getAngle().getRotations(), 0, ElevatorConstants.MAX_ROTATIONS);
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
+                desiredGoal = state;
             }, this)
         .withName("Set Desired State");
-}
+    }
 
     public Command toggleManualControl(DoubleSupplier joystickAxis) {
         return Commands.runOnce(

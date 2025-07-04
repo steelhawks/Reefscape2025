@@ -1,12 +1,15 @@
 package org.steelhawks.subsystems.claw;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Clearances;
 import org.steelhawks.Constants;
@@ -15,6 +18,9 @@ import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
+
+import java.util.Set;
 
 public class Claw extends SubsystemBase {
 
@@ -24,11 +30,19 @@ public class Claw extends SubsystemBase {
     private static final double DEBOUNCE_TIME = 0.15;
     private boolean isIntaking = true;
 
+    private static final InterpolatingDoubleTreeMap clawFireMap = new InterpolatingDoubleTreeMap();
     private final BeamIOInputsAutoLogged beamInputs = new BeamIOInputsAutoLogged();
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
     private final Debouncer beamDebounce;
     private final BeamIO beamIO;
     private final ClawIO io;
+
+    static {
+        // (distance in meters away from score goal) -> (percentage increase of baseline)
+        // at distance of zero, add zero additional rotations to the elevator height
+        clawFireMap.put(0.0, 1.0);
+        clawFireMap.put(Units.inchesToMeters(4.0), 1.25); // 4in is coral diameter, increase speed of claw shooting by 25%
+    }
 
     public Trigger hasCoral() {
         return switch (Constants.getRobot()) {
@@ -55,12 +69,28 @@ public class Claw extends SubsystemBase {
         Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
     }
 
+    @AutoLogOutput(key = "Claw/InterpolatedFiringSpeed")
+    private double getFireSpeed() {
+        return ClawConstants.CLAW_SHOOT_SPEED *
+            MathUtil.clamp(
+                clawFireMap.get(
+                    RobotContainer.s_Swerve
+                        .getPose()
+                        .getTranslation()
+                        .getDistance(ReefUtil.getClosestCoralBranch()
+                            .getScorePose(ElevatorConstants.State.L4)
+                            .getTranslation())),
+                1.0, 1.5);
+    }
+
     public Command intakeCoral() {
         return shootCoral(-INTAKE_SPEED);
     }
 
     public Command shootCoral() {
-        return shootCoral(ClawConstants.CLAW_SHOOT_SPEED);
+        return Commands.defer(() ->
+            shootCoral(getFireSpeed()),
+        Set.of(this));
     }
 
     public Command shootPulsatingCoral() {

@@ -17,4 +17,23 @@ public class ConstantsFactory {
             ? sim
             : real;
     }
+
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     *
+     * @param hawkrider The HawkRider constant value
+     * @param alpha The Alpha constant value
+     * @param omega The Omega constant value
+     * @param sim The simulation constant value
+     * @return The correct constant
+     */
+    public static double value(double hawkrider, double alpha, double omega, double sim) {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> alpha;
+            case OMEGABOT -> omega;
+            case HAWKRIDER -> hawkrider;
+            case SIMBOT -> sim;
+        };
+    }
 }
