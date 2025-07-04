@@ -19,6 +19,7 @@ import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.util.Conversions;
 
 import java.util.Set;
 
@@ -69,18 +70,46 @@ public class Claw extends SubsystemBase {
         Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
     }
 
+
+    /**
+     * Returns in percent output.
+     */
     @AutoLogOutput(key = "Claw/InterpolatedFiringSpeed")
     private double getFireSpeed() {
-        return ClawConstants.CLAW_SHOOT_SPEED *
-            MathUtil.clamp(
-                clawFireMap.get(
-                    RobotContainer.s_Swerve
-                        .getPose()
-                        .getTranslation()
-                        .getDistance(ReefUtil.getClosestCoralBranch()
-                            .getScorePose(ElevatorConstants.State.L4)
-                            .getTranslation())),
-                1.0, 1.5);
+        // vi = sqrt((d*g) / sin(2 * theta))
+        final double wheelDiameter = Units.inchesToMeters(3.0);
+        final double wheelCircumference = wheelDiameter * Math.PI;
+        final double G = 9.81;
+        final double D =
+            RobotContainer.s_Swerve
+                .getPose()
+                .getTranslation()
+                .getDistance(ReefUtil.getClosestCoralBranch()
+                    .getScorePose(ElevatorConstants.State.L4)
+                    .getTranslation());
+        final double angRadians = Math.toRadians(35.0) ;
+        final double initialMPS = Math.sqrt((D * G) / Math.sin(angRadians * 2.0));
+        final double initialRPS = Conversions.metersToRotations(initialMPS, wheelCircumference);
+
+        final double maxMotorRPM = 6784.0;
+        final double gearRatio = 2.0 / 1.0;
+        final double maxOutputRPM = maxMotorRPM / gearRatio;
+        final double maxOutputRPS = maxOutputRPM / 60.0;
+
+        return (initialRPS / maxOutputRPS) + ClawConstants.CLAW_SHOOT_SPEED;
+
+//        return Conversions.metersToRotations(initialMPS, wheelCircumference)
+//            / ((6784.0 / (2.0 / 1.0)) / 60.0) + ClawConstants.CLAW_SHOOT_SPEED;
+//        return ClawConstants.CLAW_SHOOT_SPEED *
+//            MathUtil.clamp(
+//                clawFireMap.get(
+//                    RobotContainer.s_Swerve
+//                        .getPose()
+//                        .getTranslation()
+//                        .getDistance(ReefUtil.getClosestCoralBranch()
+//                            .getScorePose(ElevatorConstants.State.L4)
+//                            .getTranslation())),
+//                1.0, 1.5);
     }
 
     public Command intakeCoral() {

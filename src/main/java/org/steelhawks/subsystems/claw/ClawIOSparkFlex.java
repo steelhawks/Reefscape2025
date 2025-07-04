@@ -15,6 +15,7 @@ public class ClawIOSparkFlex implements ClawIO {
 
     private static final int INTAKE_MOTOR_ID = 1;
     private static final int CURRENT_LIMIT = 80;
+    private static final double GEAR_RATIO = 2.0 / 1.0;
 
     private final SparkFlex mIntakeMotor;
     private final RelativeEncoder mIntakeEncoder;
@@ -55,7 +56,7 @@ public class ClawIOSparkFlex implements ClawIO {
     @Override
     public void updateInputs(ClawIntakeIOInputs inputs) {
         inputs.connected = mConnectedDebounce.calculate(!SparkUtil.sparkStickyFault);
-        inputs.positionRad = Units.rotationsToRadians(mIntakeEncoder.getPosition());
+        inputs.positionRad = Units.rotationsToRadians(mIntakeEncoder.getPosition() / GEAR_RATIO);
         inputs.velocityRadPerSec = Units.rotationsToRadians(mIntakeEncoder.getVelocity() / 60.0);
         inputs.appliedVolts = mIntakeMotor.getBusVoltage();
         inputs.currentAmps = mIntakeMotor.getOutputCurrent();
