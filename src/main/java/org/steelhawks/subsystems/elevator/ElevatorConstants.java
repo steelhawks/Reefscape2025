@@ -39,36 +39,36 @@ public class ElevatorConstants {
 
     public static final double MAX_ROTATIONS = Units.radiansToRotations(24.0);
     public static final double TOLERANCE = Units.radiansToRotations(0.03);
-    public static final double REDUCTION = 25.0;
+    public static final double REDUCTION = 25.0 / 1.0;
 
-    public static final double MAX_VELOCITY_ROT_PER_SEC = ConstantsFactory.value(0.0, 10.0);
-    public static final double MAX_ACCELERATION_ROT_PER_SEC_2 = ConstantsFactory.value(0.0, 20.0);
-    public static final double MANUAL_ELEVATOR_INCREMENT = 0.65;
+    public static final Double MAX_VELOCITY_ROT_PER_SEC = ConstantsFactory.omega(0.0, 10.0);
+    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = ConstantsFactory.omega(0.0, 20.0);
+    public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final double KP = ConstantsFactory.value(0.0, 6.0);
+    public static final Double KP = ConstantsFactory.omega(0.0, 6.0);
     public static final double KI = 0.0;
-    public static final double KD = ConstantsFactory.value(0.0, 0.4);
+    public static final Double KD = ConstantsFactory.omega(0.0, 0.4);
 
-    public static final double[] kS = {
-        ConstantsFactory.value(0.0, 0.0),
+    public static final Double[] kS = {
+        ConstantsFactory.omega(0.0, 0.0),
         0.0,
         0.0
     };
 
-    public static final double[] kV = {
-        ConstantsFactory.value(
+    public static final Double[] kV = {
+        ConstantsFactory.omega(
         (2.0 - 1.0) / (0.6660156249999999 - 0.287109375), 0.0),
         0.0,
         0.0
     };
 
-    public static final double[] kG = {
-        ConstantsFactory.value(0.0, 0.0),
+    public static final Double[] kG = {
+        ConstantsFactory.omega(0.0, 0.0),
         0.0,
         0.0
     };
 
-    public static final double[] kA = {
+    public static final Double[] kA = {
         0.0,
         0.0,
         0.0

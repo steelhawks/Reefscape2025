@@ -51,12 +51,12 @@ public class RobotContainer {
 
     public static final ReefState s_ReefState = new ReefState();
     private final LED s_LED = LED.getInstance();
-    public static Swerve s_Swerve;
-    public static Vision s_Vision;
-    public static Elevator s_Elevator;
-    public static Claw s_Claw;
-    public static Align s_Align;
-    public static AlgaeClaw s_AlgaeClaw;
+    public static Swerve s_Swerve = null;
+    public static Vision s_Vision = null;
+    public static Elevator s_Elevator = null;
+    public static Claw s_Claw = null;
+    public static Align s_Align = null;
+    public static AlgaeClaw s_AlgaeClaw = null;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -156,9 +156,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
-                    s_AlgaeClaw =
-                        new AlgaeClaw(
-                            new AlgaeClawIO() {});
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -178,16 +175,6 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
-                    s_Claw =
-                        new Claw(
-                            new BeamIO() {},
-                            new ClawIO() {});
-                    s_Align =
-                        new Align(
-                            new AlignIO() {});
-                    s_AlgaeClaw =
-                        new AlgaeClaw(
-                            new AlgaeClawIO() {});
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());

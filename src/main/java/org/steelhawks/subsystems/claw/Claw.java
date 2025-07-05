@@ -1,6 +1,5 @@
 package org.steelhawks.subsystems.claw;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -74,7 +73,7 @@ public class Claw extends SubsystemBase {
     /**
      * Returns in percent output.
      */
-    @AutoLogOutput(key = "Claw/InterpolatedFiringSpeed")
+    @AutoLogOutput(key = "Claw/FiringSpeed")
     private double getFireSpeed() {
         // vi = sqrt((d*g) / sin(2 * theta))
         final double wheelDiameter = Units.inchesToMeters(3.0);
@@ -87,13 +86,14 @@ public class Claw extends SubsystemBase {
                 .getDistance(ReefUtil.getClosestCoralBranch()
                     .getScorePose(ElevatorConstants.State.L4)
                     .getTranslation());
-        final double angRadians = Math.toRadians(35.0) ;
+        final double angRadians = Math.toRadians(35.0);
         final double initialMPS = Math.sqrt((D * G) / Math.sin(angRadians * 2.0));
         final double initialRPS = Conversions.metersToRotations(initialMPS, wheelCircumference);
+        Logger.recordOutput("Claw/InitialVelocityMPS", initialMPS);
+        Logger.recordOutput("Claw/InitialVelocityRPS", initialRPS);
 
         final double maxMotorRPM = 6784.0;
-        final double gearRatio = 2.0 / 1.0;
-        final double maxOutputRPM = maxMotorRPM / gearRatio;
+        final double maxOutputRPM = maxMotorRPM / ClawConstants.CLAW_INTAKE_GEAR_RATIO;
         final double maxOutputRPS = maxOutputRPM / 60.0;
 
         return (initialRPS / maxOutputRPS) + ClawConstants.CLAW_SHOOT_SPEED;
@@ -144,6 +144,7 @@ public class Claw extends SubsystemBase {
                 isIntaking = true;
                 if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
                     if (hasCoral().getAsBoolean()
+                        && RobotContainer.s_Elevator.isScoringLevel()
                         && RobotContainer.s_Swerve.getPose().getTranslation()
                             .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
                         RobotContainer.s_ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
