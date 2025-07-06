@@ -40,6 +40,8 @@ public class ElevatorConstants {
     public static final double MAX_ROTATIONS = Units.radiansToRotations(24.0);
     public static final double TOLERANCE = Units.radiansToRotations(0.03);
     public static final double REDUCTION = 25.0 / 1.0;
+    public static final double SPROCKET_RAD = // the driving drum
+        Units.inchesToMeters(1.888);
 
     public static final Double MAX_VELOCITY_ROT_PER_SEC = ConstantsFactory.omega(0.0, 10.0);
     public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = ConstantsFactory.omega(0.0, 20.0);

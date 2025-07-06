@@ -8,4 +8,9 @@ public interface Toggles {
         LoggedNetworkBoolean autoElevatorLeveling =
             new LoggedNetworkBoolean("Toggles/AutoElevatorLeveling", true);
     }
+
+    interface Claw {
+        LoggedNetworkBoolean calculateEjectSpeed =
+            new LoggedNetworkBoolean("Toggles/CalculateEjectSpeed", true);
+    }
 }

@@ -28,6 +28,7 @@ public class ClawIOTalonFX implements ClawIO {
     private final StatusSignal<Temperature> temp;
 
     public ClawIOTalonFX() {
+        ClawConstants.CLAW_MOTOR_MAX_RPM = 6380.0;
         mIntakeMotor = new TalonFX(ClawConstants.CLAW_INTAKE_MOTOR_ID, ClawConstants.CLAW_CANBUS);
 
         var motorConfig =

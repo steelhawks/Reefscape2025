@@ -16,4 +16,5 @@ public class ClawConstants {
     public static final Double CLAW_SHOOT_SPEED = ConstantsFactory.value(0.1, 0.15);
     public static final Double CLAW_SECONDARY_SHOOT_SPEED = ConstantsFactory.value(0.135, 0.125);
     public static final Double CLAW_INTAKE_SPEED = ConstantsFactory.value(0.1, 0.1);
+    public static Double CLAW_MOTOR_MAX_RPM = 6784.0;
 }

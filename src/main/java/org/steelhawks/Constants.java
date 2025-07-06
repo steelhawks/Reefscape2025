@@ -97,6 +97,9 @@ public final class Constants {
         public static final double BAD_BATTERY_THRESHOLD = 11.6;
         public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(30.0 + (3.125 * 2.0));
 
+        public static final double FLOOR_TO_CLAW_HEIGHT =
+            Units.inchesToMeters(2.5 + 4.5 + (10.25 / 2.0) - 1.0 + 23.132);
+
         // for distance between robot center and claw
 
         // BEFORE HVR CHANGES

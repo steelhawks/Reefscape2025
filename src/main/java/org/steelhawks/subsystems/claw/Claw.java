@@ -2,7 +2,6 @@ package org.steelhawks.subsystems.claw;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -10,10 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Clearances;
-import org.steelhawks.Constants;
-import org.steelhawks.ReefUtil;
-import org.steelhawks.RobotContainer;
+import org.steelhawks.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
@@ -30,19 +26,11 @@ public class Claw extends SubsystemBase {
     private static final double DEBOUNCE_TIME = 0.15;
     private boolean isIntaking = true;
 
-    private static final InterpolatingDoubleTreeMap clawFireMap = new InterpolatingDoubleTreeMap();
     private final BeamIOInputsAutoLogged beamInputs = new BeamIOInputsAutoLogged();
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
     private final Debouncer beamDebounce;
     private final BeamIO beamIO;
     private final ClawIO io;
-
-    static {
-        // (distance in meters away from score goal) -> (percentage increase of baseline)
-        // at distance of zero, add zero additional rotations to the elevator height
-        clawFireMap.put(0.0, 1.0);
-        clawFireMap.put(Units.inchesToMeters(4.0), 1.25); // 4in is coral diameter, increase speed of claw shooting by 25%
-    }
 
     public Trigger hasCoral() {
         return switch (Constants.getRobot()) {
@@ -75,41 +63,39 @@ public class Claw extends SubsystemBase {
      */
     @AutoLogOutput(key = "Claw/FiringSpeed")
     private double getFireSpeed() {
-        // vi = sqrt((d*g) / sin(2 * theta))
+        if (!Toggles.Claw.calculateEjectSpeed.get()) {
+            return ClawConstants.CLAW_INTAKE_SPEED;
+        }
+        // v0 = sqrt((g * R^2) / 2cos^2(theta) * (Rtan(theta) + h)
         final double wheelDiameter = Units.inchesToMeters(3.0);
         final double wheelCircumference = wheelDiameter * Math.PI;
+        final double theta = Math.toRadians(-35.0); // claw is angled downwards 35 degrees
         final double G = 9.81;
-        final double D =
+        final double R = // range away from branch
             RobotContainer.s_Swerve
                 .getPose()
                 .getTranslation()
                 .getDistance(ReefUtil.getClosestCoralBranch()
-                    .getScorePose(ElevatorConstants.State.L4)
+                    .getBranchPoseProjectedToReefFace()
                     .getTranslation());
-        final double angRadians = Math.toRadians(35.0);
-        final double initialMPS = Math.sqrt((D * G) / Math.sin(angRadians * 2.0));
-        final double initialRPS = Conversions.metersToRotations(initialMPS, wheelCircumference);
-        Logger.recordOutput("Claw/InitialVelocityMPS", initialMPS);
-        Logger.recordOutput("Claw/InitialVelocityRPS", initialRPS);
+        final double H = // elevator height, vertical height in meters
+            Conversions.rotationsToMeters(
+                RobotContainer.s_Elevator.getPosition(),
+                ElevatorConstants.SPROCKET_RAD * Math.PI * 2.0)
+            + Constants.RobotConstants.FLOOR_TO_CLAW_HEIGHT;
 
-        final double maxMotorRPM = 6784.0;
-        final double maxOutputRPM = maxMotorRPM / ClawConstants.CLAW_INTAKE_GEAR_RATIO;
-        final double maxOutputRPS = maxOutputRPM / 60.0;
+        double denom = 2 * Math.pow(Math.cos(theta), 2) * (H + (R * Math.tan(theta)));
+        if (denom <= 0) {
+            return ClawConstants.CLAW_SHOOT_SPEED;
+        }
 
-        return (initialRPS / maxOutputRPS) + ClawConstants.CLAW_SHOOT_SPEED;
+        double v0 = Math.sqrt((G * Math.pow(R, 2)) / denom);
+        double v0RPS = Conversions.metersToRotations(v0, wheelCircumference);
+        Logger.recordOutput("Claw/InitialVelocityMPS", v0);
+        Logger.recordOutput("Claw/InitialVelocityRPS", v0RPS);
 
-//        return Conversions.metersToRotations(initialMPS, wheelCircumference)
-//            / ((6784.0 / (2.0 / 1.0)) / 60.0) + ClawConstants.CLAW_SHOOT_SPEED;
-//        return ClawConstants.CLAW_SHOOT_SPEED *
-//            MathUtil.clamp(
-//                clawFireMap.get(
-//                    RobotContainer.s_Swerve
-//                        .getPose()
-//                        .getTranslation()
-//                        .getDistance(ReefUtil.getClosestCoralBranch()
-//                            .getScorePose(ElevatorConstants.State.L4)
-//                            .getTranslation())),
-//                1.0, 1.5);
+        double maxOutputRPS = (ClawConstants.CLAW_MOTOR_MAX_RPM / ClawConstants.CLAW_INTAKE_GEAR_RATIO) / 60.0;
+        return (v0RPS / maxOutputRPS);
     }
 
     public Command intakeCoral() {

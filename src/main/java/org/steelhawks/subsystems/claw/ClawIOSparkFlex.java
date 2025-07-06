@@ -23,6 +23,7 @@ public class ClawIOSparkFlex implements ClawIO {
     private final Debouncer mConnectedDebounce;
 
     public ClawIOSparkFlex() {
+        ClawConstants.CLAW_MOTOR_MAX_RPM = 6784.0;
         mIntakeMotor = new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless);
         mIntakeEncoder = mIntakeMotor.getEncoder();
         mConnectedDebounce = new Debouncer(0.5);

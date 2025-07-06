@@ -12,13 +12,11 @@ import org.steelhawks.util.Conversions;
 public class ElevatorIOSim implements ElevatorIO {
 
     private static final double ELEVATOR_WEIGHT = 40; // kg
-    private static final double SPROCKET_RAD = // the driving drum
-        Units.inchesToMeters(1.888);
     private static final double ELEVATOR_GEARING = 10.0 / 1.0;
     private static final double MIN_HEIGHT = 0; //m
     public static final double MAX_HEIGHT =
         Conversions.rotationsToMeters(
-            ElevatorConstants.MAX_ROTATIONS, 2 * Math.PI * SPROCKET_RAD); //m
+            ElevatorConstants.MAX_ROTATIONS, 2 * Math.PI * ElevatorConstants.SPROCKET_RAD); //m
     private static final double ELEVATOR_WIDTH =
         Units.inchesToMeters(27);
 
@@ -43,7 +41,7 @@ public class ElevatorIOSim implements ElevatorIO {
                 LinearSystemId.createElevatorSystem(
                     mMotor,
                     ELEVATOR_WEIGHT,
-                    SPROCKET_RAD,
+                    ElevatorConstants.SPROCKET_RAD,
                     ELEVATOR_GEARING),
                 mMotor,
                 MIN_HEIGHT,
@@ -67,9 +65,9 @@ public class ElevatorIOSim implements ElevatorIO {
 
         inputs.leftConnected = true;
         inputs.positionRot =
-            Conversions.metersToRotations(mElevatorSim.getPositionMeters(), 2 * Math.PI * SPROCKET_RAD);
+            Conversions.metersToRotations(mElevatorSim.getPositionMeters(), 2 * Math.PI * ElevatorConstants.SPROCKET_RAD);
         inputs.velocityRotPerSec =
-            Conversions.metersToRotations(mElevatorSim.getVelocityMetersPerSecond(), 2 * Math.PI * SPROCKET_RAD);
+            Conversions.metersToRotations(mElevatorSim.getVelocityMetersPerSecond(), 2 * Math.PI * ElevatorConstants.SPROCKET_RAD);
         inputs.leftAppliedVolts = appliedVolts;
         inputs.leftCurrentAmps = mElevatorSim.getCurrentDrawAmps();
         elevatorPosition = inputs.positionRot;
