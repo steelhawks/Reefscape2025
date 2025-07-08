@@ -2,7 +2,7 @@ package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import org.steelhawks.util.ConstantsFactory;
+import org.steelhawks.Constants;
 
 public class ElevatorConstants {
 
@@ -43,29 +43,29 @@ public class ElevatorConstants {
     public static final double SPROCKET_RAD = // the driving drum
         Units.inchesToMeters(1.888);
 
-    public static final Double MAX_VELOCITY_ROT_PER_SEC = ConstantsFactory.omega(0.0, 10.0);
-    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = ConstantsFactory.omega(0.0, 20.0);
+    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(0.0, 10.0);
+    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(0.0, 20.0);
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final Double KP = ConstantsFactory.omega(0.0, 6.0);
+    public static final Double KP = Constants.omega(0.0, 6.0);
     public static final double KI = 0.0;
-    public static final Double KD = ConstantsFactory.omega(0.0, 0.4);
+    public static final Double KD = Constants.omega(0.0, 0.4);
 
     public static final Double[] kS = {
-        ConstantsFactory.omega(0.0, 0.0),
+        Constants.omega(0.0, 0.0),
         0.0,
         0.0
     };
 
     public static final Double[] kV = {
-        ConstantsFactory.omega(
+        Constants.omega(
         (2.0 - 1.0) / (0.6660156249999999 - 0.287109375), 0.0),
         0.0,
         0.0
     };
 
     public static final Double[] kG = {
-        ConstantsFactory.omega(0.0, 0.0),
+        Constants.omega(0.0, 0.0),
         0.0,
         0.0
     };
