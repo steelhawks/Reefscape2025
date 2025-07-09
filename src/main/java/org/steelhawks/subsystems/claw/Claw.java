@@ -57,7 +57,6 @@ public class Claw extends SubsystemBase {
         Logger.recordOutput("Claw/HasCoral", hasCoral().getAsBoolean());
     }
 
-
     /**
      * Returns in percent output.
      */
@@ -144,7 +143,7 @@ public class Claw extends SubsystemBase {
             .finallyDo(this::stop);
     }
 
-    public void stop() {
+    private void stop() {
         isIntaking = false;
         io.stop();
     }

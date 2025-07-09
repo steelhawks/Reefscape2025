@@ -15,6 +15,7 @@ import org.photonvision.PhotonCamera;
 public class VisionIOPhoton implements VisionIO {
     protected final PhotonCamera camera;
     protected final Transform3d robotToCamera;
+    private final String name;
 
     /**
      * Creates a new VisionIOPhotonVision.
@@ -23,8 +24,14 @@ public class VisionIOPhoton implements VisionIO {
      * @param robotToCamera The transform from the camera to the robot.
      */
     public VisionIOPhoton(String name, Transform3d robotToCamera) {
+        this.name = name;
         camera = new PhotonCamera(name);
         this.robotToCamera = robotToCamera;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

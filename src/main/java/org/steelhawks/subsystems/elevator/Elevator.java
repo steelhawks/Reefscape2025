@@ -118,7 +118,7 @@ public class Elevator extends SubsystemBase {
 
     private int getStage() {
         // if we ever get the continuous on, use this to select between which stages the elevator is in,
-        //  then update the kS, kG values accordingly, logic for this is already done
+        // then update the kS, kG values accordingly, logic for this is already done
         return 0;
     }
 
@@ -162,7 +162,6 @@ public class Elevator extends SubsystemBase {
                             ElevatorConstants.MAX_ROTATIONS)); // give up if way over
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
             }
-
             double previousVelocity = setpoint.velocity;
             setpoint =
                 profile

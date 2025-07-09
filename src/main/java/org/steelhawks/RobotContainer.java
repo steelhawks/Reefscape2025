@@ -39,8 +39,6 @@ import java.util.Objects;
 
 
 public class RobotContainer {
-
-    public static final boolean useVision = true;
     private static final boolean usingButtonBoard = false;
 
     private final Trigger notifyAtEndgame;
@@ -279,7 +277,7 @@ public class RobotContainer {
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
-        new Alert("Use Vision is Off", AlertType.kWarning).set(!useVision);
+        new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
         Autos.init();
 
         topCoralStationTrigger =

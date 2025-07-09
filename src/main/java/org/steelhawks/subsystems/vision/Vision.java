@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,7 +73,9 @@ public class Vision extends SubsystemBase {
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
-            io[i].updateInputs(inputs[i]);
+            if (Toggles.Vision.camerasEnabled.get(io[i].getName()).get()) {
+                io[i].updateInputs(inputs[i]);
+            }
             Logger.processInputs("Vision/Camera" + i, inputs[i]);
         }
 
@@ -90,6 +93,10 @@ public class Vision extends SubsystemBase {
 
         // Loop over cameras
         for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+            if (!Toggles.Vision.camerasEnabled.get(io[cameraIndex].getName()).get()) {
+                continue;
+            }
+
             // Update disconnected alert
             disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 

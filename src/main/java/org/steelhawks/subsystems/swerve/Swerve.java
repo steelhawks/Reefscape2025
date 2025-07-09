@@ -48,6 +48,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -477,7 +478,7 @@ public class Swerve extends SubsystemBase {
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs) {
 
-        if (!RobotContainer.useVision) return;
+        if (!Toggles.Vision.visionEnabled.get()) return;
 
         mPoseEstimator.addVisionMeasurement(
             visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
