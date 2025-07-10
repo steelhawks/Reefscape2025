@@ -32,9 +32,7 @@ public class RC2_Pathless extends AutoRoutine {
                     Autos.followTrajectory("RC2 to " + "BR" + (startingBR1 ? "1" : "2")), Set.of()),
                 Commands.sequence(
                     Commands.waitSeconds(0.6),
-                    s_Elevator.setDesiredState(desiredScoreLevel)
-                )
-            ),
+                    s_Elevator.setDesiredState(desiredScoreLevel))),
 
             Commands.defer(() ->
                 new SwerveDriveAlignment(
@@ -63,8 +61,7 @@ public class RC2_Pathless extends AutoRoutine {
 
             DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL2.getAutonSlowDrivePose(desiredScoreLevel)),
             s_Elevator.setDesiredState(desiredScoreLevel),
-            
-//            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL2.getScorePose(desiredScoreLevel), constraints),
+
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL2.getScorePose(desiredScoreLevel)),
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
@@ -87,7 +84,6 @@ public class RC2_Pathless extends AutoRoutine {
             DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL1.getAutonSlowDrivePose(desiredScoreLevel)),
             s_Elevator.setDesiredState(desiredScoreLevel),
 
-//            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BL1.getScorePose(desiredScoreLevel), constraints),
             new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL1.getScorePose(desiredScoreLevel)),
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
@@ -107,11 +103,20 @@ public class RC2_Pathless extends AutoRoutine {
                     .withTimeout(WAIT_FOR_CORAL_TIMEOUT_LAST_EFFORT), // if something really goes wrong, timeout
                 s_Claw.hasCoral()),
 
-            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BR1.getAutonSlowDrivePose(desiredScoreLevel)),
+            Commands.defer(() ->
+                DriveCommands.driveToPosition(
+                    startingBR1
+                        ? ReefUtil.CoralBranch.L2.getAutonSlowDrivePose(desiredScoreLevel)
+                        : ReefUtil.CoralBranch.BR1.getAutonSlowDrivePose(desiredScoreLevel)),
+                Set.of(s_Swerve)),
             s_Elevator.setDesiredState(desiredScoreLevel),
 
-            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BR1.getScorePose(desiredScoreLevel), constraints),
-            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BR1.getScorePose(desiredScoreLevel)),
+            Commands.defer(() ->
+                new SwerveDriveAlignment(() ->
+                    startingBR1
+                        ? ReefUtil.CoralBranch.L2.getScorePose(desiredScoreLevel)
+                        : ReefUtil.CoralBranch.BR1.getScorePose(desiredScoreLevel)),
+                Set.of(s_Swerve)),
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
