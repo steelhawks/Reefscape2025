@@ -261,8 +261,8 @@ public final class Constants {
                     ANGLE_KP = 3.0;
                     ANGLE_KI = 0.0;
                     ANGLE_KD = 0.0;
-                    MAX_VELOCITY_METERS_PER_SECOND = 4.0;
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4.5;
+                    MAX_VELOCITY_METERS_PER_SECOND = 5.0;
+                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Units.degreesToRadians(540.0);
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Units.degreesToRadians(920.000);
                 }

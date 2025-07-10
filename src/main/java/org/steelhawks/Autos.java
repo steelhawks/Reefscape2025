@@ -300,7 +300,7 @@ public final class Autos {
 //            "BL2 to Lower Source",
 //            "Lower Source to BL1")
 //            .withName("RC2");
-        return new RC2_Pathless(true);
+        return new RC2_Pathless(false);
     }
 
     public static Command getRC3Auton() {
