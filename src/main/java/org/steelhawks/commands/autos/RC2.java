@@ -21,11 +21,7 @@ public class RC2 extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
             followTrajectory("BR2 to Lower Source"),
             Commands.waitUntil(s_Claw.hasCoral()),
@@ -41,11 +37,7 @@ public class RC2 extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
             followTrajectory("BL2 to Lower Source"),
             Commands.waitUntil(s_Claw.hasCoral()),
@@ -61,11 +53,7 @@ public class RC2 extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
             followTrajectory("BL1 to Lower Source"),
             Commands.waitUntil(s_Claw.hasCoral()),
@@ -81,11 +69,7 @@ public class RC2 extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4),
             SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME)
         );
     }

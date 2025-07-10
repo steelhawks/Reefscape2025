@@ -45,11 +45,7 @@ public class RC2_Pathless extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
-                s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4).until(s_Claw.hasCoral().negate()),
+            s_Claw.shootCoralEnd(),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
 
 
@@ -73,11 +69,7 @@ public class RC2_Pathless extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
-                s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4).until(s_Claw.hasCoral().negate()),
+            s_Claw.shootCoralEnd(),
             s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
 
             Autos.followTrajectory("BL2 to Lower Source"),
@@ -100,15 +92,31 @@ public class RC2_Pathless extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
-                s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4).until(s_Claw.hasCoral().negate()),
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
+            s_Claw.shootCoralEnd(),
+            s_Elevator.setDesiredState(ElevatorConstants.State.HOME),
 
-                
-                
+            Autos.followTrajectory("BL1 to Lower Source"),
+            Commands.waitUntil(s_Claw.hasCoral()).withTimeout(WAIT_FOR_CORAL_TIMEOUT),
+            Commands.either( // check if timedout or ended normally, if ended normally continue, if not back up into coral station bcuz maybe it is not flush
+                Commands.none(), // continue
+                Commands.run(
+                        () -> s_Swerve.runVelocity(
+                            new ChassisSpeeds(-0.3 * FieldConstants.CoralStation.BOTTOM.getIntakePose().getRotation().getCos(), -0.3 * FieldConstants.CoralStation.BOTTOM.getIntakePose().getRotation().getSin(), 0.0)))
+                    .until(s_Swerve::isStalling) // you are up against the wall, pushing for no reason, stop command
+                    .until(s_Claw.hasCoral()) // end when you have coral
+                    .withTimeout(WAIT_FOR_CORAL_TIMEOUT_LAST_EFFORT), // if something really goes wrong, timeout
+                s_Claw.hasCoral()),
+
+            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BR1.getAutonSlowDrivePose(desiredScoreLevel)),
+            s_Elevator.setDesiredState(desiredScoreLevel),
+
+            DriveCommands.driveToPosition(ReefUtil.CoralBranch.BR1.getScorePose(desiredScoreLevel), constraints),
+            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BR1.getScorePose(desiredScoreLevel)),
+            Commands.deadline(
+                Commands.waitSeconds(ELEVATOR_TIMEOUT),
+                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
+            s_Claw.shootCoralEnd(),
+            s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
         );
     }
 }

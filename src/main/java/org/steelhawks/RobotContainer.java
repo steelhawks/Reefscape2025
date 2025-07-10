@@ -426,12 +426,7 @@ public class RobotContainer {
             .or(new DashboardTrigger("scoreCoral"))
             .or(buttonBoard.getShoot().and(() -> usingButtonBoard))
             .whileTrue(
-                Commands.either(
-                    s_Claw.shootCoralSlow(),
-                    s_Claw.shootCoral(),
-                    () ->
-                        (s_Elevator.getState().equals(State.L1) ||
-                            s_Elevator.getState().equals(State.L4)) && s_Elevator.isEnabled())
+                s_Claw.shootCoral()
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
 
         operator.povLeft()

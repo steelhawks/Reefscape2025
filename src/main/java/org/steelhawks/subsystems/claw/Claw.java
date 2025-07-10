@@ -3,8 +3,10 @@ package org.steelhawks.subsystems.claw;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -60,10 +62,20 @@ public class Claw extends SubsystemBase {
     /**
      * Returns in percent output.
      */
+    @SuppressWarnings("ConstantConditions")
     @AutoLogOutput(key = "Claw/FiringSpeed")
     private double getFireSpeed() {
         if (!Toggles.Claw.calculateEjectSpeed.get()) {
-            return ClawConstants.CLAW_INTAKE_SPEED;
+            try {
+                return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
+                    ? ClawConstants.CLAW_INTAKE_SPEED
+                    : ClawConstants.CLAW_SECONDARY_SHOOT_SPEED;
+            } catch (NullPointerException e) {
+                DriverStation.reportWarning(
+                    "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
+                throw new IllegalCallerException(
+                    "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
+            }
         }
         // v0 = sqrt((g * R^2) / 2cos^2(theta) * (Rtan(theta) + h)
         final double wheelDiameter = Units.inchesToMeters(3.0);
@@ -85,7 +97,16 @@ public class Claw extends SubsystemBase {
 
         double denom = 2 * Math.pow(Math.cos(theta), 2) * (H + (R * Math.tan(theta)));
         if (denom <= 0) {
-            return ClawConstants.CLAW_SHOOT_SPEED;
+            try {
+                return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
+                    ? ClawConstants.CLAW_INTAKE_SPEED
+                    : ClawConstants.CLAW_SECONDARY_SHOOT_SPEED;
+            } catch (NullPointerException e) {
+                DriverStation.reportWarning(
+                    "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
+                throw new IllegalCallerException(
+                    "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
+            }
         }
 
         double v0 = Math.sqrt((G * Math.pow(R, 2)) / denom);
@@ -107,19 +128,15 @@ public class Claw extends SubsystemBase {
         Set.of(this));
     }
 
-    public Command shootPulsatingCoral() {
-        return Commands.sequence(
-            shootCoralSlow().withTimeout(0.025),
-            Commands.run(io::stop).withTimeout(0.025)).repeatedly()
-        .finallyDo(this::stop);
+    public Command shootCoralEnd() {
+        return new ParallelDeadlineGroup(
+            Commands.waitUntil(RobotContainer.s_Claw.hasCoral().negate())
+                .andThen(Commands.waitSeconds(0.25)),
+            shootCoral());
     }
 
     public Command reverseCoral() {
         return shootCoral(-ClawConstants.CLAW_INTAKE_SPEED);
-    }
-
-    public Command shootCoralSlow() {
-        return shootCoral(ClawConstants.CLAW_SECONDARY_SHOOT_SPEED);
     }
 
     private Command shootCoral(double speed) {

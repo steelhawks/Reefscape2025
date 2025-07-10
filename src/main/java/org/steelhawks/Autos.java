@@ -172,10 +172,7 @@ public final class Autos {
             Commands.deadline(
                 Commands.waitSeconds(2.0),
                 Commands.waitUntil(s_Elevator.atThisGoal(state))),
-            Commands.either(
-                s_Claw.shootPulsatingCoral().withTimeout(0.6),
                 s_Claw.shootCoral().withTimeout(0.6),
-                () -> (state == ElevatorConstants.State.L1)),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
         .withName("Elevator and Shoot in Auton");
     }
@@ -205,11 +202,7 @@ public final class Autos {
                                     Commands.deadline(
                                         Commands.waitSeconds(1.2),
                                         Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-                                    Commands.either(
-                                        s_Claw.shootCoralSlow().withTimeout(0.6),
                                         s_Claw.shootCoral().withTimeout(0.3),
-                                        () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                                            desiredScoreLevel == ElevatorConstants.State.L4),
                                     s_Elevator.setDesiredState(ElevatorConstants.State.HOME)),
                             Commands.waitUntil(s_Claw.hasCoral()),
                             () -> atReef)));
@@ -235,7 +228,7 @@ public final class Autos {
                 Commands.race(
                     Commands.waitSeconds(1),
                     Commands.waitUntil(s_Elevator.atGoal())),
-                s_Claw.shootCoralSlow().withTimeout(1.0),
+                s_Claw.shootCoralEnd(),
                 s_Elevator.setDesiredState(ElevatorConstants.State.HOME))
             .andThen(followChoreoTrajectory("TR2 to Upper Source"));
     }
