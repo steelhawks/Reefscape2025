@@ -49,7 +49,7 @@ public class SuperStructure {
         return Commands.sequence(
             s_Elevator.setDesiredState(ElevatorConstants.State.L1_JUMP),
             Commands.waitUntil(s_Elevator.atThisGoal(ElevatorConstants.State.L1_JUMP)),
-            new ScheduleCommand(s_Claw.shootCoralSlow().withTimeout(0.25)),
+            new ScheduleCommand(s_Claw.shootCoral().withTimeout(0.25)),
             s_Elevator.setDesiredState(ElevatorConstants.State.L1));
     }
 
@@ -99,15 +99,7 @@ public class SuperStructure {
                             scoreL1(),
                             Commands.sequence(
                                 continueIfTagInView(state),
-                                new ParallelDeadlineGroup(
-                                    Commands.waitUntil(() -> !s_Claw.hasCoral())
-                                        .andThen(new WaitCommand(0.25)), // shortened was .5
-                                    Commands.either(
-                                        s_Claw.shootCoralSlow(),
-                                        s_Claw.shootCoral(),
-                                        () ->
-                                            (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                                s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()))),
+                                s_Claw.shootCoralEnd()),
                             () -> state == ElevatorConstants.State.L1),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         s_Elevator.homeCommand()),

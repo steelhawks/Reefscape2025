@@ -359,12 +359,7 @@ public class RobotContainer {
                         Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
                         s_Elevator.setDesiredState(ReefState.dynamicScoreRoutine().state()),
                         Commands.waitUntil(s_Elevator.atThisGoal(ReefState.dynamicScoreRoutine().state())),
-                        Commands.either(
-                            s_Claw.shootCoralSlow(),
-                            s_Claw.shootCoral(),
-                            () ->
-                                (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                                    s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled()).until(() -> !s_Claw.hasCoral()),
+                        s_Claw.shootCoralEnd(),
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         Commands.runOnce(() -> LEDDefaultCommand.isAligned = false),
                         s_Elevator.homeCommand()

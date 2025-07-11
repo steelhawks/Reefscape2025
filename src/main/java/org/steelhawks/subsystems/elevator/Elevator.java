@@ -77,6 +77,10 @@ public class Elevator extends SubsystemBase {
                     (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
     }
 
+    public boolean isLocked() {
+        return !isManual;
+    }
+
     public ElevatorConstants.State getState() {
         return desiredGoal;
     }
