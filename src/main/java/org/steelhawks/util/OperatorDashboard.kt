@@ -56,11 +56,11 @@ object OperatorDashboard : VirtualSubsystem() {
                 if (RobotContainer.s_Elevator.atHome().asBoolean) {
                     "Home"
                 } else {
-                    when (RobotContainer.s_Elevator.desiredState) {
-                        ElevatorConstants.State.L1.angle.radians -> "L1"
-                        ElevatorConstants.State.L2.angle.radians -> "L2"
-                        ElevatorConstants.State.L3.angle.radians -> "L3"
-                        ElevatorConstants.State.L4.angle.radians -> "L4"
+                    when (RobotContainer.s_Elevator.state) {
+                        ElevatorConstants.State.L1 -> "L1"
+                        ElevatorConstants.State.L2 -> "L2"
+                        ElevatorConstants.State.L3 -> "L3"
+                        ElevatorConstants.State.L4 -> "L4"
                         else -> "N/A"
                     }
                 })

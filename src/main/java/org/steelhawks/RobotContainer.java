@@ -25,6 +25,7 @@ import org.steelhawks.subsystems.claw.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
+import org.steelhawks.subsystems.elevator.ElevatorIOSim;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
@@ -39,12 +40,12 @@ public class RobotContainer {
 
     private final ReefState s_State = new ReefState();
     private final LED s_LED = LED.getInstance();
-    public static Swerve s_Swerve;
-    public static Vision s_Vision;
-    public static Elevator s_Elevator;
-    public static Claw s_Claw;
-    public static Align s_Align;
-    public static AlgaeClaw s_AlgaeClaw;
+    public static Swerve s_Swerve = null;
+    public static Vision s_Vision = null;
+    public static Elevator s_Elevator = null;
+    public static Claw s_Claw = null;
+    public static Align s_Align = null;
+    public static AlgaeClaw s_AlgaeClaw = null;
 
     private final Alert autoMarkingDisabled = new Alert("Auto-Marking is currently disabled", AlertType.kWarning);
     private final Alert manualModeToggled = new Alert("Manual Mode is currently toggled", AlertType.kWarning);
@@ -122,9 +123,6 @@ public class RobotContainer {
                     s_Align =
                         new Align(
                             new AlignIO() {});
-                    s_AlgaeClaw =
-                        new AlgaeClaw(
-                            new AlgaeClawIO() {});
                 }
                 case HAWKRIDER -> {
                     s_Swerve =
@@ -144,16 +142,6 @@ public class RobotContainer {
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
-                    s_Claw =
-                        new Claw(
-                            new BeamIO() {},
-                            new ClawIO() {});
-                    s_Align =
-                        new Align(
-                            new AlignIO() {});
-                    s_AlgaeClaw =
-                        new AlgaeClaw(
-                            new AlgaeClawIO() {});
                 }
                 case SIMBOT -> {
                     Logger.recordOutput("Pose/CoralStationTop", FieldConstants.Position.CORAL_STATION_TOP.getPose());
@@ -258,7 +246,7 @@ public class RobotContainer {
         }
 
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
-        new Alert("Use Vision is Off", AlertType.kWarning).set(!Constants.acceptVisionMeasurements);
+        new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
         Autos.init();
 
         checkIfDevicesConnected();
@@ -353,6 +341,11 @@ public class RobotContainer {
             .and(() -> manualToggled)
             .onTrue(
                 s_AlgaeClaw.toggleManualControl(() -> -driver.getRightY()));
+        s_Swerve.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX()));
 
         driver.leftBumper()
             .whileTrue(
@@ -420,12 +413,7 @@ public class RobotContainer {
 
         driver.leftTrigger()
             .whileTrue(
-                Commands.either(
-                    s_Claw.shootCoralSlow(),
-                    s_Claw.shootCoral(),
-                    () ->
-                        (s_Elevator.getDesiredState() == ElevatorConstants.State.L1.getAngle().getRadians() ||
-                            s_Elevator.getDesiredState() == ElevatorConstants.State.L4.getAngle().getRadians()) && s_Elevator.isEnabled())
+                s_Claw.shootCoral()
                 .alongWith(LED.getInstance().flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
 
         driver.povLeft()

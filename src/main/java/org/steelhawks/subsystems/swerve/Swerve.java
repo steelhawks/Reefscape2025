@@ -50,6 +50,7 @@ import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -62,6 +63,7 @@ public class Swerve extends SubsystemBase {
     private static final double SLOW_SPEED_MULTIPLIER = 0.3;
     private static double SPEED_MULTIPLIER = 1.0;
     private boolean isPathfinding = false;
+    private boolean requestSlowMode = false;
 
     public static final double ODOMETRY_FREQUENCY =
         Constants.getCANBus().isNetworkFD() ? 250.0 : 100.0;
@@ -488,7 +490,7 @@ public class Swerve extends SubsystemBase {
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs) {
 
-        if (!Constants.acceptVisionMeasurements) return;
+        if (!Toggles.Vision.visionEnabled.get()) return;
 
         mPoseEstimator.addVisionMeasurement(
             visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
@@ -665,9 +667,10 @@ public class Swerve extends SubsystemBase {
      * Returns the speed multiplier.
      */
     public double getSpeedMultiplier() {
-        return RobotContainer.s_Elevator.willTipAtFastSpeeds()
-            ? SLOW_SPEED_MULTIPLIER * 2
-            : SPEED_MULTIPLIER;
+        return RobotContainer.s_Elevator.atHome().getAsBoolean()
+            ? (requestSlowMode ? SLOW_SPEED_MULTIPLIER : SPEED_MULTIPLIER)
+            : RobotContainer.s_Elevator.getSpeedMultiplierBasedOnElevator();
+
     }
 
     /**
@@ -717,8 +720,7 @@ public class Swerve extends SubsystemBase {
     ///////////////////////
 
     public Command toggleMultiplier() {
-        return Commands.runOnce(() ->
-            SPEED_MULTIPLIER = isSlowMode() ? 1.0 : SLOW_SPEED_MULTIPLIER);
+        return Commands.runOnce(() -> requestSlowMode = !requestSlowMode);
     }
 
     public Command zeroHeading() {

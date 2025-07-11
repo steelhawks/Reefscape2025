@@ -23,11 +23,7 @@ public class TopG extends AutoRoutine {
             Commands.deadline(
                 Commands.waitSeconds(ELEVATOR_TIMEOUT),
                 Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            Commands.either(
-                s_Claw.shootCoralSlow().withTimeout(SHOOT_TIMEOUT_SLOW),
                 s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
-                () -> desiredScoreLevel == ElevatorConstants.State.L1 ||
-                    desiredScoreLevel == ElevatorConstants.State.L4),
             Commands.either(
                 SuperStructure.elevatorToPosition(ElevatorConstants.State.KNOCK_L3),
                 SuperStructure.elevatorToPosition(ElevatorConstants.State.KNOCK_L2),

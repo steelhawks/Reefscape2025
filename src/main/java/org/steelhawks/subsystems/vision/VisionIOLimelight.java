@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 
 /** IO implementation for real Limelight hardware. */
 public class VisionIOLimelight implements VisionIO {
+    private final String name;
     private final Supplier<Rotation2d> rotationSupplier;
     private final DoubleArrayPublisher orientationPublisher;
 
@@ -32,6 +33,7 @@ public class VisionIOLimelight implements VisionIO {
      * @param rotationSupplier Supplier for the current estimated rotation, used for MegaTag 2.
      */
     public VisionIOLimelight(String name, Supplier<Rotation2d> rotationSupplier) {
+        this.name = name;
         var table = NetworkTableInstance.getDefault().getTable(name);
         this.rotationSupplier = rotationSupplier;
         orientationPublisher = table.getDoubleArrayTopic("robot_orientation_set").publish();
@@ -43,6 +45,11 @@ public class VisionIOLimelight implements VisionIO {
             table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
         fiducialIdSubscriber = table.getIntegerTopic("tid").subscribe(0);
         targetValidSubscriber = table.getIntegerTopic("tv").subscribe(0);
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

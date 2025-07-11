@@ -3,6 +3,8 @@ package org.steelhawks.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+import org.steelhawks.Toggles;
 
 public interface VisionIO {
 
@@ -35,4 +37,8 @@ public interface VisionIO {
     }
 
     default void updateInputs(VisionIOInputs inputs) {}
+
+    default String getName() {
+        return "";
+    }
 }

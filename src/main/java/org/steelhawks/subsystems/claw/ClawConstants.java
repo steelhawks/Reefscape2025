@@ -8,33 +8,12 @@ public class ClawConstants {
     public static final CANBus CLAW_CANBUS = new CANBus("");
     public static final int CAN_RANGE_ID_OMEGA = 17;
 
-    public static final int CLAW_INTAKE_MOTOR_ID;
+    public static final Integer CLAW_INTAKE_MOTOR_ID = Constants.value(16, 15);
 
-    public static final double CLAW_INTAKE_GEAR_RATIO;
+    public static final Double CLAW_INTAKE_GEAR_RATIO = Constants.value(1.0, 2.0 / 1.0);
 
-    public static final double CLAW_SHOOT_SPEED;
-    public static final double CLAW_SECONDARY_SHOOT_SPEED;
-    public static final double CLAW_TERTIARY_SHOOT_SPEED;
-    public static final double CLAW_INTAKE_SPEED;
-
-    static {
-        switch (Constants.getRobot()) {
-            case ALPHABOT, HAWKRIDER -> {
-                CLAW_INTAKE_MOTOR_ID = 16;
-                CLAW_INTAKE_GEAR_RATIO = 1.0;
-                CLAW_SHOOT_SPEED = 0.1;
-                CLAW_SECONDARY_SHOOT_SPEED = 0.135;
-                CLAW_TERTIARY_SHOOT_SPEED = 0.05;
-                CLAW_INTAKE_SPEED = 0.1;
-            }
-            default -> {
-                CLAW_INTAKE_MOTOR_ID = 15;
-                CLAW_INTAKE_GEAR_RATIO = 1.0;
-                CLAW_SHOOT_SPEED = 0.15;
-                CLAW_SECONDARY_SHOOT_SPEED = 0.125;
-                CLAW_TERTIARY_SHOOT_SPEED = 0.03;
-                CLAW_INTAKE_SPEED = 0.1;
-            }
-        }
-    }
+    public static final Double CLAW_SHOOT_SPEED = Constants.value(0.1, 0.15);
+    public static final Double CLAW_SECONDARY_SHOOT_SPEED = Constants.value(0.135, 0.125);
+    public static final Double CLAW_INTAKE_SPEED = Constants.value(0.1, 0.1);
+    public static Double CLAW_MOTOR_MAX_RPM = 6784.0;
 }

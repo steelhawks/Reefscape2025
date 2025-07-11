@@ -134,7 +134,6 @@ public class Robot extends LoggedRobot {
         }
 
         Logger.start();
-
         // Check for valid swerve config
         var modules =
             switch (Constants.getRobot()) {

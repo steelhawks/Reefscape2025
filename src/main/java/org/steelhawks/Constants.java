@@ -15,7 +15,6 @@ public final class Constants {
     public static final double ENDGAME_PERIOD = 20;
     public static final double MATCH_TIME_SECONDS = 150;
 
-    public static final boolean acceptVisionMeasurements = true;
     public static final boolean USE_MOTION_MAGIC = false;
     public static final boolean TUNING_MODE = false;
 
@@ -43,7 +42,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
@@ -98,6 +97,9 @@ public final class Constants {
     public static final class RobotConstants {
         public static final double BAD_BATTERY_THRESHOLD = 11.6;
         public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(30.0 + (3.125 * 2.0));
+
+        public static final double FLOOR_TO_CLAW_HEIGHT =
+            Units.inchesToMeters(2.5 + 4.5 + (10.25 / 2.0) - 1.0 + 23.132);
 
         // for distance between robot center and claw
 
@@ -160,7 +162,7 @@ public final class Constants {
                 }
                 default -> {
                     PORT = 0;
-                    LENGTH = 42;
+                    LENGTH = 80;
                 }
             }
         }
@@ -270,8 +272,8 @@ public final class Constants {
                     ANGLE_KP = Constants.getRobot() == RobotType.SIMBOT ? 2.5 : 3.0;
                     ANGLE_KI = 0.0;
                     ANGLE_KD = Constants.getRobot() == RobotType.SIMBOT ? 1.0 : 0.0;
-                    MAX_VELOCITY_METERS_PER_SECOND = 4.0;
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4.5;
+                    MAX_VELOCITY_METERS_PER_SECOND = 5.0;
+                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.5;
                     MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Units.degreesToRadians(540.0);
                     MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Units.degreesToRadians(920.000);
                 }
@@ -289,5 +291,74 @@ public final class Constants {
             ALIGN_ANGLE_PID = new PIDConstants(ALIGN_ANGLE_KP, ALIGN_ANGLE_KI, ALIGN_ANGLE_KD);
             ANGLE_PID = new PIDConstants(ANGLE_KP, ANGLE_KI, ANGLE_KD);
         }
+    }
+
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     *
+     * @param hawkrider The HawkRider constant value
+     * @param alpha The Alpha constant value
+     * @param omega The Omega constant value
+     * @param sim The simulation constant value
+     * @return The correct constant
+     */
+    public static <T> T value(T hawkrider, T alpha, T omega, T sim) {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> alpha;
+            case OMEGABOT -> omega;
+            case HAWKRIDER -> hawkrider;
+            case SIMBOT -> sim;
+        };
+    }
+
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     *
+     * @param hawkrider The HawkRider constant value
+     * @param alpha The Alpha constant value
+     * @param omega The Omega constant value
+     * @return The correct constant
+     */
+    public static <T> T value(T hawkrider, T alpha, T omega) {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> alpha;
+            case OMEGABOT, SIMBOT -> omega;
+            case HAWKRIDER -> hawkrider;
+        };
+    }
+
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     * In SIMBOT, the omega constant is used.
+     *
+     * @param alpha The Alpha constant value
+     * @param omega The Omega constant value
+     * @return The correct constant
+     */
+    public static <T> T value(T alpha, T omega) {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> alpha;
+            case OMEGABOT, SIMBOT -> omega;
+            default -> null;
+        };
+    }
+
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     *
+     * @param omega The Omega constant value
+     * @param sim The sim constant value
+     * @return The correct constant
+     */
+    public static <T> T omega(T omega, T sim) {
+        return switch (Constants.getRobot()) {
+            case OMEGABOT -> omega;
+            case SIMBOT -> sim;
+            default -> null;
+        };
     }
 }
