@@ -63,7 +63,6 @@ public class LEDDefaultCommand extends Command {
     @Override
     public synchronized void execute() {
         if (manualMode.getAsBoolean() && Robot.getState() == RobotState.TELEOP) {
-            s_LED.stop();
             s_LED.fade(LEDColor.HOT_PINK);
             return;
         }
@@ -81,7 +80,6 @@ public class LEDDefaultCommand extends Command {
                 return;
             }
             if (!Robot.isFirstRun()) {
-                s_LED.stop();
                 s_LED.rainbow();
                 return;
             }
@@ -107,13 +105,11 @@ public class LEDDefaultCommand extends Command {
             }
         }
         if (Robot.getState() == RobotState.AUTON || s_Swerve.isPathfinding()) {
-            s_LED.stop();
             s_LED.blockyRainbow();
             if (Robot.getState() == RobotState.TELEOP) return;
         }
         if (Robot.getState() == RobotState.TELEOP) {
             if (!s_Claw.hasCoral()) {
-                s_LED.stop();
                 s_LED.wave(AllianceFlip.shouldFlip() ? LEDColor.RED : LEDColor.BLUE);
             } else {
                 s_LED.setColor(

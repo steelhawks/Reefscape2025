@@ -309,38 +309,39 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-        new DoublePressTrigger(driver.start())
-            .onDoubleTap(
-                Commands.runOnce(() -> {
-                    if (!s_Elevator.isLocked() || !s_AlgaeClaw.isLocked()) {
-                        Commands.parallel(
-                            new VibrateController(1.0, 1.0, driver),
-                            s_LED.flashCommand(LEDColor.RED, 0.1, 1.0)).schedule();
-                        return;
-                    }
-                    setManualToggled(!manualToggled);
-                    manualModeToggled.set(manualToggled);
-                    s_Swerve.removeDefaultCommand();
-                    if (manualToggled) {
-                        s_Swerve.setDefaultCommand(Commands.idle(s_Swerve));
-                    } else {
-                        s_Swerve.setDefaultCommand(
-                            DriveCommands.joystickDrive(
-                                () -> -driver.getLeftY(),
-                                () -> -driver.getLeftX(),
-                                () -> -driver.getRightX()));
-                    }
-                }));
+//        new DoublePressTrigger(driver.start())
+//            .onDoubleTap(
+//                Commands.runOnce(() -> {
+//                    if (!s_Elevator.isLocked() || !s_AlgaeClaw.isLocked()) {
+//                        Commands.parallel(
+//                            new VibrateController(1.0, 1.0, driver),
+//                            s_LED.flashCommand(LEDColor.RED, 0.1, 1.0)).schedule();
+//                        return;
+//                    }
+//                    setManualToggled(!manualToggled);
+//                    manualModeToggled.set(manualToggled);
+//                    s_Swerve.removeDefaultCommand();
+//                    if (manualToggled) {
+//                        s_Swerve.setDefaultCommand(Commands.idle(s_Swerve));
+//                    } else {
+//                        s_Swerve.setDefaultCommand(
+//                            DriveCommands.joystickDrive(
+//                                () -> -driver.getLeftY(),
+//                                () -> -driver.getLeftX(),
+//                                () -> -driver.getRightX()));
+//                    }
+//                }));
+//
+//        driver.leftStick()
+//            .and(() -> manualToggled)
+//            .onTrue(
+//                s_Elevator.toggleManualControl(() -> -driver.getLeftY()));
+//
+//        driver.rightStick()
+//            .and(() -> manualToggled)
+//            .onTrue(
+//                s_AlgaeClaw.toggleManualControl(() -> -driver.getRightY()));
 
-        driver.leftStick()
-            .and(() -> manualToggled)
-            .onTrue(
-                s_Elevator.toggleManualControl(() -> -driver.getLeftY()));
-
-        driver.rightStick()
-            .and(() -> manualToggled)
-            .onTrue(
-                s_AlgaeClaw.toggleManualControl(() -> -driver.getRightY()));
         s_Swerve.setDefaultCommand(
             DriveCommands.joystickDrive(
                 () -> -driver.getLeftY(),
