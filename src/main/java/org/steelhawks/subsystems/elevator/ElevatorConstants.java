@@ -43,16 +43,16 @@ public class ElevatorConstants {
     public static final double SPROCKET_RAD = // the driving drum
         Units.inchesToMeters(1.888);
 
-    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(0.0, 10.0);
-    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(0.0, 20.0);
+    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(2.0, 10.0);
+    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(4.0, 20.0);
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final Double KP = Constants.omega(0.0, 6.0);
+    public static final Double KP = Constants.omega(20.0, 6.0);
     public static final double KI = 0.0;
     public static final Double KD = Constants.omega(0.0, 0.4);
 
     public static final Double[] kS = {
-        Constants.omega(0.0, 0.0),
+        Constants.omega(0.20, 0.0),
         0.0,
         0.0
     };
@@ -65,7 +65,7 @@ public class ElevatorConstants {
     };
 
     public static final Double[] kG = {
-        Constants.omega(0.0, 0.0),
+        Constants.omega(0.4, 0.0),
         0.0,
         0.0
     };
