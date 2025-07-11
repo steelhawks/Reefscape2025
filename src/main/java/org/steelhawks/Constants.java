@@ -161,7 +161,7 @@ public final class Constants {
                 }
                 default -> {
                     PORT = 0;
-                    LENGTH = 42;
+                    LENGTH = 80;
                 }
             }
         }

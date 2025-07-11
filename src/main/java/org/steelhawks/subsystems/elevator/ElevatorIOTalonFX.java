@@ -4,10 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -28,6 +25,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final DigitalInput reverseLimit;
 
     private final MotionMagicVoltage motionMagicVoltage;
+    private final PositionVoltage positionVoltage;
     private final VoltageOut voltageOut;
     private final DutyCycleOut dutyCycle;
 
@@ -55,16 +53,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withKI(ElevatorConstants.KI)
             .withKD(ElevatorConstants.KD);
         config.Feedback.SensorToMechanismRatio = ElevatorConstants.REDUCTION;
-        config.CurrentLimits.SupplyCurrentLimit = 80.0;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
-        config.CurrentLimits.SupplyCurrentLowerTime = 1.5;
+//        config.CurrentLimits.SupplyCurrentLimit = 80.0;
+//        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+//        config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
+//        config.CurrentLimits.SupplyCurrentLowerTime = 1.5;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        config.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.MAX_VELOCITY_ROT_PER_SEC;
-        config.MotionMagic.MotionMagicAcceleration = ElevatorConstants.MAX_ACCELERATION_ROT_PER_SEC_2;
+//        config.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.MAX_VELOCITY_ROT_PER_SEC;
+//        config.MotionMagic.MotionMagicAcceleration = ElevatorConstants.MAX_ACCELERATION_ROT_PER_SEC_2;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
         motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
+        positionVoltage = new PositionVoltage(0.0).withSlot(0);
         voltageOut = new VoltageOut(0.0);
         dutyCycle = new DutyCycleOut(0.0);
 
@@ -128,17 +127,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     @Override
     public void runElevator(double volts) {
         leftMotor.setControl(
-            voltageOut.withOutput(volts)
-                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
-                .withLimitReverseMotion(!reverseLimit.get()));
+            voltageOut.withOutput(volts));
+//                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
+//                .withLimitReverseMotion(!reverseLimit.get()));
     }
 
     @Override
     public void runElevatorViaSpeed(double speed) {
         leftMotor.setControl(
-            dutyCycle.withOutput(speed)
-                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
-                .withLimitReverseMotion(!reverseLimit.get()));
+            dutyCycle.withOutput(speed));
+//                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
+//                .withLimitReverseMotion(!reverseLimit.get()));
     }
 
     @Override
@@ -147,11 +146,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         // if you want to you could keep motion magic but then change positionRad to use inputs.goal by caching it in an object and using that.
         // at this state this would most likely not work
         leftMotor.setControl(
-            motionMagicVoltage
+            positionVoltage
                 .withPosition(positionRot)
-                .withFeedForward(feedforward)
-                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
-                .withLimitReverseMotion(!reverseLimit.get()));
+                .withFeedForward(feedforward));
+//                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
+//                .withLimitReverseMotion(!reverseLimit.get()));
     }
 
     @Override
@@ -180,6 +179,5 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     @Override
     public void stop() {
         leftMotor.stopMotor();
-        rightMotor.stopMotor();
     }
 }

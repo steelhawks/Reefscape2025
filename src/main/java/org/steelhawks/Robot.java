@@ -1,6 +1,7 @@
 package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -123,7 +124,6 @@ public class Robot extends LoggedRobot {
         }
 
         Logger.start();
-
         // Check for valid swerve config
         var modules =
             switch (Constants.getRobot()) {
