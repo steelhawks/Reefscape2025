@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
+import org.steelhawks.Robot;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
@@ -16,8 +17,10 @@ import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.subsystems.vision.Vision;
 import org.steelhawks.util.AllianceFlip;
 
+import java.awt.*;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -86,29 +89,32 @@ public class SuperStructure {
      */
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.defer(
-            () -> Commands.sequence(
-                Commands.runOnce(() -> scoringTriggered = true),
-                Align.alignWithSetpoint(ReefState.getFreeBranch(state), state, true)
-                    .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
-                Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
-                s_Elevator.setDesiredState(state),
-                Commands.either(
-                    Commands.sequence(
-                        Commands.waitUntil(s_Elevator.atThisGoal(state)),
-                        Commands.either(
-                            scoreL1(),
-                            Commands.sequence(
-                                continueIfTagInView(state),
-                                s_Claw.shootCoralEnd()),
-                            () -> state == ElevatorConstants.State.L1),
-                        Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
-                        s_Elevator.homeCommand()),
-                    Commands.none(),
-                    () -> s_Swerve.getPose().getTranslation()
-                        .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
-                Commands.runOnce(() -> scoringTriggered = false),
-                Commands.runOnce(() -> LEDDefaultCommand.isAligned = false)) // set led state false
-            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.3),
+            () -> {
+                var branch = ReefState.getFreeBranch(state);
+                return Commands.sequence(
+                    Commands.runOnce(() -> scoringTriggered = true),
+                    Align.alignWithSetpoint(branch, state, true)
+                        .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
+                    Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
+                    s_Elevator.setDesiredState(state),
+                    Commands.either(
+                        Commands.sequence(
+                            Commands.waitUntil(s_Elevator.atThisGoal(state)),
+                            Commands.either(
+                                scoreL1(),
+                                Commands.sequence(
+                                    continueIfTagInView(state, branch),
+                                    s_Claw.shootCoralEnd()),
+                                () -> state == ElevatorConstants.State.L1),
+                            Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
+                            s_Elevator.homeCommand()),
+                        Commands.none(),
+                        () -> s_Swerve.getPose().getTranslation()
+                            .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
+                    Commands.runOnce(() -> scoringTriggered = false),
+                    Commands.runOnce(() -> LEDDefaultCommand.isAligned = false)) // set led state false
+                .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.3);
+            },
         Set.of());
     }
 
@@ -119,7 +125,7 @@ public class SuperStructure {
      * @param state Elevator level
      * @return Backup command or Commands.none().
      */
-    public static Command continueIfTagInView(ElevatorConstants.State state) {
+    public static Command continueIfTagInView(ElevatorConstants.State state, ReefUtil.CoralBranch coralBranch) {
         final double BACKUP_TIMEOUT = 1.5;
         final double FINAL_ALIGN_TIMEOUT = 1.0;
         final int minTag = AllianceFlip.shouldFlip() ? 6 : 17;
@@ -150,7 +156,7 @@ public class SuperStructure {
             .until(() -> !needsToGetBack.getAsBoolean())
             .withTimeout(BACKUP_TIMEOUT)
             .andThen(
-                new SwerveDriveAlignment(ReefUtil.getClosestCoralBranch().getScorePose(state)).withTimeout(FINAL_ALIGN_TIMEOUT),
+                new SwerveDriveAlignment(coralBranch.getScorePose(state)).withTimeout(FINAL_ALIGN_TIMEOUT),
                 Commands.runOnce(() -> LEDDefaultCommand.isAligned = true));
     }
 }
