@@ -292,7 +292,7 @@ public class RobotContainer {
                     new VibrateController(1.0, 1.0, driver))
                 .ignoringDisable(false));
 
-        s_AlgaeClaw.hasAlgae()
+        new Trigger(() -> s_AlgaeClaw.hasAlgae())
             .onTrue(
                 Commands.parallel(
                     s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
@@ -395,9 +395,6 @@ public class RobotContainer {
         SuperStructure.smartScoreTrigger(driver.x(), State.L2, driver::getLeftX, driver::getLeftY);
         SuperStructure.smartScoreTrigger(driver.y(), State.L3, driver::getLeftX, driver::getLeftY);
         SuperStructure.smartScoreTrigger(driver.a(), State.L4, driver::getLeftX, driver::getLeftY);
-
-//        driver.x()
-//                .onTrue(s_Elevator.setDesiredState(State.L2));
 
         driver.b()
             .onTrue(s_Elevator.homeCommand());

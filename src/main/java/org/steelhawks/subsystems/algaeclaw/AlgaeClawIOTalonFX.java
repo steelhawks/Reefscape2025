@@ -3,26 +3,26 @@ package org.steelhawks.subsystems.algaeclaw;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
 
 import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
 
 public class AlgaeClawIOTalonFX implements AlgaeClawIO {
 
-    private final TalonFX mPivotMotor;
-    private final TalonFX mSpinMotor;
-    private final CANcoder mPivotEncoder;
-    private final MotionMagicVoltage motionMagicVoltage;
+    private final TalonFXConfiguration config;
+    private final CANcoderConfiguration canCoderConfig;
+
+    private final TalonFX pivotMotor;
+    private final TalonFX spinMotor;
+    private final CANcoder pivotEncoder;
+    private final PositionVoltage positionVoltage;
 
     private final StatusSignal<Angle> pivotPosition;
     private final StatusSignal<AngularVelocity> pivotVelocity;
@@ -36,48 +36,35 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     private final StatusSignal<Current> spinCurrent;
     private final StatusSignal<Temperature> spinTemperature;
 
-    private final StatusSignal<Angle> pivotEncoderPosition;
-    private final StatusSignal<AngularVelocity> pivotEncoderVelocity;
-    private final StatusSignal<Voltage> pivotEncoderVoltage;
-
     public AlgaeClawIOTalonFX() {
-        mPivotMotor = new TalonFX(AlgaeClawConstants.PIVOT_ID, AlgaeClawConstants.CLAW_BUS);
-        mSpinMotor = new TalonFX(AlgaeClawConstants.SPIN_ID, AlgaeClawConstants.CLAW_BUS);
-        mPivotEncoder = new CANcoder(AlgaeClawConstants.CANCODER_ID, AlgaeClawConstants.CLAW_BUS);
-        motionMagicVoltage = new MotionMagicVoltage(0.0);
+        config = new TalonFXConfiguration();
+        canCoderConfig = new CANcoderConfiguration();
+        pivotMotor = new TalonFX(AlgaeClawConstants.PIVOT_ID, AlgaeClawConstants.CLAW_BUS);
+        spinMotor = new TalonFX(AlgaeClawConstants.SPIN_ID, AlgaeClawConstants.CLAW_BUS);
+        pivotEncoder = new CANcoder(AlgaeClawConstants.CANCODER_ID, AlgaeClawConstants.CLAW_BUS);
+        positionVoltage = new PositionVoltage(0.0).withSlot(0);
 
-        var config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Brake)
-                    .withInverted(InvertedValue.Clockwise_Positive))
-            .withFeedback(
-                new FeedbackConfigs()
-                    .withRemoteCANcoder(mPivotEncoder));
-        mPivotMotor.getConfigurator().apply(config);
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        config.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
+        tryUntilOk(5, () -> pivotMotor.getConfigurator().apply(config, 0.25));
 
-        var encoderConfig = new CANcoderConfiguration()
-            .withMagnetSensor(
-                new MagnetSensorConfigs()
-                    .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                    .withMagnetOffset(AlgaeClawConstants.CANCODER_OFFSET));
-        tryUntilOk(5, () -> mPivotEncoder.getConfigurator().apply(encoderConfig));
+        canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        canCoderConfig.MagnetSensor.MagnetOffset = AlgaeClawConstants.CANCODER_OFFSET.getRotations();
+        tryUntilOk(5, () -> pivotEncoder.getConfigurator().apply(canCoderConfig, 0.25));
 
-        pivotPosition = mPivotMotor.getPosition();
-        pivotVelocity = mPivotMotor.getVelocity();
-        pivotVoltage = mPivotMotor.getSupplyVoltage();
-        pivotCurrent = mPivotMotor.getStatorCurrent();
-        pivotTemperature = mPivotMotor.getDeviceTemp();
+        pivotPosition = pivotMotor.getPosition();
+        pivotVelocity = pivotMotor.getVelocity();
+        pivotVoltage = pivotMotor.getSupplyVoltage();
+        pivotCurrent = pivotMotor.getStatorCurrent();
+        pivotTemperature = pivotMotor.getDeviceTemp();
 
-        spinPosition = mSpinMotor.getPosition();
-        spinVelocity = mSpinMotor.getVelocity();
-        spinVoltage = mSpinMotor.getSupplyVoltage();
-        spinCurrent = mSpinMotor.getStatorCurrent();
-        spinTemperature = mSpinMotor.getDeviceTemp();
-
-        pivotEncoderPosition = mPivotEncoder.getAbsolutePosition();
-        pivotEncoderVelocity = mPivotEncoder.getVelocity();
-        pivotEncoderVoltage = mPivotEncoder.getSupplyVoltage();
+        spinPosition = spinMotor.getPosition();
+        spinVelocity = spinMotor.getVelocity();
+        spinVoltage = spinMotor.getSupplyVoltage();
+        spinCurrent = spinMotor.getStatorCurrent();
+        spinTemperature = spinMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             100,
@@ -90,14 +77,11 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
             spinVelocity,
             spinVoltage,
             spinCurrent,
-            spinTemperature,
-            pivotEncoderPosition,
-            pivotEncoderVelocity,
-            pivotEncoderVoltage);
+            spinTemperature);
         ParentDevice.optimizeBusUtilizationForAll(
-            mPivotMotor,
-            mSpinMotor,
-            mPivotEncoder);
+            pivotMotor,
+            spinMotor,
+            pivotEncoder);
     }
 
     @Override
@@ -128,58 +112,53 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         inputs.spinCurrent = spinCurrent.getValueAsDouble();
         inputs.spinTemperature = spinTemperature.getValueAsDouble();
 
-        inputs.encoderConnected =
-            BaseStatusSignal.refreshAll(
-                pivotEncoderPosition,
-                pivotEncoderVelocity,
-                pivotEncoderVoltage).isOK();
-        inputs.encoderPosition = Units.rotationsToRadians(pivotEncoderPosition.getValueAsDouble());
-        inputs.encoderVelocity = Units.rotationsToRadians(pivotEncoderVelocity.getValueAsDouble());
-        inputs.encoderAppliedVolts = pivotEncoderVoltage.getValueAsDouble();
+        inputs.encoderConnected = pivotEncoder.isConnected();
     }
 
     @Override
     public void runSpin(double speed) {
-        mSpinMotor.set(speed);
+        spinMotor.set(speed);
     }
 
     @Override
     public void stopSpin() {
-        mSpinMotor.stopMotor();
+        spinMotor.stopMotor();
     }
 
     @Override
     public void runPivot(double volts) {
-        mPivotMotor.setVoltage(volts);
+        pivotMotor.setVoltage(volts);
     }
 
     @Override
     public void runPivotViaSpeed(double speed) {
-        mPivotMotor.set(speed);
+        pivotMotor.set(speed);
     }
 
     @Override
     public void stopPivot() {
-        mPivotMotor.stopMotor();
+        pivotMotor.stopMotor();
     }
 
     @Override
-    public void runPosition(double positionRad) {
-        mPivotMotor.setControl(
-            motionMagicVoltage.withPosition(positionRad));
+    public void runPosition(Rotation2d angle, double feedforward) {
+        pivotMotor.setControl(
+            positionVoltage
+                .withPosition(angle.getRotations())
+                .withFeedForward(feedforward));
     }
 
     @Override
     public void setBrakeMode(boolean brake) {
-        new Thread(() -> mPivotMotor.setNeutralMode(
+        new Thread(() -> pivotMotor.setNeutralMode(
             brake ? NeutralModeValue.Brake : NeutralModeValue.Coast)).start();
     }
 
     @Override
-    public void setPID(double kP, double kI, double kD) {}
-
-    @Override
-    public void setFF(double kS, double kG, double kV) {
-        AlgaeClawIO.super.setFF(kS, kG, kV);
+    public void setPID(double kP, double kI, double kD) {
+        config.Slot0.kP = kP;
+        config.Slot0.kI = kI;
+        config.Slot0.kD = kD;
+        tryUntilOk(5, () -> pivotMotor.getConfigurator().apply(config, 0.25));
     }
 }

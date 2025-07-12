@@ -15,9 +15,9 @@ public class AlgaeClawDefaultCommand extends Command {
 
     @Override
     public void execute() {
-        if (s_AlgaeClaw.hasAlgae().getAsBoolean()) {
+        if (s_AlgaeClaw.hasAlgae()) {
             s_AlgaeClaw.intakeAlgae(AlgaeClawConstants.RETAIN_ALGAE_SPEED);
-        } else if (!s_AlgaeClaw.hasAlgae().getAsBoolean()) {
+        } else if (!s_AlgaeClaw.hasAlgae()) {
             s_AlgaeClaw.stopSpin();
         }
     }

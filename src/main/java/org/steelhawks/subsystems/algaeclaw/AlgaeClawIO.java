@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.algaeclaw;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface AlgaeClawIO {
@@ -40,11 +41,9 @@ public interface AlgaeClawIO {
 
     default void stopPivot() {}
 
-    default void runPosition(double positionRad) {}
+    default void runPosition(Rotation2d angle, double feedforward) {}
 
     default void setBrakeMode(boolean brake) {}
 
     default void setPID(double kP, double kI, double kD) {}
-
-    default void setFF(double kS, double kG, double kV) {}
 }

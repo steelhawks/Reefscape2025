@@ -1,86 +1,52 @@
 package org.steelhawks.subsystems.algaeclaw;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
-import org.steelhawks.OperatorLock;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
-import org.steelhawks.commands.AlgaeClawDefaultCommand;
-import org.steelhawks.util.ArmDriveFeedforward;
-import java.util.function.DoubleSupplier;
+import org.steelhawks.subsystems.LED;
+import org.steelhawks.util.LoopTimeUtil;
 
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 public class AlgaeClaw extends SubsystemBase {
 
-    private final AlgaeClawIOInputsAutoLogged inputs = new AlgaeClawIOInputsAutoLogged();
+    private final AlgaeClawIOInputsAutoLogged inputs;
     private final AlgaeClawIO io;
 
-    private OperatorLock mOperatorLock = OperatorLock.LOCKED;
-    private final ProfiledPIDController mController;
-    private final ArmDriveFeedforward mDriveFeedforward;
-    private final ArmFeedforward mFeedforward;
     private final LinearFilter velocityFilter;
+    private final TrapezoidProfile profile;
     private final SysIdRoutine mSysId;
-    private boolean mEnabled = false;
-    private boolean shouldEStop = false;
+
+    private AlgaeClawConstants.State desiredGoal = AlgaeClawConstants.State.HOME;
+    private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
+    private TrapezoidProfile.State goal = new TrapezoidProfile.State();
+
     private boolean brakeModeEnabled = true;
-
-    private void enable() {
-        mEnabled = true;
-        mController.reset(getPivotPosition());
-    }
-
-    private void disable() {
-        mEnabled = false;
-        runPivot();
-        io.stopPivot();
-    }
-
-    public boolean isEnabled() {
-        return mEnabled;
-    }
-
-    @AutoLogOutput(key = "Toggles/AlgaeClaw")
-    public boolean isLocked() {
-        return mOperatorLock == OperatorLock.LOCKED;
-    }
+    private boolean shouldEStop = false;
+    private boolean isManual = false;
+    private boolean atGoal = false;
 
     public AlgaeClaw(AlgaeClawIO io) {
         this.io = io;
-
-        mController =
-            new ProfiledPIDController(
-                AlgaeClawConstants.PIVOT_KP,
-                AlgaeClawConstants.PIVOT_KI,
-                AlgaeClawConstants.PIVOT_KD,
+        inputs = new AlgaeClawIOInputsAutoLogged();
+        profile =
+            new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(
-                    AlgaeClawConstants.MAX_VELOCITY,
-                    AlgaeClawConstants.MAX_ACCELERATION));
-        mController.setTolerance(AlgaeClawConstants.TOLERANCE);
-        mController.setIZone(0.001);
-//        mController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
-        mFeedforward =
-            new ArmFeedforward(
-                AlgaeClawConstants.PIVOT_KS,
-                AlgaeClawConstants.PIVOT_KG,
-                AlgaeClawConstants.PIVOT_KV);
-        mDriveFeedforward =
-            new ArmDriveFeedforward(AlgaeClawConstants.PIVOT_KG);
+                    AlgaeClawConstants.MAX_VELOCITY_RAD_PER_SEC,
+                    AlgaeClawConstants.MAX_ACCELERATION_RAD_PER_SEC_2));
         mSysId =
             new SysIdRoutine(
                 new SysIdRoutine.Config(
@@ -96,14 +62,6 @@ public class AlgaeClaw extends SubsystemBase {
             home().schedule();
     }
 
-    public double getPivotPosition() {
-        return inputs.pivotPosition;
-    }
-
-    public boolean atThisGoal(AlgaeClawConstants.AlgaeClawState state) {
-        return Math.abs(state.getAngle().getRadians() - getPivotPosition()) <= AlgaeClawConstants.TOLERANCE;
-    }
-
     @Override
     public void periodic() {
         io.updateInputs(inputs);
@@ -113,25 +71,73 @@ public class AlgaeClaw extends SubsystemBase {
             (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderPosition)) == 1)
                 || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderVelocity)) == -1); // prob need to run a deadband for small movements
         Logger.recordOutput("AlgaeClaw/EStopped", shouldEStop);
-        if (shouldEStop) {
-            io.stopPivot();
-            return;
-        }
 
-        // stop adding up pid error while disabled
-        if (DriverStation.isDisabled()) {
-            mController.reset(getPivotPosition());
-            if (Robot.isFirstRun()) {
-                setBrakeMode(false);
-            }
-        }
+        final boolean shouldRun =
+            DriverStation.isEnabled()
+                && !shouldEStop
+                && !isManual;
 
+        if (DriverStation.isDisabled() && Robot.isFirstRun()) {
+            setBrakeMode(false);
+        }
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
 
-        if (mEnabled)
-            runPivot();
+        if (shouldRun) {
+            double previousVelocity = setpoint.velocity;
+            setpoint =
+                profile.calculate(Constants.UPDATE_LOOP_DT, setpoint, goal);
+            if (setpoint.position < AlgaeClawConstants.MIN_PIVOT_RADIANS
+                || setpoint.position > AlgaeClawConstants.MAX_PIVOT_RADIANS) {
+                setpoint =
+                    new TrapezoidProfile.State(
+                        MathUtil.clamp(setpoint.position, AlgaeClawConstants.MIN_PIVOT_RADIANS, AlgaeClawConstants.MAX_PIVOT_RADIANS),
+                        0.0);
+            }
+            atGoal = Math.abs(getPivotPosition() - goal.position) <= AlgaeClawConstants.TOLERANCE;
+            if (atGoal) {
+                io.stopPivot();
+            } else {
+                double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
+                io.runPosition(
+                    new Rotation2d(setpoint.position),
+                    AlgaeClawConstants.PIVOT_KS * Math.signum(setpoint.velocity)
+                        + AlgaeClawConstants.PIVOT_KG * Math.cos(getPivotPosition())
+                        - (AlgaeClawConstants.PIVOT_KG
+                            * Math.sin(getPivotPosition())
+                            * RobotContainer.s_Swerve.getRobotRelativeXAccelGs())
+                        + AlgaeClawConstants.PIVOT_KV * setpoint.velocity
+                        + AlgaeClawConstants.PIVOT_KA * acceleration);
+            }
+            Logger.recordOutput("AlgaeClaw/SetpointPositionRad", setpoint.position);
+            Logger.recordOutput("AlgaeClaw/SetpointVelocityRad", setpoint.velocity);
+            Logger.recordOutput("AlgaeClaw/GoalPositionRad", goal.position);
+            Logger.recordOutput("AlgaeClaw/GoalVelocityRad", goal.velocity);
+        } else {
+            setpoint = new TrapezoidProfile.State(getPivotPosition(), 0.0);
+            Logger.recordOutput("AlgaeClaw/SetpointPositionRad", 0.0);
+            Logger.recordOutput("AlgaeClaw/SetpointVelocityRad", 0.0);
+            Logger.recordOutput("AlgaeClaw/GoalPositionRad", 0.0);
+            Logger.recordOutput("AlgaeClaw/GoalVelocityRad", 0.0);
+        }
+        if (shouldEStop) {
+            io.stopPivot();
+        }
+        LoopTimeUtil.record("AlgaeClaw");
+    }
+
+    public double getPivotPosition() {
+        return inputs.pivotPosition;
+    }
+
+    @AutoLogOutput(key = "AlgaeClaw/IsLocked")
+    public boolean isLocked() {
+        return !isManual;
+    }
+
+    public boolean atThisGoal(AlgaeClawConstants.State state) {
+        return Math.abs(state.getAngle().getRadians() - getPivotPosition()) <= AlgaeClawConstants.TOLERANCE;
     }
 
     private void setBrakeMode(boolean enabled) {
@@ -140,100 +146,19 @@ public class AlgaeClaw extends SubsystemBase {
         io.setBrakeMode(brakeModeEnabled);
     }
 
-    private void runPivot() {
-        double fb = mController.calculate(getPivotPosition());
-        double ff = mFeedforward.calculate(mController.getSetpoint().position, mController.getSetpoint().velocity)
-            + mDriveFeedforward.calculate(getPivotPosition(), RobotContainer.s_Swerve::getRobotRelativeXAccelGs);
-        double volts = fb + ff;
-
-        if ((getPivotPosition() >= AlgaeClawConstants.MAX_PIVOT_RADIANS && volts >= 0)
-            || (getPivotPosition() <= AlgaeClawConstants.MIN_PIVOT_RADIANS && volts <= 0)) {
-            io.stopPivot();
-            return;
-        }
-
-        io.runPivot(volts);
+    public boolean hasAlgae() {
+        return Constants.getRobot() == Constants.RobotType.SIMBOT || inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE;
     }
 
-    public Trigger hasAlgae() {
-        return new Trigger(
-            Constants.getRobot() != Constants.RobotType.SIMBOT
-                ? () -> inputs.spinCurrent >= AlgaeClawConstants.CURRENT_THRESHOLD_TO_HAVE_ALGAE
-                : () -> true);
-    }
-
-    public Command toggleManualControl(DoubleSupplier joystickAxis) {
+    public Command setDesiredState(AlgaeClawConstants.State state) {
         return Commands.runOnce(
             () -> {
-                Logger.recordOutput("Algae/RequestedSpeed", joystickAxis.getAsDouble());
-
-                if (mOperatorLock == OperatorLock.LOCKED) {
-                    disable();
-                    setDefaultCommand(
-                        pivotManual(
-                            () -> MathUtil.clamp(
-                                MathUtil.applyDeadband(joystickAxis.getAsDouble(), Constants.Deadbands.PIVOT_DEADBAND),
-                                -AlgaeClawConstants.MAX_MANUAL_SPEED,
-                                AlgaeClawConstants.MAX_MANUAL_SPEED)));
-                    mOperatorLock = OperatorLock.UNLOCKED;
-                } else {
-                    if (getDefaultCommand() != null) {
-                        getDefaultCommand().cancel();
-                        removeDefaultCommand();
-                    }
-                    setDefaultCommand(new AlgaeClawDefaultCommand());
-                    if (RobotContainer.s_Elevator.atHome().getAsBoolean()) {
-                        home().schedule();
-                    } else {
-                        avoid().schedule();
-                    }
-
-                    enable();
-                    mOperatorLock = OperatorLock.LOCKED;
-                }
-
-                Logger.recordOutput("AlgaeClaw/IsLocked", mOperatorLock == OperatorLock.LOCKED);
+                LED.getInstance().flashCommand(LED.LEDColor.WHITE, 0.1, 1.0).schedule();
+                inputs.goal = MathUtil.clamp(state.getAngle().getRotations(), AlgaeClawConstants.MIN_PIVOT_RADIANS, AlgaeClawConstants.MAX_PIVOT_RADIANS);
+                goal = new TrapezoidProfile.State(inputs.goal, 0.0);
+                desiredGoal = state;
             }, this)
-        .withName("Toggle Manual Control");
-    }
-
-    private Command pivotManual(DoubleSupplier speed) {
-        return Commands.runOnce(this::disable, this)
-            .andThen(
-                Commands.run(
-                    () -> {
-                        double appliedSpeed = speed.getAsDouble();
-
-                        if (appliedSpeed == 0.0) {
-                            appliedSpeed = ((Math.cos(getPivotPosition()) * AlgaeClawConstants.PIVOT_KG)
-                                + mDriveFeedforward.calculate(getPivotPosition(), RobotContainer.s_Swerve::getRobotRelativeXAccelGs)) / 12.0;
-                        }
-
-                        if ((getPivotPosition() >= AlgaeClawConstants.MAX_PIVOT_RADIANS && appliedSpeed >= 0)
-                            || (getPivotPosition() <= AlgaeClawConstants.MIN_PIVOT_RADIANS && appliedSpeed <= 0)) {
-                            io.stopPivot();
-                            return;
-                        }
-
-                        Logger.recordOutput("AlgaeClaw/ManualAppliedSpeed", appliedSpeed);
-                        io.runPivotViaSpeed(appliedSpeed);
-                    }, this))
-            .finallyDo(io::stopPivot)
-            .withName("Manual AlgaeClaw Pivot");
-    }
-
-    public Command setDesiredState(AlgaeClawConstants.AlgaeClawState state) {
-        return Commands.runOnce(
-            () -> {
-                double goal = MathUtil.clamp(
-                    state.getAngle().getRadians(),
-                    AlgaeClawConstants.MIN_PIVOT_RADIANS,
-                    AlgaeClawConstants.MAX_PIVOT_RADIANS);
-                inputs.goal = goal;
-                mController.setGoal(goal);
-                enable();
-            }
-        );
+        .withName("Set Desired State");
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -245,19 +170,19 @@ public class AlgaeClaw extends SubsystemBase {
     }
 
     public Command home() {
-        return setDesiredState(AlgaeClawConstants.AlgaeClawState.HOME);
+        return setDesiredState(AlgaeClawConstants.State.HOME);
     }
 
     public Command avoid() {
-        return setDesiredState(AlgaeClawConstants.AlgaeClawState.AVOID);
+        return setDesiredState(AlgaeClawConstants.State.AVOID);
     }
 
     public Command intake() {
-        return setDesiredState(AlgaeClawConstants.AlgaeClawState.PARALLEL);
+        return setDesiredState(AlgaeClawConstants.State.PARALLEL);
     }
 
     public Command catapult() {
-        return setDesiredState(AlgaeClawConstants.AlgaeClawState.CATAPULT);
+        return setDesiredState(AlgaeClawConstants.State.CATAPULT);
     }
 
     public Command intakeAlgae() {
@@ -278,12 +203,6 @@ public class AlgaeClaw extends SubsystemBase {
         io.stopSpin();
     }
 
-    public Command applyKV() {
-        return Commands.run(
-            () -> io.runPivot(AlgaeClawConstants.PIVOT_KV)
-        ).finallyDo(io::stopPivot);
-    }
-
     public Command characterizer() {
         final CharacterizationState state = new CharacterizationState();
         final double RAMP_RATE = 0.2;
@@ -291,7 +210,6 @@ public class AlgaeClaw extends SubsystemBase {
         Timer timer = new Timer();
         return Commands.startRun(
             () -> {
-                disable();
                 timer.restart();
             },
             () -> {
@@ -304,16 +222,10 @@ public class AlgaeClaw extends SubsystemBase {
         .andThen(io::stopPivot)
         .andThen(Commands.idle())
         .finallyDo(() -> {
-            enable();
+
             timer.stop();
             Logger.recordOutput("AlgaeClaw/CharacterizationOutputFinal", state.characterizationOutput);
         });
-    }
-
-    public Command spin(double speed) {
-        return Commands.run(
-            () -> io.runSpin(speed)
-        ).finallyDo(io::stopSpin);
     }
 
     private static class CharacterizationState {
