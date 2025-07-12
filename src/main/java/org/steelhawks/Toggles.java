@@ -8,6 +8,9 @@ import java.util.Map;
 
 public interface Toggles {
 
+    LoggedNetworkBoolean debugMode =
+        new LoggedNetworkBoolean("Toggles/DebugMode", false);
+
     class Vision {
         public static final LoggedNetworkBoolean visionEnabled =
             new LoggedNetworkBoolean("Toggles/VisionEnabled", true);

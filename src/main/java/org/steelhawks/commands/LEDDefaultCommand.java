@@ -80,12 +80,19 @@ public class LEDDefaultCommand extends Command {
                 flash(LEDColor.RED, 0.1);
                 return;
             }
-            if (!RobotContainer.s_Elevator.isHomed()
+            if ((!RobotContainer.s_Elevator.isHomed()
                 || !RobotContainer.s_AlgaeClaw.atThisGoal(AlgaeClawConstants.State.HOME)
                 || RobotContainer.s_AlgaeClaw.isEStopped()
+                || Constants.getRobot() != Constants.RobotType.SIMBOT)
                 && (DriverStation.isFMSAttached()
                     || DriverStation.isAutonomous())
             ) {
+                if (Toggles.debugMode.get()) {
+                    Logger.recordOutput("Debug/IsHomed", !RobotContainer.s_Elevator.isHomed());
+                    Logger.recordOutput("Debug/AtHomeAlgaeClaw", !RobotContainer.s_AlgaeClaw.atThisGoal(AlgaeClawConstants.State.HOME));
+                    Logger.recordOutput("Debug/AlgaeClawEStopped", RobotContainer.s_AlgaeClaw.isEStopped());
+                    Logger.recordOutput("Debug/FMSOrAuton", DriverStation.isFMSAttached() || DriverStation.isAutonomous());
+                }
                 s_LED.fade(LEDColor.RED);
                 return;
             }
