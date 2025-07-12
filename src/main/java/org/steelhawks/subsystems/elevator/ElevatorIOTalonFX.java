@@ -22,7 +22,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     private final TalonFX leftMotor;
     private final TalonFX rightMotor;
-    private final DigitalInput reverseLimit;
 
     private final MotionMagicVoltage motionMagicVoltage;
     private final PositionVoltage positionVoltage;
@@ -44,7 +43,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         leftMotor = new TalonFX(ElevatorConstants.LEFT_MOTOR_ID, Constants.getCANBus());
         rightMotor = new TalonFX(ElevatorConstants.RIGHT_MOTOR_ID, Constants.getCANBus());
-        reverseLimit = new DigitalInput(0);
         rightMotor.setControl(new Follower(leftMotor.getDeviceID(), true));
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -53,13 +51,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withKI(ElevatorConstants.KI)
             .withKD(ElevatorConstants.KD);
         config.Feedback.SensorToMechanismRatio = ElevatorConstants.REDUCTION;
-//        config.CurrentLimits.SupplyCurrentLimit = 80.0;
-//        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-//        config.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
-//        config.CurrentLimits.SupplyCurrentLowerTime = 1.5;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-//        config.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.MAX_VELOCITY_ROT_PER_SEC;
-//        config.MotionMagic.MotionMagicAcceleration = ElevatorConstants.MAX_ACCELERATION_ROT_PER_SEC_2;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
         motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
@@ -128,29 +120,20 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void runElevator(double volts) {
         leftMotor.setControl(
             voltageOut.withOutput(volts));
-//                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
-//                .withLimitReverseMotion(!reverseLimit.get()));
     }
 
     @Override
     public void runElevatorViaSpeed(double speed) {
         leftMotor.setControl(
             dutyCycle.withOutput(speed));
-//                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
-//                .withLimitReverseMotion(!reverseLimit.get()));
     }
 
     @Override
     public void runPosition(double positionRot, double feedforward) {
-        // you should use PositionVoltage instead because we already motion profile in Elevator.java
-        // if you want to you could keep motion magic but then change positionRad to use inputs.goal by caching it in an object and using that.
-        // at this state this would most likely not work
         leftMotor.setControl(
             positionVoltage
                 .withPosition(positionRot)
                 .withFeedForward(feedforward));
-//                .withLimitForwardMotion(leftPosition.getValueAsDouble() > ElevatorConstants.MAX_ROTATIONS)
-//                .withLimitReverseMotion(!reverseLimit.get()));
     }
 
     @Override

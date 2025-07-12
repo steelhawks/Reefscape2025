@@ -136,6 +136,10 @@ public class AlgaeClaw extends SubsystemBase {
         return !isManual;
     }
 
+    public boolean isEStopped() {
+        return shouldEStop;
+    }
+
     public boolean atThisGoal(AlgaeClawConstants.State state) {
         return Math.abs(state.getAngle().getRadians() - getPivotPosition()) <= AlgaeClawConstants.TOLERANCE;
     }

@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,13 +23,19 @@ import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Volts;
 
+@SuppressWarnings("ConstantConditions")
 public class Elevator extends SubsystemBase {
+
+    private static final int REVERSE_LIMIT_ID = 0;
+    private static final double HOMING_VOLTS = -1.0;
 
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs;
-    private final ElevatorCharacterizer characterizer;
     private final TrapezoidProfile profile;
     private final SysIdRoutine sysIdRoutine;
+    private final DigitalInput reverseLimit;
+    private final TunableNumber tuningVolts
+        = new TunableNumber("Elevator/Volts", 0.0);
 
     private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap elevatorDistanceMap = new InterpolatingDoubleTreeMap();
@@ -50,15 +57,14 @@ public class Elevator extends SubsystemBase {
     }
 
     private boolean brakeModeEnabled = true;
-    private boolean isEStopped = false;
-    private boolean isHomed = true;
     private boolean isManual = false;
     private boolean atGoal = false;
+    private boolean zeroed = false;
+    private boolean isHomed;
 
     public Elevator(ElevatorIO io) {
         this.io = io;
         this.inputs = new ElevatorIOInputsAutoLogged();
-        this.characterizer = new ElevatorCharacterizer(this::runCharacterizer, this);
         profile =
             new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(
@@ -73,6 +79,8 @@ public class Elevator extends SubsystemBase {
                     (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
+        reverseLimit = new DigitalInput(REVERSE_LIMIT_ID);
+        isHomed = !reverseLimit.get();
     }
 
     public boolean isLocked() {
@@ -128,7 +136,18 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
+        if (!isHomed) {
+            io.runElevator(HOMING_VOLTS);
+            isHomed = !reverseLimit.get();
+        } else {
+            if (!zeroed) {
+                reverseLimit.close();
+                io.zeroEncoders();
+                zeroed = true;
+            }
+        }
 
+        boolean isEStopped = RobotContainer.s_AlgaeClaw.isEStopped();
         final boolean shouldRun =
             DriverStation.isEnabled()
                 && (isHomed || Constants.getRobot() == RobotType.SIMBOT)
@@ -144,7 +163,6 @@ public class Elevator extends SubsystemBase {
         if (DriverStation.isDisabled() && Robot.isFirstRun()) {
             setBrakeMode(false);
         }
-
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
@@ -210,7 +228,6 @@ public class Elevator extends SubsystemBase {
         if (isEStopped) {
             io.stop();
         }
-        Logger.recordOutput("Elevator/EStopped", isEStopped);
         Logger.recordOutput("Elevator/AtGoal", atGoal);
     }
 
@@ -324,8 +341,7 @@ public class Elevator extends SubsystemBase {
         return Commands.runOnce(() -> isManual = true).andThen(sysIdRoutine.dynamic(direction));
     }
 
-    TunableNumber s = new TunableNumber("Elevator/Volts", 0);
-    public void runCharacterizer(double volts) {
-        io.runElevator(s.get());
+    public void runCharacterizer() {
+        io.runElevator(tuningVolts.get());
     }
 }
