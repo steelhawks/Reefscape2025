@@ -10,7 +10,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.*;
-import edu.wpi.first.wpilibj.DigitalInput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 
@@ -23,7 +22,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX leftMotor;
     private final TalonFX rightMotor;
 
-    private final MotionMagicVoltage motionMagicVoltage;
     private final PositionVoltage positionVoltage;
     private final VoltageOut voltageOut;
     private final DutyCycleOut dutyCycle;
@@ -54,7 +52,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
-        motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
         positionVoltage = new PositionVoltage(0.0).withSlot(0);
         voltageOut = new VoltageOut(0.0);
         dutyCycle = new DutyCycleOut(0.0);
