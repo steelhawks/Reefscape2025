@@ -137,7 +137,7 @@ public class SuperStructure {
             int rightId = s_Vision.getTargetId(1);
 
             return (leftId == -1 || leftId < minTag || leftId > maxTag)
-                || (rightId == -1 || rightId < minTag || rightId > maxTag);
+                && (rightId == -1 || rightId < minTag || rightId > maxTag);
         };
         Logger.recordOutput("Align/HasVisionOfTag", !needsToGetBack.getAsBoolean());
         LEDDefaultCommand.isAligned = !needsToGetBack.getAsBoolean();
