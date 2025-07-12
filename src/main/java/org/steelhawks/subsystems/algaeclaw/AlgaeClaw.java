@@ -12,11 +12,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Clearances;
 import org.steelhawks.Constants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.util.LoopTimeUtil;
+import org.steelhawks.util.TunableNumber;
+
+import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -33,6 +37,8 @@ public class AlgaeClaw extends SubsystemBase {
     private AlgaeClawConstants.State desiredGoal = AlgaeClawConstants.State.HOME;
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
+    private final TunableNumber pivotVolts =
+        new TunableNumber("AlgaeClaw/PivotVolts", 0.0);
 
     private boolean brakeModeEnabled = true;
     private boolean shouldEStop = false;
@@ -57,9 +63,7 @@ public class AlgaeClaw extends SubsystemBase {
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runPivot(voltage.in(Volts)), null, this));
         velocityFilter = LinearFilter.movingAverage(5);
-
-        if (RobotContainer.s_Elevator.atHome().getAsBoolean())
-            home().schedule();
+        avoid().schedule();
     }
 
     @Override
@@ -92,7 +96,11 @@ public class AlgaeClaw extends SubsystemBase {
                 || setpoint.position > AlgaeClawConstants.MAX_PIVOT_RADIANS) {
                 setpoint =
                     new TrapezoidProfile.State(
-                        MathUtil.clamp(setpoint.position, AlgaeClawConstants.MIN_PIVOT_RADIANS, AlgaeClawConstants.MAX_PIVOT_RADIANS),
+                        MathUtil.clamp(setpoint.position,
+                            Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam()
+                                ? AlgaeClawConstants.MIN_PIVOT_RADIANS
+                                : Clearances.AlgaeClawClearances.MIN_ANGLE_CLEAR_FROM_HOME,
+                            AlgaeClawConstants.MAX_PIVOT_RADIANS),
                         0.0);
             }
             atGoal = Math.abs(getPivotPosition() - goal.position) <= AlgaeClawConstants.TOLERANCE;
@@ -140,6 +148,10 @@ public class AlgaeClaw extends SubsystemBase {
         return shouldEStop;
     }
 
+    public boolean atGoal() {
+        return atGoal;
+    }
+
     public boolean atThisGoal(AlgaeClawConstants.State state) {
         return Math.abs(state.getAngle().getRadians() - getPivotPosition()) <= AlgaeClawConstants.TOLERANCE;
     }
@@ -163,6 +175,21 @@ public class AlgaeClaw extends SubsystemBase {
                 desiredGoal = state;
             }, this)
         .withName("Set Desired State");
+    }
+
+    public Command pivotManual(DoubleSupplier rightAxis) {
+        return Commands.run(() -> {
+            if (hasAlgae()) {
+                io.runSpin(AlgaeClawConstants.RETAIN_ALGAE_SPEED);
+            } else {
+                io.stopSpin();
+            }
+            double speed = AlgaeClawConstants.PIVOT_KG / 12.0
+                + MathUtil.clamp(rightAxis.getAsDouble(),
+                    -AlgaeClawConstants.MAX_MANUAL_SPEED,
+                    AlgaeClawConstants.MAX_MANUAL_SPEED);
+            io.runPivotViaSpeed(speed);
+        }, this);
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -205,6 +232,12 @@ public class AlgaeClaw extends SubsystemBase {
 
     public void stopSpin() {
         io.stopSpin();
+    }
+
+    public Command runVoltsOpenLoop() {
+        return Commands.run(
+            () -> io.runPivotViaSpeed(pivotVolts.get()), this)
+            .finallyDo(io::stopPivot);
     }
 
     public Command characterizer() {

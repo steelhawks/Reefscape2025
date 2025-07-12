@@ -309,38 +309,45 @@ public class RobotContainer {
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
 
-//        new DoublePressTrigger(driver.start())
-//            .onDoubleTap(
-//                Commands.runOnce(() -> {
-//                    if (!s_Elevator.isLocked() || !s_AlgaeClaw.isLocked()) {
-//                        Commands.parallel(
-//                            new VibrateController(1.0, 1.0, driver),
-//                            s_LED.flashCommand(LEDColor.RED, 0.1, 1.0)).schedule();
-//                        return;
-//                    }
-//                    setManualToggled(!manualToggled);
-//                    manualModeToggled.set(manualToggled);
-//                    s_Swerve.removeDefaultCommand();
-//                    if (manualToggled) {
-//                        s_Swerve.setDefaultCommand(Commands.idle(s_Swerve));
-//                    } else {
-//                        s_Swerve.setDefaultCommand(
-//                            DriveCommands.joystickDrive(
-//                                () -> -driver.getLeftY(),
-//                                () -> -driver.getLeftX(),
-//                                () -> -driver.getRightX()));
-//                    }
-//                }));
-//
-//        driver.leftStick()
-//            .and(() -> manualToggled)
-//            .onTrue(
-//                s_Elevator.toggleManualControl(() -> -driver.getLeftY()));
-//
-//        driver.rightStick()
-//            .and(() -> manualToggled)
-//            .onTrue(
-//                s_AlgaeClaw.toggleManualControl(() -> -driver.getRightY()));
+        new DoublePressTrigger(driver.start())
+            .onDoubleTap(
+                Commands.runOnce(() -> {
+                    if (!s_Elevator.isLocked() || (!s_AlgaeClaw.isLocked() && s_AlgaeClaw != null)) {
+                        Commands.parallel(
+                            new VibrateController(1.0, 1.0, driver),
+                            s_LED.flashCommand(LEDColor.RED, 0.1, 1.0)).schedule();
+                        return;
+                    }
+                    setManualToggled(!manualToggled);
+                    manualModeToggled.set(manualToggled);
+                    s_Swerve.removeDefaultCommand();
+                    if (s_AlgaeClaw != null) {
+                        s_AlgaeClaw.removeDefaultCommand();
+                    }
+                    if (manualToggled) {
+                        s_Swerve.setDefaultCommand(Commands.idle(s_Swerve));
+                        if (s_AlgaeClaw != null) {
+                            s_AlgaeClaw.setDefaultCommand(s_AlgaeClaw.pivotManual(() -> -driver.getRightY()));
+                        }
+                    } else {
+                        s_Swerve.setDefaultCommand(
+                            DriveCommands.joystickDrive(
+                                () -> -driver.getLeftY(),
+                                () -> -driver.getLeftX(),
+                                () -> -driver.getRightX()));
+                        if (s_AlgaeClaw != null) {
+                            s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
+                        }
+                    }
+                }));
+
+        driver.leftStick()
+            .and(() -> manualToggled)
+            .onTrue(
+                s_AlgaeClaw.avoid()
+                    .andThen(
+                        Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
+                        s_Elevator.toggleManualControl(() -> -driver.getLeftY())));
 
         driver.leftBumper()
             .whileTrue(

@@ -304,6 +304,8 @@ public class Elevator extends SubsystemBase {
     public Command slamCommand() {
         return Commands.runOnce(() -> isManual = true)
             .andThen(
+                RobotContainer.s_AlgaeClaw.avoid(),
+                Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                 Commands.run(
                     () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT), this))
             .until(this::hitBottomLimit)

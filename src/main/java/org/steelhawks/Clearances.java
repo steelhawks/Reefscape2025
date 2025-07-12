@@ -34,7 +34,7 @@ public class Clearances {
             ReefUtil.Algae.TR.getClearancePose().getTranslation()
                 .minus(ReefUtil.Algae.TR.getRetrievePose().getTranslation())
                 .getNorm();
-        private static final double MIN_ANGLE_CLEAR_FROM_HOME = -1.1274758790959463;
+        public static final double MIN_ANGLE_CLEAR_FROM_HOME = -1.1274758790959463;
         private static final double ELEVATOR_COLLIDE_ANGLE = -0.5;
         private static final double[] COLLISION_INTERVAL =
             new double[] {
@@ -46,16 +46,9 @@ public class Clearances {
                 .getDistance(s_Swerve.getPose().getTranslation()) >= DIST_TO_BE_CLEAR_FROM_REEF;
         }
 
-        public static boolean willCollideIntoElevator() {
-            return s_AlgaeClaw.getPivotPosition() < MIN_ANGLE_CLEAR_FROM_HOME && s_Elevator.getPosition() < ELEVATOR_COLLIDE_ANGLE;
-        }
-
-        public static boolean safeToGoHome() {
-            return s_AlgaeClaw.getPivotPosition() > COLLISION_INTERVAL[0] && s_AlgaeClaw.getPivotPosition() < COLLISION_INTERVAL[1];
-        }
-
         public static boolean isClearFromElevatorCrossbeam() {
-            return s_AlgaeClaw.getPivotPosition() >= MIN_ANGLE_CLEAR_FROM_HOME;
+            return s_AlgaeClaw.getPivotPosition() >= MIN_ANGLE_CLEAR_FROM_HOME
+                || s_Elevator.atHome().getAsBoolean();
         }
     }
 
