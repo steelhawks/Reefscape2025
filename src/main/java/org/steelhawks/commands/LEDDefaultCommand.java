@@ -70,10 +70,10 @@ public class LEDDefaultCommand extends Command {
             s_LED.setColor(LEDColor.GREEN);
             return;
         }
-        if (!s_Elevator.atLimit().getAsBoolean()) {
-            s_LED.setColor(LEDColor.WHITE);
-            return;
-        }
+//        if (!s_Elevator.atLimit().getAsBoolean() && DriverStation.isEnabled()) {
+//            s_LED.setColor(LEDColor.WHITE);
+//            return;
+//        }
         if (DriverStation.isDisabled()) {
             if (RobotController.getBatteryVoltage() <= RobotConstants.BAD_BATTERY_THRESHOLD) {
                 flash(LEDColor.RED, 0.1);

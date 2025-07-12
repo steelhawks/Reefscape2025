@@ -391,13 +391,13 @@ public class RobotContainer {
 
         /* ------------- Elevator Controls ------------- */
 
-//        SuperStructure.smartScoreTrigger(driver.rightBumper(), State.L1, driver::getLeftX, driver::getLeftY);
-//        SuperStructure.smartScoreTrigger(driver.x(), State.L2, driver::getLeftX, driver::getLeftY);
-//        SuperStructure.smartScoreTrigger(driver.y(), State.L3, driver::getLeftX, driver::getLeftY);
-//        SuperStructure.smartScoreTrigger(driver.a(), State.L4, driver::getLeftX, driver::getLeftY);
+        SuperStructure.smartScoreTrigger(driver.rightBumper(), State.L1, driver::getLeftX, driver::getLeftY);
+        SuperStructure.smartScoreTrigger(driver.x(), State.L2, driver::getLeftX, driver::getLeftY);
+        SuperStructure.smartScoreTrigger(driver.y(), State.L3, driver::getLeftX, driver::getLeftY);
+        SuperStructure.smartScoreTrigger(driver.a(), State.L4, driver::getLeftX, driver::getLeftY);
 
-        driver.x()
-                .onTrue(s_Elevator.setDesiredState(State.L2));
+//        driver.x()
+//                .onTrue(s_Elevator.setDesiredState(State.L2));
 
         driver.b()
             .onTrue(s_Elevator.homeCommand());

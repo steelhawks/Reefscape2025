@@ -143,7 +143,7 @@ public class SuperStructure {
             () ->
                 s_Swerve.runVelocity(
                     new ChassisSpeeds(
-                        -0.1,
+                        -0.3,
                         0.0,
                         0.0)),
                 s_Swerve)

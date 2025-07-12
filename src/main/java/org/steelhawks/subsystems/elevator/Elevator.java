@@ -12,11 +12,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants;
+import org.steelhawks.*;
 import org.steelhawks.Constants.RobotType;
-import org.steelhawks.ReefUtil;
-import org.steelhawks.RobotContainer;
-import org.steelhawks.Toggles;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
 import org.steelhawks.util.TunableNumber;
@@ -52,6 +49,7 @@ public class Elevator extends SubsystemBase {
         elevatorDistanceMap.put(Units.inchesToMeters(4.0), 0.5); // 4in is coral diameter, move elevator up by 0.5 rotations
     }
 
+    private boolean brakeModeEnabled = true;
     private boolean isEStopped = false;
     private boolean isHomed = true;
     private boolean isManual = false;
@@ -143,6 +141,14 @@ public class Elevator extends SubsystemBase {
         Logger.recordOutput("Elevator/Running", shouldRun);
         inputs.shouldRunProfile = shouldRun;
 
+        if (DriverStation.isDisabled() && Robot.isFirstRun()) {
+            setBrakeMode(false);
+        }
+
+        if (DriverStation.isEnabled()) {
+            setBrakeMode(true);
+        }
+
         if (shouldRun) {
             if (desiredGoal != ElevatorConstants.State.L4
                 && desiredGoal != ElevatorConstants.State.L1
@@ -206,6 +212,12 @@ public class Elevator extends SubsystemBase {
         }
         Logger.recordOutput("Elevator/EStopped", isEStopped);
         Logger.recordOutput("Elevator/AtGoal", atGoal);
+    }
+
+    private void setBrakeMode(boolean enabled) {
+        if (brakeModeEnabled == enabled) return;
+        brakeModeEnabled = enabled;
+        io.setBrakeMode(brakeModeEnabled);
     }
 
     public Command setDesiredState(ElevatorConstants.State state) {
