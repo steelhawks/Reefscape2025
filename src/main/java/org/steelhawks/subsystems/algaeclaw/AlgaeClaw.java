@@ -201,7 +201,8 @@ public class AlgaeClaw extends SubsystemBase {
     }
 
     public Command home() {
-        return setDesiredState(AlgaeClawConstants.State.HOME);
+        return setDesiredState(AlgaeClawConstants.State.HOME)
+            .unless(RobotContainer.s_Elevator.atHome().negate());
     }
 
     public Command avoid() {
@@ -236,11 +237,11 @@ public class AlgaeClaw extends SubsystemBase {
 
     public Command runVoltsOpenLoop() {
         return Commands.run(
-            () -> io.runPivotViaSpeed(pivotVolts.get()), this)
+            () -> io.runPivotViaSpeed(pivotVolts.get() + Math.cos(getPivotPosition()) * AlgaeClawConstants.PIVOT_KG), this)
             .finallyDo(io::stopPivot);
     }
 
-    public Command characterizer() {
+    public Command characterizeAcceleration() {
         final CharacterizationState state = new CharacterizationState();
         final double RAMP_RATE = 0.2;
         final double MAX_VELOCITY = 0.4;
@@ -259,7 +260,6 @@ public class AlgaeClaw extends SubsystemBase {
         .andThen(io::stopPivot)
         .andThen(Commands.idle())
         .finallyDo(() -> {
-
             timer.stop();
             Logger.recordOutput("AlgaeClaw/CharacterizationOutputFinal", state.characterizationOutput);
         });

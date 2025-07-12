@@ -37,20 +37,20 @@ public class AlgaeClawConstants {
     public static final int SPIN_ID = 26;
     public static final int CANCODER_ID = 27;
 
-    public static final double PIVOT_KS = 0.15;
-    public static final double PIVOT_KG = 0.08;
-    public static final double PIVOT_KV = 3.2;
+    public static final double PIVOT_KS = 0.0;
+    public static final double PIVOT_KG = 0.0;
+    public static final double PIVOT_KV = 0.0;
     public static final double PIVOT_KA = 0.0;
 
-    public static final double PIVOT_KP = 0.08;
+    public static final double PIVOT_KP = 0.0;
     public static final double PIVOT_KI = 0.0;
-    public static final double PIVOT_KD = 0.01;
+    public static final double PIVOT_KD = 0.0;
 
-    public static final double MAX_VELOCITY_RAD_PER_SEC = 2.0;
-    public static final double MAX_ACCELERATION_RAD_PER_SEC_2 = 4.0;
+    public static final double MAX_VELOCITY_RAD_PER_SEC = 0.0;
+    public static final double MAX_ACCELERATION_RAD_PER_SEC_2 = 0.0;
     public static final double MAX_MANUAL_SPEED = 0.3;
     public static final double TOLERANCE = 0.02;
-    public static final Rotation2d CANCODER_OFFSET = Rotation2d.fromRotations(-0.1103515625); // in rotations
+    public static final Rotation2d CANCODER_OFFSET = Rotation2d.fromRotations(0.0); // in rotations
     public static final double MIN_PIVOT_RADIANS = -Math.PI / 2.0;
     public static final double MAX_PIVOT_RADIANS = 0.6504078540635119;
 
