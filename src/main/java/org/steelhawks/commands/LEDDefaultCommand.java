@@ -11,6 +11,7 @@ import org.steelhawks.Constants.RobotConstants;
 import org.steelhawks.Robot.RobotState;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
+import org.steelhawks.subsystems.algaeclaw.AlgaeClawConstants;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
@@ -77,6 +78,15 @@ public class LEDDefaultCommand extends Command {
         if (DriverStation.isDisabled()) {
             if (RobotController.getBatteryVoltage() <= RobotConstants.BAD_BATTERY_THRESHOLD) {
                 flash(LEDColor.RED, 0.1);
+                return;
+            }
+            if (!RobotContainer.s_Elevator.isHomed()
+                || !RobotContainer.s_AlgaeClaw.atThisGoal(AlgaeClawConstants.State.HOME)
+                || RobotContainer.s_AlgaeClaw.isEStopped()
+                && (DriverStation.isFMSAttached()
+                    || DriverStation.isAutonomous())
+            ) {
+                s_LED.fade(LEDColor.RED);
                 return;
             }
             if (!Robot.isFirstRun()) {

@@ -83,6 +83,10 @@ public class Elevator extends SubsystemBase {
         isHomed = !reverseLimit.get();
     }
 
+    public boolean isHomed() {
+        return isHomed;
+    }
+
     public boolean isLocked() {
         return !isManual;
     }
@@ -150,7 +154,7 @@ public class Elevator extends SubsystemBase {
         boolean isEStopped = RobotContainer.s_AlgaeClaw.isEStopped();
         final boolean shouldRun =
             DriverStation.isEnabled()
-                && (isHomed || Constants.getRobot() == RobotType.SIMBOT)
+                && ((isHomed && zeroed) || Constants.getRobot() == RobotType.SIMBOT)
                 && !isEStopped
                 && !isManual
                 && !(hitBottomLimit() &&
