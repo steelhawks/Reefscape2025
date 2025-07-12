@@ -99,7 +99,7 @@ public class SuperStructure {
                     s_Elevator.setDesiredState(state),
                     Commands.either(
                         Commands.sequence(
-                            Commands.waitUntil(s_Elevator.atThisGoal(state)),
+                            Commands.waitUntil(s_Elevator.atGoal()),
                             Commands.either(
                                 scoreL1(),
                                 Commands.sequence(
