@@ -186,3 +186,6 @@ compile_commands.json
 # Version file
 src/main/java/org/steelhawks/BuildConstants.java
 /.kotlin/
+.run/Simulate Robot.run.xml
+.run/Build Robot.run.xml
+.run/Build & Deploy Robot.run.xml
