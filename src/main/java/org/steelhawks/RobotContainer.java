@@ -417,6 +417,11 @@ public class RobotContainer {
                     s_Elevator.setDesiredState(State.L2)
                 );
 
+        driver.y()
+            .onTrue(
+                s_Elevator.setDesiredState(State.L3)
+            );
+
         driver.a()
             .onTrue(
                 s_Elevator.setDesiredState(State.L4)
