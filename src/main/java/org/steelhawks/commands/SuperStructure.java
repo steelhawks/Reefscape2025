@@ -65,18 +65,23 @@ public class SuperStructure {
      * @param cancelJoystick Supplier for joystick axis input to cancel scoring.
      */
     public static void smartScoreTrigger(Trigger button, ElevatorConstants.State state, DoubleSupplier joystick, DoubleSupplier cancelJoystick) {
-        var scoringTriggered = new AtomicBoolean(false);
+//        var scoringTriggered = new AtomicBoolean(false);
 
+//        button.debounce(0.25).onTrue(
+//            Commands.runOnce(() -> scoringTriggered.set(true))
+//                .andThen(scoringSequence(state, joystick, cancelJoystick)))
+//        .onFalse(
+//            Commands.runOnce(() -> {
+//                if (!scoringTriggered.get()) {
+//                    s_Elevator.setDesiredState(state).schedule();
+//                }
+//                scoringTriggered.set(false);
+//            }));
         button.debounce(0.25).onTrue(
-            Commands.runOnce(() -> scoringTriggered.set(true))
-                .andThen(scoringSequence(state, joystick, cancelJoystick)))
-        .onFalse(
-            Commands.runOnce(() -> {
-                if (!scoringTriggered.get()) {
-                    s_Elevator.setDesiredState(state).schedule();
-                }
-                scoringTriggered.set(false);
-            }));
+            scoringSequence(state, joystick, cancelJoystick));
+
+        button.onTrue(
+            s_Elevator.setDesiredState(state));
     }
 
     /**
