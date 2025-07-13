@@ -54,6 +54,7 @@ public class Elevator extends SubsystemBase {
         // at distance of zero, add zero additional rotations to the elevator height
         elevatorDistanceMap.put(0.0, 0.0);
         elevatorDistanceMap.put(Units.inchesToMeters(4.0), 0.5); // 4in is coral diameter, move elevator up by 0.5 rotations
+        elevatorDistanceMap.put(Units.inchesToMeters(5.0), 0.6);
     }
 
     private boolean brakeModeEnabled = true;
@@ -88,7 +89,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public boolean isLocked() {
-        return !isManual;
+        return hitBottomLimit();
     }
 
     public ElevatorConstants.State getState() {
@@ -151,7 +152,8 @@ public class Elevator extends SubsystemBase {
             }
         }
 
-        boolean isEStopped = RobotContainer.s_AlgaeClaw.isEStopped();
+        boolean isEStopped = RobotContainer.s_AlgaeClaw != null
+            && RobotContainer.s_AlgaeClaw.isEStopped();
         final boolean shouldRun =
             DriverStation.isEnabled()
                 && ((isHomed && zeroed) || Constants.getRobot() == RobotType.SIMBOT)
@@ -189,9 +191,10 @@ public class Elevator extends SubsystemBase {
                     MathUtil.clamp(desiredGoal.getAngle().getRotations()
                         + interpolated,
                         desiredGoal.getAngle().getRotations(), // low is static score position
-                        Math.min(
-                            desiredGoal.getAngle().getRotations() + 0.5,
-                            ElevatorConstants.MAX_ROTATIONS)); // give up if way over
+                        ElevatorConstants.MAX_ROTATIONS);
+//                        Math.min(
+//                            desiredGoal.getAngle().getRotations() + 0.5,
+//                            ElevatorConstants.MAX_ROTATIONS)); // give up if way over
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
             }
             double previousVelocity = setpoint.velocity;
@@ -207,7 +210,8 @@ public class Elevator extends SubsystemBase {
             }
             atGoal = Math.abs(getPosition() - goal.position) <= ElevatorConstants.TOLERANCE;
             if (atGoal) {
-                io.stop();
+//                io.stop();
+                io.runElevator(ElevatorConstants.kG[getStage()]);
             } else {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
                 io.runPosition(

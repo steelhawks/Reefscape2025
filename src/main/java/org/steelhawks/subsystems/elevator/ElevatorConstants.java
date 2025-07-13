@@ -9,7 +9,7 @@ public class ElevatorConstants {
     public enum State {
         L4(Units.radiansToRotations(23.299634187195004)),
         L3(Units.radiansToRotations(12.988215331027725)),
-        L2(Units.radiansToRotations(7.059379585849721)),
+        L2(1.1181640625),
         L1(Units.radiansToRotations(4.947855031325136)),
         L1_JUMP(Units.radiansToRotations(4.947855031325136 + 1.5)),
         HOME(0.0),
@@ -44,8 +44,8 @@ public class ElevatorConstants {
     public static final double SPROCKET_RAD = // the driving drum
         Units.inchesToMeters(1.888);
 
-    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(15.0, 10.0);
-    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(17.0, 20.0);
+    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(20.0, 10.0);
+    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(30.0, 20.0);
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
     public static final Double KP = Constants.omega(20.0, 6.0);

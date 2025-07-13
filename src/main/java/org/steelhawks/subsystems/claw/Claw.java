@@ -2,6 +2,8 @@ package org.steelhawks.subsystems.claw;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -85,7 +87,8 @@ public class Claw extends SubsystemBase {
                 .getPose()
                 .getTranslation()
                 .getDistance(ReefUtil.getClosestCoralBranch()
-                    .getBranchPoseProjectedToReefFace()
+                    .getBranchPoseProjectedToReefFace().minus(
+                        new Pose2d(0.0, Units.inchesToMeters(4.0), new Rotation2d()))
                     .getTranslation());
         final double H = // elevator height, vertical height in meters
             Conversions.rotationsToMeters(
@@ -113,7 +116,7 @@ public class Claw extends SubsystemBase {
         Logger.recordOutput("Claw/InitialVelocityRPS", v0RPS);
 
         double maxOutputRPS = (ClawConstants.CLAW_MOTOR_MAX_RPM / ClawConstants.CLAW_INTAKE_GEAR_RATIO) / 60.0;
-        return (v0RPS / maxOutputRPS);
+        return (v0RPS / maxOutputRPS) + 0.05;
     }
 
     public Command intakeCoral() {

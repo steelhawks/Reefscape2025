@@ -141,7 +141,10 @@ public class AlgaeClaw extends SubsystemBase {
 
     @AutoLogOutput(key = "AlgaeClaw/IsLocked")
     public boolean isLocked() {
-        return !isManual;
+        return atThisGoal(
+            Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam()
+                ? AlgaeClawConstants.State.HOME
+                : AlgaeClawConstants.State.AVOID);
     }
 
     public boolean isEStopped() {

@@ -4,7 +4,9 @@ import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -56,8 +58,8 @@ public class RobotContainer {
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
 
     public RobotContainer() {
-//        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
-//        SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
+        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
+        SmartDashboard.putData("Field", FieldConstants.FIELD_2D);
         if (Constants.getMode() != Mode.REPLAY) {
             switch (Constants.getRobot()) {
                 case OMEGABOT -> {
@@ -255,6 +257,7 @@ public class RobotContainer {
         configureDriver();
 
         s_LED.setDefaultCommand(new LEDDefaultCommand(() -> manualToggled));
+        s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
         s_Claw.setDefaultCommand(new ClawDefaultCommand());
     }
 
@@ -292,12 +295,14 @@ public class RobotContainer {
                     new VibrateController(1.0, 1.0, driver))
                 .ignoringDisable(false));
 
-        new Trigger(() -> s_AlgaeClaw.hasAlgae())
-            .onTrue(
-                Commands.parallel(
-                    s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
-                    new VibrateController(1.0, 1.0, driver))
-                .ignoringDisable(false));
+        if (s_AlgaeClaw != null) {
+            new Trigger(() -> s_AlgaeClaw.hasAlgae())
+                .onTrue(
+                    Commands.parallel(
+                        s_LED.flashCommand(LEDColor.GREEN, 0.1, 1.0),
+                        new VibrateController(1.0, 1.0, driver))
+                    .ignoringDisable(false));
+        }
     }
 
     private void configureDriver() {
@@ -312,16 +317,20 @@ public class RobotContainer {
         new DoublePressTrigger(driver.start())
             .onDoubleTap(
                 Commands.runOnce(() -> {
-                    if (!s_Elevator.isLocked() || (!s_AlgaeClaw.isLocked() && s_AlgaeClaw != null)) {
+                    // if (!s_Elevator.isLocked() || (!s_AlgaeClaw.isLocked() && s_AlgaeClaw != null)) {
+                    if (!s_Elevator.isLocked()) {
                         Commands.parallel(
                             new VibrateController(1.0, 1.0, driver),
                             s_LED.flashCommand(LEDColor.RED, 0.1, 1.0)).schedule();
                         return;
                     }
+
                     setManualToggled(!manualToggled);
                     manualModeToggled.set(manualToggled);
+                    s_Swerve.getDefaultCommand().cancel();
                     s_Swerve.removeDefaultCommand();
                     if (s_AlgaeClaw != null) {
+                        s_AlgaeClaw.getDefaultCommand().cancel();
                         s_AlgaeClaw.removeDefaultCommand();
                     }
                     if (manualToggled) {
@@ -398,10 +407,20 @@ public class RobotContainer {
 
         /* ------------- Elevator Controls ------------- */
 
-        SuperStructure.smartScoreTrigger(driver.rightBumper(), State.L1, driver::getLeftX, driver::getLeftY);
-        SuperStructure.smartScoreTrigger(driver.x(), State.L2, driver::getLeftX, driver::getLeftY);
-        SuperStructure.smartScoreTrigger(driver.y(), State.L3, driver::getLeftX, driver::getLeftY);
-        SuperStructure.smartScoreTrigger(driver.a(), State.L4, driver::getLeftX, driver::getLeftY);
+//        SuperStructure.smartScoreTrigger(driver.rightBumper(), State.L1, driver::getLeftX, driver::getLeftY);
+//        SuperStructure.smartScoreTrigger(driver.x(), State.L2, driver::getLeftX, driver::getLeftY);
+//        SuperStructure.smartScoreTrigger(driver.y(), State.L3, driver::getLeftX, driver::getLeftY);
+//        SuperStructure.smartScoreTrigger(driver.a(), State.L4, driver::getLeftX, driver::getLeftY);
+
+        driver.x()
+                .onTrue(
+                    s_Elevator.setDesiredState(State.L2)
+                );
+
+        driver.a()
+            .onTrue(
+                s_Elevator.setDesiredState(State.L4)
+            );
 
         driver.b()
             .onTrue(s_Elevator.homeCommand());
