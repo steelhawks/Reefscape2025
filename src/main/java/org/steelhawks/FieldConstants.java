@@ -31,19 +31,19 @@ public class FieldConstants {
 //    public static final double CENTER_OF_BARGE = Units.inchesToMeters(3.892794);
     public static final double CENTER_OF_BARGE = getAprilTag(14).pose().getX() - 8.760429;
 
-    public static BooleanSupplier ROBOT_IN_CORAL_STATION_ZONE;
-
-    public static void init() {
-        ROBOT_IN_CORAL_STATION_ZONE =
-            new FieldBoundingBox(
+    public static final BooleanSupplier ROBOT_IN_CORAL_STATION_ZONE =
+        new FieldBoundingBox(
+            "Bottom Coral Station",
+            0.0, 2.0, 0.0, 8.0 - 6.2,
+            () -> RobotContainer.s_Swerve != null
+                ? RobotContainer.s_Swerve.getPose()
+                : new Pose2d())
+            .or(new FieldBoundingBox(
                 "Bottom Coral Station",
                 0.0, 2.0, 0.0, 8.0 - 6.2,
-                RobotContainer.s_Swerve::getPose)
-                .or(new FieldBoundingBox(
-                    "Bottom Coral Station",
-                    0.0, 2.0, 0.0, 8.0 - 6.2,
-                    RobotContainer.s_Swerve::getPose));
-    }
+                () -> RobotContainer.s_Swerve != null
+                    ? RobotContainer.s_Swerve.getPose()
+                    : new Pose2d()));
 
     public static final AprilTag[] APRIL_TAGS = {
         new AprilTag(1,  new Pose3d(new Translation3d(Units.inchesToMeters(657.37), Units.inchesToMeters(25.80), Units.inchesToMeters(58.50)), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(126)))),

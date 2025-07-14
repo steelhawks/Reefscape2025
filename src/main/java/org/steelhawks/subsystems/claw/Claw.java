@@ -167,15 +167,10 @@ public class Claw extends SubsystemBase {
                 io.runIntake(ClawConstants.CLAW_INDEX_SPEED.get());
             } else if (hasCoral() && !isIndexing) {
                 isIndexing = true;
-            }
-
-            if (isIndexing) {
-                if (hasCoral()) {
-                    io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get());
-                } else {
-                    stop();
-                    isIndexing = false;
-                }
+                io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get());
+            } else if (isIndexing) {
+                stop();
+                isIndexing = false;
             }
         }, this);
     }
