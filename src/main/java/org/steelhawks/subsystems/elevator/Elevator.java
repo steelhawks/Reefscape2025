@@ -1,6 +1,7 @@
 package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -37,7 +38,6 @@ public class Elevator extends SubsystemBase {
     private final DigitalInput reverseLimit;
     private final TunableNumber tuningVolts =
         new TunableNumber("Elevator/Volts", 0.0);
-    private final BooleanSupplier inCoralStationZone;
 
     private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap elevatorDistanceMap = new InterpolatingDoubleTreeMap();
@@ -60,7 +60,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private boolean brakeModeEnabled = true;
-    private boolean shimmying = false;
+    private boolean isShimmying = false;
     private boolean isManual = false;
     private boolean atGoal = false;
     private boolean zeroed = false;
@@ -85,16 +85,6 @@ public class Elevator extends SubsystemBase {
                     (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
         reverseLimit = new DigitalInput(REVERSE_LIMIT_ID);
         isHomed = !reverseLimit.get();
-
-        inCoralStationZone =
-            new FieldBoundingBox(
-                "Bottom Coral Station",
-                0.0, 2.0, 0.0, 8.0 - 6.2,
-                RobotContainer.s_Swerve::getPose)
-            .or(new FieldBoundingBox(
-                "Bottom Coral Station",
-                0.0, 2.0, 0.0, 8.0 - 6.2,
-                RobotContainer.s_Swerve::getPose));
     }
 
     public boolean isHomed() {
@@ -172,6 +162,7 @@ public class Elevator extends SubsystemBase {
                 && ((isHomed && zeroed) || Constants.getRobot() == RobotType.SIMBOT)
                 && !isEStopped
                 && !isManual
+                && !isShimmying
                 && !(hitBottomLimit() &&
                     Math.signum(MathUtil.applyDeadband(inputs.velocityRotPerSec, 0.1)) == -1)
             && !(hitTopLimit() &&
@@ -185,10 +176,9 @@ public class Elevator extends SubsystemBase {
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
-        if (inCoralStationZone.getAsBoolean()
-            && !shimmying
-            && atHome().getAsBoolean()
-        ) {
+        if (FieldConstants.ROBOT_IN_CORAL_STATION_ZONE.getAsBoolean()
+            && !isShimmying
+            && !atHome().getAsBoolean()) {
             shimmyDown().schedule();
         }
 
@@ -341,17 +331,13 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command shimmyDown() {
-        return Commands.runOnce(() -> {
-                isManual = true;
-                shimmying = true;
-            })
+        return Commands.runOnce(() -> isShimmying = true)
             .andThen(
                 Commands.run(() ->
                     io.runElevator(ElevatorConstants.SHIMMY_VOLTS), this))
             .until(this::hitBottomLimit)
             .finallyDo(() -> {
-                isManual = false;
-                shimmying = false;
+                isShimmying = false;
                 io.zeroEncoders();
             })
             .unless(atThisGoal(ElevatorConstants.State.HOME).or(atHome()));

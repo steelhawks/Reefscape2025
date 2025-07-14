@@ -57,9 +57,6 @@ public class RobotContainer {
     private boolean manualToggled = false;
     private boolean toggleTriggered = false;
 
-    private final Trigger topCoralStationTrigger;
-    private final Trigger bottomCoralStationTrigger;
-
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
 
@@ -252,18 +249,6 @@ public class RobotContainer {
                 new AlgaeClaw(
                     new AlgaeClawIO() {});
         }
-
-        topCoralStationTrigger =
-            new FieldBoundingBox(
-                "Bottom Coral Station",
-                0.0, 2.0, 0.0, 8.0 - 6.2,
-                s_Swerve::getPose);
-        bottomCoralStationTrigger =
-            new FieldBoundingBox(
-                "Bottom Coral Station",
-                0.0, 2.0, 0.0, 8.0 - 6.2,
-                s_Swerve::getPose);
-
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
         new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
         Autos.init();
@@ -275,7 +260,7 @@ public class RobotContainer {
 
         s_LED.setDefaultCommand(new LEDDefaultCommand(() -> manualToggled));
         s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
-        s_Claw.setDefaultCommand(new ClawDefaultCommand());
+        s_Claw.setDefaultCommand(s_Claw.indexCoral());
     }
 
     private void setManualToggled(boolean value) {
@@ -301,13 +286,6 @@ public class RobotContainer {
     }
 
     private void configureTriggers() {
-        topCoralStationTrigger
-            .or(bottomCoralStationTrigger)
-            .and(() -> Robot.getState() != RobotState.AUTON)
-            .onTrue(
-                new ScheduleCommand(s_Elevator.shimmyDown())
-                    .andThen(s_Claw.reverseCoral()));
-
         s_Elevator.atLimit()
             .onTrue(
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false));

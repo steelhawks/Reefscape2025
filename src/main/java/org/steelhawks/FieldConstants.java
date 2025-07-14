@@ -9,6 +9,9 @@ import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.AllianceFlip;
 import org.steelhawks.util.AprilTag;
 import org.steelhawks.util.Conversions;
+import org.steelhawks.util.FieldBoundingBox;
+
+import java.util.function.BooleanSupplier;
 
 public class FieldConstants {
 
@@ -27,6 +30,20 @@ public class FieldConstants {
 //    public static final double CENTER_OF_BARGE = -Units.inchesToMeters(46.0 / 2.0);
 //    public static final double CENTER_OF_BARGE = Units.inchesToMeters(3.892794);
     public static final double CENTER_OF_BARGE = getAprilTag(14).pose().getX() - 8.760429;
+
+    public static final BooleanSupplier ROBOT_IN_CORAL_STATION_ZONE;
+
+    static {
+        ROBOT_IN_CORAL_STATION_ZONE =
+            new FieldBoundingBox(
+                "Bottom Coral Station",
+                0.0, 2.0, 0.0, 8.0 - 6.2,
+                RobotContainer.s_Swerve::getPose)
+                .or(new FieldBoundingBox(
+                    "Bottom Coral Station",
+                    0.0, 2.0, 0.0, 8.0 - 6.2,
+                    RobotContainer.s_Swerve::getPose));
+    }
 
     public static final AprilTag[] APRIL_TAGS = {
         new AprilTag(1,  new Pose3d(new Translation3d(Units.inchesToMeters(657.37), Units.inchesToMeters(25.80), Units.inchesToMeters(58.50)), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(126)))),

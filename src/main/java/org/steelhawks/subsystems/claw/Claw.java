@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
@@ -29,6 +28,7 @@ public class Claw extends SubsystemBase {
     private static final double INTAKE_SPEED = 0.05;
     private static final double DEBOUNCE_TIME = 0.15;
     private boolean isIntaking = true;
+    private boolean isIndexing = false;
 
     private final BeamIOInputsAutoLogged beamInputs = new BeamIOInputsAutoLogged();
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
@@ -68,8 +68,8 @@ public class Claw extends SubsystemBase {
         if (!Toggles.Claw.calculateEjectSpeed.get()) {
             try {
                 return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
-                    ? ClawConstants.CLAW_INTAKE_SPEED
-                    : ClawConstants.CLAW_SECONDARY_SHOOT_SPEED;
+                    ? ClawConstants.CLAW_SHOOT_SPEED
+                    : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
             } catch (NullPointerException e) {
                 DriverStation.reportWarning(
                     "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
@@ -100,8 +100,8 @@ public class Claw extends SubsystemBase {
         if (denom <= 0) {
             try {
                 return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
-                    ? ClawConstants.CLAW_INTAKE_SPEED
-                    : ClawConstants.CLAW_SECONDARY_SHOOT_SPEED;
+                    ? ClawConstants.CLAW_SHOOT_SPEED
+                    : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
             } catch (NullPointerException e) {
                 DriverStation.reportWarning(
                     "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
@@ -159,6 +159,25 @@ public class Claw extends SubsystemBase {
                 io.runIntake(speed);
             }, this)
             .finallyDo(this::stop);
+    }
+
+    public Command indexCoral() {
+        return Commands.run(() -> {
+            if (!hasCoral() && !isIndexing) {
+                io.runIntake(ClawConstants.CLAW_INDEX_SPEED.get());
+            } else if (hasCoral() && !isIndexing) {
+                isIndexing = true;
+            }
+
+            if (isIndexing) {
+                if (hasCoral()) {
+                    io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get());
+                } else {
+                    stop();
+                    isIndexing = false;
+                }
+            }
+        });
     }
 
     private void stop() {
