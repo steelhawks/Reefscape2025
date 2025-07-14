@@ -17,8 +17,10 @@ import org.steelhawks.*;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
+import org.steelhawks.util.FieldBoundingBox;
 import org.steelhawks.util.TunableNumber;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Volts;
@@ -27,15 +29,15 @@ import static edu.wpi.first.units.Units.Volts;
 public class Elevator extends SubsystemBase {
 
     private static final int REVERSE_LIMIT_ID = 0;
-    private static final double HOMING_VOLTS = -1.0;
 
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs;
     private final TrapezoidProfile profile;
     private final SysIdRoutine sysIdRoutine;
     private final DigitalInput reverseLimit;
-    private final TunableNumber tuningVolts
-        = new TunableNumber("Elevator/Volts", 0.0);
+    private final TunableNumber tuningVolts =
+        new TunableNumber("Elevator/Volts", 0.0);
+    private final BooleanSupplier inCoralStationZone;
 
     private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap elevatorDistanceMap = new InterpolatingDoubleTreeMap();
@@ -54,10 +56,11 @@ public class Elevator extends SubsystemBase {
         // at distance of zero, add zero additional rotations to the elevator height
         elevatorDistanceMap.put(0.0, 0.0);
         elevatorDistanceMap.put(Units.inchesToMeters(4.0), 0.5); // 4in is coral diameter, move elevator up by 0.5 rotations
-        elevatorDistanceMap.put(Units.inchesToMeters(5.0), 0.6);
+        elevatorDistanceMap.put(Units.inchesToMeters(5.0), ElevatorConstants.ELEVATOR_DISTANCE_INTERPOLATOR_MAX);
     }
 
     private boolean brakeModeEnabled = true;
+    private boolean shimmying = false;
     private boolean isManual = false;
     private boolean atGoal = false;
     private boolean zeroed = false;
@@ -82,6 +85,16 @@ public class Elevator extends SubsystemBase {
                     (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
         reverseLimit = new DigitalInput(REVERSE_LIMIT_ID);
         isHomed = !reverseLimit.get();
+
+        inCoralStationZone =
+            new FieldBoundingBox(
+                "Bottom Coral Station",
+                0.0, 2.0, 0.0, 8.0 - 6.2,
+                RobotContainer.s_Swerve::getPose)
+            .or(new FieldBoundingBox(
+                "Bottom Coral Station",
+                0.0, 2.0, 0.0, 8.0 - 6.2,
+                RobotContainer.s_Swerve::getPose));
     }
 
     public boolean isHomed() {
@@ -142,7 +155,7 @@ public class Elevator extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
         if (!isHomed) {
-            io.runElevator(HOMING_VOLTS);
+            io.runElevator(ElevatorConstants.HOMING_VOLTS);
             isHomed = !reverseLimit.get();
         } else {
             if (!zeroed) {
@@ -172,6 +185,12 @@ public class Elevator extends SubsystemBase {
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
+        if (inCoralStationZone.getAsBoolean()
+            && !shimmying
+            && atHome().getAsBoolean()
+        ) {
+            shimmyDown().schedule();
+        }
 
         if (shouldRun) {
             if (desiredGoal != ElevatorConstants.State.L4
@@ -191,10 +210,9 @@ public class Elevator extends SubsystemBase {
                     MathUtil.clamp(desiredGoal.getAngle().getRotations()
                         + interpolated,
                         desiredGoal.getAngle().getRotations(), // low is static score position
-                        ElevatorConstants.MAX_ROTATIONS);
-//                        Math.min(
-//                            desiredGoal.getAngle().getRotations() + 0.5,
-//                            ElevatorConstants.MAX_ROTATIONS)); // give up if way over
+                        Math.min(
+                            desiredGoal.getAngle().getRotations() + ElevatorConstants.ELEVATOR_DISTANCE_INTERPOLATOR_MAX,
+                            ElevatorConstants.MAX_ROTATIONS)); // give up if way over
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
             }
             double previousVelocity = setpoint.velocity;
@@ -320,6 +338,23 @@ public class Elevator extends SubsystemBase {
                 }
             )
             .withName("Slam Elevator");
+    }
+
+    public Command shimmyDown() {
+        return Commands.runOnce(() -> {
+                isManual = true;
+                shimmying = true;
+            })
+            .andThen(
+                Commands.run(() ->
+                    io.runElevator(ElevatorConstants.SHIMMY_VOLTS), this))
+            .until(this::hitBottomLimit)
+            .finallyDo(() -> {
+                isManual = false;
+                shimmying = false;
+                io.zeroEncoders();
+            })
+            .unless(atThisGoal(ElevatorConstants.State.HOME).or(atHome()));
     }
 
     public Command homeCommand() {

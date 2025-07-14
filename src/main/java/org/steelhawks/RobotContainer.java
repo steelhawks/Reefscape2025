@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -33,9 +34,11 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.DoublePressTrigger;
+import org.steelhawks.util.FieldBoundingBox;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 
 public class RobotContainer {
@@ -53,6 +56,9 @@ public class RobotContainer {
     private final Alert manualModeToggled = new Alert("Manual Mode is currently toggled", AlertType.kWarning);
     private boolean manualToggled = false;
     private boolean toggleTriggered = false;
+
+    private final Trigger topCoralStationTrigger;
+    private final Trigger bottomCoralStationTrigger;
 
     private final CommandXboxController driver =
         new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
@@ -247,6 +253,17 @@ public class RobotContainer {
                     new AlgaeClawIO() {});
         }
 
+        topCoralStationTrigger =
+            new FieldBoundingBox(
+                "Bottom Coral Station",
+                0.0, 2.0, 0.0, 8.0 - 6.2,
+                s_Swerve::getPose);
+        bottomCoralStationTrigger =
+            new FieldBoundingBox(
+                "Bottom Coral Station",
+                0.0, 2.0, 0.0, 8.0 - 6.2,
+                s_Swerve::getPose);
+
         new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
         new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
         Autos.init();
@@ -284,6 +301,13 @@ public class RobotContainer {
     }
 
     private void configureTriggers() {
+        topCoralStationTrigger
+            .or(bottomCoralStationTrigger)
+            .and(() -> Robot.getState() != RobotState.AUTON)
+            .onTrue(
+                new ScheduleCommand(s_Elevator.shimmyDown())
+                    .andThen(s_Claw.reverseCoral()));
+
         s_Elevator.atLimit()
             .onTrue(
                 s_LED.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false));

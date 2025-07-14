@@ -52,6 +52,10 @@ public class ElevatorConstants {
     public static final double KI = 0.0;
     public static final Double KD = Constants.omega(5.5, 0.4);
 
+    public static final double ELEVATOR_DISTANCE_INTERPOLATOR_MAX = 0.6;
+    public static final double SHIMMY_VOLTS = -5.0;
+    public static final double HOMING_VOLTS = -3.0;
+
     public static final Double[] kS = {
         Constants.omega(0.03, 0.0),
         0.0,
