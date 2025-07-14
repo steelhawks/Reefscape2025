@@ -255,6 +255,7 @@ public class RobotContainer {
 
         checkIfDevicesConnected();
         setManualToggled(false);
+        FieldConstants.init();
         configureTriggers();
         configureDriver();
 

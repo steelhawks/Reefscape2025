@@ -31,9 +31,9 @@ public class FieldConstants {
 //    public static final double CENTER_OF_BARGE = Units.inchesToMeters(3.892794);
     public static final double CENTER_OF_BARGE = getAprilTag(14).pose().getX() - 8.760429;
 
-    public static final BooleanSupplier ROBOT_IN_CORAL_STATION_ZONE;
+    public static BooleanSupplier ROBOT_IN_CORAL_STATION_ZONE;
 
-    static {
+    public static void init() {
         ROBOT_IN_CORAL_STATION_ZONE =
             new FieldBoundingBox(
                 "Bottom Coral Station",

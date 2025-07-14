@@ -177,7 +177,7 @@ public class Claw extends SubsystemBase {
                     isIndexing = false;
                 }
             }
-        });
+        }, this);
     }
 
     private void stop() {
