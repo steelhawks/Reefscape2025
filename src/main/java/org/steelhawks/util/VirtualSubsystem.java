@@ -16,7 +16,6 @@ public abstract class VirtualSubsystem {
 
     private static final List<VirtualSubsystem> mSubsystems = new ArrayList<>();
     private final String subsystemName;
-    private static long lastPrintTime = 0; // Last time stats were printed
     private static long lastOverrunTime = 0; // Last time an overrun was logged
 
     public abstract void periodic();
@@ -33,10 +32,8 @@ public abstract class VirtualSubsystem {
 
     public static void periodicAll() {
         long currentTime = RobotController.getFPGATime();
-        boolean shouldPrint = (currentTime - lastPrintTime) >= 10_000_000; // 10 sec
         boolean shouldPrintOverrun = (currentTime - lastOverrunTime) >= 5_000_000; // 5 sec
 
-        StringBuilder logMessage = new StringBuilder("VirtualSubsystem Loop Times:\n");
         StringBuilder overrunMessage = new StringBuilder("WARNING: The following subsystems exceeded 20ms:\n");
 
         boolean overrunOccurred = false;
@@ -53,22 +50,12 @@ public abstract class VirtualSubsystem {
                 overrunMessage.append(
                     String.format("  - %s: %.3f ms\n", subsystem.subsystemName, loopTimeMs));
             }
-
-            if (shouldPrint) {
-                logMessage.append(
-                    String.format("  - %s: %.3f ms\n", subsystem.subsystemName, loopTimeMs));
-            }
         }
 
         if (overrunOccurred && shouldPrintOverrun) {
             DriverStation.reportError(overrunMessage.toString(), false);
             System.out.println("VirtualSubsystem Loop Overrun");
             lastOverrunTime = currentTime;
-        }
-
-        if (shouldPrint) {
-            DriverStation.reportWarning(logMessage.toString(), false);
-            lastPrintTime = currentTime;
         }
     }
 }
