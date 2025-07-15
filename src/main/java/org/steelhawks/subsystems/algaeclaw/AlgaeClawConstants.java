@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.algaeclaw;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import org.steelhawks.util.LoggedTunableNumber;
 
 public class AlgaeClawConstants {
 
@@ -37,14 +38,14 @@ public class AlgaeClawConstants {
     public static final int SPIN_ID = 26;
     public static final int CANCODER_ID = 27;
 
-    public static final double PIVOT_KS = 0.0;
-    public static final double PIVOT_KG = 0.0;
-    public static final double PIVOT_KV = 0.0;
-    public static final double PIVOT_KA = 0.0;
+    public static final LoggedTunableNumber PIVOT_KS = new LoggedTunableNumber("AlgaeClaw/kS",0.0);
+    public static final LoggedTunableNumber PIVOT_KG = new LoggedTunableNumber("AlgaeClaw/kG",0.0);
+    public static final LoggedTunableNumber PIVOT_KV = new LoggedTunableNumber("AlgaeClaw/kV",0.0);
+    public static final LoggedTunableNumber PIVOT_KA = new LoggedTunableNumber("AlgaeClaw/kA",0.0);
 
-    public static final double PIVOT_KP = 0.0;
-    public static final double PIVOT_KI = 0.0;
-    public static final double PIVOT_KD = 0.0;
+    public static final LoggedTunableNumber PIVOT_KP = new LoggedTunableNumber("AlgaeClaw/kP",0.0);
+    public static final LoggedTunableNumber PIVOT_KI = new LoggedTunableNumber("AlgaeClaw/kI",0.0);
+    public static final LoggedTunableNumber PIVOT_KD = new LoggedTunableNumber("AlgaeClaw/kD",0.0);
 
     public static final double MAX_VELOCITY_RAD_PER_SEC = 0.0;
     public static final double MAX_ACCELERATION_RAD_PER_SEC_2 = 0.0;

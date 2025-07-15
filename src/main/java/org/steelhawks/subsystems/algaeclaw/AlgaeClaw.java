@@ -17,6 +17,7 @@ import org.steelhawks.Constants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.LoopTimeUtil;
 import org.steelhawks.util.TunableNumber;
 
@@ -37,8 +38,8 @@ public class AlgaeClaw extends SubsystemBase {
     private AlgaeClawConstants.State desiredGoal = AlgaeClawConstants.State.HOME;
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
-    private final TunableNumber pivotVolts =
-        new TunableNumber("AlgaeClaw/PivotVolts", 0.0);
+    private final LoggedTunableNumber pivotVolts =
+        new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
 
     private boolean brakeModeEnabled = true;
     private boolean shouldEStop = false;
@@ -70,6 +71,15 @@ public class AlgaeClaw extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeClaw", inputs);
+
+        if (Constants.TUNING_MODE) {
+            LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
+                io.setPID(
+                    AlgaeClawConstants.PIVOT_KP.get(),
+                    AlgaeClawConstants.PIVOT_KI.get(),
+                    AlgaeClawConstants.PIVOT_KD.get());
+            }, AlgaeClawConstants.PIVOT_KP, AlgaeClawConstants.PIVOT_KI, AlgaeClawConstants.PIVOT_KD);
+        }
 
         shouldEStop =
             (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderPosition)) == 1)
@@ -110,13 +120,13 @@ public class AlgaeClaw extends SubsystemBase {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
                 io.runPosition(
                     new Rotation2d(setpoint.position),
-                    AlgaeClawConstants.PIVOT_KS * Math.signum(setpoint.velocity)
-                        + AlgaeClawConstants.PIVOT_KG * Math.cos(getPivotPosition())
-                        - (AlgaeClawConstants.PIVOT_KG
+                    AlgaeClawConstants.PIVOT_KS.get() * Math.signum(setpoint.velocity)
+                        + AlgaeClawConstants.PIVOT_KG.get() * Math.cos(getPivotPosition())
+                        - (AlgaeClawConstants.PIVOT_KG.get()
                             * Math.sin(getPivotPosition())
                             * RobotContainer.s_Swerve.getRobotRelativeXAccelGs())
-                        + AlgaeClawConstants.PIVOT_KV * setpoint.velocity
-                        + AlgaeClawConstants.PIVOT_KA * acceleration);
+                        + AlgaeClawConstants.PIVOT_KV.get() * setpoint.velocity
+                        + AlgaeClawConstants.PIVOT_KA.get() * acceleration);
             }
             Logger.recordOutput("AlgaeClaw/SetpointPositionRad", setpoint.position);
             Logger.recordOutput("AlgaeClaw/SetpointVelocityRad", setpoint.velocity);
@@ -187,7 +197,7 @@ public class AlgaeClaw extends SubsystemBase {
             } else {
                 io.stopSpin();
             }
-            double speed = AlgaeClawConstants.PIVOT_KG / 12.0
+            double speed = AlgaeClawConstants.PIVOT_KG.get() / 12.0
                 + MathUtil.clamp(rightAxis.getAsDouble(),
                     -AlgaeClawConstants.MAX_MANUAL_SPEED,
                     AlgaeClawConstants.MAX_MANUAL_SPEED);
@@ -240,7 +250,7 @@ public class AlgaeClaw extends SubsystemBase {
 
     public Command runVoltsOpenLoop() {
         return Commands.run(
-            () -> io.runPivotViaSpeed(pivotVolts.get() + Math.cos(getPivotPosition()) * AlgaeClawConstants.PIVOT_KG), this)
+            () -> io.runPivotViaSpeed(pivotVolts.get() + Math.cos(getPivotPosition()) * AlgaeClawConstants.PIVOT_KG.get()), this)
             .finallyDo(io::stopPivot);
     }
 
