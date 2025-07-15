@@ -12,7 +12,6 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
-import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
@@ -34,11 +33,15 @@ import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.LoopTimeUtil;
 import org.steelhawks.util.VirtualSubsystem;
+import java.lang.reflect.Field;
 
 import static org.steelhawks.Constants.RobotType.*;
 
+
+
 public class Robot extends LoggedRobot {
 
+    private static final double loopOverrunWarningTimeout = 0.2;
     private static RobotState mState = RobotState.DISABLED;
     private final RobotContainer robotContainer;
     private static boolean isFirstRun = true;
@@ -132,6 +135,18 @@ public class Robot extends LoggedRobot {
         }
 
         Logger.start();
+
+        // Adjust loop overrun warning timeout
+        try {
+            Field watchdogField = IterativeRobotBase.class.getDeclaredField("m_watchdog");
+            watchdogField.setAccessible(true);
+            Watchdog watchdog = (Watchdog) watchdogField.get(this);
+            watchdog.setTimeout(loopOverrunWarningTimeout);
+        } catch (Exception e) {
+            DriverStation.reportWarning("Failed to disable loop overrun warnings.", false);
+        }
+        CommandScheduler.getInstance().setPeriod(loopOverrunWarningTimeout);
+
         // Check for valid swerve config
         var modules =
             switch (Constants.getRobot()) {
