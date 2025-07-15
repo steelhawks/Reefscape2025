@@ -97,6 +97,11 @@ public class Claw extends SubsystemBase {
             + Constants.RobotConstants.FLOOR_TO_CLAW_HEIGHT;
 
         double denom = 2 * Math.pow(Math.cos(theta), 2) * (H + (R * Math.tan(theta)));
+        if (Toggles.debugMode.get()) {
+            Logger.recordOutput("Debug/Claw/Denom", denom);
+            Logger.recordOutput("Debug/Claw/R", R);
+            Logger.recordOutput("Debug/Claw/H", H);
+        }
         if (denom <= 0) {
             try {
                 return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
