@@ -20,6 +20,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import org.steelhawks.Constants;
+import org.steelhawks.Toggles;
+
 import java.util.Queue;
 
 
@@ -251,7 +253,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void setTurnPosition(Rotation2d rotation) {
         turnTalon.setControl(
             switch (constants.SteerMotorClosedLoopOutput) {
-                case Voltage -> Constants.USE_MOTION_MAGIC ?
+                case Voltage -> Toggles.motionMagicEnabled.get() ?
                     positionVoltageRequestMotionMagic.withPosition(rotation.getRotations()) :
                         positionVoltageRequest.withPosition(rotation.getRotations());
                 case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(

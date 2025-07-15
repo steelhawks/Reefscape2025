@@ -6,6 +6,7 @@ import java.util.function.DoubleSupplier;
 
 import org.steelhawks.Constants;
 import org.steelhawks.Robot;
+import org.steelhawks.Toggles;
 
 /**
  * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
@@ -93,6 +94,6 @@ public class TunableNumber implements DoubleSupplier {
     }
 
     private boolean isTuningMode() {
-        return Constants.TUNING_MODE || Robot.getState() == Robot.RobotState.TEST;
+        return Toggles.tuningMode.get();
     }
 }

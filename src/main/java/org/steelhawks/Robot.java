@@ -112,7 +112,6 @@ public class Robot extends LoggedRobot {
         Logger.recordMetadata("Robot", Constants.ROBOT_NAME);
         Logger.recordMetadata("Robot Mode", Constants.getMode().toString());
         Logger.recordMetadata("Robot Type", Constants.getRobot().toString());
-        Logger.recordMetadata("Robot in Tuning Mode", String.valueOf(Constants.TUNING_MODE));
 
         // Set up data receivers & replay source
         switch (Constants.getMode()) {

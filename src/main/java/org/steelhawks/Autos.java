@@ -57,7 +57,7 @@ public final class Autos {
         autoChooser.addOption("Center R2", getCenterR2Auton());
         autoChooser.addOption("Center R1", getCenterR1Auton());
 
-        if (Constants.TUNING_MODE) {
+        if (Toggles.tuningMode.get()) {
             /* ------------- Swerve SysId ------------- */
 
             autoChooser.addOption("Swerve Drive (Quasistatic Forward)", s_Swerve.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -97,7 +97,7 @@ public final class Autos {
     }
 
     public static Misalignment getMisalignment() {
-        if (Constants.TUNING_MODE) {
+        if (Toggles.tuningMode.get()) {
             return Misalignment.NONE;
         }
 

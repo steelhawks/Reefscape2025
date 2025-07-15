@@ -10,6 +10,10 @@ public interface Toggles {
 
     LoggedNetworkBoolean debugMode =
         new LoggedNetworkBoolean("Toggles/DebugMode", false);
+    LoggedNetworkBoolean tuningMode =
+        new LoggedNetworkBoolean("Toggles/TuningMode", false);
+    LoggedNetworkBoolean motionMagicEnabled =
+        new LoggedNetworkBoolean("Toggles/MotionMagicEnabled", false);
 
     class Vision {
         public static final LoggedNetworkBoolean visionEnabled =
@@ -27,10 +31,17 @@ public interface Toggles {
     interface Elevator {
         LoggedNetworkBoolean autoElevatorLeveling =
             new LoggedNetworkBoolean("Toggles/AutoElevatorLeveling", true);
+        LoggedNetworkBoolean toggleVoltageOverride =
+            new LoggedNetworkBoolean("Toggles/Elevator/VoltageOverride", false);
     }
 
     interface Claw {
         LoggedNetworkBoolean calculateEjectSpeed =
             new LoggedNetworkBoolean("Toggles/CalculateEjectSpeed", true);
+    }
+
+    interface AlgaeClaw {
+        LoggedNetworkBoolean toggleVoltageOverride =
+            new LoggedNetworkBoolean("Toggles/AlgaeClaw/VoltageOverride", false);
     }
 }

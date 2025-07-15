@@ -245,7 +245,6 @@ public class RobotContainer {
                 new AlgaeClaw(
                     new AlgaeClawIO() {});
         }
-        new Alert("Tuning mode enabled", AlertType.kInfo).set(Constants.TUNING_MODE);
         new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
         Autos.init();
 

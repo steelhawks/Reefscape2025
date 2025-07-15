@@ -1,7 +1,6 @@
 package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -18,10 +17,8 @@ import org.steelhawks.*;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
-import org.steelhawks.util.FieldBoundingBox;
-import org.steelhawks.util.TunableNumber;
+import org.steelhawks.util.LoggedTunableNumber;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Volts;
@@ -36,8 +33,7 @@ public class Elevator extends SubsystemBase {
     private final TrapezoidProfile profile;
     private final SysIdRoutine sysIdRoutine;
     private final DigitalInput reverseLimit;
-    private final TunableNumber tuningVolts =
-        new TunableNumber("Elevator/Volts", 0.0);
+    private LoggedTunableNumber tuningVolts;
 
     private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap elevatorDistanceMap = new InterpolatingDoubleTreeMap();
@@ -160,6 +156,7 @@ public class Elevator extends SubsystemBase {
         final boolean shouldRun =
             DriverStation.isEnabled()
                 && ((isHomed && zeroed) || Constants.getRobot() == RobotType.SIMBOT)
+                && !Toggles.Elevator.toggleVoltageOverride.get()
                 && !isEStopped
                 && !isManual
                 && !isShimmying
@@ -169,6 +166,11 @@ public class Elevator extends SubsystemBase {
                 Math.signum(MathUtil.applyDeadband(inputs.velocityRotPerSec, 0.1)) == 1);
         Logger.recordOutput("Elevator/Running", shouldRun);
         inputs.shouldRunProfile = shouldRun;
+        if (Toggles.debugMode.get()) {
+            Logger.recordOutput("Debug/Elevator/IsHomed", isHomed);
+            Logger.recordOutput("Debug/Elevator/Zeroed", zeroed);
+            Logger.recordOutput("Debug/Elevator/IsShimmying", isShimmying);
+        }
 
         if (DriverStation.isDisabled() && Robot.isFirstRun()) {
             setBrakeMode(false);
@@ -181,7 +183,14 @@ public class Elevator extends SubsystemBase {
             && !atHome().getAsBoolean()) {
             shimmyDown().schedule();
         }
-
+        if (Toggles.tuningMode.get()
+            && Toggles.Elevator.toggleVoltageOverride.get()
+        ) {
+            if (tuningVolts == null) {
+                tuningVolts = new LoggedTunableNumber("Elevator/TuningVolts", 0.0);
+            }
+            io.runElevator(tuningVolts.get());
+        }
         if (shouldRun) {
             if (desiredGoal != ElevatorConstants.State.L4
                 && desiredGoal != ElevatorConstants.State.L1
@@ -218,7 +227,6 @@ public class Elevator extends SubsystemBase {
             }
             atGoal = Math.abs(getPosition() - goal.position) <= ElevatorConstants.TOLERANCE;
             if (atGoal) {
-//                io.stop();
                 io.runElevator(ElevatorConstants.kG[getStage()]);
             } else {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;

@@ -12,14 +12,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Clearances;
-import org.steelhawks.Constants;
-import org.steelhawks.Robot;
-import org.steelhawks.RobotContainer;
+import org.steelhawks.*;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.LoopTimeUtil;
-import org.steelhawks.util.TunableNumber;
 
 import java.util.function.DoubleSupplier;
 
@@ -38,8 +34,7 @@ public class AlgaeClaw extends SubsystemBase {
     private AlgaeClawConstants.State desiredGoal = AlgaeClawConstants.State.HOME;
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
-    private final LoggedTunableNumber pivotVolts =
-        new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
+    private LoggedTunableNumber pivotVolts;
 
     private boolean brakeModeEnabled = true;
     private boolean shouldEStop = false;
@@ -72,7 +67,7 @@ public class AlgaeClaw extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeClaw", inputs);
 
-        if (Constants.TUNING_MODE) {
+        if (Toggles.tuningMode.get()) {
             LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
                 io.setPID(
                     AlgaeClawConstants.PIVOT_KP.get(),
@@ -88,6 +83,7 @@ public class AlgaeClaw extends SubsystemBase {
 
         final boolean shouldRun =
             DriverStation.isEnabled()
+                && !Toggles.AlgaeClaw.toggleVoltageOverride.get()
                 && !shouldEStop
                 && !isManual;
 
@@ -97,7 +93,14 @@ public class AlgaeClaw extends SubsystemBase {
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
-
+        if (Toggles.tuningMode.get()
+            && Toggles.AlgaeClaw.toggleVoltageOverride.get()
+        ) {
+            if (pivotVolts == null) {
+                pivotVolts = new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
+            }
+            io.runPivot(pivotVolts.get());
+        }
         if (shouldRun) {
             double previousVelocity = setpoint.velocity;
             setpoint =
