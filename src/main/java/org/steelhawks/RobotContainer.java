@@ -399,7 +399,7 @@ public class RobotContainer {
                         () -> -driver.getLeftX(),
                         () -> FieldConstants.getClosestCoralStation().getIntakePose().getRotation()),
                     Set.of(s_Swerve))
-                .until(() -> s_Swerve.alignAtGoal())
+                .until(() -> Math.abs(driver.getRightX()) > 0.3)
                 .withName("Angle to Coral Station"));
 
         driver.rightStick().debounce(0.25)

@@ -33,7 +33,6 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.LoopTimeUtil;
-import org.steelhawks.util.OperatorDashboard;
 import org.steelhawks.util.VirtualSubsystem;
 
 import static org.steelhawks.Constants.RobotType.*;
@@ -169,7 +168,6 @@ public class Robot extends LoggedRobot {
         }
 
         robotContainer = new RobotContainer();
-        OperatorDashboard.INSTANCE.initialize();
 
         if (Constants.getRobot() == SIMBOT) {
             DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
