@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Robot.RobotState;
@@ -34,16 +33,13 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.DoublePressTrigger;
-import org.steelhawks.util.FieldBoundingBox;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 
 
 public class RobotContainer {
 
-    private final ReefState s_State = new ReefState();
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve = null;
     public static Vision s_Vision = null;

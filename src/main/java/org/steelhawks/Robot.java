@@ -184,7 +184,7 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
         LoopTimeUtil.record("Commands");
 
-        if (Constants.getRobot() == SIMBOT)
+        if (Constants.getRobot() == SIMBOT || Toggles.debugMode.get())
             updateSimPoseVisualizer();
 
         LoopTimeUtil.record("RobotPeriodic");

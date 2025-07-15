@@ -77,6 +77,10 @@ public class ReefState extends VirtualSubsystem {
     private static boolean coop;
     private int counter = 0;
 
+    static {
+        new ReefState();
+    }
+
     public ReefState() {
         coralMap = new HashMap<>();
         for (String name : REEF_NAMES) {
