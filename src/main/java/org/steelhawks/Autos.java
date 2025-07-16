@@ -52,8 +52,9 @@ public final class Autos {
         /* ------------- Autons ------------- */
 
         autoChooser.addDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
-        autoChooser.addOption("BC2", getBC2Auton());
-        autoChooser.addOption("RC2", getRC2Auton());
+        autoChooser.addOption("BC2", new BC2_Pathless(true));
+        autoChooser.addOption("RC2 End BR1", new RC2_Pathless(false));
+        autoChooser.addOption("RC2 End L2", new RC2_Pathless(true));
         autoChooser.addOption("Center R2", getCenterR2Auton());
         autoChooser.addOption("Center R1", getCenterR1Auton());
 
@@ -231,27 +232,6 @@ public final class Autos {
         return new PathPlannerAuto("curved auto");
     }
 
-    public static Command getBC2Auton() {
-//        return createAuto(StartEndPosition.BC2,
-//            "BC2 to TR1",
-//            "TR1 to Upper Source",
-//            "Upper Source to TL1",
-//            "TL1 to Upper Source",
-//            "Upper Source to TL2")
-//            .withName("BC2");
-        return new BC2_Pathless(true);
-    }
-
-    public static Command getRC2Auton() {
-//        return createAuto(StartEndPosition.RC2,
-//            "RC2 to BR1", // was BR2
-//            "BR2 to Lower Source",
-//            "Lower Source to BL2",
-//            "BL2 to Lower Source",
-//            "Lower Source to BL1")
-//            .withName("RC2");
-        return new RC2_Pathless(false);
-    }
     public static Command getCenterR2Auton() {
         return createAuto(StartEndPosition.CENTER,
             "Center to R2")

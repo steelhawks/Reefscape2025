@@ -3,6 +3,7 @@ package org.steelhawks.commands.autos;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.steelhawks.Autos;
 import org.steelhawks.FieldConstants;
@@ -20,11 +21,16 @@ public class RC2_Pathless extends AutoRoutine {
 
     private static final PathConstraints constraints =
         new PathConstraints(2.0, 3.0, Units.degreesToRadians(240.0), Units.degreesToRadians(180.0));
+    private static final Timer autonTime = new Timer();
+    private static final double runningOutOfTime = 13.0;
 
     public RC2_Pathless(boolean startingBR1) {
         super(
             "RC2_PATHLESS",
-            Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose()))),
+            Commands.runOnce(() -> {
+                s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose()));
+                autonTime.restart();
+            }),
 
             Commands.parallel(
                 Commands.defer(() ->
@@ -108,19 +114,24 @@ public class RC2_Pathless extends AutoRoutine {
                         ? ReefUtil.CoralBranch.L2.getAutonSlowDrivePose(desiredScoreLevel)
                         : ReefUtil.CoralBranch.BR1.getAutonSlowDrivePose(desiredScoreLevel)),
                 Set.of(s_Swerve)),
-            s_Elevator.setDesiredState(desiredScoreLevel),
 
-            Commands.defer(() ->
-                new SwerveDriveAlignment(() ->
-                    startingBR1
-                        ? ReefUtil.CoralBranch.L2.getScorePose(desiredScoreLevel)
-                        : ReefUtil.CoralBranch.BR1.getScorePose(desiredScoreLevel)),
-                Set.of(s_Swerve)),
-            Commands.deadline(
-                Commands.waitSeconds(ELEVATOR_TIMEOUT),
-                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
-            s_Claw.shootCoralEnd(),
-            s_Elevator.setDesiredState(ElevatorConstants.State.HOME)
+            Commands.defer(() -> {
+                var level =
+                    autonTime.hasElapsed(runningOutOfTime) && startingBR1
+                        ? ElevatorConstants.State.L2
+                        : desiredScoreLevel;
+                return s_Elevator.setDesiredState(level)
+                    .andThen(
+                        new SwerveDriveAlignment(() ->
+                        startingBR1
+                            ? ReefUtil.CoralBranch.L2.getScorePose(level)
+                            : ReefUtil.CoralBranch.BR1.getScorePose(level)),
+                    Commands.deadline(
+                        Commands.waitSeconds(ELEVATOR_TIMEOUT),
+                        Commands.waitUntil(s_Elevator.atThisGoal(level))),
+                        s_Claw.shootCoralEnd(),
+                        s_Elevator.setDesiredState(ElevatorConstants.State.HOME));
+            }, Set.of(s_Swerve))
         );
     }
 }
