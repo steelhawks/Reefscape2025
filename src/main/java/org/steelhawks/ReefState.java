@@ -2,6 +2,7 @@ package org.steelhawks;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.ReefUtil.CoralBranch;
@@ -65,9 +66,10 @@ public class ReefState extends VirtualSubsystem {
         return toBranchFromCode(branch.name());
     }
 
-    private static final String troughKey = "TroughCount";
-    private static final String coopKey = "coop";
-    private static final String goal = "goal";
+    private static final NetworkTableEntry troughEntry;
+    private static final NetworkTableEntry coopEntry;
+    private static final NetworkTableEntry overrideEntry;
+    private static final NetworkTableEntry goalEntry;
 
     // for levels 2–4 each reef has 3 branches; level1 uses troughCount
     private static final NetworkTable reefData = NetworkTableInstance.getDefault().getTable("ReefData");
@@ -78,6 +80,11 @@ public class ReefState extends VirtualSubsystem {
     private int counter = 0;
 
     static {
+        troughEntry = reefData.getEntry("TroughCount");
+        coopEntry = reefData.getEntry("coop");
+        overrideEntry = reefData.getEntry("override");
+        goalEntry = reefData.getEntry("goal");
+
         new ReefState();
     }
 
@@ -151,10 +158,10 @@ public class ReefState extends VirtualSubsystem {
 
     public void updateFromNetworkTables() {
         // read troughCount
-        troughCount = (int) reefData.getEntry(troughKey).getInteger(0);
+        troughCount = (int) troughEntry.getInteger(0);
 
         // read coop flag
-        coop = reefData.getEntry(coopKey).getBoolean(false);
+        coop = coopEntry.getBoolean(false);
 
         // read every coral array entry
         for (String name : REEF_NAMES) {
@@ -233,9 +240,7 @@ public class ReefState extends VirtualSubsystem {
      */
     public static void setTroughCount(int count) {
         troughCount = count;
-        reefData
-            .getEntry(troughKey)
-            .setNumber(count);
+        troughEntry.setNumber(count);
     }
 
     /**
@@ -243,9 +248,7 @@ public class ReefState extends VirtualSubsystem {
      */
     public static void setCoop(boolean c) {
         coop = c;
-        reefData
-            .getEntry(coopKey)
-            .setBoolean(c);
+        coopEntry.setBoolean(c);
     }
 
     /**
@@ -278,7 +281,7 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public static boolean achievedCoralRP() {
-        return reefData.getEntry(coopKey).getBoolean(false);
+        return coopEntry.getBoolean(false);
     }
 
     /**
@@ -483,7 +486,7 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public static ScoreGoal dynamicScoreRoutine() {
-        String goal = reefData.getEntry(ReefState.goal).getString("");
+        String goal = goalEntry.getString("");
         Logger.recordOutput("Align/AutoScoreGoal", goal);
         return switch (goal) {
             case "CORALRP" -> getNextForCoralRP();
@@ -513,7 +516,7 @@ public class ReefState extends VirtualSubsystem {
     }
 
     public static boolean hasOverriden() {
-        return reefData.getEntry("override").getBoolean(false);
+        return overrideEntry.getBoolean(false);
     }
 
     public record ScoreGoal(ElevatorConstants.State state, CoralBranch branch) {}
