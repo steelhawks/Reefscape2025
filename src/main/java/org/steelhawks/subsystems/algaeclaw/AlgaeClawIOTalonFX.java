@@ -36,6 +36,10 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     private final StatusSignal<Current> spinCurrent;
     private final StatusSignal<Temperature> spinTemperature;
 
+    private final StatusSignal<Angle> encoderPosition;
+    private final StatusSignal<Angle> encoderAbsPosition;
+    private final StatusSignal<AngularVelocity> encoderVelocity;
+
     public AlgaeClawIOTalonFX() {
         config = new TalonFXConfiguration();
         canCoderConfig = new CANcoderConfiguration();
@@ -65,6 +69,10 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         spinVoltage = spinMotor.getSupplyVoltage();
         spinCurrent = spinMotor.getStatorCurrent();
         spinTemperature = spinMotor.getDeviceTemp();
+
+        encoderPosition = pivotEncoder.getPosition();
+        encoderAbsPosition = pivotEncoder.getAbsolutePosition();
+        encoderVelocity = pivotEncoder.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             100,
@@ -113,6 +121,9 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         inputs.spinTemperature = spinTemperature.getValueAsDouble();
 
         inputs.encoderConnected = pivotEncoder.isConnected();
+        inputs.encoderPosition = Units.rotationsToRadians(encoderPosition.getValueAsDouble());
+        inputs.encoderAbsolutePosition = Units.rotationsToRadians(encoderAbsPosition.getValueAsDouble());
+        inputs.encoderVelocity = Units.rotationsToRadians(encoderVelocity.getValueAsDouble());
     }
 
     @Override

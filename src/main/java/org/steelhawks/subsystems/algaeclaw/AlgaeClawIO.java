@@ -25,8 +25,8 @@ public interface AlgaeClawIO {
 
         public boolean encoderConnected = false;
         public double encoderPosition = 0.0;
+        public double encoderAbsolutePosition = 0.0;
         public double encoderVelocity = 0.0;
-        public double encoderAppliedVolts = 0.0;
     }
 
     default void updateInputs(AlgaeClawIOInputs inputs) {}

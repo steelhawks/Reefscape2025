@@ -56,7 +56,6 @@ public class AlgaeClawIOSim implements AlgaeClawIO {
         inputs.encoderConnected = true;
         inputs.encoderPosition = sim.getAngleRads();
         inputs.encoderVelocity = sim.getVelocityRadPerSec();
-        inputs.encoderAppliedVolts = pivotVoltage * 0.01;
 
         sim.update(Constants.UPDATE_LOOP_DT);
     }

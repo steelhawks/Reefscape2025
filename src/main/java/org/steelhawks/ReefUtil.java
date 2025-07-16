@@ -62,16 +62,7 @@ public class ReefUtil {
                     new Rotation2d()));
         }
 
-        public Pose2d getScorePose(ElevatorConstants.State level) {
-            double distFromReef = Units.inchesToMeters(
-                switch (level) {
-                    case L1 -> 0.5;
-                    case L2 -> 0.0; // find the distance from the reef to the branch
-                    case L3 -> 0.0;
-                    case L4 -> 0.0;
-                    default -> throw new IllegalArgumentException("Invalid level: " + level);
-            });
-
+        public Pose2d getScorePose(ElevatorConstants.State level, double distFromReef) {
             return level != ElevatorConstants.State.L1
                 ? getAprilTagPose().transformBy(
                 new Transform2d(
@@ -87,19 +78,33 @@ public class ReefUtil {
                         new Rotation2d(Math.PI)));
         }
 
+        public Pose2d getScorePose(ElevatorConstants.State level) {
+            double distFromReef = Units.inchesToMeters(
+                switch (level) {
+                    case L1 -> 0.5;
+                    case L2 -> 0.0; // find the distance from the reef to the branch
+                    case L3 -> 0.0;
+                    case L4 -> 0.0;
+                    default -> throw new IllegalArgumentException("Invalid level: " + level);
+                });
+            return getScorePose(level, distFromReef);
+        }
+
         public Pose2d getStagingPose(ElevatorConstants.State level) {
-            return getScorePose(level)
-                .transformBy(
-                    new Transform2d(
-                        Units.inchesToMeters(-15.0),
-                        0.0,
-                        new Rotation2d()));
+//            return getScorePose(level)
+//                .transformBy(
+//                    new Transform2d(
+//                        Units.inchesToMeters(-15.0),
+//                        0.0,
+//                        new Rotation2d()));
+            return getScorePose(level, Units.inchesToMeters(15.0));
         }
 
         public Pose2d getAutonSlowDrivePose(ElevatorConstants.State level) {
-            return getScorePose(level)
-                .transformBy(
-                    new Transform2d(Units.inchesToMeters(-20.0), 0.0, new Rotation2d()));
+//            return getScorePose(level)
+//                .transformBy(
+//                    new Transform2d(Units.inchesToMeters(-20.0), 0.0, new Rotation2d()));
+            return getScorePose(level, Units.inchesToMeters(20.0));
         }
     }
 

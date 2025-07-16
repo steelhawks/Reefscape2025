@@ -18,6 +18,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.Constants.AutonConstants;
 import org.steelhawks.FieldConstants;
+import org.steelhawks.ReefState;
 import org.steelhawks.ReefUtil;
 import org.steelhawks.ReefUtil.CoralBranch;
 import org.steelhawks.commands.DriveCommands;
@@ -141,7 +142,14 @@ public class Align extends VirtualSubsystem {
 
     public static Command alignWithSetpoint(CoralBranch branch, State level, boolean endsWhenAligned) {
         return DriveCommands.driveToPosition(branch.getStagingPose(level))
-            .andThen(new SwerveDriveAlignment(branch.getScorePose(level), endsWhenAligned).withTimeout(1.0));
+            .andThen(new SwerveDriveAlignment(getDynamicBranchDistance(new ReefState.ScoreGoal(level, branch)), endsWhenAligned).withTimeout(1.0));
+    }
+
+    private static Supplier<Pose2d> getDynamicBranchDistance(ReefState.ScoreGoal goal) {
+        return () ->
+            RobotContainer.s_Swerve.isStalling()
+                ? goal.branch().getScorePose(goal.state(), Units.inchesToMeters(3.5))
+                : goal.branch().getScorePose(goal.state());
     }
 
     public Command forwardUntil(Rotation2d angle) {
