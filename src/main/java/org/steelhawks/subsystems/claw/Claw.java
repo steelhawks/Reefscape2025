@@ -29,6 +29,7 @@ public class Claw extends SubsystemBase {
     private static final double DEBOUNCE_TIME = 0.15;
     private boolean isIntaking = true;
     private boolean isIndexing = false;
+    private boolean hasIndexed = false;
 
     private final BeamIOInputsAutoLogged beamInputs = new BeamIOInputsAutoLogged();
     private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
@@ -48,6 +49,7 @@ public class Claw extends SubsystemBase {
         this.beamIO = beamIO;
         this.io = io;
         beamDebounce = new Debouncer(DEBOUNCE_TIME, DebounceType.kBoth);
+
     }
 
     @Override
@@ -57,6 +59,7 @@ public class Claw extends SubsystemBase {
         Logger.processInputs("BeamBreak", beamInputs);
         Logger.processInputs("Claw", inputs);
         Logger.recordOutput("Claw/HasCoral", hasCoral());
+        Logger.recordOutput("Claw/HasIndexed", hasIndexed);
     }
 
     /**
@@ -138,7 +141,8 @@ public class Claw extends SubsystemBase {
         return new ParallelDeadlineGroup(
             Commands.waitUntil(() -> !RobotContainer.s_Claw.hasCoral())
                 .andThen(Commands.waitSeconds(0.25)),
-            shootCoral());
+            shootCoral()
+                    .andThen(() -> hasIndexed = false));
     }
 
     public Command reverseCoral() {
@@ -149,6 +153,7 @@ public class Claw extends SubsystemBase {
         return Commands.run(
             () -> {
                 Clearances.ClawClearances.hasShot = true;
+                hasIndexed = false;
                 isIntaking = true;
                 if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
                     if (hasCoral()
@@ -168,14 +173,20 @@ public class Claw extends SubsystemBase {
 
     public Command indexCoral() {
         return Commands.run(() -> {
-            if (!hasCoral() && !isIndexing) {
+            if (!hasCoral() && !isIndexing && !hasIndexed) {
                 io.runIntake(ClawConstants.CLAW_INDEX_SPEED.get());
-            } else if (hasCoral() && !isIndexing) {
+            } else if (hasCoral() && !isIndexing && !hasIndexed) {
                 isIndexing = true;
-                io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get());
-            } else if (isIndexing) {
-                stop();
-                isIndexing = false;
+            }
+
+            if (isIndexing) {
+                if (hasCoral()) {
+                    io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get() * 2);
+                    hasIndexed = true;
+                } else {
+                    stop();
+                    isIndexing = false;
+                }
             }
         }, this);
     }
