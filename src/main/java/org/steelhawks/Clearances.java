@@ -47,8 +47,10 @@ public class Clearances {
         }
 
         public static boolean isClearFromElevatorCrossbeam() {
-            return s_AlgaeClaw.getPivotPosition() >= MIN_ANGLE_CLEAR_FROM_HOME
-                || s_Elevator.atHome().getAsBoolean();
+            // call robotcontainer algaeclaw because here you are dereferencing the pointer
+            // if algaeclaw is null we assume there is no algaeclaw on the robot
+            return RobotContainer.s_AlgaeClaw == null
+                || (s_AlgaeClaw.getPivotPosition() >= MIN_ANGLE_CLEAR_FROM_HOME || s_Elevator.atHome().getAsBoolean());
         }
     }
 
