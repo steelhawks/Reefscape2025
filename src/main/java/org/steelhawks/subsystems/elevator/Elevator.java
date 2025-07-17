@@ -179,8 +179,10 @@ public class Elevator extends SubsystemBase {
             setBrakeMode(true);
         }
         if (FieldConstants.ROBOT_IN_CORAL_STATION_ZONE.getAsBoolean()
+            && !atHome().getAsBoolean()
             && !isShimmying
-            && !atHome().getAsBoolean()) {
+            && shouldRun
+        ) {
             shimmyDown().schedule();
         }
         if (Toggles.tuningMode.get()
