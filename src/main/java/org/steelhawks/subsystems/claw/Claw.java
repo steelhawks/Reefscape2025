@@ -6,16 +6,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.*;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOInputsAutoLogged;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
+import org.steelhawks.subsystems.elevator.Elevator;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.Conversions;
 
@@ -71,13 +69,13 @@ public class Claw extends SubsystemBase {
         if (!Toggles.Claw.calculateEjectSpeed.get()) {
             try {
                 return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
-                    ? ClawConstants.CLAW_SHOOT_SPEED
-                    : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
+                        ? ClawConstants.CLAW_SHOOT_SPEED
+                        : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
             } catch (NullPointerException e) {
                 DriverStation.reportWarning(
-                    "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
+                        "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
                 throw new IllegalCallerException(
-                    "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
+                        "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
             }
         }
         // v0 = sqrt((g * R^2) / 2cos^2(theta) * (Rtan(theta) + h)
@@ -86,18 +84,18 @@ public class Claw extends SubsystemBase {
         final double theta = Math.toRadians(-35.0); // claw is angled downwards 35 degrees
         final double G = 9.81;
         final double R = // range away from branch
-            RobotContainer.s_Swerve
-                .getPose()
-                .getTranslation()
-                .getDistance(ReefUtil.getClosestCoralBranch()
-                    .getBranchPoseProjectedToReefFace().minus(
-                        new Pose2d(0.0, Units.inchesToMeters(4.0), new Rotation2d()))
-                    .getTranslation());
+                RobotContainer.s_Swerve
+                        .getPose()
+                        .getTranslation()
+                        .getDistance(ReefUtil.getClosestCoralBranch()
+                                .getBranchPoseProjectedToReefFace().minus(
+                                        new Pose2d(0.0, Units.inchesToMeters(4.0), new Rotation2d()))
+                                .getTranslation());
         final double H = // elevator height, vertical height in meters
-            Conversions.rotationsToMeters(
-                RobotContainer.s_Elevator.getPosition(),
-                ElevatorConstants.SPROCKET_RAD * Math.PI * 2.0)
-            + Constants.RobotConstants.FLOOR_TO_CLAW_HEIGHT;
+                Conversions.rotationsToMeters(
+                        RobotContainer.s_Elevator.getPosition(),
+                        ElevatorConstants.SPROCKET_RAD * Math.PI * 2.0)
+                        + Constants.RobotConstants.FLOOR_TO_CLAW_HEIGHT;
 
         double denom = 2 * Math.pow(Math.cos(theta), 2) * (H + (R * Math.tan(theta)));
         if (Toggles.debugMode.get()) {
@@ -108,13 +106,13 @@ public class Claw extends SubsystemBase {
         if (denom <= 0) {
             try {
                 return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
-                    ? ClawConstants.CLAW_SHOOT_SPEED
-                    : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
+                        ? ClawConstants.CLAW_SHOOT_SPEED
+                        : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
             } catch (NullPointerException e) {
                 DriverStation.reportWarning(
-                    "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
+                        "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
                 throw new IllegalCallerException(
-                    "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
+                        "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
             }
         }
 
@@ -133,16 +131,16 @@ public class Claw extends SubsystemBase {
 
     public Command shootCoral() {
         return Commands.defer(() ->
-            shootCoral(getFireSpeed()),
-        Set.of(this));
+                        shootCoral(getFireSpeed()),
+                Set.of(this));
     }
 
     public Command shootCoralEnd() {
         return new ParallelDeadlineGroup(
-            Commands.waitUntil(() -> !RobotContainer.s_Claw.hasCoral())
-                .andThen(Commands.waitSeconds(0.25)),
-            shootCoral()
-                    .andThen(() -> hasIndexed = false));
+                Commands.waitUntil(() -> !RobotContainer.s_Claw.hasCoral())
+                        .andThen(Commands.waitSeconds(0.25)),
+                shootCoral()
+                        .andThen(() -> hasIndexed = false));
     }
 
     public Command reverseCoral() {
@@ -151,26 +149,36 @@ public class Claw extends SubsystemBase {
 
     private Command shootCoral(double speed) {
         return Commands.run(
-            () -> {
-                Clearances.ClawClearances.hasShot = true;
-                hasIndexed = false;
-                isIntaking = true;
-                if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
-                    if (hasCoral()
-                        && RobotContainer.s_Elevator.isScoringLevel()
-                        && RobotContainer.s_Swerve.getPose().getTranslation()
-                            .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
-                        ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
-                    }
-                    if (Constants.getRobot() == Constants.RobotType.SIMBOT) {
-                        BeamIOSim.hasShot();
-                    }
-                }
-                io.runIntake(speed);
-            }, this)
-            .finallyDo(this::stop);
+                        () -> {
+                            Clearances.ClawClearances.hasShot = true;
+//                hasIndexed = false;
+                            isIntaking = true;
+                            if (speed > 0) { // check if speed is positive, shooting outwards, so you dont place on the reef if you intake back into claw
+                                if (hasCoral()
+                                        && RobotContainer.s_Elevator.isScoringLevel()
+                                        && RobotContainer.s_Swerve.getPose().getTranslation()
+                                        .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6) {
+                                    ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
+                                }
+                                if (Constants.getRobot() == Constants.RobotType.SIMBOT) {
+                                    BeamIOSim.hasShot();
+                                }
+                            }
+                            io.runIntake(speed);
+                        }, this)
+                .finallyDo(
+                    () -> {
+                        stop();
+                        CommandScheduler.getInstance().schedule(
+                            Commands.waitSeconds(0.5)
+                                    .andThen(() -> {
+                                        hasIndexed = false;
+                                        isIntaking = false;
+                                    }
+                        ));
+                    });
     }
-
+//                            Commands.waitUntil(RobotContainer.s_Elevator.getPosition() < 0.1);
     public Command indexCoral() {
         return Commands.run(() -> {
             if (!hasCoral() && !isIndexing && !hasIndexed) {
@@ -181,18 +189,17 @@ public class Claw extends SubsystemBase {
 
             if (isIndexing) {
                 if (hasCoral()) {
-                    io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get() * 2);
+                    io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get() * 1.3);
                     hasIndexed = true;
                 } else {
-                    stop();
                     isIndexing = false;
+                    stop();
+                    }
                 }
-            }
         }, this);
     }
 
     private void stop() {
-        isIntaking = false;
         io.stop();
     }
 }

@@ -64,9 +64,10 @@ public class ElevatorConstants {
 
     public static final Double[] kV = {
         Constants.omega(
-        (2.0 - 1.0) / (0.6660156249999999 - 0.287109375), 0.0),
+        (2.0 - 1.0) / (0.64453125 - 0.294921875), 0.0),
         0.0,
         0.0
+
     };
 
     public static final Double[] kG = {
