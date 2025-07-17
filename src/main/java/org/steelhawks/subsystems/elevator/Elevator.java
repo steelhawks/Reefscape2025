@@ -381,8 +381,4 @@ public class Elevator extends SubsystemBase {
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return Commands.runOnce(() -> isManual = true).andThen(sysIdRoutine.dynamic(direction));
     }
-
-    public void runCharacterizer() {
-        io.runElevator(tuningVolts.get());
-    }
 }
