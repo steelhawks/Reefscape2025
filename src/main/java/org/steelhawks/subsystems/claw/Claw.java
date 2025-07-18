@@ -148,6 +148,7 @@ public class Claw extends SubsystemBase {
                         && RobotContainer.s_Elevator.isScoringLevel()
                         && RobotContainer.s_Swerve.getPose().getTranslation()
                             .getDistance(ReefUtil.getClosestCoralBranch().getBranchPoseProjectedToReefFace().getTranslation()) <= 0.6
+                        && Toggles.autoMark.get()
                     ) {
                         ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), RobotContainer.s_Elevator.getState());
                     }

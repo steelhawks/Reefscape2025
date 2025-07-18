@@ -586,7 +586,7 @@ public class Swerve extends SubsystemBase {
 
     @AutoLogOutput(key = "Swerve/Is Slow Mode")
     public boolean isSlowMode() {
-        return SPEED_MULTIPLIER == SLOW_SPEED_MULTIPLIER;
+        return requestSlowMode;
     }
 
     /**

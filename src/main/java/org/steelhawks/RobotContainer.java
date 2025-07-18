@@ -422,7 +422,7 @@ public class RobotContainer {
         driver.povLeft()
             .whileTrue(
                 s_Claw.reverseCoral()
-                    .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
+                .alongWith(LED.getInstance().flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
 
         driver.povDown()
             .whileTrue(
