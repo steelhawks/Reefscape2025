@@ -487,9 +487,9 @@ public class RobotContainer {
             .onFalse(
                 Commands.runOnce(() -> {
                     if (!toggleTriggered) {
-                        ReefState.autoMark = !ReefState.autoMark;
-                        autoMarkingDisabled.set(!ReefState.autoMark);
-                        if (ReefState.autoMark) {
+                        Toggles.autoMark.set(!Toggles.autoMark.get());
+                        autoMarkingDisabled.set(!Toggles.autoMark.get());
+                        if (Toggles.autoMark.get()) {
                             s_LED.flashCommand(LEDColor.GREEN, 0.2, 2.0).schedule();
                         } else {
                             s_LED.flashCommand(LEDColor.RED, 0.2, 2.0).schedule();

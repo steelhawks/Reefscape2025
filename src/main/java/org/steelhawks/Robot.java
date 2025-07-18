@@ -38,7 +38,6 @@ import java.lang.reflect.Field;
 import static org.steelhawks.Constants.RobotType.*;
 
 
-
 public class Robot extends LoggedRobot {
 
     private static final double loopOverrunWarningTimeout = 0.2;
@@ -181,6 +180,7 @@ public class Robot extends LoggedRobot {
         }
 
         robotContainer = new RobotContainer();
+        ReefState.hasOverriden(); // invoke just in case
 
         if (Constants.getRobot() == SIMBOT) {
             DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
