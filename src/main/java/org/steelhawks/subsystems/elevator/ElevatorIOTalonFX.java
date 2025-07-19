@@ -52,7 +52,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
-        positionVoltage = new PositionVoltage(0.0).withSlot(0);
+        positionVoltage = new PositionVoltage(0.0).withSlot(0).withEnableFOC(true);
         voltageOut = new VoltageOut(0.0);
         dutyCycle = new DutyCycleOut(0.0);
 

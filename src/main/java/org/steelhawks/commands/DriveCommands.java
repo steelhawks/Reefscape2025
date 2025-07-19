@@ -26,11 +26,13 @@ import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
 import org.steelhawks.Constants.*;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 
 public class DriveCommands {
 
+    private static final SlewRateLimiter joystickLimiter = new SlewRateLimiter(0.3);
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
     private static final double FF_START_DELAY = 2.0; // Secs
@@ -60,7 +62,13 @@ public class DriveCommands {
         return Commands.run(
             () -> {
                 Translation2d linearVelocity =
-                    getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    getLinearVelocityFromJoysticks(
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(xSupplier.getAsDouble())
+                            : xSupplier.getAsDouble(),
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(ySupplier.getAsDouble())
+                            : ySupplier.getAsDouble());
 
                 double omega =
                     MathUtil.applyDeadband(omegaSupplier.getAsDouble(), Deadbands.DRIVE_DEADBAND);
@@ -86,7 +94,13 @@ public class DriveCommands {
                 Rotation2d validatedTarget = AllianceFlip.apply(rotationSupplier.get());
 
                 Translation2d linearVelocity =
-                    getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    getLinearVelocityFromJoysticks(
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(xSupplier.getAsDouble())
+                            : xSupplier.getAsDouble(),
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(ySupplier.getAsDouble())
+                            : ySupplier.getAsDouble());
 
                 double omega =
                     alignController.calculate(

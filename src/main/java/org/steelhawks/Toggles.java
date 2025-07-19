@@ -19,6 +19,9 @@ public interface Toggles {
     LoggedNetworkBoolean motionMagicEnabled =
         new LoggedNetworkBoolean("Toggles/MotionMagicEnabled", false);
 
+    LoggedNetworkBoolean rateLimitSwerveEnabled =
+        new LoggedNetworkBoolean("Toggles/RateLimitSwerveEnabled", false);
+
     class Vision {
         public static final LoggedNetworkBoolean visionEnabled =
             new LoggedNetworkBoolean("Toggles/VisionEnabled", true);
