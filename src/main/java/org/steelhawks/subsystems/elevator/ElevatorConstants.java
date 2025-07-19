@@ -3,7 +3,9 @@ package org.steelhawks.subsystems.elevator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
+import org.steelhawks.util.LoggedTunableNumber;
 
+@SuppressWarnings("ConstantConditions")
 public class ElevatorConstants {
 
     public enum State {
@@ -48,23 +50,23 @@ public class ElevatorConstants {
     public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(40.0, 20.0);
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final Double KP = Constants.omega(20.0, 6.0);
+    public static final LoggedTunableNumber KP = new LoggedTunableNumber("Elevator/kP", Constants.omega(0.0, 6.0));
     public static final double KI = 0.0;
-    public static final Double KD = Constants.omega(5.5, 0.4);
+    public static final LoggedTunableNumber KD = new LoggedTunableNumber("Elevator/kI", Constants.omega(0.0, 0.4));
 
     public static final double ELEVATOR_DISTANCE_INTERPOLATOR_MAX = 0.6;
     public static final double SHIMMY_VOLTS = -5.0;
     public static final double HOMING_VOLTS = -3.0;
 
     public static final Double[] kS = {
-        Constants.omega(0.03, 0.0),
+        Constants.omega(0.0, 0.0),
         0.0,
         0.0
     };
 
     public static final Double[] kV = {
         Constants.omega(
-        (2.0 - 1.0) / (0.64453125 - 0.294921875), 0.0),
+        0.0, 0.0),
         0.0,
         0.0
 

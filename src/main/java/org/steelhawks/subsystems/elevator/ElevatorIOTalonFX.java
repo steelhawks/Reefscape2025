@@ -10,7 +10,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.*;
-import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 
 import static org.steelhawks.util.PhoenixUtil.tryUntilOk;
@@ -22,7 +21,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX leftMotor;
     private final TalonFX rightMotor;
 
-    private final PositionVoltage positionVoltage;
+    private final PositionTorqueCurrentFOC positionTorqueCurrentFOC;
+    private final TorqueCurrentFOC torqueCurrent;
     private final VoltageOut voltageOut;
     private final DutyCycleOut dutyCycle;
 
@@ -30,12 +30,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final StatusSignal<AngularVelocity> leftVelocity;
     private final StatusSignal<Voltage> leftVoltage;
     private final StatusSignal<Current> leftCurrent;
+    private final StatusSignal<Current> leftTorqueCurrent;
     private final StatusSignal<Temperature> leftTemp;
 
     private final StatusSignal<Angle> rightPosition;
     private final StatusSignal<AngularVelocity> rightVelocity;
     private final StatusSignal<Voltage> rightVoltage;
     private final StatusSignal<Current> rightCurrent;
+    private final StatusSignal<Current> rightTorqueCurrent;
     private final StatusSignal<Temperature> rightTemp;
 
     public ElevatorIOTalonFX() {
@@ -45,14 +47,15 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.Slot0 = new Slot0Configs()
-            .withKP(ElevatorConstants.KP)
+            .withKP(ElevatorConstants.KP.get())
             .withKI(ElevatorConstants.KI)
-            .withKD(ElevatorConstants.KD);
+            .withKD(ElevatorConstants.KD.get());
         config.Feedback.SensorToMechanismRatio = ElevatorConstants.REDUCTION;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
-        positionVoltage = new PositionVoltage(0.0).withSlot(0).withEnableFOC(true);
+        positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0.0).withSlot(0);
+        torqueCurrent = new TorqueCurrentFOC(0.0);
         voltageOut = new VoltageOut(0.0);
         dutyCycle = new DutyCycleOut(0.0);
 
@@ -60,12 +63,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leftVelocity = leftMotor.getVelocity();
         leftVoltage = leftMotor.getSupplyVoltage();
         leftCurrent = leftMotor.getStatorCurrent();
+        leftTorqueCurrent = leftMotor.getTorqueCurrent();
         leftTemp = leftMotor.getDeviceTemp();
 
         rightPosition = rightMotor.getPosition();
         rightVelocity = rightMotor.getVelocity();
         rightVoltage = rightMotor.getSupplyVoltage();
         rightCurrent = rightMotor.getStatorCurrent();
+        rightTorqueCurrent = rightMotor.getTorqueCurrent();
         rightTemp = rightMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -74,12 +79,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             leftVelocity,
             leftVoltage,
             leftCurrent,
+            leftTorqueCurrent,
             leftTemp,
 
             rightPosition,
             rightVelocity,
             rightVoltage,
             rightCurrent,
+            rightTorqueCurrent,
             rightTemp);
         ParentDevice.optimizeBusUtilizationForAll(leftMotor, rightMotor);
         zeroEncoders();
@@ -98,8 +105,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.velocityRotPerSec = leftVelocity.getValueAsDouble();
         inputs.leftAppliedVolts = leftVoltage.getValueAsDouble();
         inputs.leftCurrentAmps = leftCurrent.getValueAsDouble();
+        inputs.leftTorqueCurrentAmps = leftTorqueCurrent.getValueAsDouble();
         inputs.leftTempCelsius = leftTemp.getValueAsDouble();
-        Logger.recordOutput("Elevator/VelocityRot", leftVelocity.getValueAsDouble());
 
         inputs.rightConnected =
             BaseStatusSignal.refreshAll(
@@ -110,6 +117,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 rightTemp).isOK();
         inputs.rightAppliedVolts = rightVoltage.getValueAsDouble();
         inputs.rightCurrentAmps = rightCurrent.getValueAsDouble();
+        inputs.rightTorqueCurrentAmps = rightTorqueCurrent.getValueAsDouble();
         inputs.rightTempCelsius = rightTemp.getValueAsDouble();
     }
 
@@ -117,6 +125,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void runElevator(double volts) {
         leftMotor.setControl(
             voltageOut.withOutput(volts));
+    }
+
+    /**
+     * Current output
+     * @param output Current in amperes
+     */
+    @Override
+    public void runOpenLoop(double output) {
+        leftMotor.setControl(
+            torqueCurrent.withOutput(output));
     }
 
     @Override
@@ -128,7 +146,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     @Override
     public void runPosition(double positionRot, double feedforward) {
         leftMotor.setControl(
-            positionVoltage
+            positionTorqueCurrentFOC
                 .withPosition(positionRot)
                 .withFeedForward(feedforward));
     }

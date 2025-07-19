@@ -34,6 +34,7 @@ public class Elevator extends SubsystemBase {
     private final SysIdRoutine sysIdRoutine;
     private final DigitalInput reverseLimit;
     private LoggedTunableNumber tuningVolts;
+    private LoggedTunableNumber tuningAmps;
 
     private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap elevatorDistanceMap = new InterpolatingDoubleTreeMap();
@@ -80,7 +81,7 @@ public class Elevator extends SubsystemBase {
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runElevator(voltage.in(Volts)), null, this));
         reverseLimit = new DigitalInput(REVERSE_LIMIT_ID);
-        isHomed = !reverseLimit.get();
+        isHomed = Constants.getRobot() == RobotType.SIMBOT || !reverseLimit.get();
     }
 
     public boolean isHomed() {
@@ -185,13 +186,25 @@ public class Elevator extends SubsystemBase {
         ) {
             shimmyDown().schedule();
         }
-        if (Toggles.tuningMode.get()
-            && Toggles.Elevator.toggleVoltageOverride.get()
-        ) {
-            if (tuningVolts == null) {
-                tuningVolts = new LoggedTunableNumber("Elevator/TuningVolts", 0.0);
+        if (Toggles.tuningMode.get()) {
+            if (Toggles.Elevator.toggleVoltageOverride.get()) {
+                if (tuningVolts == null) {
+                    tuningVolts = new LoggedTunableNumber("Elevator/TuningVolts", 0.0);
+                }
+                io.runElevator(tuningVolts.get());
             }
-            io.runElevator(tuningVolts.get());
+            if (Toggles.Elevator.toggleCurrentOverride.get()) {
+                if (tuningAmps == null) {
+                    tuningAmps = new LoggedTunableNumber("Elevator/TuningAmps", 0.0);
+                }
+                io.runOpenLoop(tuningAmps.get());
+            }
+            LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
+                io.setPID(
+                    ElevatorConstants.KP.get(),
+                    ElevatorConstants.KI,
+                    ElevatorConstants.KD.get());
+            }, ElevatorConstants.KP, ElevatorConstants.KD);
         }
         if (shouldRun) {
             if (desiredGoal != ElevatorConstants.State.L4
