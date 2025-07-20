@@ -52,6 +52,7 @@ public class SwerveDriveAlignment extends Command {
     }
 
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose, boolean endsWhenAligned) {
+        setName("SwerveDriveAlignment");
         addRequirements(s_Swerve);
 //        dashboardTargetPosePublisher = FieldConstants.FIELD_2D.getObject("Trajectory Setpoint");
         this.targetPose = targetPose;
@@ -99,7 +100,7 @@ public class SwerveDriveAlignment extends Command {
         return Math.abs(filter.calculate(velocityError)) < MAX_VELOCITY_ERROR_TOLERANCE;
     }
 
-    protected boolean isAligned() {
+    public boolean isAligned() {
         return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance();
     }
 

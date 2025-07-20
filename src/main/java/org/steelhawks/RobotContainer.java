@@ -356,12 +356,25 @@ public class RobotContainer {
                         s_Elevator.toggleManualControl(() -> -driver.getLeftY())));
 
         driver.leftBumper()
-            .whileTrue(
+            .or(driver.rightBumper())
+            .and(() -> s_Swerve.isPathfinding())
+            .onTrue(
+                Commands.runOnce(() -> {
+                    Align.hasPriority = true;
+                    Align.priorityLeft = driver.leftBumper().getAsBoolean();
+                }))
+            .onFalse(
+                Commands.waitUntil(s_Swerve::driveAlignAtGoal)
+                    .andThen(Commands.runOnce(() -> Align.hasPriority = false)));
+
+        driver.leftBumper()
+            .and(() -> !s_Swerve.isPathfinding())
+            .onTrue(
                 Commands.defer(
                     () -> Commands.sequence(
                         Commands.either(
                             Align.directPathFollow(ReefUtil.getCoralBranchWithFusedDriverInput(driver::getLeftX).get().getScorePose(State.L4), true),
-                            Align.alignWithSetpoint(ReefState.dynamicScoreRoutine().branch(), ReefState.dynamicScoreRoutine().state(), true),
+                            Align.alignWithSetpoint(() -> ReefState.dynamicScoreRoutine().branch(), ReefState.dynamicScoreRoutine().state(), true),
                             ReefState::hasOverriden)
                         .unless(() -> Robot.getState() == RobotState.TEST), // so it doesnt drive when doing systems check
                         Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
@@ -371,7 +384,7 @@ public class RobotContainer {
                         Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
                         Commands.runOnce(() -> LEDDefaultCommand.isAligned = false),
                         s_Elevator.homeCommand()
-                            .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * driver.getLeftX()) + driver.getLeftY()) < 0.6)),
+                            .onlyWhile(() -> Math.abs(driver.getLeftX() + driver.getLeftY()) < 0.3)),
                     Set.of()))
             .onFalse(
                 Commands.waitUntil(Clearances.ClawClearances::isClearFromReef)
@@ -404,7 +417,7 @@ public class RobotContainer {
 
         /* ------------- Elevator Controls ------------- */
 
-        SuperStructure.smartScoreTrigger(driver.rightBumper(), State.L1, driver::getLeftX, driver::getLeftY);
+        SuperStructure.smartScoreTrigger(driver.rightBumper().and(() -> !s_Swerve.isPathfinding()), State.L1, driver::getLeftX, driver::getLeftY);
         SuperStructure.smartScoreTrigger(driver.x(), State.L2, driver::getLeftX, driver::getLeftY);
         SuperStructure.smartScoreTrigger(driver.y(), State.L3, driver::getLeftX, driver::getLeftY);
         SuperStructure.smartScoreTrigger(driver.a(), State.L4, driver::getLeftX, driver::getLeftY);

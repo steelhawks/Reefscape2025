@@ -65,6 +65,9 @@ public class Align extends VirtualSubsystem {
     private static final double LEFT_ALIGN_THRESHOLD = 0.39;
     private static final double RIGHT_ALIGN_THRESHOLD = 0.34500000000000003;
 
+    public static boolean priorityLeft = false;
+    public static boolean hasPriority = false;
+
     private static final LoggedDashboardChooser<FieldConstants.Cage> cageChooser =
         new LoggedDashboardChooser<>("Cage Chooser");
 
@@ -140,16 +143,16 @@ public class Align extends VirtualSubsystem {
             .andThen(new SwerveDriveAlignment(goal, endsWhenAligned));
     }
 
-    public static Command alignWithSetpoint(CoralBranch branch, State level, boolean endsWhenAligned) {
-        return DriveCommands.driveToPosition(branch.getStagingPose(level))
-            .andThen(new SwerveDriveAlignment(getDynamicBranchDistance(new ReefState.ScoreGoal(level, branch)), endsWhenAligned).withTimeout(1.0));
+    public static Command alignWithSetpoint(Supplier<CoralBranch> branch, State level, boolean endsWhenAligned) {
+        return DriveCommands.driveToPosition(branch.get().getStagingPose(level))
+            .andThen(new SwerveDriveAlignment(getDynamicBranchDistance(() -> new ReefState.ScoreGoal(level, branch.get())), endsWhenAligned).withTimeout(1.0));
     }
 
-    private static Supplier<Pose2d> getDynamicBranchDistance(ReefState.ScoreGoal goal) {
+    private static Supplier<Pose2d> getDynamicBranchDistance(Supplier<ReefState.ScoreGoal> goal) {
         return () ->
             RobotContainer.s_Swerve.isStalling()
-                ? goal.branch().getScorePose(goal.state(), Units.inchesToMeters(3.5))
-                : goal.branch().getScorePose(goal.state());
+                ? goal.get().branch().getScorePose(goal.get().state(), Units.inchesToMeters(3.5))
+                : goal.get().branch().getScorePose(goal.get().state());
     }
 
     public Command forwardUntil(Rotation2d angle) {

@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 /**
  * Command factory class for commands that require multiple subsystems.
@@ -95,32 +96,41 @@ public class SuperStructure {
     public static Command scoringSequence(ElevatorConstants.State state, DoubleSupplier joystickAxis, DoubleSupplier joystickAxisToCancel) {
         return Commands.defer(
             () -> {
-                var branch = ReefState.getFreeBranch(state);
+                Supplier<ReefUtil.CoralBranch> branch = () ->
+                    Align.hasPriority
+                        ? (Align.priorityLeft ? ReefUtil.getCoralBranchWithFusedDriverInput(() -> -1.0) : ReefUtil.getCoralBranchWithFusedDriverInput(() -> 1.0)).get()
+                        : ReefState.getFreeBranch(state);
                 return Commands.sequence(
                     Commands.runOnce(() -> scoringTriggered = true),
-                    Align.alignWithSetpoint(branch, state, true)
-                        .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
-                    Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
-                    s_Elevator.setDesiredState(state),
-                    Commands.either(
+                    Commands.parallel(
+                        Align.alignWithSetpoint(branch, state, false)
+                            .unless(() -> Robot.getState() == RobotState.TEST || ReefState.hasOverriden()), // so it doesnt drive when doing systems check, also when overriden on dashboard
                         Commands.sequence(
-                            Commands.waitUntil(s_Elevator.atGoal()),
+                            Commands.runOnce(() -> LEDDefaultCommand.isAligned = true), // set led state true, align command ended
+                            s_Elevator.setDesiredState(state),
                             Commands.either(
-                                scoreL1(),
                                 Commands.sequence(
-                                    continueIfTagInView(state, branch),
-                                    s_Claw.shootCoralEnd()),
-                                () -> state == ElevatorConstants.State.L1),
-                            Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
-                            s_Elevator.homeCommand()),
-                        Commands.none(),
-                        () -> s_Swerve.getPose().getTranslation()
-                            .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
-                    Commands.runOnce(() -> scoringTriggered = false),
-                    Commands.runOnce(() -> LEDDefaultCommand.isAligned = false)) // set led state false
-                .onlyWhile(() -> Math.abs((ReefState.hasOverriden() ? 0 : 1 * joystickAxisToCancel.getAsDouble()) + joystickAxis.getAsDouble()) < 0.3);
+                                    Commands.waitUntil(s_Elevator.atGoal().and(s_Swerve::driveAlignAtGoal)),
+                                    Commands.either(
+                                        scoreL1(),
+                                        Commands.sequence(
+                                            continueIfTagInView(state, branch.get()),
+                                            s_Claw.shootCoralEnd()),
+                                        () -> state == ElevatorConstants.State.L1),
+                                    Commands.waitUntil(Clearances.ClawClearances::isClearFromReef),
+                                    s_Elevator.homeCommand()),
+                                Commands.none(),
+                                () -> s_Swerve.getPose().getTranslation()
+                                    .getDistance(ReefUtil.getClosestCoralBranch().getScorePose(state).getTranslation()) < 1.5),
+                            Commands.runOnce(() -> scoringTriggered = false),
+                            Commands.runOnce(() -> LEDDefaultCommand.isAligned = false)) // set led state false
+                        )
+                    )
+                .onlyWhile(() -> Math.abs(joystickAxis.getAsDouble() + joystickAxisToCancel.getAsDouble()) < 0.3);
             },
-        Set.of());
+        Set.of())
+            .finallyDo(() -> Commands.waitUntil(Clearances.ClawClearances::isClearFromReef)
+                .andThen(s_Elevator.homeCommand()).schedule());
     }
 
     /**

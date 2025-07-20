@@ -51,6 +51,7 @@ import org.steelhawks.Constants;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.Toggles;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
@@ -388,6 +389,14 @@ public class Swerve extends SubsystemBase {
         double goal = mAlignController.getGoal().position;
         double angleDifference = MathUtil.angleModulus(goal - getPose().getRotation().getRadians());
         return mAlignDebouncer.calculate(Math.abs(angleDifference) <= Units.degreesToRadians(5));
+    }
+
+    public boolean driveAlignAtGoal() {
+        var currentCommand = getCurrentCommand();
+        if (currentCommand instanceof SwerveDriveAlignment) {
+            return ((SwerveDriveAlignment) currentCommand).isAligned();
+        }
+        return false;
     }
 
     @Override
