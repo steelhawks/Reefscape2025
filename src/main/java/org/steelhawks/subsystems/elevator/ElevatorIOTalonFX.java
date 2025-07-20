@@ -82,7 +82,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             rightCurrent,
             rightTemp);
         ParentDevice.optimizeBusUtilizationForAll(leftMotor, rightMotor);
-        zeroEncoders();
     }
 
     @Override

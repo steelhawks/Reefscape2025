@@ -181,7 +181,6 @@ public class Elevator extends SubsystemBase {
         if (FieldConstants.ROBOT_IN_CORAL_STATION_ZONE.getAsBoolean()
             && !atHome().getAsBoolean()
             && !isShimmying
-            && shouldRun
         ) {
             shimmyDown().schedule();
         }
