@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -32,7 +33,7 @@ import org.steelhawks.util.AllianceFlip;
 
 public class DriveCommands {
 
-    private static final SlewRateLimiter joystickLimiter = new SlewRateLimiter(0.3);
+    private static final SlewRateLimiter joystickLimiter = new SlewRateLimiter(0.8);
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
     private static final double FF_START_DELAY = 2.0; // Secs
@@ -89,7 +90,8 @@ public class DriveCommands {
         DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
         ProfiledPIDController alignController = s_Swerve.getAlign();
 
-        return Commands.run(
+        return Commands.defer(() ->
+            Commands.run(
             () -> {
                 Rotation2d validatedTarget = AllianceFlip.apply(rotationSupplier.get());
 
@@ -109,7 +111,8 @@ public class DriveCommands {
                 runVelocity(linearVelocity, omega);
             }, s_Swerve)
                 .beforeStarting(() -> alignController.reset(s_Swerve.getRotation().getRadians()))
-                    .withName("Align to Angle");
+                    .withName("Align to Angle"),
+            Set.of(s_Swerve));
     }
 
     private static void runVelocity(Translation2d linearVelocity, double omega) {

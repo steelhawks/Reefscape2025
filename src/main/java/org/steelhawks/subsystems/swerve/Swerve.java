@@ -57,6 +57,7 @@ import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.vision.Vision;
 import org.steelhawks.util.LocalADStarAK;
+import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.LoopTimeUtil;
 
 public class Swerve extends SubsystemBase {
@@ -447,7 +448,6 @@ public class Swerve extends SubsystemBase {
 
         FieldConstants.FIELD_2D.setRobotPose(getPose());
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
-
         Logger.recordOutput("Swerve/ChassisSpeedLimiterMetersPerSecond",
             TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * RobotContainer.s_Elevator.getSpeedMultiplierBasedOnElevator());
         LoopTimeUtil.record("Swerve");

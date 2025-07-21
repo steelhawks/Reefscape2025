@@ -39,7 +39,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
@@ -255,7 +255,7 @@ public final class Constants {
                     TRANSLATION_KP = 5.0;
                     TRANSLATION_KI = 0.0;
                     TRANSLATION_KD = 0.1;
-                    ROTATION_KP = 3.0;
+                    ROTATION_KP = 5.0;
                     ROTATION_KI = 0.0;
                     ROTATION_KD = 0.1;
                     ALIGN_KP = 5.0;
@@ -263,10 +263,10 @@ public final class Constants {
                     ALIGN_KD = 0.1;
                     MAX_TRANSLATION_VELOCITY = 5.0;
                     MAX_TRANSLATION_ACCELERATION = 6.0;
-                    ALIGN_ANGLE_KP = 3.0;
+                    ALIGN_ANGLE_KP = 5.0;
                     ALIGN_ANGLE_KI = 0.0;
                     ALIGN_ANGLE_KD = 0.0;
-                    ANGLE_KP = Constants.getRobot() == RobotType.SIMBOT ? 2.5 : 3.0;
+                    ANGLE_KP = Constants.getRobot() == RobotType.SIMBOT ? 2.5 : 1.0;
                     ANGLE_KI = 0.0;
                     ANGLE_KD = Constants.getRobot() == RobotType.SIMBOT ? 1.0 : 0.0;
                     MAX_VELOCITY_METERS_PER_SECOND = 5.0;

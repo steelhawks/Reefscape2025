@@ -11,7 +11,7 @@ public interface Toggles {
     LoggedNetworkBoolean visualizeCoralMap =
         new LoggedNetworkBoolean("Toggles/VisualizeCoralMap", false);
     LoggedNetworkBoolean autoMark =
-        new LoggedNetworkBoolean("Toggles/AutoMark", true);
+        new LoggedNetworkBoolean("Toggles/AutoMark", false);
     LoggedNetworkBoolean debugMode =
         new LoggedNetworkBoolean("Toggles/DebugMode", false);
     LoggedNetworkBoolean tuningMode =
