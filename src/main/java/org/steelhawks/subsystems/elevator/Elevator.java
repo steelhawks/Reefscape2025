@@ -157,7 +157,7 @@ public class Elevator extends SubsystemBase {
         final boolean shouldRun =
             DriverStation.isEnabled()
                 && ((isHomed && zeroed) || Constants.getRobot() == RobotType.SIMBOT)
-                && !Toggles.Elevator.toggleVoltageOverride.get()
+                && !Toggles.tuningMode.get()
                 && !isEStopped
                 && !isManual
                 && !isShimmying
