@@ -369,8 +369,8 @@ public class Swerve extends SubsystemBase {
                 AutonConstants.ANGLE_PID.kI,
                 AutonConstants.ANGLE_PID.kD,
                 new TrapezoidProfile.Constraints(
-                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
+                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.get(),
+                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED.get()));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
         mAlignController.setTolerance(Units.degreesToRadians(3));
         mAlignDebouncer = new Debouncer(0.5, DebounceType.kRising);
