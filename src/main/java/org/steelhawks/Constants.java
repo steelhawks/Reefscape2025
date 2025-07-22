@@ -168,129 +168,48 @@ public final class Constants {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static final class AutonConstants {
-        private static final double TRANSLATION_KP;
-        private static final double TRANSLATION_KI;
-        private static final double TRANSLATION_KD;
-        public static final PIDConstants TRANSLATION_PID;
+        private static final double TRANSLATION_KP = Constants.omega(5.0, 0.0);
+        private static final double TRANSLATION_KI = Constants.omega(0.0, 0.0);
+        private static final double TRANSLATION_KD = Constants.omega(0.1, 0.0);
+        public static final PIDConstants TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
 
-        private static final double ROTATION_KP;
-        private static final double ROTATION_KI;
-        private static final double ROTATION_KD;
-        public static final PIDConstants ROTATION_PID;
+        private static final double ROTATION_KP = Constants.omega(5.0, 0.0);
+        private static final double ROTATION_KI = Constants.omega(0.0, 0.0);
+        private static final double ROTATION_KD = Constants.omega(0.1, 0.0);
+        public static final PIDConstants ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
 
-        private static final double ALIGN_KP;
-        private static final double ALIGN_KI;
-        private static final double ALIGN_KD;
-        private static final double MAX_TRANSLATION_VELOCITY;
-        private static final double MAX_TRANSLATION_ACCELERATION;
-        public static final PIDConstants ALIGN_PID;
-        public static final TrapezoidProfile.Constraints ALIGN_CONSTRAINTS;
+        private static final double ALIGN_KP = Constants.omega(5.0, 0.0);
+        private static final double ALIGN_KI = Constants.omega(0.0, 0.0);
+        private static final double ALIGN_KD = Constants.omega(0.1, 0.0);
+        public static final PIDConstants ALIGN_PID = new PIDConstants(ALIGN_KP, ALIGN_KI, ALIGN_KD);
 
+        private static final double MAX_TRANSLATION_VELOCITY = Constants.omega(5.0, 0.0);
+        private static final double MAX_TRANSLATION_ACCELERATION = Constants.omega(6.0, 0.0);
+        public static final TrapezoidProfile.Constraints ALIGN_CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_TRANSLATION_VELOCITY, MAX_TRANSLATION_ACCELERATION);
 
-        private static final double ALIGN_ANGLE_KP;
-        private static final double ALIGN_ANGLE_KI;
-        private static final double ALIGN_ANGLE_KD;
-        public static final PIDConstants ALIGN_ANGLE_PID;
+        private static final double ALIGN_ANGLE_KP = Constants.omega(5.0, 0.0);
+        private static final double ALIGN_ANGLE_KI = Constants.omega(0.0, 0.0);
+        private static final double ALIGN_ANGLE_KD = Constants.omega(0.0, 0.0);
+        public static final PIDConstants ALIGN_ANGLE_PID = new PIDConstants(ALIGN_ANGLE_KP, ALIGN_ANGLE_KI, ALIGN_ANGLE_KD);
 
-        private static final double ANGLE_KP;
-        private static final double ANGLE_KI;
-        private static final double ANGLE_KD;
-        public static final PIDConstants ANGLE_PID;
+        private static final double ANGLE_KP = Constants.omega(1.0, 2.5);
+        private static final double ANGLE_KI = Constants.omega(0.0, 0.0);
+        private static final double ANGLE_KD = Constants.omega(0.0, 1.0);
+        public static final PIDConstants ANGLE_PID = new PIDConstants(ANGLE_KP, ANGLE_KI, ANGLE_KD);
 
         // Pathfinder
-        public static final double MAX_VELOCITY_METERS_PER_SECOND;
-        public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
-        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-        public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = Constants.omega(5.0, 0.0);
+        public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = Constants.omega(5.5, 0.0);
+        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Constants.omega(Units.degreesToRadians(540.0), 0.0);
+        public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Constants.omega(Units.degreesToRadians(920.0), 0.0);
 
-        public static final PathConstraints CONSTRAINTS;
-
-        static {
-            switch (getRobot()) {
-                case ALPHABOT -> {
-                    TRANSLATION_KP = 5.0;
-                    TRANSLATION_KI = 0.0;
-                    TRANSLATION_KD = 0.0;
-                    ROTATION_KP = 5.0;
-                    ROTATION_KI = 0.0;
-                    ROTATION_KD = 0.0;
-                    ALIGN_KP = 5.0;
-                    ALIGN_KI = 0.0;
-                    ALIGN_KD = 0.0;
-                    MAX_TRANSLATION_VELOCITY = 5.0;
-                    MAX_TRANSLATION_ACCELERATION = 5.0;
-                    ALIGN_ANGLE_KP = 3.0;
-                    ALIGN_ANGLE_KI = 0.0;
-                    ALIGN_ANGLE_KD = 0.0;
-                    ANGLE_KP = 5.0;
-                    ANGLE_KI = 0.0;
-                    ANGLE_KD = 0.0;
-                    MAX_VELOCITY_METERS_PER_SECOND = 4.0;
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
-                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
-                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
-                }
-                case HAWKRIDER -> {
-                    TRANSLATION_KP = 10.0;
-                    TRANSLATION_KI = 0.0;
-                    TRANSLATION_KD = 0.0;
-                    ROTATION_KP = 5.0;
-                    ROTATION_KI = 0.0;
-                    ROTATION_KD = 0.0;
-                    ALIGN_KP = 5.0;
-                    ALIGN_KI = 0.0;
-                    ALIGN_KD = 0.0;
-                    MAX_TRANSLATION_VELOCITY = 5.0;
-                    MAX_TRANSLATION_ACCELERATION = 5.0;
-                    ALIGN_ANGLE_KP = 3.0;
-                    ALIGN_ANGLE_KI = 0.0;
-                    ALIGN_ANGLE_KD = 0.0;
-                    ANGLE_KP = 5.0;
-                    ANGLE_KI = 0.0;
-                    ANGLE_KD = 0.0;
-                    MAX_VELOCITY_METERS_PER_SECOND = 1.0;
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.0;
-                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 5.0;
-                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 8.0;
-                }
-                default -> {
-                    TRANSLATION_KP = 5.0;
-                    TRANSLATION_KI = 0.0;
-                    TRANSLATION_KD = 0.1;
-                    ROTATION_KP = 5.0;
-                    ROTATION_KI = 0.0;
-                    ROTATION_KD = 0.1;
-                    ALIGN_KP = 5.0;
-                    ALIGN_KI = 0.0;
-                    ALIGN_KD = 0.1;
-                    MAX_TRANSLATION_VELOCITY = 5.0;
-                    MAX_TRANSLATION_ACCELERATION = 6.0;
-                    ALIGN_ANGLE_KP = 5.0;
-                    ALIGN_ANGLE_KI = 0.0;
-                    ALIGN_ANGLE_KD = 0.0;
-                    ANGLE_KP = Constants.getRobot() == RobotType.SIMBOT ? 2.5 : 1.0;
-                    ANGLE_KI = 0.0;
-                    ANGLE_KD = Constants.getRobot() == RobotType.SIMBOT ? 1.0 : 0.0;
-                    MAX_VELOCITY_METERS_PER_SECOND = 5.0;
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.5;
-                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Units.degreesToRadians(540.0);
-                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Units.degreesToRadians(920.000);
-                }
-            }
-
-            CONSTRAINTS = new PathConstraints(
+        public static final PathConstraints CONSTRAINTS = new PathConstraints(
                 MAX_VELOCITY_METERS_PER_SECOND,
                 MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
                 MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                 MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
-            TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
-            ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
-            ALIGN_PID = new PIDConstants(ALIGN_KP, ALIGN_KI, ALIGN_KD);
-            ALIGN_CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_TRANSLATION_VELOCITY, MAX_TRANSLATION_ACCELERATION);
-            ALIGN_ANGLE_PID = new PIDConstants(ALIGN_ANGLE_KP, ALIGN_ANGLE_KI, ALIGN_ANGLE_KD);
-            ANGLE_PID = new PIDConstants(ANGLE_KP, ANGLE_KI, ANGLE_KD);
-        }
     }
 
     /**
