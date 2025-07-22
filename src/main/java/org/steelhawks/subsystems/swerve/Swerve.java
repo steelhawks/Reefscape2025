@@ -6,6 +6,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -317,8 +318,14 @@ public class Swerve extends SubsystemBase {
             this::getChassisSpeeds,
             this::runVelocity,
             new PPHolonomicDriveController(
-                AutonConstants.TRANSLATION_PID,
-                AutonConstants.ROTATION_PID),
+                new PIDConstants(
+                    AutonConstants.TRANSLATION_KP.get(),
+                    AutonConstants.TRANSLATION_KI.get(),
+                    AutonConstants.TRANSLATION_KD.get()),
+                new PIDConstants(
+                    AutonConstants.ROTATION_KP.get(),
+                    AutonConstants.ROTATION_KI.get(),
+                    AutonConstants.ROTATION_KD.get())),
             PP_CONFIG,
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
             this);
@@ -365,9 +372,9 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                AutonConstants.ANGLE_PID.kP,
-                AutonConstants.ANGLE_PID.kI,
-                AutonConstants.ANGLE_PID.kD,
+                AutonConstants.ANGLE_KP.get(),
+                AutonConstants.ANGLE_KI.get(),
+                AutonConstants.ANGLE_KD.get(),
                 new TrapezoidProfile.Constraints(
                     AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.get(),
                     AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED.get()));
@@ -400,6 +407,13 @@ public class Swerve extends SubsystemBase {
             module.periodic();
         }
         odometryLock.unlock();
+
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            mAlignController.setPID(
+                AutonConstants.ANGLE_KP.get(),
+                AutonConstants.ANGLE_KI.get(),
+                AutonConstants.ANGLE_KD.get());
+        }, AutonConstants.ANGLE_KP, AutonConstants.ANGLE_KI, AutonConstants.ANGLE_KD);
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {

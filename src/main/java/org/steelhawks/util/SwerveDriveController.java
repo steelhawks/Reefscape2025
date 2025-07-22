@@ -31,6 +31,18 @@ public class SwerveDriveController {
         return this;
     }
 
+    public ProfiledPIDController getXController() {
+        return xController;
+    }
+
+    public ProfiledPIDController getYController() {
+        return yController;
+    }
+
+    public ProfiledPIDController getThetaController() {
+        return thetaController;
+    }
+
     public void reset(Pose2d measurement) {
         thetaController.reset(measurement.getRotation().getRadians());
         xController.reset(measurement.getTranslation().getX());
