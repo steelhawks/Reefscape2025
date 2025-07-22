@@ -47,6 +47,7 @@ public class ElevatorConstants {
     public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(25.0, 10.0);
     public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(40.0, 20.0);
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
+    public static final Double MANUAL_ELEVATOR_RAMP_RATE = Constants.omega(0.6 * MANUAL_ELEVATOR_INCREMENT, 0.8 * MANUAL_ELEVATOR_INCREMENT);
 
     public static final Double KP = Constants.omega(20.0, 6.0);
     public static final double KI = 0.0;

@@ -1,6 +1,7 @@
 package org.steelhawks.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -29,6 +30,7 @@ public class Elevator extends SubsystemBase {
     private static final int REVERSE_LIMIT_ID = 0;
 
     private final ElevatorIO io;
+    private final SlewRateLimiter manualElevatorLimiter;
     private final ElevatorIOInputsAutoLogged inputs;
     private final TrapezoidProfile profile;
     private final SysIdRoutine sysIdRoutine;
@@ -65,6 +67,8 @@ public class Elevator extends SubsystemBase {
     public Elevator(ElevatorIO io) {
         this.io = io;
         this.inputs = new ElevatorIOInputsAutoLogged();
+        manualElevatorLimiter =
+            new SlewRateLimiter(ElevatorConstants.MANUAL_ELEVATOR_RAMP_RATE);
         profile =
             new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(
@@ -307,7 +311,8 @@ public class Elevator extends SubsystemBase {
                         double appliedSpeed =
                             speed.getAsDouble() == 0.0
                                 ? ElevatorConstants.kG[getStage()] / 12.0
-                                : speed.getAsDouble();
+                                : manualElevatorLimiter.calculate(speed.getAsDouble());
+                        Logger.recordOutput("Elevator/ManualAppliedSpeedRaw", speed.getAsDouble());
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
                         final boolean requestedUp = Math.signum(appliedSpeed) == 1;
                         if ((!requestedUp && hitBottomLimit())
@@ -328,7 +333,14 @@ public class Elevator extends SubsystemBase {
                 RobotContainer.s_AlgaeClaw.avoid(),
                 Commands.waitUntil(Clearances.AlgaeClawClearances::isClearFromElevatorCrossbeam),
                 Commands.run(
-                    () -> io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT), this))
+                    () -> {
+                        boolean nearingHome = getPosition() < Units.radiansToRotations(3.0);
+                        if (nearingHome) {
+                            io.runElevator(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT / 4.0);
+                        } else {
+                            io.runElevatorViaSpeed(-ElevatorConstants.MANUAL_ELEVATOR_INCREMENT);
+                        }
+                    }, this))
             .until(this::hitBottomLimit)
             .finallyDo(
                 () -> {
