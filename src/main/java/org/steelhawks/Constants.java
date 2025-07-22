@@ -7,8 +7,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
+
+import static java.util.Objects.requireNonNull;
 
 public final class Constants {
 
@@ -357,5 +360,15 @@ public final class Constants {
             case SIMBOT -> sim;
             default -> null;
         };
+    }
+
+    public static <T> T requireNonNullConst(T obj) {
+        if (obj == null) {
+            DriverStation.reportWarning(
+                "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
+            throw new IllegalCallerException(
+                "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
+        }
+        return obj;
     }
 }

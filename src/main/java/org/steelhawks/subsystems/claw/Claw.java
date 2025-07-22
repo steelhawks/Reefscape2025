@@ -18,6 +18,8 @@ import org.steelhawks.util.Conversions;
 
 import java.util.Set;
 
+import static org.steelhawks.Constants.requireNonNullConst;
+
 public class Claw extends SubsystemBase {
 
     public static final double DIST_TO_HAVE_CORAL = 0.1;
@@ -61,20 +63,12 @@ public class Claw extends SubsystemBase {
     /**
      * Returns in percent output.
      */
-    @SuppressWarnings("ConstantConditions")
     @AutoLogOutput(key = "Claw/FiringSpeed")
     private double getFireSpeed() {
         if (!Toggles.Claw.calculateEjectSpeed.get()) {
-            try {
-                return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
-                    ? ClawConstants.CLAW_SHOOT_SPEED
-                    : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
-            } catch (NullPointerException e) {
-                DriverStation.reportWarning(
-                    "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
-                throw new IllegalCallerException(
-                    "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
-            }
+            return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
+                ? requireNonNullConst(ClawConstants.CLAW_SHOOT_SPEED)
+                : requireNonNullConst(ClawConstants.CLAW_SLOW_SHOOT_SPEED);
         }
         // v0 = sqrt((g * R^2) / 2cos^2(theta) * (Rtan(theta) + h)
         final double wheelDiameter = Units.inchesToMeters(3.0);
@@ -101,23 +95,16 @@ public class Claw extends SubsystemBase {
             Logger.recordOutput("Debug/Claw/H", H);
         }
         if (denom <= 0) {
-            try {
-                return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
-                    ? ClawConstants.CLAW_SHOOT_SPEED
-                    : ClawConstants.CLAW_SLOW_SHOOT_SPEED;
-            } catch (NullPointerException e) {
-                DriverStation.reportWarning(
-                    "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
-                throw new IllegalCallerException(
-                    "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
-            }
+            return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
+                ? requireNonNullConst(ClawConstants.CLAW_SHOOT_SPEED)
+                : requireNonNullConst(ClawConstants.CLAW_SLOW_SHOOT_SPEED);
         }
         double v0 = Math.sqrt((G * Math.pow(R, 2)) / denom);
         double v0RPS = Conversions.metersToRotations(v0, wheelCircumference);
         Logger.recordOutput("Claw/InitialVelocityMPS", v0);
         Logger.recordOutput("Claw/InitialVelocityRPS", v0RPS);
 
-        double maxOutputRPS = (ClawConstants.CLAW_MOTOR_MAX_RPM / ClawConstants.CLAW_INTAKE_GEAR_RATIO) / 60.0;
+        double maxOutputRPS = (ClawConstants.CLAW_MOTOR_MAX_RPM / requireNonNullConst(ClawConstants.CLAW_INTAKE_GEAR_RATIO)) / 60.0;
         return (v0RPS / maxOutputRPS) + 0.05;
     }
 
@@ -135,7 +122,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command reverseCoral() {
-        return shootCoral(-ClawConstants.CLAW_INTAKE_SPEED);
+        return shootCoral(-requireNonNullConst(ClawConstants.CLAW_INTAKE_SPEED));
     }
 
     private Command shootCoral(double speed) {
