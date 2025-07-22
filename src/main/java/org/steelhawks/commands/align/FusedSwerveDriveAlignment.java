@@ -30,6 +30,7 @@ public class FusedSwerveDriveAlignment extends SwerveDriveAlignment {
                         ySupplier.getAsDouble(),
                         0));
         s_Swerve.runVelocity(speeds);
+        super.updatePID();
         super.log();
     }
 }

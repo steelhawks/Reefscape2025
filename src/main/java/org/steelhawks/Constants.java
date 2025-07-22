@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
+import org.steelhawks.util.LoggedTunableNumber;
 
 import static java.util.Objects.requireNonNull;
 
@@ -170,34 +171,21 @@ public final class Constants {
 
     @SuppressWarnings("ConstantConditions")
     public static final class AutonConstants {
-        private static final double TRANSLATION_KP = Constants.omega(5.0, 0.0);
-        private static final double TRANSLATION_KI = Constants.omega(0.0, 0.0);
-        private static final double TRANSLATION_KD = Constants.omega(0.1, 0.0);
-        public static final PIDConstants TRANSLATION_PID = new PIDConstants(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
+        public static final LoggedTunableNumber TRANSLATION_KP = new LoggedTunableNumber("Swerve/TranslationkP", Constants.omega(5.0, 0.0));
+        public static final LoggedTunableNumber TRANSLATION_KI = new LoggedTunableNumber("Swerve/TranslationkI", Constants.omega(0.0, 0.0));
+        public static final LoggedTunableNumber TRANSLATION_KD = new LoggedTunableNumber("Swerve/TranslationkD", Constants.omega(0.1, 0.0));
 
-        private static final double ROTATION_KP = Constants.omega(5.0, 0.0);
-        private static final double ROTATION_KI = Constants.omega(0.0, 0.0);
-        private static final double ROTATION_KD = Constants.omega(0.1, 0.0);
-        public static final PIDConstants ROTATION_PID = new PIDConstants(ROTATION_KP, ROTATION_KI, ROTATION_KD);
-
-        private static final double ALIGN_KP = Constants.omega(5.0, 0.0);
-        private static final double ALIGN_KI = Constants.omega(0.0, 0.0);
-        private static final double ALIGN_KD = Constants.omega(0.1, 0.0);
-        public static final PIDConstants ALIGN_PID = new PIDConstants(ALIGN_KP, ALIGN_KI, ALIGN_KD);
+        public static final LoggedTunableNumber ROTATION_KP = new LoggedTunableNumber("Swerve/RotationkP", Constants.omega(5.0, 0.0));
+        public static final LoggedTunableNumber ROTATION_KI = new LoggedTunableNumber("Swerve/RotationkI", Constants.omega(0.0, 0.0));
+        public static final LoggedTunableNumber ROTATION_KD = new LoggedTunableNumber("Swerve/RotationkD", Constants.omega(0.1, 0.0));
 
         private static final double MAX_TRANSLATION_VELOCITY = Constants.omega(5.0, 0.0);
         private static final double MAX_TRANSLATION_ACCELERATION = Constants.omega(6.0, 0.0);
         public static final TrapezoidProfile.Constraints ALIGN_CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_TRANSLATION_VELOCITY, MAX_TRANSLATION_ACCELERATION);
 
-        private static final double ALIGN_ANGLE_KP = Constants.omega(5.0, 0.0);
-        private static final double ALIGN_ANGLE_KI = Constants.omega(0.0, 0.0);
-        private static final double ALIGN_ANGLE_KD = Constants.omega(0.0, 0.0);
-        public static final PIDConstants ALIGN_ANGLE_PID = new PIDConstants(ALIGN_ANGLE_KP, ALIGN_ANGLE_KI, ALIGN_ANGLE_KD);
-
-        private static final double ANGLE_KP = Constants.omega(1.0, 2.5);
-        private static final double ANGLE_KI = Constants.omega(0.0, 0.0);
-        private static final double ANGLE_KD = Constants.omega(0.0, 1.0);
-        public static final PIDConstants ANGLE_PID = new PIDConstants(ANGLE_KP, ANGLE_KI, ANGLE_KD);
+        public static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("Swerve/AnglekP", Constants.omega(1.0, 2.5));
+        public static final LoggedTunableNumber ANGLE_KI = new LoggedTunableNumber("Swerve/AnglekI", Constants.omega(0.0, 0.0));
+        public static final LoggedTunableNumber ANGLE_KD = new LoggedTunableNumber("Swerve/AnglekD", Constants.omega(0.0, 1.0));
 
         // Pathfinder
         public static final double MAX_VELOCITY_METERS_PER_SECOND = Constants.omega(5.0, 0.0);

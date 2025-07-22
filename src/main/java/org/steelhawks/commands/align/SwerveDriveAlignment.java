@@ -16,6 +16,7 @@ import org.steelhawks.FieldConstants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
+import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.SwerveDriveController;
 
 import java.util.function.Supplier;
@@ -29,8 +30,8 @@ public class SwerveDriveAlignment extends Command {
 
     protected static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
-//    protected final FieldObject2d dashboardTargetPosePublisher;
-    protected final SwerveDriveController mController;
+    protected final FieldObject2d dashboardTargetPosePublisher;
+    protected static SwerveDriveController mController;
     protected Supplier<Pose2d> targetPose;
     protected final Debouncer debouncer;
     protected final LinearFilter filter;
@@ -53,7 +54,7 @@ public class SwerveDriveAlignment extends Command {
 
     public SwerveDriveAlignment(Supplier<Pose2d> targetPose, boolean endsWhenAligned) {
         addRequirements(s_Swerve);
-//        dashboardTargetPosePublisher = FieldConstants.FIELD_2D.getObject("Trajectory Setpoint");
+        dashboardTargetPosePublisher = FieldConstants.FIELD_2D.getObject("Trajectory Setpoint");
         this.targetPose = targetPose;
         this.debouncer = new Debouncer(0.2, Debouncer.DebounceType.kRising);
         this.filter = LinearFilter.movingAverage(5);
@@ -62,19 +63,19 @@ public class SwerveDriveAlignment extends Command {
         mController =
             new SwerveDriveController(
                 new ProfiledPIDController(
-                    AutonConstants.ALIGN_PID.kP,
-                    AutonConstants.ALIGN_PID.kI,
-                    AutonConstants.ALIGN_PID.kD,
+                    AutonConstants.TRANSLATION_KP.get(),
+                    AutonConstants.TRANSLATION_KI.get(),
+                    AutonConstants.TRANSLATION_KD.get(),
                     AutonConstants.ALIGN_CONSTRAINTS),
                 new ProfiledPIDController(
-                    AutonConstants.ALIGN_PID.kP,
-                    AutonConstants.ALIGN_PID.kI,
-                    AutonConstants.ALIGN_PID.kD,
+                    AutonConstants.TRANSLATION_KP.get(),
+                    AutonConstants.TRANSLATION_KI.get(),
+                    AutonConstants.TRANSLATION_KD.get(),
                     AutonConstants.ALIGN_CONSTRAINTS),
                 new ProfiledPIDController(
-                    AutonConstants.ALIGN_ANGLE_PID.kP,
-                    AutonConstants.ALIGN_ANGLE_PID.kI,
-                    AutonConstants.ALIGN_ANGLE_PID.kD,
+                    AutonConstants.ROTATION_KP.get(),
+                    AutonConstants.ROTATION_KI.get(),
+                    AutonConstants.ROTATION_KD.get(),
                     new TrapezoidProfile.Constraints(
                         AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)))
@@ -138,7 +139,7 @@ public class SwerveDriveAlignment extends Command {
     }
 
     protected void log() {
-//        dashboardTargetPosePublisher.setPose(targetPose.get());
+        dashboardTargetPosePublisher.setPose(targetPose.get());
         velocityError =
             Math.hypot(
                 mController.getError().vxMetersPerSecond,
@@ -161,9 +162,32 @@ public class SwerveDriveAlignment extends Command {
         Logger.recordOutput("Align/VelocityInTolerance", velocityInTolerance());
     }
 
+    protected void updatePID() {
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            mController.getXController().setPID(
+                AutonConstants.TRANSLATION_KP.get(),
+                AutonConstants.TRANSLATION_KI.get(),
+                AutonConstants.TRANSLATION_KD.get());
+            mController.getYController().setPID(
+                AutonConstants.TRANSLATION_KP.get(),
+                AutonConstants.TRANSLATION_KI.get(),
+                AutonConstants.TRANSLATION_KD.get());
+            mController.getThetaController().setPID(
+                AutonConstants.ROTATION_KP.get(),
+                AutonConstants.ROTATION_KI.get(),
+                AutonConstants.ROTATION_KD.get());
+        }, AutonConstants.TRANSLATION_KP,
+            AutonConstants.TRANSLATION_KI,
+            AutonConstants.TRANSLATION_KD,
+            AutonConstants.ROTATION_KP,
+            AutonConstants.ROTATION_KI,
+            AutonConstants.ROTATION_KD);
+    }
+
     @Override
     public void execute() {
         s_Swerve.runVelocity(getOutput());
+        updatePID();
         log();
     }
 
