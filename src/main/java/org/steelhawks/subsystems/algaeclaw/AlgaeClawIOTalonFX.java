@@ -55,7 +55,7 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         config.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
         tryUntilOk(5, () -> pivotMotor.getConfigurator().apply(config, 0.25));
 
@@ -152,7 +152,7 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     @Override
     public void runPivotOpenLoop(double output) {
         pivotMotor.setControl(
-                torqueCurrent.withOutput(output));
+            torqueCurrent.withOutput(output));
     }
 
     @Override

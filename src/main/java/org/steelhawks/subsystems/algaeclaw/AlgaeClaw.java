@@ -14,7 +14,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
 import org.steelhawks.subsystems.LED;
-import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.LoopTimeUtil;
 
@@ -101,14 +100,14 @@ public class AlgaeClaw extends SubsystemBase {
                 if (pivotVolts == null) {
                     pivotVolts = new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
                 }
+                io.runPivot(pivotVolts.get());
             }
-            io.runPivot(pivotVolts.get());
             if (Toggles.AlgaeClaw.toggleCurrentOverride.get()) {
                 if (pivotAmps == null) {
-                    pivotAmps = new LoggedTunableNumber("AlgaeClaw/CurrentVolts", 0.0);
+                    pivotAmps = new LoggedTunableNumber("AlgaeClaw/CurrentAmps", 0.0);
                 }
+                io.runPivotOpenLoop(pivotAmps.get());
             }
-            io.runPivot(pivotVolts.get());
         }
         if (shouldRun) {
             double previousVelocity = setpoint.velocity;
@@ -199,22 +198,25 @@ public class AlgaeClaw extends SubsystemBase {
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
                 desiredGoal = state;
             }, this)
-        .withName("Set Desired State");
+        .withName("Set Desired State")
+        .ignoringDisable(true);
     }
 
     public Command pivotManual(DoubleSupplier rightAxis) {
-        return Commands.run(() -> {
-            if (hasAlgae()) {
-                io.runSpin(AlgaeClawConstants.RETAIN_ALGAE_SPEED);
-            } else {
-                io.stopSpin();
-            }
-            double speed = AlgaeClawConstants.PIVOT_KG.get() / 12.0
-                + MathUtil.clamp(rightAxis.getAsDouble(),
-                    -AlgaeClawConstants.MAX_MANUAL_SPEED,
-                    AlgaeClawConstants.MAX_MANUAL_SPEED);
-            io.runPivotViaSpeed(speed);
-        }, this);
+        return Commands.runOnce(() -> isManual = true)
+            .andThen(
+                Commands.run(() -> {
+                    if (hasAlgae()) {
+                        io.runSpin(AlgaeClawConstants.RETAIN_ALGAE_SPEED);
+                    } else {
+                        io.stopSpin();
+                    }
+                    double speed = AlgaeClawConstants.PIVOT_KG.get() / 12.0
+                        + MathUtil.clamp(rightAxis.getAsDouble(),
+                            -AlgaeClawConstants.MAX_MANUAL_SPEED,
+                            AlgaeClawConstants.MAX_MANUAL_SPEED);
+                    io.runPivotViaSpeed(speed);
+                }, this));
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
