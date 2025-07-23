@@ -52,5 +52,7 @@ public interface Toggles {
     interface AlgaeClaw {
         LoggedNetworkBoolean toggleVoltageOverride =
             new LoggedNetworkBoolean("Toggles/AlgaeClaw/VoltageOverride", false);
+        LoggedNetworkBoolean toggleCurrentOverride =
+                new LoggedNetworkBoolean("Toggles/AlgaeClaw/CurrentOverride", false);
     }
 }

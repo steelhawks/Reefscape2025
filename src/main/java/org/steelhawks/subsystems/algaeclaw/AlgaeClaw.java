@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.LoopTimeUtil;
 
@@ -35,6 +36,7 @@ public class AlgaeClaw extends SubsystemBase {
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
     private LoggedTunableNumber pivotVolts;
+    private LoggedTunableNumber pivotAmps;
 
     private boolean brakeModeEnabled = true;
     private boolean shouldEStop = false;
@@ -84,6 +86,7 @@ public class AlgaeClaw extends SubsystemBase {
         final boolean shouldRun =
             DriverStation.isEnabled()
                 && !Toggles.AlgaeClaw.toggleVoltageOverride.get()
+                && !Toggles.AlgaeClaw.toggleCurrentOverride.get()
                 && !shouldEStop
                 && !isManual;
 
@@ -93,11 +96,17 @@ public class AlgaeClaw extends SubsystemBase {
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
-        if (Toggles.tuningMode.get()
-            && Toggles.AlgaeClaw.toggleVoltageOverride.get()
-        ) {
-            if (pivotVolts == null) {
-                pivotVolts = new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
+        if (Toggles.tuningMode.get()) {
+            if (Toggles.AlgaeClaw.toggleVoltageOverride.get()) {
+                if (pivotVolts == null) {
+                    pivotVolts = new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
+                }
+            }
+            io.runPivot(pivotVolts.get());
+            if (Toggles.AlgaeClaw.toggleCurrentOverride.get()) {
+                if (pivotAmps == null) {
+                    pivotAmps = new LoggedTunableNumber("AlgaeClaw/CurrentVolts", 0.0);
+                }
             }
             io.runPivot(pivotVolts.get());
         }

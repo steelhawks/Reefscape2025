@@ -14,6 +14,7 @@ public interface AlgaeClawIO {
         public double pivotVelocity = 0.0;
         public double pivotAppliedVolts = 0.0;
         public double pivotCurrent = 0.0;
+        public double pivotTorqueCurrentAmps;
         public double pivotTemperature = 0.0;
 
         public boolean spinConnected = false;
@@ -36,6 +37,8 @@ public interface AlgaeClawIO {
     default void stopSpin() {}
 
     default void runPivot(double volts) {}
+
+    default void runPivotOpenLoop(double output) {}
 
     default void runPivotViaSpeed(double speed) {}
 
