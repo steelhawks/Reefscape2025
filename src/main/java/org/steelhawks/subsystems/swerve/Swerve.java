@@ -35,7 +35,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -56,7 +55,6 @@ import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
-import org.steelhawks.subsystems.vision.Vision;
 import org.steelhawks.util.LocalADStarAK;
 import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.LoopTimeUtil;
@@ -64,7 +62,7 @@ import org.steelhawks.util.LoopTimeUtil;
 public class Swerve extends SubsystemBase {
 
     private static final double SLOW_SPEED_MULTIPLIER = 0.3;
-    private static double SPEED_MULTIPLIER = 1.0;
+    private static final double SPEED_MULTIPLIER = 1.0;
     private boolean isPathfinding = false;
     private boolean requestSlowMode = false;
 
@@ -376,8 +374,8 @@ public class Swerve extends SubsystemBase {
                 AutonConstants.ANGLE_KI.get(),
                 AutonConstants.ANGLE_KD.get(),
                 new TrapezoidProfile.Constraints(
-                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.get(),
-                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED.get()));
+                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
         mAlignController.setTolerance(Units.degreesToRadians(3));
         mAlignDebouncer = new Debouncer(0.5, DebounceType.kRising);

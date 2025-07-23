@@ -77,8 +77,8 @@ public class SwerveDriveAlignment extends Command {
                     AutonConstants.ROTATION_KI.get(),
                     AutonConstants.ROTATION_KD.get(),
                     new TrapezoidProfile.Constraints(
-                        AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.get(),
-                        AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED.get())))
+                        AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                        AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)))
                 .withLinearTolerance(XY_TOLERANCE)
                 .withRotationalTolerance(THETA_TOLERANCE);
     }
