@@ -18,10 +18,10 @@ public class FieldConstants {
     public static final double FIELD_LENGTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldLength();
     public static final double FIELD_WIDTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldWidth();
 
-    public static Translation2d REEF_CENTER = new Translation2d(Units.inchesToMeters(144.0 + (93.5 - 14.0 * 2.0) / 2.0), FIELD_WIDTH / 2.0);
-    public static double CENTER_OF_REEF_TO_REEF_FACE = Units.inchesToMeters(32.75);
-    public static double CENTER_OF_TROUGH_TO_BRANCH = Units.inchesToMeters(13.0 / 2.0);
-    public static double ROBOT_PERPENDICULAR_TO_NEXT_REEF = Units.inchesToMeters(18.5 + 3.0);
+    public static final Translation2d REEF_CENTER = new Translation2d(Units.inchesToMeters(144.0 + (93.5 - 14.0 * 2.0) / 2.0), FIELD_WIDTH / 2.0);
+    public static final double CENTER_OF_REEF_TO_REEF_FACE = Units.inchesToMeters(32.75);
+    public static final double CENTER_OF_TROUGH_TO_BRANCH = Units.inchesToMeters(13.0 / 2.0);
+    public static final double ROBOT_PERPENDICULAR_TO_NEXT_REEF = Units.inchesToMeters(18.5 + 3.0);
     public static final Field2d FIELD_2D = new Field2d();
 
     public static final double BARGE_LENGTH = Units.inchesToMeters(146.5);
