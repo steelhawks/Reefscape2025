@@ -68,15 +68,6 @@ public class AlgaeClaw extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeClaw", inputs);
 
-        if (Toggles.tuningMode.get()) {
-            LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
-                io.setPID(
-                    AlgaeClawConstants.PIVOT_KP.get(),
-                    AlgaeClawConstants.PIVOT_KI.get(),
-                    AlgaeClawConstants.PIVOT_KD.get());
-            }, AlgaeClawConstants.PIVOT_KP, AlgaeClawConstants.PIVOT_KI, AlgaeClawConstants.PIVOT_KD);
-        }
-
         shouldEStop =
             (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderPosition)) == 1)
                 || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderVelocity)) == -1); // prob need to run a deadband for small movements
@@ -108,6 +99,12 @@ public class AlgaeClaw extends SubsystemBase {
                 }
                 io.runPivotOpenLoop(pivotAmps.get());
             }
+            LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
+                io.setPID(
+                        AlgaeClawConstants.PIVOT_KP.get(),
+                        AlgaeClawConstants.PIVOT_KI.get(),
+                        AlgaeClawConstants.PIVOT_KD.get());
+            }, AlgaeClawConstants.PIVOT_KP, AlgaeClawConstants.PIVOT_KI, AlgaeClawConstants.PIVOT_KD);
         }
         if (shouldRun) {
             double previousVelocity = setpoint.velocity;
