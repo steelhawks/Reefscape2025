@@ -243,7 +243,8 @@ public class Elevator extends SubsystemBase {
             }
             atGoal = Math.abs(getPosition() - goal.position) <= ElevatorConstants.TOLERANCE;
             if (atGoal) {
-                io.runElevator(ElevatorConstants.kG[getStage()]);
+                //io.runElevator(ElevatorConstants.kG[getStage()]);
+                io.stop();
             } else {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
                 io.runPosition(

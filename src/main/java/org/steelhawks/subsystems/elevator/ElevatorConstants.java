@@ -47,19 +47,19 @@ public class ElevatorConstants {
         Units.inchesToMeters(1.888);
 
     public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(25.0, 10.0);
-    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(40.0, 20.0);
+    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(46.0, 20.0);
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
 
-    public static final LoggedTunableNumber KP = new LoggedTunableNumber("Elevator/kP", Constants.omega(0.0, 6.0));
+    public static final LoggedTunableNumber KP = new LoggedTunableNumber("Elevator/kP", Constants.omega(500.0, 6.0));
     public static final double KI = 0.0;
-    public static final LoggedTunableNumber KD = new LoggedTunableNumber("Elevator/kI", Constants.omega(0.0, 0.4));
+    public static final LoggedTunableNumber KD = new LoggedTunableNumber("Elevator/kD", Constants.omega(40.0, 0.4));
 
     public static final double ELEVATOR_DISTANCE_INTERPOLATOR_MAX = 0.6;
     public static final double SHIMMY_VOLTS = -5.0;
     public static final double HOMING_VOLTS = -3.0;
 
     public static final Double[] kS = {
-        Constants.omega(0.0, 0.0),
+        Constants.omega(1.0, 0.0),
         0.0,
         0.0
     };
@@ -70,10 +70,11 @@ public class ElevatorConstants {
         0.0,
         0.0
 
+
     };
 
     public static final Double[] kG = {
-        Constants.omega(0.0, 0.0),
+        Constants.omega(6.0, 0.0),
         0.0,
         0.0
     };
