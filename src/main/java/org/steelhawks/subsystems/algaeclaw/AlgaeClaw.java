@@ -35,6 +35,7 @@ public class AlgaeClaw extends SubsystemBase {
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
     private LoggedTunableNumber pivotVolts;
+    private LoggedTunableNumber pivotAmps;
 
     private boolean brakeModeEnabled = true;
     private boolean shouldEStop = false;
@@ -67,15 +68,6 @@ public class AlgaeClaw extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("AlgaeClaw", inputs);
 
-        if (Toggles.tuningMode.get()) {
-            LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
-                io.setPID(
-                    AlgaeClawConstants.PIVOT_KP.get(),
-                    AlgaeClawConstants.PIVOT_KI.get(),
-                    AlgaeClawConstants.PIVOT_KD.get());
-            }, AlgaeClawConstants.PIVOT_KP, AlgaeClawConstants.PIVOT_KI, AlgaeClawConstants.PIVOT_KD);
-        }
-
         shouldEStop =
             (inputs.pivotPosition >= AlgaeClawConstants.MAX_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderPosition)) == 1)
                 || (inputs.pivotPosition <= AlgaeClawConstants.MIN_PIVOT_RADIANS && Math.signum(velocityFilter.calculate(inputs.encoderVelocity)) == -1); // prob need to run a deadband for small movements
@@ -84,6 +76,7 @@ public class AlgaeClaw extends SubsystemBase {
         final boolean shouldRun =
             DriverStation.isEnabled()
                 && !Toggles.AlgaeClaw.toggleVoltageOverride.get()
+                && !Toggles.AlgaeClaw.toggleCurrentOverride.get()
                 && !shouldEStop
                 && !isManual;
 
@@ -93,13 +86,25 @@ public class AlgaeClaw extends SubsystemBase {
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
-        if (Toggles.tuningMode.get()
-            && Toggles.AlgaeClaw.toggleVoltageOverride.get()
-        ) {
-            if (pivotVolts == null) {
-                pivotVolts = new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
+        if (Toggles.tuningMode.get()) {
+            if (Toggles.AlgaeClaw.toggleVoltageOverride.get()) {
+                if (pivotVolts == null) {
+                    pivotVolts = new LoggedTunableNumber("AlgaeClaw/PivotVolts", 0.0);
+                }
+                io.runPivot(pivotVolts.get());
             }
-            io.runPivot(pivotVolts.get());
+            if (Toggles.AlgaeClaw.toggleCurrentOverride.get()) {
+                if (pivotAmps == null) {
+                    pivotAmps = new LoggedTunableNumber("AlgaeClaw/CurrentAmps", 0.0);
+                }
+                io.runPivotOpenLoop(pivotAmps.get());
+            }
+            LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
+                io.setPID(
+                        AlgaeClawConstants.PIVOT_KP.get(),
+                        AlgaeClawConstants.PIVOT_KI.get(),
+                        AlgaeClawConstants.PIVOT_KD.get());
+            }, AlgaeClawConstants.PIVOT_KP, AlgaeClawConstants.PIVOT_KI, AlgaeClawConstants.PIVOT_KD);
         }
         if (shouldRun) {
             double previousVelocity = setpoint.velocity;
@@ -190,22 +195,25 @@ public class AlgaeClaw extends SubsystemBase {
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
                 desiredGoal = state;
             }, this)
-        .withName("Set Desired State");
+        .withName("Set Desired State")
+        .ignoringDisable(true);
     }
 
     public Command pivotManual(DoubleSupplier rightAxis) {
-        return Commands.run(() -> {
-            if (hasAlgae()) {
-                io.runSpin(AlgaeClawConstants.RETAIN_ALGAE_SPEED);
-            } else {
-                io.stopSpin();
-            }
-            double speed = AlgaeClawConstants.PIVOT_KG.get() / 12.0
-                + MathUtil.clamp(rightAxis.getAsDouble(),
-                    -AlgaeClawConstants.MAX_MANUAL_SPEED,
-                    AlgaeClawConstants.MAX_MANUAL_SPEED);
-            io.runPivotViaSpeed(speed);
-        }, this);
+        return Commands.runOnce(() -> isManual = true)
+            .andThen(
+                Commands.run(() -> {
+                    if (hasAlgae()) {
+                        io.runSpin(AlgaeClawConstants.RETAIN_ALGAE_SPEED);
+                    } else {
+                        io.stopSpin();
+                    }
+                    double speed = AlgaeClawConstants.PIVOT_KG.get() / 12.0
+                        + MathUtil.clamp(rightAxis.getAsDouble(),
+                            -AlgaeClawConstants.MAX_MANUAL_SPEED,
+                            AlgaeClawConstants.MAX_MANUAL_SPEED);
+                    io.runPivotViaSpeed(speed);
+                }, this));
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
