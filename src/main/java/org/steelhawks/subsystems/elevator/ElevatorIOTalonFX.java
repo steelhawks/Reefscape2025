@@ -54,10 +54,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
-        positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0.0).withSlot(0);
-        torqueCurrent = new TorqueCurrentFOC(0.0);
-        voltageOut = new VoltageOut(0.0);
-        dutyCycle = new DutyCycleOut(0.0);
+        positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0.0)
+            .withSlot(0)
+            .withUpdateFreqHz(0.0);
+        torqueCurrent = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
+        voltageOut = new VoltageOut(0.0).withUpdateFreqHz(0.0);
+        dutyCycle = new DutyCycleOut(0.0).withUpdateFreqHz(0.0);
 
         leftPosition = leftMotor.getPosition();
         leftVelocity = leftMotor.getVelocity();

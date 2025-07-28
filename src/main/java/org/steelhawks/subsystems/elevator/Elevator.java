@@ -254,7 +254,6 @@ public class Elevator extends SubsystemBase {
                     setpoint.position,
                     ElevatorConstants.kS[getStage()] * Math.signum(setpoint.velocity)
                         + ElevatorConstants.kG[getStage()]
-                        + ElevatorConstants.kV[getStage()] * setpoint.velocity
                         + ElevatorConstants.kA[getStage()] * acceleration);
             }
             Logger.recordOutput("Elevator/SetpointPosition", setpoint.position);
