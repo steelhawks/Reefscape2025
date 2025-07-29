@@ -1,10 +1,12 @@
 package org.steelhawks.subsystems.claw;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.*;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -156,23 +158,34 @@ public class Claw extends SubsystemBase {
     }
 
     public Command indexCoral() {
-        return Commands.run(() -> {
-            if (!hasCoral() && !isIndexing && !hasIndexed) {
-                io.runIntake(ClawConstants.CLAW_INDEX_SPEED.get());
-            } else if (hasCoral() && !isIndexing && !hasIndexed) {
-                isIndexing = true;
-            }
-
-            if (isIndexing) {
-                if (hasCoral()) {
-                    io.runIntake(-ClawConstants.CLAW_INDEX_SPEED.get() * 1.3);
-                    hasIndexed = true;
-                } else {
-                    isIndexing = false;
-                    stop();
+        return Commands.defer(() -> {
+            Timer timer = new Timer();
+            return Commands.run(() -> {
+                if (!hasCoral() && !isIndexing && !hasIndexed) {
+                    io.runIntake(ClawConstants.CLAW_INDEX_SPEED.get());
+                } else if (hasCoral() && !isIndexing && !hasIndexed) {
+                    isIndexing = true;
                 }
-            }
-        }, this);
+
+                if (isIndexing) {
+                    if (hasCoral()) {
+                        if (!timer.isRunning()) {
+                            timer.restart();
+                        }
+                        io.runIntake(
+                            MathUtil.clamp(
+                            -0.13 * timer.get(),
+                                -0.5,
+                                0.5));
+                        hasIndexed = true;
+                    } else {
+                        isIndexing = false;
+                        timer.stop();
+                        stop();
+                    }
+                }
+            }, this);
+        }, Set.of());
     }
 
     private void stop() {
