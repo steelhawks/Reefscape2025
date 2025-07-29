@@ -133,7 +133,6 @@ public class AlgaeClaw extends SubsystemBase {
                         - (AlgaeClawConstants.PIVOT_KG.get()
                             * Math.sin(getPivotPosition())
                             * RobotContainer.s_Swerve.getRobotRelativeXAccelGs())
-                        + AlgaeClawConstants.PIVOT_KV.get() * setpoint.velocity
                         + AlgaeClawConstants.PIVOT_KA.get() * acceleration);
             }
             Logger.recordOutput("AlgaeClaw/SetpointPositionRad", setpoint.position);
