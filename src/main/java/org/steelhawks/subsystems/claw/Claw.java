@@ -5,7 +5,6 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.*;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -48,7 +47,6 @@ public class Claw extends SubsystemBase {
         this.beamIO = beamIO;
         this.io = io;
         beamDebounce = new Debouncer(DEBOUNCE_TIME, DebounceType.kBoth);
-
     }
 
     @Override
@@ -65,7 +63,7 @@ public class Claw extends SubsystemBase {
      */
     @AutoLogOutput(key = "Claw/FiringSpeed")
     private double getFireSpeed() {
-        if (!Toggles.Claw.calculateEjectSpeed.get()) {
+        if (!Toggles.Claw.calculateEjectSpeed.get() || RobotContainer.s_Elevator.atHome().getAsBoolean()) {
             return !RobotContainer.s_Elevator.getState().equals(ElevatorConstants.State.L4)
                 ? requireNonNullConst(ClawConstants.CLAW_SHOOT_SPEED)
                 : requireNonNullConst(ClawConstants.CLAW_SLOW_SHOOT_SPEED);
