@@ -3,7 +3,9 @@ package org.steelhawks.subsystems.algaeclaw;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,12 +24,14 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     private final TalonFX pivotMotor;
     private final TalonFX spinMotor;
     private final CANcoder pivotEncoder;
-    private final PositionVoltage positionVoltage;
+    private final PositionTorqueCurrentFOC positionTorqueCurrentFOC;
+    private final TorqueCurrentFOC torqueCurrent;
 
     private final StatusSignal<Angle> pivotPosition;
     private final StatusSignal<AngularVelocity> pivotVelocity;
     private final StatusSignal<Voltage> pivotVoltage;
     private final StatusSignal<Current> pivotCurrent;
+    private final StatusSignal<Current> pivotTorqueCurrent;
     private final StatusSignal<Temperature> pivotTemperature;
 
     private final StatusSignal<Angle> spinPosition;
@@ -46,11 +50,12 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         pivotMotor = new TalonFX(AlgaeClawConstants.PIVOT_ID, AlgaeClawConstants.CLAW_BUS);
         spinMotor = new TalonFX(AlgaeClawConstants.SPIN_ID, AlgaeClawConstants.CLAW_BUS);
         pivotEncoder = new CANcoder(AlgaeClawConstants.CANCODER_ID, AlgaeClawConstants.CLAW_BUS);
-        positionVoltage = new PositionVoltage(0.0).withSlot(0);
+        positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0.0).withSlot(0);
+        torqueCurrent = new TorqueCurrentFOC(0.0);
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         config.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
         tryUntilOk(5, () -> pivotMotor.getConfigurator().apply(config, 0.25));
 
@@ -62,6 +67,7 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         pivotVelocity = pivotMotor.getVelocity();
         pivotVoltage = pivotMotor.getSupplyVoltage();
         pivotCurrent = pivotMotor.getStatorCurrent();
+        pivotTorqueCurrent = pivotMotor.getTorqueCurrent();
         pivotTemperature = pivotMotor.getDeviceTemp();
 
         spinPosition = spinMotor.getPosition();
@@ -80,6 +86,7 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
             pivotVelocity,
             pivotVoltage,
             pivotCurrent,
+            pivotTorqueCurrent,
             pivotTemperature,
             spinPosition,
             spinVelocity,
@@ -105,6 +112,7 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         inputs.pivotVelocity = Units.rotationsToRadians(pivotVelocity.getValueAsDouble());
         inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
         inputs.pivotCurrent = pivotCurrent.getValueAsDouble();
+        inputs.pivotTorqueCurrentAmps = pivotTorqueCurrent.getValueAsDouble();
         inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
 
         inputs.spinConnected =
@@ -142,6 +150,12 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     }
 
     @Override
+    public void runPivotOpenLoop(double output) {
+        pivotMotor.setControl(
+            torqueCurrent.withOutput(output));
+    }
+
+    @Override
     public void runPivotViaSpeed(double speed) {
         pivotMotor.set(speed);
     }
@@ -154,7 +168,7 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
     @Override
     public void runPosition(Rotation2d angle, double feedforward) {
         pivotMotor.setControl(
-            positionVoltage
+            positionTorqueCurrentFOC
                 .withPosition(angle.getRotations())
                 .withFeedForward(feedforward));
     }

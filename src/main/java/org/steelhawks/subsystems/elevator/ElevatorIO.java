@@ -14,11 +14,13 @@ public interface ElevatorIO {
         public double velocityRotPerSec = 0;
         public double leftAppliedVolts = 0;
         public double leftCurrentAmps = 0;
+        public double leftTorqueCurrentAmps = 0;
         public double leftTempCelsius = 0;
 
         public boolean rightConnected = false;
         public double rightAppliedVolts = 0;
         public double rightCurrentAmps = 0;
+        public double rightTorqueCurrentAmps = 0;
         public double rightTempCelsius = 0;
 
         public boolean limitSwitchConnected = false;
@@ -35,6 +37,11 @@ public interface ElevatorIO {
      * Runs the elevator at a given voltage.
      */
     default void runElevator(double volts) {}
+
+    /**
+     * Runs the elevator at a given output. Either voltage or current.
+     */
+    default void runOpenLoop(double output) {}
 
     /**
      * Runs the elevator at a given speed.

@@ -40,6 +40,8 @@ public interface Toggles {
             new LoggedNetworkBoolean("Toggles/AutoElevatorLeveling", true);
         LoggedNetworkBoolean toggleVoltageOverride =
             new LoggedNetworkBoolean("Toggles/Elevator/VoltageOverride", false);
+        LoggedNetworkBoolean toggleCurrentOverride =
+            new LoggedNetworkBoolean("Toggles/Elevator/CurrentOverride", false);
     }
 
     interface Claw {
@@ -50,5 +52,7 @@ public interface Toggles {
     interface AlgaeClaw {
         LoggedNetworkBoolean toggleVoltageOverride =
             new LoggedNetworkBoolean("Toggles/AlgaeClaw/VoltageOverride", false);
+        LoggedNetworkBoolean toggleCurrentOverride =
+                new LoggedNetworkBoolean("Toggles/AlgaeClaw/CurrentOverride", false);
     }
 }

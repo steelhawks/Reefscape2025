@@ -255,7 +255,6 @@ public class RobotContainer {
 
         s_LED.setDefaultCommand(new LEDDefaultCommand(() -> manualToggled));
         s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
-        s_Claw.setDefaultCommand(s_Claw.indexCoral());
     }
 
     private void setManualToggled(boolean value) {
