@@ -32,8 +32,12 @@ import org.steelhawks.subsystems.elevator.ElevatorConstants;
 import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.LoopTimeUtil;
+import org.steelhawks.util.PyBridge;
 import org.steelhawks.util.VirtualSubsystem;
+
+import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 import static org.steelhawks.Constants.RobotType.*;
 
@@ -179,6 +183,7 @@ public class Robot extends LoggedRobot {
             }
         }
 
+        PyBridge.init();
         robotContainer = new RobotContainer();
         ReefState.hasOverriden(); // invoke just in case
 

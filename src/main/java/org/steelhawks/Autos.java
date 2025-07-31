@@ -17,6 +17,7 @@ import org.steelhawks.commands.autos.RC2_Pathless;
 import org.steelhawks.subsystems.algaeclaw.AlgaeClaw;
 import org.steelhawks.subsystems.claw.Claw;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.util.PyBridge;
 import org.steelhawks.util.autonbuilder.StartEndPosition;
 import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.subsystems.elevator.Elevator;
@@ -24,6 +25,7 @@ import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public final class Autos {
@@ -53,8 +55,8 @@ public final class Autos {
 
         autoChooser.addDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
         autoChooser.addOption("BC2", new BC2_Pathless(true));
-        autoChooser.addOption("RC2 End BR1", new RC2_Pathless(false));
-        autoChooser.addOption("RC2 End L2", new RC2_Pathless(true));
+        autoChooser.addOption("RC2 End BR1", getRC2(false));
+        autoChooser.addOption("RC2 End L2", getRC2(true));
         autoChooser.addOption("Center R2", getCenterR2Auton());
         autoChooser.addOption("Center R1", getCenterR1Auton());
 
@@ -95,6 +97,14 @@ public final class Autos {
             autoChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kForward));
             autoChooser.addOption("AlgaeClaw (Dynamic Forward)", s_AlgaeClaw.sysIdDynamic(SysIdRoutine.Direction.kReverse));
         }
+    }
+
+    private static Command getRC2(boolean startingBR1) {
+        return PyBridge.getInstance().toJava(
+            PyBridge.getInstance().createInstance(
+                "RC2Pathless",
+                startingBR1),
+            Command.class);
     }
 
     public static Misalignment getMisalignment() {
