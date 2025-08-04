@@ -391,6 +391,7 @@ public class Swerve extends SubsystemBase {
         return mAlignDebouncer.calculate(Math.abs(angleDifference) <= Units.degreesToRadians(5));
     }
 
+    @AutoLogOutput(key = "Swerve/DriveAlignAtGoal")
     public boolean driveAlignAtGoal() {
         var currentCommand = getCurrentCommand();
         if (currentCommand instanceof SwerveDriveAlignment) {
@@ -404,6 +405,7 @@ public class Swerve extends SubsystemBase {
         odometryLock.lock(); // Prevents odometry updates while reading data
         gyroIO.updateInputs(gyroInputs);
         Logger.processInputs("Swerve/Gyro", gyroInputs);
+
         for (var module : swerveModules) {
             module.periodic();
         }

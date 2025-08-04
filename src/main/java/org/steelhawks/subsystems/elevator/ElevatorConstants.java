@@ -9,11 +9,12 @@ import org.steelhawks.util.LoggedTunableNumber;
 public class ElevatorConstants {
 
     public enum State {
-        L4(Units.radiansToRotations(23.299634187195004)),
+//      L4(Units.radiansToRotations(23.299634187195004)), //3.708251953
+        L4(3.591796875),
         L3(2.146240234375),
         L2(1.1181640625),
-        L1(Units.radiansToRotations(4.947855031325136)),
-        L1_JUMP(Units.radiansToRotations(4.947855031325136 + 1.5)),
+        L1(Units.radiansToRotations(4.947855031325136)), //0.787475586
+        L1_JUMP(Units.radiansToRotations(4.947855031325136 + 1.5)), //2.287475586
         HOME(0.0),
 
         // move elevator up so claw is not blocking the climb and cage
@@ -41,7 +42,8 @@ public class ElevatorConstants {
     public static final int RIGHT_MOTOR_ID = 14;
 
     public static final double MAX_ROTATIONS = Units.radiansToRotations(24.0);
-    public static final double TOLERANCE = Units.radiansToRotations(0.03);
+//  public static final double TOLERANCE = Units.radiansToRotations(0.03); //0.00477464829
+    public static final double TOLERANCE = 0.015;
     public static final double REDUCTION = 25.0 / 1.0;
     public static final double SPROCKET_RAD = // the driving drum
         Units.inchesToMeters(1.888);

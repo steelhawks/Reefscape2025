@@ -242,8 +242,8 @@ public class Elevator extends SubsystemBase {
             }
             atGoal = Math.abs(getPosition() - goal.position) <= ElevatorConstants.TOLERANCE;
             if (atGoal) {
-                //io.runElevator(ElevatorConstants.kG[getStage()]);
-                io.stop();
+                io.runOpenLoop(ElevatorConstants.kG[getStage()]);
+//              io.stop();
             } else {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
                 io.runPosition(
@@ -321,7 +321,8 @@ public class Elevator extends SubsystemBase {
                     () -> {
                         double appliedSpeed =
                             speed.getAsDouble() == 0.0
-                                ? ElevatorConstants.kG[getStage()] / 12.0
+//                                ? ElevatorConstants.kG[getStage()] / 12.0
+                                ? 0.25 / 12
                                 : speed.getAsDouble();
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
                         final boolean requestedUp = Math.signum(appliedSpeed) == 1;
