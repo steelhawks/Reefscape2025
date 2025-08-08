@@ -18,6 +18,7 @@ import org.steelhawks.*;
 import org.steelhawks.Constants.RobotType;
 import org.steelhawks.subsystems.LED;
 import org.steelhawks.subsystems.LED.LEDColor;
+import org.steelhawks.util.Conversions;
 import org.steelhawks.util.LoggedTunableNumber;
 
 import java.util.function.DoubleSupplier;
@@ -216,22 +217,29 @@ public class Elevator extends SubsystemBase {
                 && Toggles.Elevator.autoElevatorLeveling.get()
                 && isScoringLevel()
             ) {
-                double interpolated = elevatorDistanceMap.get(
-                    RobotContainer.s_Swerve
-                        .getPose()
-                        .getTranslation()
-                        .getDistance(ReefUtil.getClosestCoralBranch()
-                            .getScorePose(desiredGoal)
-                            .getTranslation()));
-                Logger.recordOutput("Elevator/InterpolatedDistance", interpolated);
-                inputs.goal =
-                    MathUtil.clamp(desiredGoal.getAngle().getRotations()
-                        + interpolated,
-                        desiredGoal.getAngle().getRotations(), // low is static score position
-                        Math.min(
-                            desiredGoal.getAngle().getRotations() + ElevatorConstants.ELEVATOR_DISTANCE_INTERPOLATOR_MAX,
-                            ElevatorConstants.MAX_ROTATIONS)); // give up if way over
-                goal = new TrapezoidProfile.State(inputs.goal, 0.0);
+                var A = Conversions.toVector2(ReefUtil.getClosestCoralBranch().getScorePose(desiredGoal));
+                var B = Conversions.toVector2(RobotContainer.s_Swerve.getPose());
+                // checks if robot is parallel to score pose then allows adjustment to stop from useless overshooting when driving there
+                if (Math.abs(A.x * B.y - A.y * B.x) < 1e-6) {
+                    double interpolated = elevatorDistanceMap.get(
+                        RobotContainer.s_Swerve
+                            .getPose()
+                            .getTranslation()
+                            .getDistance(ReefUtil.getClosestCoralBranch()
+                                .getScorePose(desiredGoal)
+                                .getTranslation()));
+                    Logger.recordOutput("Elevator/InterpolatedDistance", interpolated);
+                    inputs.goal =
+                        MathUtil.clamp(desiredGoal.getAngle().getRotations()
+                                + interpolated,
+                            desiredGoal.getAngle().getRotations(), // low is static score position
+                            Math.min(
+                                desiredGoal.getAngle().getRotations() + ElevatorConstants.ELEVATOR_DISTANCE_INTERPOLATOR_MAX,
+                                ElevatorConstants.MAX_ROTATIONS)); // give up if way over
+                    goal = new TrapezoidProfile.State(inputs.goal, 0.0);
+                } else {
+                    Logger.recordOutput("Elevator/InterpolatedDistance", 0.0);
+                }
             }
             double previousVelocity = setpoint.velocity;
             setpoint =
