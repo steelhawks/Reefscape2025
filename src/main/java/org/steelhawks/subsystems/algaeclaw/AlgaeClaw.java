@@ -60,7 +60,7 @@ public class AlgaeClaw extends SubsystemBase {
                 new SysIdRoutine.Mechanism(
                     (voltage) -> io.runPivot(voltage.in(Volts)), null, this));
         velocityFilter = LinearFilter.movingAverage(5);
-        avoid().schedule();
+//        avoid().schedule();
     }
 
     @Override

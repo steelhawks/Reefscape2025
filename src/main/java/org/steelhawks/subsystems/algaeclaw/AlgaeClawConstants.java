@@ -51,7 +51,7 @@ public class AlgaeClawConstants {
     public static final double MAX_ACCELERATION_RAD_PER_SEC_2 = 0.0;
     public static final double MAX_MANUAL_SPEED = 0.3;
     public static final double TOLERANCE = 0.02;
-    public static final Rotation2d CANCODER_OFFSET = Rotation2d.fromRotations(0.0); // in rotations
+    public static final Rotation2d CANCODER_OFFSET = Rotation2d.fromRotations(-0.098876953125); // in rotations
     public static final double MIN_PIVOT_RADIANS = -Math.PI / 2.0;
     public static final double MAX_PIVOT_RADIANS = 0.6504078540635119;
 

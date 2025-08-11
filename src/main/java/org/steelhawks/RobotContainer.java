@@ -91,8 +91,8 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
-                            new BeamIOCANrange(),
-                            new ClawIOSparkFlex());
+                            new BeamIO() {},
+                            new ClawIO() {});
                     s_Align =
                         new Align(
                             new AlignIO() {});

@@ -50,8 +50,8 @@ public class AlgaeClawIOTalonFX implements AlgaeClawIO {
         pivotMotor = new TalonFX(AlgaeClawConstants.PIVOT_ID, AlgaeClawConstants.CLAW_BUS);
         spinMotor = new TalonFX(AlgaeClawConstants.SPIN_ID, AlgaeClawConstants.CLAW_BUS);
         pivotEncoder = new CANcoder(AlgaeClawConstants.CANCODER_ID, AlgaeClawConstants.CLAW_BUS);
-        positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0.0).withSlot(0).withUpdateFreqHz(0.0);
-        torqueCurrent = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
+        positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0.0).withSlot(0);
+        torqueCurrent = new TorqueCurrentFOC(0.0);
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
