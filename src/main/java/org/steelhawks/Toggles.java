@@ -35,6 +35,13 @@ public interface Toggles {
         }
     }
 
+    interface Swerve {
+        LoggedNetworkBoolean driveOpenLoopOverride =
+            new LoggedNetworkBoolean("Toggles/Swerve/DriveOpenLoopOverride", false);
+        LoggedNetworkBoolean turnOpenLoopOverride =
+            new LoggedNetworkBoolean("Toggles/Swerve/TurnOpenLoopOverride", false);
+    }
+
     interface Elevator {
         LoggedNetworkBoolean autoElevatorLeveling =
             new LoggedNetworkBoolean("Toggles/AutoElevatorLeveling", true);

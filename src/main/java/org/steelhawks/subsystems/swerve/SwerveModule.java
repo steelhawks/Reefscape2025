@@ -11,11 +11,24 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.Toggles;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
+import org.steelhawks.util.LoggedTunableNumber;
 
 public class SwerveModule {
+
+    private static final LoggedTunableNumber drivekP = new LoggedTunableNumber("Swerve/DrivekP");
+    private static final LoggedTunableNumber drivekI = new LoggedTunableNumber("Swerve/DrivekI");
+    private static final LoggedTunableNumber drivekD = new LoggedTunableNumber("Swerve/DrivekD");
+
+    private static final LoggedTunableNumber steerkP = new LoggedTunableNumber("Swerve/SteerkP");
+    private static final LoggedTunableNumber steerkI = new LoggedTunableNumber("Swerve/SteerkI");
+    private static final LoggedTunableNumber steerkD = new LoggedTunableNumber("Swerve/SteerkD");
+
+    private final LoggedTunableNumber driveOpenLoop = new LoggedTunableNumber("Swerve/DriveOpenLoop", 0.0);
+    private final LoggedTunableNumber turnOpenLoop = new LoggedTunableNumber("Swerve/TurnOpenLoop", 0.0);
 
     private final ModuleIO io;
     private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
@@ -37,6 +50,15 @@ public class SwerveModule {
         this.io = io;
         this.index = index;
         this.constants = constants;
+
+        drivekP.initDefault(constants.DriveMotorGains.kP);
+        drivekI.initDefault(constants.DriveMotorGains.kI);
+        drivekD.initDefault(constants.DriveMotorGains.kD);
+
+        steerkP.initDefault(constants.SteerMotorGains.kP);
+        steerkI.initDefault(constants.SteerMotorGains.kI);
+        steerkD.initDefault(constants.SteerMotorGains.kD);
+
         driveDisconnectedAlert =
             new Alert(
                 "Disconnected drive motor on module " + index + ".",
@@ -67,6 +89,19 @@ public class SwerveModule {
         driveDisconnectedAlert.set(!inputs.driveConnected);
         turnDisconnectedAlert.set(!inputs.turnConnected);
         turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
+
+        if (Toggles.tuningMode.get()) {
+            if (Toggles.Swerve.driveOpenLoopOverride.get()) {
+                io.setDriveOpenLoop(driveOpenLoop.get());
+            }
+            if (Toggles.Swerve.turnOpenLoopOverride.get()) {
+                io.setTurnOpenLoop(turnOpenLoop.get());
+            }
+            LoggedTunableNumber.ifChanged(hashCode(), () -> {
+                io.setDrivePID(drivekP.get(), drivekI.get(), drivekD.get());
+                io.setSteerPID(steerkP.get(), steerkI.get(), steerkD.get());
+            }, drivekP, drivekI, drivekD, steerkP, steerkI, steerkD);
+        }
     }
 
     /**

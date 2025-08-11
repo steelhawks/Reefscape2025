@@ -260,4 +260,20 @@ public class ModuleIOTalonFX implements ModuleIO {
                     rotation.getRotations());
             });
     }
+
+    @Override
+    public void setDrivePID(double drivekP, double drivekI, double drivekD) {
+        constants.DriveMotorGains.kP = drivekP;
+        constants.DriveMotorGains.kI = drivekI;
+        constants.DriveMotorGains.kD = drivekD;
+        tryUntilOk(5, () -> driveTalon.getConfigurator().apply(constants.DriveMotorGains));
+    }
+
+    @Override
+    public void setSteerPID(double steerkP, double steerkI, double steerkD) {
+        constants.SteerMotorGains.kP = steerkP;
+        constants.SteerMotorGains.kI = steerkI;
+        constants.SteerMotorGains.kD = steerkD;
+        tryUntilOk(5, () -> turnTalon.getConfigurator().apply(constants.SteerMotorGains));
+    }
 }
