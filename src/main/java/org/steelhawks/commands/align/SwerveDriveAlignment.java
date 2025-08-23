@@ -1,10 +1,16 @@
 package org.steelhawks.commands.align;
 
+import com.therekrab.autopilot.APConstraints;
+import com.therekrab.autopilot.APProfile;
+import com.therekrab.autopilot.APTarget;
+import com.therekrab.autopilot.Autopilot;
+import com.therekrab.autopilot.Autopilot.APResult;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -17,21 +23,33 @@ import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.LoggedTunableNumber;
-import org.steelhawks.util.SwerveDriveController;
 
 import java.util.function.Supplier;
 
+import static edu.wpi.first.units.Units.*;
+
 public class SwerveDriveAlignment extends Command {
 
-    protected static final double XY_TOLERANCE = Units.inchesToMeters(1.0);
-    protected static final double THETA_TOLERANCE = Units.degreesToRadians(3);
-    protected static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15;
-    protected static final double SWERVE_DEADBAND = 0.05;
+    protected static final double XY_TOLERANCE = Units.inchesToMeters(1.0); // m
+    protected static final double THETA_TOLERANCE = Units.degreesToRadians(3); // rad/s
+    protected static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15; // m/s
+
+    /* All these are math estimated values, could do more real life regressions later */
+    private static final double MAX_ACCELERATION = 7.848; // m/s^2
+    private static final double MAX_JERK = 5.0; // m/s^3
+    private static final double BEELINE_RADIUS = 8.0; // cm
 
     protected static final Swerve s_Swerve = RobotContainer.s_Swerve;
+    private static final APConstraints CONSTRAINTS = new APConstraints()
+        .withAcceleration(MAX_ACCELERATION)
+        .withJerk(MAX_JERK);
+
+    private final ProfiledPIDController angleController;
+    private final APProfile profile;
+    private final Autopilot autopilot;
+    private APTarget target = null;
 
     protected final FieldObject2d dashboardTargetPosePublisher;
-    protected static SwerveDriveController mController;
     protected Supplier<Pose2d> targetPose;
     protected final Debouncer debouncer;
     protected final LinearFilter filter;
@@ -60,27 +78,19 @@ public class SwerveDriveAlignment extends Command {
         this.filter = LinearFilter.movingAverage(5);
         this.endsWhenAligned = endsWhenAligned;
 
-        mController =
-            new SwerveDriveController(
-                new ProfiledPIDController(
-                    AutonConstants.TRANSLATION_KP.get(),
-                    AutonConstants.TRANSLATION_KI.get(),
-                    AutonConstants.TRANSLATION_KD.get(),
-                    AutonConstants.ALIGN_CONSTRAINTS),
-                new ProfiledPIDController(
-                    AutonConstants.TRANSLATION_KP.get(),
-                    AutonConstants.TRANSLATION_KI.get(),
-                    AutonConstants.TRANSLATION_KD.get(),
-                    AutonConstants.ALIGN_CONSTRAINTS),
-                new ProfiledPIDController(
-                    AutonConstants.ROTATION_KP.get(),
-                    AutonConstants.ROTATION_KI.get(),
-                    AutonConstants.ROTATION_KD.get(),
-                    new TrapezoidProfile.Constraints(
-                        AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                        AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED)))
-                .withLinearTolerance(XY_TOLERANCE)
-                .withRotationalTolerance(THETA_TOLERANCE);
+        angleController =
+            new ProfiledPIDController(
+                AutonConstants.ROTATION_KP.get(),
+                AutonConstants.ROTATION_KI.get(),
+                AutonConstants.ROTATION_KD.get(),
+                new TrapezoidProfile.Constraints(
+                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
+        profile = new APProfile(CONSTRAINTS)
+            .withErrorXY(Meters.of(XY_TOLERANCE))
+            .withErrorTheta(Radians.of(THETA_TOLERANCE))
+            .withBeelineRadius(Centimeters.of(BEELINE_RADIUS));
+        autopilot = new Autopilot(profile);
     }
 
     protected boolean isXAligned() {
@@ -101,13 +111,13 @@ public class SwerveDriveAlignment extends Command {
     }
 
     protected boolean isAligned() {
-        return isXAligned() && isYAligned() && isThetaAligned() && velocityInTolerance();
+        return autopilot.atTarget(s_Swerve.getPose(), new APTarget(targetPose.get()));
     }
 
     @Override
     public void initialize() {
         startingPose = s_Swerve.getPose();
-        mController.reset(startingPose);
+        angleController.reset(startingPose.getRotation().getRadians());
         s_Swerve.setPathfinding(true);
     }
 
@@ -117,68 +127,64 @@ public class SwerveDriveAlignment extends Command {
      * @return The ChassisSpeeds output
      */
     protected ChassisSpeeds getOutput() {
-        ChassisSpeeds speeds = mController.getOutput(s_Swerve.getPose(), targetPose.get());
-        Logger.recordOutput("Align/ControllerOutputX", speeds.vxMetersPerSecond);
-        Logger.recordOutput("Align/ControllerOutputY", speeds.vyMetersPerSecond);
-        Logger.recordOutput("Align/ControllerOutputTheta", speeds.omegaRadiansPerSecond);
+        ChassisSpeeds robotRelativeSpeeds = s_Swerve.getChassisSpeeds();
+        Pose2d currPose = s_Swerve.getPose();
+        target = new APTarget(targetPose.get())
+            .withEntryAngle(Rotation2d.kZero);
+        APResult output = autopilot.calculate(currPose, robotRelativeSpeeds, target);
+        double vx = output.vx().in(MetersPerSecond);
+        double vy = output.vy().in(MetersPerSecond);
+        double omegaRadPerSec = angleController.calculate(currPose.getRotation().getRadians(), output.targetAngle().getRadians());
 
-        boolean nearZeroTrans = // tune these deadbands
-            Math.abs(speeds.vxMetersPerSecond) < XY_TOLERANCE
-                && Math.abs(speeds.vyMetersPerSecond) < XY_TOLERANCE;
+        Logger.recordOutput("Align/SwerveAlign/VelocitySetpointX", vx);
+        Logger.recordOutput("Align/SwerveAlign/VelocitySetpointY", vy);
+        Logger.recordOutput("Align/SwerveAlign/ControllerOutputTheta", omegaRadPerSec);
+
+        boolean nearZeroTrans =
+            Math.abs(vx) < XY_TOLERANCE
+                && Math.abs(vy) < XY_TOLERANCE;
         boolean nearZeroRot =
-            Math.abs(speeds.omegaRadiansPerSecond)
-                < Units.degreesToRadians(3);
+            Math.abs(omegaRadPerSec)
+                < THETA_TOLERANCE;
         if (nearZeroTrans && nearZeroRot)
             return new ChassisSpeeds();
 
-        return new ChassisSpeeds(
-            Math.abs(speeds.vxMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vxMetersPerSecond,
-            Math.abs(speeds.vyMetersPerSecond) < SWERVE_DEADBAND ? 0 : speeds.vyMetersPerSecond,
-            Math.abs(speeds.omegaRadiansPerSecond) < SWERVE_DEADBAND ? 0 : speeds.omegaRadiansPerSecond
-        );
+        return ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omegaRadPerSec, currPose.getRotation());
     }
 
     protected void log() {
         dashboardTargetPosePublisher.setPose(targetPose.get());
+        var speeds = s_Swerve.getChassisSpeeds();
         velocityError =
-            Math.hypot(
-                mController.getError().vxMetersPerSecond,
-                mController.getError().vyMetersPerSecond);
-        Logger.recordOutput("Align/VelocityError", velocityError);
+            target.getVelocity() -
+                Math.hypot(
+                    speeds.vxMetersPerSecond,
+                    speeds.vyMetersPerSecond);
+        Logger.recordOutput("Align/SwerveAlign/VelocityError", velocityError);
 
-        Logger.recordOutput("Align/TargetX", targetPose.get().getX());
-        Logger.recordOutput("Align/TargetY", targetPose.get().getY());
-        Logger.recordOutput("Align/TargetTheta", targetPose.get().getRotation().getDegrees());
-        Logger.recordOutput("Align/CurrentX", s_Swerve.getPose().getX());
-        Logger.recordOutput("Align/CurrentY", s_Swerve.getPose().getY());
-        Logger.recordOutput("Align/CurrentTheta", s_Swerve.getPose().getRotation().getDegrees());
+        Logger.recordOutput("Align/SwerveAlign/TargetX", targetPose.get().getX());
+        Logger.recordOutput("Align/SwerveAlign/TargetY", targetPose.get().getY());
+        Logger.recordOutput("Align/SwerveAlign/TargetTheta", targetPose.get().getRotation().getDegrees());
+        Logger.recordOutput("Align/SwerveAlign/CurrentX", s_Swerve.getPose().getX());
+        Logger.recordOutput("Align/SwerveAlign/CurrentY", s_Swerve.getPose().getY());
+        Logger.recordOutput("Align/SwerveAlign/CurrentTheta", s_Swerve.getPose().getRotation().getDegrees());
 
-        Logger.recordOutput("Align/TargetPose", targetPose.get());
-        Logger.recordOutput("Align/StartingPose", startingPose);
+        Logger.recordOutput("Align/SwerveAlign/TargetPose", targetPose.get());
+        Logger.recordOutput("Align/SwerveAlign/StartingPose", startingPose);
 
-        Logger.recordOutput("Align/AlignedX", isXAligned());
-        Logger.recordOutput("Align/AlignedY", isYAligned());
-        Logger.recordOutput("Align/AlignedTheta", isThetaAligned());
-        Logger.recordOutput("Align/VelocityInTolerance", velocityInTolerance());
+        Logger.recordOutput("Align/SwerveAlign/AlignedX", isXAligned());
+        Logger.recordOutput("Align/SwerveAlign/AlignedY", isYAligned());
+        Logger.recordOutput("Align/SwerveAlign/AlignedTheta", isThetaAligned());
+        Logger.recordOutput("Align/SwerveAlign/VelocityInTolerance", velocityInTolerance());
     }
 
     protected void updatePID() {
         LoggedTunableNumber.ifChanged(hashCode(), () -> {
-            mController.getXController().setPID(
-                AutonConstants.TRANSLATION_KP.get(),
-                AutonConstants.TRANSLATION_KI.get(),
-                AutonConstants.TRANSLATION_KD.get());
-            mController.getYController().setPID(
-                AutonConstants.TRANSLATION_KP.get(),
-                AutonConstants.TRANSLATION_KI.get(),
-                AutonConstants.TRANSLATION_KD.get());
-            mController.getThetaController().setPID(
+            angleController.setPID(
                 AutonConstants.ROTATION_KP.get(),
                 AutonConstants.ROTATION_KI.get(),
                 AutonConstants.ROTATION_KD.get());
-        }, AutonConstants.TRANSLATION_KP,
-            AutonConstants.TRANSLATION_KI,
-            AutonConstants.TRANSLATION_KD,
+        },
             AutonConstants.ROTATION_KP,
             AutonConstants.ROTATION_KI,
             AutonConstants.ROTATION_KD);

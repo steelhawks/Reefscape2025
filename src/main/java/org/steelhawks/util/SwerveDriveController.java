@@ -1,19 +1,19 @@
 package org.steelhawks.util;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import org.littletonrobotics.junction.Logger;
 
 public class SwerveDriveController {
 
-    private final ProfiledPIDController xController;
-    private final ProfiledPIDController yController;
+    private final PIDController xController;
+    private final PIDController yController;
     private final ProfiledPIDController thetaController;
     private boolean firstRun = true;
 
     public SwerveDriveController(
-        ProfiledPIDController xController, ProfiledPIDController yController, ProfiledPIDController thetaController) {
+        PIDController xController, PIDController yController, ProfiledPIDController thetaController) {
         this.xController = xController;
         this.yController = yController;
         this.thetaController = thetaController;
@@ -31,11 +31,11 @@ public class SwerveDriveController {
         return this;
     }
 
-    public ProfiledPIDController getXController() {
+    public PIDController getXController() {
         return xController;
     }
 
-    public ProfiledPIDController getYController() {
+    public PIDController getYController() {
         return yController;
     }
 
@@ -44,9 +44,9 @@ public class SwerveDriveController {
     }
 
     public void reset(Pose2d measurement) {
+        xController.reset();
+        yController.reset();
         thetaController.reset(measurement.getRotation().getRadians());
-        xController.reset(measurement.getTranslation().getX());
-        yController.reset(measurement.getTranslation().getY());
     }
 
     public ChassisSpeeds getOutput(Pose2d measurement, Pose2d setpoint) {
@@ -68,8 +68,8 @@ public class SwerveDriveController {
 
     public ChassisSpeeds getError() {
         return new ChassisSpeeds(
-            xController.getVelocityError(),
-            yController.getVelocityError(),
+            xController.getError(),
+            yController.getError(),
             thetaController.getVelocityError());
     }
 }

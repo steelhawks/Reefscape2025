@@ -41,7 +41,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.OMEGABOT;
+    private static final RobotType ROBOT = RobotType.SIMBOT;
 
     /**
      * The robot type.
@@ -169,17 +169,13 @@ public final class Constants {
 
     @SuppressWarnings("ConstantConditions")
     public static final class AutonConstants {
-        public static final LoggedTunableNumber TRANSLATION_KP = new LoggedTunableNumber("Swerve/TranslationkP", Constants.omega(5.0, 0.0));
+        public static final LoggedTunableNumber TRANSLATION_KP = new LoggedTunableNumber("Swerve/TranslationkP", Constants.omega(5.0, 5.0));
         public static final LoggedTunableNumber TRANSLATION_KI = new LoggedTunableNumber("Swerve/TranslationkI", Constants.omega(0.0, 0.0));
-        public static final LoggedTunableNumber TRANSLATION_KD = new LoggedTunableNumber("Swerve/TranslationkD", Constants.omega(0.1, 0.0));
+        public static final LoggedTunableNumber TRANSLATION_KD = new LoggedTunableNumber("Swerve/TranslationkD", Constants.omega(0.1, 0.1));
 
-        public static final LoggedTunableNumber ROTATION_KP = new LoggedTunableNumber("Swerve/RotationkP", Constants.omega(5.0, 0.0));
+        public static final LoggedTunableNumber ROTATION_KP = new LoggedTunableNumber("Swerve/RotationkP", Constants.omega(5.0, 5.0));
         public static final LoggedTunableNumber ROTATION_KI = new LoggedTunableNumber("Swerve/RotationkI", Constants.omega(0.0, 0.0));
-        public static final LoggedTunableNumber ROTATION_KD = new LoggedTunableNumber("Swerve/RotationkD", Constants.omega(0.1, 0.0));
-
-        private static final double MAX_TRANSLATION_VELOCITY = Constants.omega(5.0, 0.0);
-        private static final double MAX_TRANSLATION_ACCELERATION = Constants.omega(6.0, 0.0);
-        public static final TrapezoidProfile.Constraints ALIGN_CONSTRAINTS = new TrapezoidProfile.Constraints(MAX_TRANSLATION_VELOCITY, MAX_TRANSLATION_ACCELERATION);
+        public static final LoggedTunableNumber ROTATION_KD = new LoggedTunableNumber("Swerve/RotationkD", Constants.omega(0.1, 0.1));
 
         public static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("Swerve/AnglekP", Constants.omega(1.0, 2.5));
         public static final LoggedTunableNumber ANGLE_KI = new LoggedTunableNumber("Swerve/AnglekI", Constants.omega(0.0, 0.0));
