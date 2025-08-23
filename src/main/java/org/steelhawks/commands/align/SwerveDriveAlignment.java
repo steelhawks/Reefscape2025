@@ -35,9 +35,11 @@ public class SwerveDriveAlignment extends Command {
     protected static final double MAX_VELOCITY_ERROR_TOLERANCE = 0.15; // m/s
 
     /* All these are math estimated values, could do more real life regressions later */
-    private static final double MAX_ACCELERATION = 7.848; // m/s^2
-    private static final double MAX_JERK = 5.0; // m/s^3
-    private static final double BEELINE_RADIUS = 8.0; // cm
+    private static final double MAX_ACCELERATION = 20.0; // m/s^2
+    private static final double MAX_JERK = 15.0; // m/s^3
+    private static final double BEELINE_RADIUS_TELEOP = 10.0; // cm
+    // drive in straight line in auton, do not curve at any distance
+    private static final double BEELINE_RADIUS_AUTON = Double.POSITIVE_INFINITY; // cm
 
     protected static final Swerve s_Swerve = RobotContainer.s_Swerve;
     private static final APConstraints CONSTRAINTS = new APConstraints()
@@ -89,7 +91,7 @@ public class SwerveDriveAlignment extends Command {
         profile = new APProfile(CONSTRAINTS)
             .withErrorXY(Meters.of(XY_TOLERANCE))
             .withErrorTheta(Radians.of(THETA_TOLERANCE))
-            .withBeelineRadius(Centimeters.of(BEELINE_RADIUS));
+            .withBeelineRadius(Centimeters.of(BEELINE_RADIUS_TELEOP));
         autopilot = new Autopilot(profile);
     }
 
@@ -190,9 +192,18 @@ public class SwerveDriveAlignment extends Command {
             AutonConstants.ROTATION_KD);
     }
 
+    private void updateProfile() {
+        if (Robot.getState().equals(Robot.RobotState.AUTON)) {
+            profile.withBeelineRadius(Centimeters.of(BEELINE_RADIUS_AUTON));
+        } else {
+            profile.withBeelineRadius(Centimeters.of(BEELINE_RADIUS_TELEOP));
+        }
+    }
+
     @Override
     public void execute() {
         s_Swerve.runVelocity(getOutput());
+        updateProfile();
         updatePID();
         log();
     }

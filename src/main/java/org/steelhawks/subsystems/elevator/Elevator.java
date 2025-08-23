@@ -185,12 +185,12 @@ public class Elevator extends SubsystemBase {
         if (DriverStation.isEnabled()) {
             setBrakeMode(true);
         }
-        if (FieldConstants.ROBOT_IN_CORAL_STATION_ZONE.getAsBoolean()
-            && !atHome().getAsBoolean()
-            && !isShimmying
-        ) {
-            shimmyDown().schedule();
-        }
+//        if (FieldConstants.ROBOT_IN_CORAL_STATION_ZONE.getAsBoolean()
+//            && !atHome().getAsBoolean()
+//            && !isShimmying
+//        ) {
+//            shimmyDown().schedule();
+//        }
         if (Toggles.tuningMode.get()) {
             if (Toggles.Elevator.toggleVoltageOverride.get()) {
                 if (tuningVolts == null) {
