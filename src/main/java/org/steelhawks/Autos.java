@@ -12,6 +12,7 @@ import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.commands.align.SwerveDriveAlignment;
+import org.steelhawks.commands.autos.BC2_Autopilot;
 import org.steelhawks.commands.autos.BC2_Pathless;
 import org.steelhawks.commands.autos.RC2_Autopilot;
 import org.steelhawks.commands.autos.RC2_Pathless;
@@ -53,7 +54,8 @@ public final class Autos {
         /* ------------- Autons ------------- */
 
         autoChooser.addDefaultOption("Nothing", Commands.none().withName("NOTHING_AUTO"));
-        autoChooser.addOption("BC2", new BC2_Pathless(true));
+        autoChooser.addOption("BC2 End TR1", new BC2_Autopilot(false));
+        autoChooser.addOption("BC2 End L1", new BC2_Autopilot(true));
         autoChooser.addOption("RC2 End BR1", new RC2_Autopilot(false));
         autoChooser.addOption("RC2 End L2", new RC2_Autopilot(true));
         autoChooser.addOption("Center R2", getCenterR2Auton());
