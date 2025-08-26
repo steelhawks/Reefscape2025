@@ -35,6 +35,8 @@ import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.Elastic;
 import org.steelhawks.util.LoopTimeUtil;
 import org.steelhawks.util.VirtualSubsystem;
+import org.steelhawks.util.autonbuilder.StartEndPosition;
+
 import java.lang.reflect.Field;
 import java.util.Set;
 
@@ -233,17 +235,17 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("Align/DynamicRoutine", ReefState.dynamicScoreRoutine());
     }
 
+    public void resetPoseSim() {
+        if (Constants.getMode() == Mode.SIM) {
+            RobotContainer.s_Swerve.resetSimulation(
+                StartEndPosition.valueOf(Autos.getAuto().getName()).getPose());
+        }
+    }
+
     @Override
     public void disabledInit() {
         setState(RobotState.DISABLED);
-
-        if (Constants.getMode() == Mode.SIM) {
-            RobotContainer.s_Swerve.resetSimulation(
-                new Pose2d(
-                    6,
-                    1.5,
-                    new Rotation2d()));
-        }
+        resetPoseSim();
     }
 
     @Override
