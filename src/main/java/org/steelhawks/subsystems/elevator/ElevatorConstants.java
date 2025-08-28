@@ -9,7 +9,7 @@ import org.steelhawks.util.LoggedTunableNumber;
 public class ElevatorConstants {
 
     public enum State {
-        L4(Units.radiansToRotations(23.299634187195004)),
+        L4(3.6650390625), //23.299634187195004 (radiansToRotations)
         L3(2.146240234375),
         L2(1.1181640625),
         L1(Units.radiansToRotations(4.947855031325136)),
