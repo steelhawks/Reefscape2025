@@ -331,7 +331,7 @@ public class Elevator extends SubsystemBase {
                     () -> {
                         double appliedSpeed =
                             speed.getAsDouble() == 0.0
-                                ? ElevatorConstants.kG[getStage()] / 12.0
+                                ? ElevatorConstants.kG[getStage()] / 200.0 // was 12
                                 : manualElevatorLimiter.calculate(speed.getAsDouble());
                         Logger.recordOutput("Elevator/ManualAppliedSpeedRaw", speed.getAsDouble());
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);
