@@ -71,6 +71,7 @@ public class Claw extends SubsystemBase {
                 : requireNonNullConst(ClawConstants.CLAW_SLOW_SHOOT_SPEED);
         }
         // v0 = sqrt((g * R^2) / 2cos^2(theta) * (Rtan(theta) + h)
+        final double kS = 0.05;
         final double wheelDiameter = Units.inchesToMeters(3.0);
         final double wheelCircumference = wheelDiameter * Math.PI;
         final double theta = Math.toRadians(-35.0); // claw is angled downwards 35 degrees
@@ -105,7 +106,7 @@ public class Claw extends SubsystemBase {
         Logger.recordOutput("Claw/InitialVelocityRPS", v0RPS);
 
         double maxOutputRPS = (ClawConstants.CLAW_MOTOR_MAX_RPM / requireNonNullConst(ClawConstants.CLAW_INTAKE_GEAR_RATIO)) / 60.0;
-        return (v0RPS / maxOutputRPS) + 0.05;
+        return (v0RPS / maxOutputRPS) + kS;
     }
 
     public Command shootCoral() {
