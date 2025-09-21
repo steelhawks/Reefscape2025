@@ -223,8 +223,8 @@ public class Swerve extends SubsystemBase {
                     .withGyro(COTS.ofPigeon2())
                     // Specify swerve module (for realistic swerve dynamics)
                     .withSwerveModule(COTS.ofMark4n(
-                        DCMotor.getKrakenX60(1),
-                        DCMotor.getKrakenX60(1),
+                        DCMotor.getKrakenX60Foc(1),
+                        DCMotor.getKrakenX60Foc(1),
                         COTS.WHEELS.COLSONS.cof,
                         3)) // L3 Gear ratio
                     // Configures the track length and track width (spacing between swerve modules)
