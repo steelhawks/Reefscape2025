@@ -25,6 +25,7 @@ import org.steelhawks.subsystems.align.AlignIO;
 import org.steelhawks.subsystems.align.AlignIOSim;
 import org.steelhawks.subsystems.claw.*;
 import org.steelhawks.subsystems.claw.beambreak.BeamIO;
+import org.steelhawks.subsystems.claw.beambreak.BeamIOCANrange;
 import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 import org.steelhawks.subsystems.elevator.ElevatorIOSim;
 import org.steelhawks.subsystems.elevator.*;
@@ -90,8 +91,8 @@ public class RobotContainer {
                             new ElevatorIOTalonFX());
                     s_Claw =
                         new Claw(
-                            new BeamIO() {},
-                            new ClawIO() {});
+                            new BeamIOCANrange(),
+                            new ClawIOSparkFlex());
                     s_Align =
                         new Align(
                             new AlignIO() {});

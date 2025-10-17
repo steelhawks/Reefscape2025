@@ -82,9 +82,9 @@ public class ReefUtil {
             double distFromReef = Units.inchesToMeters(
                 switch (level) {
                     case L1 -> 0.5;
-                    case L2 -> 0.0; // find the distance from the reef to the branch
-                    case L3 -> 0.0;
-                    case L4 -> 0.0;
+                    case L2 -> 0.5; // find the distance from the reef to the branch
+                    case L3 -> 0.5;
+                    case L4 -> 0.25;
                     default -> throw new IllegalArgumentException("Invalid level: " + level);
                 });
             return getScorePose(level, distFromReef);
