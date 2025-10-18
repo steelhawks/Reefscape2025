@@ -11,7 +11,9 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.Toggles;
 import org.steelhawks.subsystems.vision.VisionIO.PoseObservationType;
@@ -28,10 +30,24 @@ public class Vision extends SubsystemBase {
 
     private static int[] allowedTagIds;
     private boolean prevPathfinding;
+    private final boolean useQuestNav;
+
+    private final QuestNavImpl questNav;
 
     public Vision(VisionConsumer consumer, VisionIO... io) {
+        this(consumer, false, io);
+    }
+
+    public Vision(VisionConsumer consumer, boolean useQuestNav, VisionIO... io) {
         this.consumer = consumer;
+        this.useQuestNav = useQuestNav;
         this.io = io;
+
+        if (useQuestNav) {
+            questNav = new QuestNavImpl(consumer);
+        } else {
+            questNav = null;
+        }
 
         // Initialize inputs
         this.inputs = new VisionIOInputsAutoLogged[io.length];
@@ -186,6 +202,10 @@ public class Vision extends SubsystemBase {
                     linearStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
                     angularStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
                 }
+                if (useQuestNav) {
+                    linearStdDev = 2601_2601;
+                    angularStdDev = 2601_2601;
+                }
 
                 // Send vision observation
                 consumer.accept(
@@ -193,6 +213,15 @@ public class Vision extends SubsystemBase {
                     observation.timestamp(),
                     VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
             }
+            LoopTimeUtil.record("Normal Vision");
+            if (questNav != null) {
+                if (DriverStation.isDisabled() && Robot.isFirstRun() && !robotPoses.isEmpty()) {
+                    questNav.setPose(robotPosesAccepted.get(0).toPose2d());
+                }
+                questNav.periodic(robotPoses);
+                LoopTimeUtil.record("QuestNav");
+            }
+
 
             // Log camera datadata
             Logger.recordOutput(
