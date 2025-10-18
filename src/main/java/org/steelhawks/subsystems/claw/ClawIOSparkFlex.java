@@ -58,7 +58,7 @@ public class ClawIOSparkFlex implements ClawIO {
     public void updateInputs(ClawIntakeIOInputs inputs) {
         inputs.connected = mConnectedDebounce.calculate(!SparkUtil.sparkStickyFault);
         inputs.positionRad = Units.rotationsToRadians(mIntakeEncoder.getPosition() / GEAR_RATIO);
-        inputs.velocityRadPerSec = Units.rotationsToRadians(mIntakeEncoder.getVelocity() / 60.0);
+        inputs.velocityRadPerSec = Units.rotationsToRadians(mIntakeEncoder.getVelocity() / 60.0 * GEAR_RATIO);
         inputs.appliedVolts = mIntakeMotor.getBusVoltage();
         inputs.currentAmps = mIntakeMotor.getOutputCurrent();
         inputs.tempCelsius = mIntakeMotor.getMotorTemperature();
