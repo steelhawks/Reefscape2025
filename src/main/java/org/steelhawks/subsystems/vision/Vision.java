@@ -202,9 +202,12 @@ public class Vision extends SubsystemBase {
                     linearStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
                     angularStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
                 }
-                if (useQuestNav) {
-                    linearStdDev = 2601_2601;
-                    angularStdDev = 2601_2601;
+                if (useQuestNav && !Robot.isFirstRun()) {
+                    assert questNav != null;
+                    if (questNav.isRunning()) {
+                        linearStdDev = 2601_2601;
+                        angularStdDev = 2601_2601;
+                    }
                 }
 
                 // Send vision observation

@@ -108,6 +108,10 @@ public class QuestNavImpl {
             <= VISION_THETA_DEVIATION_TOLERANCE);
     }
 
+    public boolean isRunning() {
+        return nav.isTracking() && nav.isConnected();
+    }
+
     public void setPose(Pose2d pose) {
         hasInitialPose = true;
         nav.setPose(new Pose3d(pose).transformBy(ROBOT_TO_QUEST).toPose2d());
