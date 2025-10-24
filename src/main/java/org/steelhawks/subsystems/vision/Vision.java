@@ -217,13 +217,6 @@ public class Vision extends SubsystemBase {
                     VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
             }
             LoopTimeUtil.record("Normal Vision");
-            if (questNav != null) {
-                if (DriverStation.isDisabled() && Robot.isFirstRun() && !robotPoses.isEmpty()) {
-                    questNav.setPose(robotPosesAccepted.get(0).toPose2d());
-                }
-                questNav.periodic(robotPoses);
-                LoopTimeUtil.record("QuestNav");
-            }
 
 
             // Log camera datadata
@@ -258,6 +251,14 @@ public class Vision extends SubsystemBase {
             allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
 
         LoopTimeUtil.record("Vision");
+
+        if (questNav != null) {
+            if (DriverStation.isDisabled() && Robot.isFirstRun() && !allRobotPoses.isEmpty()) {
+                questNav.setPose(allRobotPosesAccepted.get(0).toPose2d());
+            }
+            questNav.periodic(allRobotPoses);
+            LoopTimeUtil.record("QuestNav");
+        }
     }
 
     @FunctionalInterface

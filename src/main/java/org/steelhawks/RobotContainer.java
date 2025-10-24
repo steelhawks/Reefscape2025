@@ -74,6 +74,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
+                            true,
                             new VisionIOPhoton(
                                 VisionConstants.cameraNames()[0],
                                 VisionConstants.robotToCamera()[0]),
@@ -167,6 +168,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
+                            true,
                             new VisionIOPhotonSim(
                                 VisionConstants.cameraNames()[0],
                                 VisionConstants.robotToCamera()[0],

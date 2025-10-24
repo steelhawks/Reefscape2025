@@ -39,6 +39,12 @@ public class QuestNavImpl {
         // required for library to work
         nav.commandPeriodic();
 
+        Logger.recordOutput("QuestNav/Connected", nav.isConnected());
+        Logger.recordOutput("QuestNav/Tracking", nav.isTracking());
+        Logger.recordOutput("QuestNav/FrameCount", nav.getFrameCount().orElse(0));
+        Logger.recordOutput("QuestNav/Battery", nav.getBatteryPercent().orElse(0));
+        Logger.recordOutput("QuestNav/Latency", nav.getLatency());
+
         List<PoseFrame> allPoseFrames = new LinkedList<>();
         List<Pose2d> allQuestPoses = new LinkedList<>();
         List<Pose2d> allQuestPosesAccepted = new LinkedList<>();
@@ -92,11 +98,6 @@ public class QuestNavImpl {
                 Logger.recordOutput("QuestNav/AllPoses", allQuestPoses.toArray(new Pose2d[0]));
                 Logger.recordOutput("QuestNav/RejectedPoses", allQuestPosesRejected.toArray(new Pose2d[0]));
                 Logger.recordOutput("QuestNav/AcceptedPoses", allQuestPosesAccepted.toArray(new Pose2d[0]));
-                Logger.recordOutput("QuestNav/Connected", nav.isConnected());
-                Logger.recordOutput("QuestNav/Tracking", nav.isTracking());
-                Logger.recordOutput("QuestNav/FrameCount", nav.getFrameCount().orElse(0));
-                Logger.recordOutput("QuestNav/Battery", nav.getBatteryPercent().orElse(0));
-                Logger.recordOutput("QuestNav/Latency", nav.getLatency());
             }
         }
     }
