@@ -118,7 +118,7 @@ public class Claw extends SubsystemBase {
     public Command shootCoralEnd() {
         return new ParallelDeadlineGroup(
             Commands.waitUntil(() -> !RobotContainer.s_Claw.hasCoral())
-                .andThen(Commands.waitSeconds(0.25)),
+                .andThen(Commands.waitSeconds(1)), // 0.25
             shootCoral().andThen(() -> hasIndexed = false));
     }
 

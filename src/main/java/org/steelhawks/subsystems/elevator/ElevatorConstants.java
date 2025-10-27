@@ -13,7 +13,7 @@ public class ElevatorConstants {
         L3(2.146240234375),
         L2(1.1181640625),
         L1(Units.radiansToRotations(4.947855031325136)),
-        L1_JUMP(Units.radiansToRotations(4.947855031325136 + 1.5)),
+        L1_JUMP(Units.radiansToRotations(4.947855031325136 + 5.0)),
         HOME(0.0),
 
         // move elevator up so claw is not blocking the climb and cage

@@ -9,7 +9,7 @@ import java.util.Map;
 public interface Toggles {
 
     LoggedNetworkBoolean visualizeCoralMap =
-        new LoggedNetworkBoolean("Toggles/VisualizeCoralMap", false);
+        new LoggedNetworkBoolean("Toggles/VisualizeCoralMap", true);
     LoggedNetworkBoolean autoMark =
         new LoggedNetworkBoolean("Toggles/AutoMark", true);
     LoggedNetworkBoolean debugMode =

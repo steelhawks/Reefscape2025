@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.steelhawks.Constants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.Toggles;
@@ -253,7 +254,8 @@ public class Vision extends SubsystemBase {
         LoopTimeUtil.record("Vision");
 
         if (questNav != null) {
-            if (DriverStation.isDisabled() && Robot.isFirstRun() && !allRobotPoses.isEmpty()) {
+            // make it so that in debug mode you can automatically reset pose from vision when disabled/ or make it a toggle
+            if (DriverStation.isDisabled() && Robot.isFirstRun() && Constants.loggedValue("RobotPosesEmpty", !allRobotPoses.isEmpty())) {
                 questNav.setPose(allRobotPosesAccepted.get(0).toPose2d());
             }
             questNav.periodic(allRobotPoses);

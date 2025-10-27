@@ -74,7 +74,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            true,
+                            false,
                             new VisionIOPhoton(
                                 VisionConstants.cameraNames()[0],
                                 VisionConstants.robotToCamera()[0]),
