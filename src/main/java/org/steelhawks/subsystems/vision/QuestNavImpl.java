@@ -11,6 +11,7 @@ import edu.wpi.first.math.numbers.N3;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.Constants;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -64,23 +65,23 @@ public class QuestNavImpl {
                         .transformBy(ROBOT_TO_QUEST.inverse()).toPose2d();
                 // filtering / compare questnav position to vision positioning
                 final boolean rejectPose =
-                    !hasInitialPose
-                    || robotPose.getX() < 0.0
-                    || robotPose.getX() > APRIL_TAG_LAYOUT.getFieldLength()
-                    || robotPose.getY() < 0.0
-                    || robotPose.getY() > APRIL_TAG_LAYOUT.getFieldWidth()
-                    || outOfVisionTolerance(frame.questPose(),
-                        visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d())
-                    || !nav.isTracking()
-                    || !nav.isConnected();
+                    Constants.loggedValue("HasInitialPose", !hasInitialPose)
+                    || Constants.loggedValue("InXFieldMin",robotPose.getX() < 0.0)
+                    || Constants.loggedValue("InXFieldMax", robotPose.getX() > APRIL_TAG_LAYOUT.getFieldLength())
+                    || Constants.loggedValue("InYFieldMin", robotPose.getY() < 0.0)
+                    || Constants.loggedValue("InYFieldMax", robotPose.getY() > APRIL_TAG_LAYOUT.getFieldWidth())
+                    || Constants.loggedValue("OutOfVisionTolerance", outOfVisionTolerance(frame.questPose(),
+                        visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d()))
+                    || Constants.loggedValue("QuestTracking", !nav.isTracking())
+                    || Constants.loggedValue("QuestConnected", !nav.isConnected());
                 if (outOfVisionTolerance(frame.questPose(),
                     visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d())
                 ) {
                     boolean visionEstimateOk =
-                        visionPoses.stream().findAny().orElse(new Pose3d()).getX() < 0.0
-                        || visionPoses.stream().findAny().orElse(new Pose3d()).getX() > APRIL_TAG_LAYOUT.getFieldLength()
-                        || visionPoses.stream().findAny().orElse(new Pose3d()).getY() < 0.0
-                        || visionPoses.stream().findAny().orElse(new Pose3d()).getY() > APRIL_TAG_LAYOUT.getFieldWidth();
+                        Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() < 0.0)
+                        || Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() > APRIL_TAG_LAYOUT.getFieldLength())
+                        || Constants.loggedValue("EstimateOk/InYMin", visionPoses.stream().findAny().orElse(new Pose3d()).getY() < 0.0)
+                        || Constants.loggedValue("EstimateOk/InYMax", visionPoses.stream().findAny().orElse(new Pose3d()).getY() > APRIL_TAG_LAYOUT.getFieldWidth());
                     if (visionEstimateOk && !visionPoses.isEmpty()) {
                         setPose(visionPoses.get(0).toPose2d());
                     }
@@ -103,10 +104,10 @@ public class QuestNavImpl {
     }
 
     private boolean outOfVisionTolerance(Pose2d questPose, Pose2d visionPose) {
-        return !(Math.abs(questPose.getX() - visionPose.getX()) <= VISION_XY_DEVIATION_TOLERANCE)
-            || !(Math.abs(questPose.getY() - visionPose.getY()) <= VISION_XY_DEVIATION_TOLERANCE)
-            || !(Math.abs(questPose.getRotation().getRadians() - visionPose.getRotation().getRadians())
-            <= VISION_THETA_DEVIATION_TOLERANCE);
+        return Constants.loggedValue("VisionCheck/InXTolWithVision", !(Math.abs(questPose.getX() - visionPose.getX()) <= VISION_XY_DEVIATION_TOLERANCE))
+            || Constants.loggedValue("VisionCheck/InYTolWithVision", !(Math.abs(questPose.getY() - visionPose.getY()) <= VISION_XY_DEVIATION_TOLERANCE))
+            || Constants.loggedValue("VisionCheck/InThetaTolWithVision", !(Math.abs(questPose.getRotation().getRadians() - visionPose.getRotation().getRadians())
+                <= VISION_THETA_DEVIATION_TOLERANCE));
     }
 
     public boolean isRunning() {

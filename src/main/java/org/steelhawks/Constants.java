@@ -2,13 +2,13 @@ package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
+import org.littletonrobotics.junction.Logger;
 import org.steelhawks.util.LoggedTunableNumber;
 
 
@@ -269,6 +269,14 @@ public final class Constants {
                 "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
             throw new IllegalCallerException(
                 "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
+        }
+        return obj;
+    }
+
+    public static <T> T loggedValue(String key, T obj) {
+        requireNonNullConst(obj);
+        if (Toggles.debugMode.get()) {
+            Logger.recordOutput("Debug/" + key, obj.toString());
         }
         return obj;
     }
