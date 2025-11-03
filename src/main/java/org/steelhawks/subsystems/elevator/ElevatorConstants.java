@@ -51,9 +51,16 @@ public class ElevatorConstants {
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
     public static final Double MANUAL_ELEVATOR_RAMP_RATE = Constants.omega(0.6 * MANUAL_ELEVATOR_INCREMENT, 0.8 * MANUAL_ELEVATOR_INCREMENT);
 
+    // TorqueCurrent
     public static final LoggedTunableNumber KP = new LoggedTunableNumber("Elevator/kP", Constants.omega(500.0, 6.0));
     public static final double KI = 0.0;
     public static final LoggedTunableNumber KD = new LoggedTunableNumber("Elevator/kD", Constants.omega(40.0, 0.4));
+
+    // Voltage
+    public static final LoggedTunableNumber KP_VOLTAGE = new LoggedTunableNumber("Elevator/kP_Voltage", Constants.omega(20.0, 6.0));
+    public static final double KI_VOLTAGE = 0.0;
+    public static final LoggedTunableNumber KD_VOLTAGE = new LoggedTunableNumber("Elevator/kD_Voltage", Constants.omega(5.5, 0.4));
+
 
     public static final double ELEVATOR_DISTANCE_INTERPOLATOR_MAX = 0.6;
     public static final double SHIMMY_VOLTS = -5.0;

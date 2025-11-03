@@ -47,9 +47,12 @@ public interface ElevatorIO {
      * Runs the elevator at a given speed.
      */
     default void runElevatorViaSpeed(double speed) {}
-
+    /**
+     * Runs motor position with TorqueCurrentFOC
+     */
     default void runPosition(double positionRot, double feedforward) {}
 
+    default void runPositionVoltage(double positionRot, double feedforward) {}
     /**
      * Zeros the position of the motor encoders.
      */
@@ -59,6 +62,11 @@ public interface ElevatorIO {
      * Sets the motor controller's PID
      */
     default void setPID(double kP, double kI, double kD) {}
+
+    /**
+     * Sets the motor controller's PID (voltage)
+     */
+    default void setPIDVoltage(double kP, double kI, double kD) {}
 
     /**
      * Sets the brake mode
