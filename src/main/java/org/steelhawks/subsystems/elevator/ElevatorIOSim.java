@@ -32,9 +32,9 @@ public class ElevatorIOSim implements ElevatorIO {
     public ElevatorIOSim() {
         mController =
             new PIDController(
-                ElevatorConstants.KP.get(),
-                ElevatorConstants.KI,
-                ElevatorConstants.KD.get());
+                ElevatorConstants.Voltage.KP.get(),
+                ElevatorConstants.Voltage.KI,
+                ElevatorConstants.Voltage.KD.get());
         mMotor = DCMotor.getFalcon500(2);
         mElevatorSim =
             new ElevatorSim(

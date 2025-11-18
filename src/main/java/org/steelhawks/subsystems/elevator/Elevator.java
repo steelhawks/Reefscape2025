@@ -23,7 +23,7 @@ import org.steelhawks.util.LoggedTunableNumber;
 
 import java.util.function.DoubleSupplier;
 
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 @SuppressWarnings("ConstantConditions")
 public class Elevator extends SubsystemBase {
@@ -34,6 +34,7 @@ public class Elevator extends SubsystemBase {
     private final SlewRateLimiter manualElevatorLimiter;
     private final ElevatorIOInputsAutoLogged inputs;
     private final TrapezoidProfile profile;
+    private final TrapezoidProfile voltProfile;
     private final SysIdRoutine sysIdRoutine;
     private final DigitalInput reverseLimit;
     private LoggedTunableNumber tuningVolts;
@@ -60,6 +61,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private boolean brakeModeEnabled = true;
+    private boolean fastProfileRunning = false; // by fast we mean the one with the higher max velocity, voltage control, false would mean using torque current
     private boolean isShimmying = false;
     private boolean isManual = false;
     private boolean atGoal = false;
@@ -76,6 +78,11 @@ public class Elevator extends SubsystemBase {
                 new TrapezoidProfile.Constraints(
                     ElevatorConstants.MAX_VELOCITY_ROT_PER_SEC,
                     ElevatorConstants.MAX_ACCELERATION_ROT_PER_SEC_2));
+        voltProfile =
+            new TrapezoidProfile(
+                new TrapezoidProfile.Constraints(
+                    ElevatorConstants.MAX_VELOCITY_ROT_PER_SEC_VOLT_PROF,
+                    ElevatorConstants.MAX_ACCELERATION_ROT_PER_SEC_2_VOLT_PROF));
         sysIdRoutine =
             new SysIdRoutine(
                 new SysIdRoutine.Config(
@@ -204,12 +211,23 @@ public class Elevator extends SubsystemBase {
                 }
                 io.runOpenLoop(tuningAmps.get());
             }
-            LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
-                io.setPID(
-                    ElevatorConstants.KP.get(),
-                    ElevatorConstants.KI,
-                    ElevatorConstants.KD.get());
-            }, ElevatorConstants.KP, ElevatorConstants.KD);
+            if (Toggles.Elevator.tuningVoltProfile.get()) {
+                LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
+                    io.setPID(
+                        Toggles.Elevator.tuningVoltProfile.get(),
+                        ElevatorConstants.Voltage.KP.get(),
+                        ElevatorConstants.Voltage.KI,
+                        ElevatorConstants.Voltage.KD.get());
+                }, ElevatorConstants.Voltage.KP, ElevatorConstants.Voltage.KD);
+            } else {
+                LoggedTunableNumber.ifChanged(this.hashCode(), () -> {
+                    io.setPID(
+                        Toggles.Elevator.tuningVoltProfile.get(),
+                        ElevatorConstants.TorqueCurrent.KP.get(),
+                        ElevatorConstants.TorqueCurrent.KI,
+                        ElevatorConstants.TorqueCurrent.KD.get());
+                }, ElevatorConstants.TorqueCurrent.KP, ElevatorConstants.TorqueCurrent.KD);
+            }
         }
         if (shouldRun) {
             if (desiredGoal != ElevatorConstants.State.L4
@@ -239,7 +257,7 @@ public class Elevator extends SubsystemBase {
             }
             double previousVelocity = setpoint.velocity;
             setpoint =
-                profile
+                (fastProfileRunning ? profile : voltProfile)
                     .calculate(Constants.UPDATE_LOOP_DT, setpoint, goal);
             if (setpoint.position < 0.0
                 || setpoint.position > ElevatorConstants.MAX_ROTATIONS) {
@@ -253,11 +271,20 @@ public class Elevator extends SubsystemBase {
                 io.stop();
             } else {
                 double acceleration = (setpoint.velocity - previousVelocity) / Constants.UPDATE_LOOP_DT;
-                io.runPosition(
-                    setpoint.position,
-                    ElevatorConstants.kS[getStage()] * Math.signum(setpoint.velocity)
-                        + ElevatorConstants.kG[getStage()]
-                        + ElevatorConstants.kA[getStage()] * acceleration);
+                if (fastProfileRunning) {
+                    io.runPositionVoltage(
+                        setpoint.position,
+                        ElevatorConstants.Voltage.kS[getStage()] * Math.signum(setpoint.velocity)
+                            + ElevatorConstants.Voltage.kV[getStage()] * setpoint.velocity
+                            + ElevatorConstants.Voltage.kG[getStage()]
+                            + ElevatorConstants.Voltage.kA[getStage()] * acceleration);
+                } else {
+                    io.runPosition(
+                        setpoint.position,
+                        ElevatorConstants.TorqueCurrent.kS[getStage()] * Math.signum(setpoint.velocity)
+                            + ElevatorConstants.TorqueCurrent.kG[getStage()]
+                            + ElevatorConstants.TorqueCurrent.kA[getStage()] * acceleration);
+                }
             }
             Logger.recordOutput("Elevator/SetpointPosition", setpoint.position);
             Logger.recordOutput("Elevator/SetpointVelocity", setpoint.velocity);
@@ -290,6 +317,10 @@ public class Elevator extends SubsystemBase {
                 inputs.goal = MathUtil.clamp(state.getAngle().getRotations(), 0, ElevatorConstants.MAX_ROTATIONS);
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
                 desiredGoal = state;
+
+                double distance = Math.abs(getPosition() - goal.position);
+                fastProfileRunning = distance < 20.0; // in radians
+                Logger.recordOutput("Elevator/FastProfileRunning", fastProfileRunning);
             }, this)
         .withName("Set Desired State");
     }
@@ -327,7 +358,7 @@ public class Elevator extends SubsystemBase {
                     () -> {
                         double appliedSpeed =
                             speed.getAsDouble() == 0.0
-                                ? ElevatorConstants.kG[getStage()] / 12.0
+                                ? ElevatorConstants.Voltage.kG[getStage()] / 12.0
                                 : manualElevatorLimiter.calculate(speed.getAsDouble());
                         Logger.recordOutput("Elevator/ManualAppliedSpeedRaw", speed.getAsDouble());
                         Logger.recordOutput("Elevator/ManualAppliedSpeed", appliedSpeed);

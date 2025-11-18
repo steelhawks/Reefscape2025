@@ -3,6 +3,7 @@ package org.steelhawks.subsystems.elevator;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -22,6 +23,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX rightMotor;
 
     private final PositionTorqueCurrentFOC positionTorqueCurrentFOC;
+    private final PositionVoltage positionVoltage;
     private final TorqueCurrentFOC torqueCurrent;
     private final VoltageOut voltageOut;
     private final DutyCycleOut dutyCycle;
@@ -47,15 +49,22 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.Slot0 = new Slot0Configs()
-            .withKP(ElevatorConstants.KP.get())
-            .withKI(ElevatorConstants.KI)
-            .withKD(ElevatorConstants.KD.get());
+            .withKP(ElevatorConstants.TorqueCurrent.KP.get())
+            .withKI(ElevatorConstants.TorqueCurrent.KI)
+            .withKD(ElevatorConstants.TorqueCurrent.KD.get());
+        config.Slot1 = new Slot1Configs()
+            .withKP(ElevatorConstants.Voltage.KP.get())
+            .withKP(ElevatorConstants.Voltage.KI)
+            .withKP(ElevatorConstants.Voltage.KD.get());
         config.Feedback.SensorToMechanismRatio = ElevatorConstants.REDUCTION;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config, 0.25));
 
         positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0.0)
             .withSlot(0)
+            .withUpdateFreqHz(0.0);
+        positionVoltage = new PositionVoltage(0.0)
+            .withSlot(1)
             .withUpdateFreqHz(0.0);
         torqueCurrent = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
         voltageOut = new VoltageOut(0.0).withUpdateFreqHz(0.0);
@@ -153,6 +162,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
+    public void runPositionVoltage(double positionRot, double feedforward) {
+        leftMotor.setControl(
+            positionVoltage
+                .withPosition(positionRot)
+                .withFeedForward(feedforward));
+    }
+
+    @Override
     public void zeroEncoders() {
         new Thread(() -> {
             leftMotor.setPosition(0);
@@ -161,10 +178,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
-    public void setPID(double kP, double kI, double kD) {
-        config.Slot0.kP = kP;
-        config.Slot0.kI = kI;
-        config.Slot0.kD = kD;
+    public void setPID(boolean voltProfile, double kP, double kI, double kD) {
+        if (!voltProfile) {
+            config.Slot0.kP = kP;
+            config.Slot0.kI = kI;
+            config.Slot0.kD = kD;
+        } else {
+            config.Slot1.kP = kP;
+            config.Slot1.kI = kI;
+            config.Slot1.kD = kD;
+        }
         tryUntilOk(5, () -> leftMotor.getConfigurator().apply(config));
     }
 

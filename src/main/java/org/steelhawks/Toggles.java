@@ -49,6 +49,9 @@ public interface Toggles {
             new LoggedNetworkBoolean("Toggles/Elevator/VoltageOverride", false);
         LoggedNetworkBoolean toggleCurrentOverride =
             new LoggedNetworkBoolean("Toggles/Elevator/CurrentOverride", false);
+
+        LoggedNetworkBoolean tuningVoltProfile =
+            new LoggedNetworkBoolean("Toggles/Elevator/TuningVoltProfile", false);
     }
 
     interface Claw {

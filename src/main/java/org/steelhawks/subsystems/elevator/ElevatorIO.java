@@ -50,6 +50,8 @@ public interface ElevatorIO {
 
     default void runPosition(double positionRot, double feedforward) {}
 
+    default void runPositionVoltage(double positionRot, double feedforward) {}
+
     /**
      * Zeros the position of the motor encoders.
      */
@@ -58,7 +60,7 @@ public interface ElevatorIO {
     /**
      * Sets the motor controller's PID
      */
-    default void setPID(double kP, double kI, double kD) {}
+    default void setPID(boolean voltProfile, double kP, double kI, double kD) {}
 
     /**
      * Sets the brake mode
