@@ -18,6 +18,8 @@ public interface Toggles {
         new LoggedNetworkBoolean("Toggles/TuningMode", false);
     LoggedNetworkBoolean motionMagicEnabled =
         new LoggedNetworkBoolean("Toggles/MotionMagicEnabled", false);
+    LoggedNetworkBoolean stabilityTracking =
+        new LoggedNetworkBoolean("Toggles/StabilityTrack", false);
 
     LoggedNetworkBoolean rateLimitSwerveEnabled =
         new LoggedNetworkBoolean("Toggles/RateLimitSwerveEnabled", false);

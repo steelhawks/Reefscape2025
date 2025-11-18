@@ -469,7 +469,7 @@ public class Swerve extends SubsystemBase {
      * @param speeds Speeds in meters/sec
      */
     public void runVelocity(ChassisSpeeds speeds) {
-        if (!StabilityManager.getInstance().stabilityCheck(gyroInputs.rollPosition, gyroInputs.pitchPosition)) {
+        if (Toggles.stabilityTracking.get() && !StabilityManager.getInstance().stabilityCheck(gyroInputs.rollPosition, gyroInputs.pitchPosition)) {
             speeds = StabilityManager.getInstance().correction();
         }
         final double speedMetersPerSec =
