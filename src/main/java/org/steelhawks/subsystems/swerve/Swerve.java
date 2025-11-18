@@ -460,8 +460,6 @@ public class Swerve extends SubsystemBase {
 
         FieldConstants.FIELD_2D.setRobotPose(getPose());
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
-        Logger.recordOutput("Swerve/ChassisSpeedLimiterMetersPerSecond",
-            TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * RobotContainer.s_Elevator.getSpeedMultiplierBasedOnElevator());
         LoopTimeUtil.record("Swerve");
     }
 
@@ -685,10 +683,7 @@ public class Swerve extends SubsystemBase {
      * Returns the speed multiplier.
      */
     public double getSpeedMultiplier() {
-        return RobotContainer.s_Elevator.atThisGoal(ElevatorConstants.State.HOME).getAsBoolean()
-            ? (requestSlowMode ? SLOW_SPEED_MULTIPLIER : SPEED_MULTIPLIER)
-            : RobotContainer.s_Elevator.getSpeedMultiplierBasedOnElevator();
-
+        return requestSlowMode ? SLOW_SPEED_MULTIPLIER : SPEED_MULTIPLIER;
     }
 
     /**

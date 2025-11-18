@@ -39,19 +39,12 @@ public class Elevator extends SubsystemBase {
     private LoggedTunableNumber tuningVolts;
     private LoggedTunableNumber tuningAmps;
 
-    private static final InterpolatingDoubleTreeMap elevatorLimiterMap = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap elevatorDistanceMap = new InterpolatingDoubleTreeMap();
     private ElevatorConstants.State desiredGoal = ElevatorConstants.State.HOME;
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State goal = new TrapezoidProfile.State();
 
     static {
-        // (height in rotations) -> (chassis‐speed multiplier)
-        // at 0 rotations, home, go full speed
-        elevatorLimiterMap.put(0.0, 1.0);
-        elevatorLimiterMap.put(Units.radiansToRotations(12.0), 0.5);
-        elevatorLimiterMap.put(Units.radiansToRotations(24.0), 0.1);
-
         // (distance in meters away from score pose) -> (rotations for elevator)
         // at distance of zero, add zero additional rotations to the elevator height
         elevatorDistanceMap.put(0.0, 0.0);
@@ -99,11 +92,6 @@ public class Elevator extends SubsystemBase {
 
     public ElevatorConstants.State getState() {
         return desiredGoal;
-    }
-
-    @AutoLogOutput(key = "Elevator/InterpolatedSpeedMultiplier")
-    public double getSpeedMultiplierBasedOnElevator() {
-        return elevatorLimiterMap.get(getPosition());
     }
 
     /**
