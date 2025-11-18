@@ -16,6 +16,8 @@ import java.util.Queue;
 public class GyroIOPigeon2 implements GyroIO {
 
     private final Pigeon2 pigeon;
+    private final StatusSignal<Angle> roll;
+    private final StatusSignal<Angle> pitch;
     private final StatusSignal<Angle> yaw;
     private final StatusSignal<LinearAcceleration> accelerationX;
     private final Queue<Double> yawPositionQueue;
@@ -25,6 +27,8 @@ public class GyroIOPigeon2 implements GyroIO {
     public GyroIOPigeon2(int pigeon2Id, String canBus) {
         pigeon = new Pigeon2(pigeon2Id, canBus);
 
+        roll = pigeon.getRoll();
+        pitch = pigeon.getPitch();
         yaw = pigeon.getYaw();
         accelerationX = pigeon.getAccelerationX();
         yawVelocity = pigeon.getAngularVelocityZWorld();
@@ -41,6 +45,8 @@ public class GyroIOPigeon2 implements GyroIO {
     @Override
     public void updateInputs(GyroIOInputs inputs) {
         inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+        inputs.rollPosition = Rotation2d.fromDegrees(roll.getValueAsDouble());
+        inputs.pitchPosition = Rotation2d.fromDegrees(pitch.getValueAsDouble());
         inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
         inputs.accelerationXInGs = accelerationX.getValueAsDouble();
         inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
