@@ -13,9 +13,9 @@ public class StabilityManager {
 
     private static final StabilityManager INSTANCE = new StabilityManager();
 
-    private static final LoggedTunableNumber kP = new LoggedTunableNumber("Stability/kP", 0.01);
+    private static final LoggedTunableNumber kP = new LoggedTunableNumber("Stability/kP", 5);
     private static final LoggedTunableNumber tippingLimitDeg = new LoggedTunableNumber("Stability/TippingLimitDeg", 3.0);
-    private static final LoggedTunableNumber maxCorrectionSpeedMPS = new LoggedTunableNumber("Stability/MaxCorrectionSpeedMPS", 1.5);
+    private static final LoggedTunableNumber maxCorrectionSpeedMPS = new LoggedTunableNumber("Stability/MaxCorrectionSpeedMPS", 3.0);
 
     private Rotation2d pitch;
     private Rotation2d roll;
