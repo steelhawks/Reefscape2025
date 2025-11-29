@@ -13,7 +13,7 @@ public class StabilityManager {
 
     private static final StabilityManager INSTANCE = new StabilityManager();
 
-    private static final LoggedTunableNumber kP = new LoggedTunableNumber("Stability/kP", 5);
+    private static final LoggedTunableNumber kP = new LoggedTunableNumber("Stability/kP", 5.0);
     private static final LoggedTunableNumber tippingLimitDeg = new LoggedTunableNumber("Stability/TippingLimitDeg", 3.0);
     private static final LoggedTunableNumber maxCorrectionSpeedMPS = new LoggedTunableNumber("Stability/MaxCorrectionSpeedMPS", 3.0);
 
