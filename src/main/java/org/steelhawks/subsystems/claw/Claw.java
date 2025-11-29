@@ -192,4 +192,47 @@ public class Claw extends SubsystemBase {
     private void stop() {
         io.stop();
     }
+
+    private double getFireSpeed() {
+
+        // If auto-eject is disabled or elevator is at home → use preset speeds
+        if (!calculateSpeedEnabled() || elevatorAtHome()) {
+            return elevatorIsL4() ? SLOW_SHOOT_SPEED : DEFAULT_SHOOT_SPEED;
+        }
+
+        // Projectile parameters
+        final double wheelDiameter = Units.inchesToMeters(3.0);
+        final double wheelCircumference = wheelDiameter * Math.PI;
+        final double theta = Math.toRadians(-35.0); // claw angled downward
+        final double g = 9.81;
+
+        // Horizontal distance to the coral branch
+        final double R = getRobotPose().getTranslation()
+            .getDistance(getClosestBranchPose().getTranslation());
+
+        // Vertical launch height (elevator height + claw offset)
+        final double H = elevatorHeightMeters() + CLAW_HEIGHT_FROM_FLOOR;
+
+        // Denominator from projectile equation
+        double denom =
+            2 * Math.pow(Math.cos(theta), 2) * (H + R * Math.tan(theta));
+
+        // If equation is invalid → fallback to default speeds
+        if (denom <= 0) {
+            return elevatorIsL4() ? SLOW_SHOOT_SPEED : DEFAULT_SHOOT_SPEED;
+        }
+
+        // Solve for v0 using projectile motion equation
+        double v0 = Math.sqrt((g * Math.pow(R, 2)) / denom);
+
+        // Convert m/s → wheel rotations per second
+        double v0RPS = metersToWheelRotations(v0, wheelCircumference);
+
+        // Motor max achievable RPS
+        double maxRPS = MAX_MOTOR_RPS;
+
+        // Normalize & add small feedforward offset
+        return (v0RPS / maxRPS) + SHOOT_KS;
+    }
+
 }
