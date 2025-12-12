@@ -55,13 +55,13 @@ public class QuestNavImpl {
         allPoseFrames.addAll(Arrays.asList(frames));
         allQuestPoses.addAll(
             Arrays.stream(frames)
-                .map(PoseFrame::questPose)
+                .map(frame -> frame.questPose3d().toPose2d())
                 .toList());
         if (frames.length > 0) {
             for (int i = 0; i < frames.length; i++) {
                 PoseFrame frame = frames[i];
                 Pose2d robotPose =
-                    new Pose3d(frame.questPose())
+                    frame.questPose3d()
                         .transformBy(ROBOT_TO_QUEST.inverse()).toPose2d();
                 // filtering / compare questnav position to vision positioning
                 final boolean rejectPose =
@@ -117,6 +117,6 @@ public class QuestNavImpl {
 
     public void setPose(Pose2d pose) {
         hasInitialPose = true;
-        nav.setPose(new Pose3d(pose).transformBy(ROBOT_TO_QUEST).toPose2d());
+        nav.setPose(new Pose3d(pose).transformBy(ROBOT_TO_QUEST));
     }
 }
