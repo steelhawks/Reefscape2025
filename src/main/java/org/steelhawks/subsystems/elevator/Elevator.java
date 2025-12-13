@@ -257,7 +257,7 @@ public class Elevator extends SubsystemBase {
             }
             double previousVelocity = setpoint.velocity;
             setpoint =
-                (fastProfileRunning ? profile : voltProfile)
+                (fastProfileRunning ? voltProfile : profile)
                     .calculate(Constants.UPDATE_LOOP_DT, setpoint, goal);
             if (setpoint.position < 0.0
                 || setpoint.position > ElevatorConstants.MAX_ROTATIONS) {
@@ -319,7 +319,7 @@ public class Elevator extends SubsystemBase {
                 desiredGoal = state;
 
                 double distance = Math.abs(getPosition() - goal.position);
-                fastProfileRunning = distance < 20.0; // in radians
+                fastProfileRunning = distance > 20.0; // in radians
                 Logger.recordOutput("Elevator/FastProfileRunning", fastProfileRunning);
             }, this)
         .withName("Set Desired State");
