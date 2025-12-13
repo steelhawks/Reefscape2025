@@ -70,22 +70,22 @@ public class QuestNavImpl {
                     || Constants.loggedValue("InXFieldMax", robotPose.getX() > APRIL_TAG_LAYOUT.getFieldLength())
                     || Constants.loggedValue("InYFieldMin", robotPose.getY() < 0.0)
                     || Constants.loggedValue("InYFieldMax", robotPose.getY() > APRIL_TAG_LAYOUT.getFieldWidth())
-//                    || Constants.loggedValue("OutOfVisionTolerance", outOfVisionTolerance(frame.questPose(),
-//                        visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d()))
+                    || Constants.loggedValue("OutOfVisionTolerance", outOfVisionTolerance(frame.questPose3d().toPose2d(),
+                        visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d()))
                     || Constants.loggedValue("QuestTracking", !nav.isTracking())
                     || Constants.loggedValue("QuestConnected", !nav.isConnected());
-//                if (outOfVisionTolerance(frame.questPose(),
-//                    visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d())
-//                ) {
-//                    boolean visionEstimateOk =
-//                        Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() < 0.0)
-//                        || Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() > APRIL_TAG_LAYOUT.getFieldLength())
-//                        || Constants.loggedValue("EstimateOk/InYMin", visionPoses.stream().findAny().orElse(new Pose3d()).getY() < 0.0)
-//                        || Constants.loggedValue("EstimateOk/InYMax", visionPoses.stream().findAny().orElse(new Pose3d()).getY() > APRIL_TAG_LAYOUT.getFieldWidth());
-//                    if (visionEstimateOk && !visionPoses.isEmpty()) {
-//                        setPose(visionPoses.get(0).toPose2d());
-//                    }
-//                }
+                if (outOfVisionTolerance(frame.questPose3d().toPose2d(),
+                    visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d())
+                ) {
+                    boolean visionEstimateOk =
+                        Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() < 0.0)
+                        || Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() > APRIL_TAG_LAYOUT.getFieldLength())
+                        || Constants.loggedValue("EstimateOk/InYMin", visionPoses.stream().findAny().orElse(new Pose3d()).getY() < 0.0)
+                        || Constants.loggedValue("EstimateOk/InYMax", visionPoses.stream().findAny().orElse(new Pose3d()).getY() > APRIL_TAG_LAYOUT.getFieldWidth());
+                    if (visionEstimateOk && !visionPoses.isEmpty()) {
+                        setPose(visionPoses.get(0).toPose2d());
+                    }
+                }
                 Logger.recordOutput("QuestNav/UnfilteredPose", robotPose);
                 if (rejectPose) {
                     allQuestPosesRejected.add(robotPose);
