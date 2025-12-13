@@ -217,9 +217,6 @@ public class Elevator extends SubsystemBase {
                 && Toggles.Elevator.autoElevatorLeveling.get()
                 && isScoringLevel()
             ) {
-                var A = Conversions.toVector2(ReefUtil.getClosestCoralBranch().getScorePose(desiredGoal));
-                var B = Conversions.toVector2(RobotContainer.s_Swerve.getPose());
-                // checks if robot is parallel to score pose then allows adjustment to stop from useless overshooting when driving there
                 double interpolated = elevatorDistanceMap.get(
                     RobotContainer.s_Swerve
                         .getPose()
