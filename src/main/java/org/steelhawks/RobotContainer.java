@@ -114,14 +114,8 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
+                            true,
                             new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()));
-                    s_Elevator =
-                        new Elevator(
-                            new ElevatorIOTalonFX());
-                    s_Claw =
-                        new Claw(
-                            new BeamIO() {},
-                            new ClawIOTalonFX());
                     s_Align =
                         new Align(
                             new AlignIO() {});
@@ -208,11 +202,21 @@ public class RobotContainer {
                     new ModuleIO() {});
 
             switch (Constants.getRobot()) {
-                case OMEGABOT, ALPHABOT -> {
+                case OMEGABOT -> {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
+                            new VisionIO() {},
+                            new VisionIO() {},
+                            new VisionIO() {},
+                            new VisionIO() {},
                             new VisionIO() {});
+                    s_Elevator =
+                        new Elevator(
+                            new ElevatorIO() {});
+                    s_AlgaeClaw =
+                        new AlgaeClaw(
+                            new AlgaeClawIO() {});
                     s_Claw =
                         new Claw(
                             new BeamIO() {},
@@ -221,6 +225,11 @@ public class RobotContainer {
                         new Align(
                             new AlignIO() {});
                 }
+                case ALPHABOT ->
+                    s_Vision =
+                        new Vision(
+                            s_Swerve::accept,
+                            new VisionIO() {});
 
                 case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
                     s_Vision =
@@ -229,34 +238,22 @@ public class RobotContainer {
                             new VisionIO() {},
                             new VisionIO() {});
             }
-
-            if (Constants.getRobot() == RobotType.OMEGABOT) {
-                s_Vision =
-                    new Vision(
-                        s_Swerve::accept,
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {});
-            }
-            s_Elevator =
-                new Elevator(
-                    new ElevatorIO() {});
-            s_AlgaeClaw =
-                new AlgaeClaw(
-                    new AlgaeClawIO() {});
         }
         new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
         Autos.init();
 
-        checkIfDevicesConnected();
-        setManualToggled(false);
-        configureTriggers();
-        configureDriver();
+        if (Constants.getRobot() != RobotType.ALPHABOT) {
+            checkIfDevicesConnected();
+            setManualToggled(false);
+            configureTriggers();
+            configureDriver();
 
-        s_LED.setDefaultCommand(new LEDDefaultCommand(() -> manualToggled));
-        s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
+            s_LED.setDefaultCommand(new LEDDefaultCommand(() -> manualToggled));
+            s_AlgaeClaw.setDefaultCommand(new AlgaeClawDefaultCommand());
+        }
+        if (Constants.getRobot() == RobotType.ALPHABOT) {
+            configureAlphaDriver();
+        }
     }
 
     private void setManualToggled(boolean value) {
@@ -301,6 +298,16 @@ public class RobotContainer {
                         new VibrateController(1.0, 1.0, driver))
                     .ignoringDisable(false));
         }
+    }
+
+    private void configureAlphaDriver() {
+        /* ------------- Swerve Controls ------------- */
+
+        s_Swerve.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX()));
     }
 
     private void configureDriver() {
