@@ -35,6 +35,8 @@ public class Vision extends SubsystemBase {
 
     private final QuestNavImpl questNav;
 
+    private Pose2d currentVisionPose = null;
+
     public Vision(VisionConsumer consumer, VisionIO... io) {
         this(consumer, false, io);
     }
@@ -106,6 +108,10 @@ public class Vision extends SubsystemBase {
      */
     public boolean hasTarget(int cameraIndex) {
         return inputs[cameraIndex].latestTargetObservation.fiducialId() != -1;
+    }
+
+    public void resetQuestNavPose() {
+        questNav.setPose(currentVisionPose);
     }
 
     @Override
@@ -183,6 +189,7 @@ public class Vision extends SubsystemBase {
                     robotPosesRejected.add(observation.pose());
                 } else {
                     robotPosesAccepted.add(observation.pose());
+                    currentVisionPose = observation.pose().toPose2d();
                 }
 
                 // Skip if rejected

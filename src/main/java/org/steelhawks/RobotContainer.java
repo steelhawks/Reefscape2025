@@ -308,6 +308,10 @@ public class RobotContainer {
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX()));
+
+        driver.x().onTrue(
+            Commands.runOnce(
+                () -> s_Vision.resetQuestNavPose()));
     }
 
     private void configureDriver() {

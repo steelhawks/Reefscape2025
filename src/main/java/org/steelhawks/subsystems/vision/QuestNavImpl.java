@@ -8,15 +8,23 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
+import org.steelhawks.generated.TunerConstants;
+import org.steelhawks.generated.TunerConstantsAlpha;
+import org.steelhawks.generated.TunerConstantsHawkRider;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static edu.wpi.first.units.Units.*;
 import static org.steelhawks.subsystems.vision.VisionConstants.APRIL_TAG_LAYOUT;
 
 public class QuestNavImpl {
@@ -29,6 +37,26 @@ public class QuestNavImpl {
     private final Vision.VisionConsumer consumer;
     private final QuestNav nav;
 
+    private static final LinearVelocity MAX_LINEAR_VELOCITY = switch (Constants.getRobot()) {
+        case OMEGABOT, SIMBOT -> TunerConstants.kSpeedAt12Volts;
+        case ALPHABOT -> TunerConstantsAlpha.kSpeedAt12Volts;
+        case HAWKRIDER -> TunerConstantsHawkRider.kSpeedAt12Volts;
+    };
+    private static final AngularVelocity MAX_ANGULAR_VELOCITY =
+        Constants.value(RadiansPerSecond.of(10.0), RadiansPerSecond.of(10.0));
+    private static final LinearAcceleration MAX_LINEAR_ACCEL =
+        Constants.value(MetersPerSecondPerSecond.of(8.0), MetersPerSecondPerSecond.of(8.0));
+    private static final AngularAcceleration MAX_ANGULAR_ACCEL =
+        Constants.value(RadiansPerSecondPerSecond.of(20.0), RadiansPerSecondPerSecond.of(20.0));
+    private static final double MAX_LINEAR_JERK = Constants.value(40.0, 40.0);
+    private static final double MAX_ANGULAR_JERK = Constants.value(40.0, 40.0);
+
+    private Pose2d lastAcceptedPose = null;
+    private double lastTimestamp = -1.0;
+    private double lastLinearVelocity = 0.0;
+    private double lastAngularVelocity = 0.0;
+    private double lastLinearAccel = 0.0;
+    private double lastAngularAccel = 0.0;
     private boolean hasInitialPose = false;
 
     public QuestNavImpl(Vision.VisionConsumer consumer) {
@@ -70,27 +98,63 @@ public class QuestNavImpl {
                     || Constants.loggedValue("InXFieldMax", robotPose.getX() > APRIL_TAG_LAYOUT.getFieldLength())
                     || Constants.loggedValue("InYFieldMin", robotPose.getY() < 0.0)
                     || Constants.loggedValue("InYFieldMax", robotPose.getY() > APRIL_TAG_LAYOUT.getFieldWidth())
-                    || Constants.loggedValue("OutOfVisionTolerance", outOfVisionTolerance(frame.questPose3d().toPose2d(),
-                        visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d()))
+                    || Constants.loggedValue("PhysicallyRealisticMotion", !isPhysicallyFeasible(robotPose, frame.dataTimestamp()))
                     || Constants.loggedValue("QuestTracking", !nav.isTracking())
                     || Constants.loggedValue("QuestConnected", !nav.isConnected());
-                if (outOfVisionTolerance(frame.questPose3d().toPose2d(),
-                    visionPoses.stream().findAny().orElse(new Pose3d()).toPose2d())
-                ) {
-                    boolean visionEstimateOk =
-                        Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() < 0.0)
-                        || Constants.loggedValue("EstimateOk/InXMax", visionPoses.stream().findAny().orElse(new Pose3d()).getX() > APRIL_TAG_LAYOUT.getFieldLength())
-                        || Constants.loggedValue("EstimateOk/InYMin", visionPoses.stream().findAny().orElse(new Pose3d()).getY() < 0.0)
-                        || Constants.loggedValue("EstimateOk/InYMax", visionPoses.stream().findAny().orElse(new Pose3d()).getY() > APRIL_TAG_LAYOUT.getFieldWidth());
-                    if (visionEstimateOk && !visionPoses.isEmpty()) {
-                        setPose(visionPoses.get(0).toPose2d());
-                    }
-                }
                 Logger.recordOutput("QuestNav/UnfilteredPose", robotPose);
                 if (rejectPose) {
                     allQuestPosesRejected.add(robotPose);
                 } else {
                     allQuestPosesAccepted.add(robotPose);
+
+                    // initialize on first accepted pose
+                    if (lastAcceptedPose == null || lastTimestamp < 0) {
+                        lastAcceptedPose = robotPose;
+                        lastTimestamp = frame.dataTimestamp();
+                        hasInitialPose = true;
+                    } else {
+                        double dt = frame.dataTimestamp() - lastTimestamp;
+
+                        if (dt > 1e-6) {
+                            double distance =
+                                robotPose.getTranslation()
+                                    .getDistance(lastAcceptedPose.getTranslation());
+                            double linearVelo = distance / dt;
+
+                            double angularVelo =
+                                Math.abs(
+                                    robotPose.getRotation()
+                                        .minus(lastAcceptedPose.getRotation())
+                                        .getRadians()
+                                ) / dt;
+
+                            double linearAccel =
+                                (linearVelo - lastLinearVelocity) / dt;
+                            double angularAccel =
+                                (angularVelo - lastAngularVelocity) / dt;
+
+                            double linearJerk =
+                                (linearAccel - lastLinearAccel) / dt;
+                            double angularJerk =
+                                (angularAccel - lastAngularAccel) / dt;
+
+                            // update derivative state
+                            lastLinearVelocity = linearVelo;
+                            lastAngularVelocity = angularVelo;
+                            lastLinearAccel = linearAccel;
+                            lastAngularAccel = angularAccel;
+
+                            Logger.recordOutput("QuestNav/AcceptedLinearVel", linearVelo);
+                            Logger.recordOutput("QuestNav/AcceptedAngularVel", angularVelo);
+                            Logger.recordOutput("QuestNav/AcceptedLinearAccel", linearAccel);
+                            Logger.recordOutput("QuestNav/AcceptedAngularAccel", angularAccel);
+                            Logger.recordOutput("QuestNav/AcceptedLinearJerk", linearJerk);
+                            Logger.recordOutput("QuestNav/AcceptedAngularJerk", angularJerk);
+                        }
+
+                        lastAcceptedPose = robotPose;
+                        lastTimestamp = frame.dataTimestamp();
+                    }
                 }
                 if (rejectPose) {
                     continue;
@@ -102,6 +166,45 @@ public class QuestNavImpl {
                 Logger.recordOutput("QuestNav/AcceptedPoses", allQuestPosesAccepted.toArray(new Pose2d[0]));
             }
         }
+    }
+
+    private boolean isPhysicallyFeasible(Pose2d newPose, double timestamp) {
+        if (lastAcceptedPose == null || lastTimestamp < 0) {
+            return true;
+        }
+
+        double dt = timestamp - lastTimestamp;
+        if (dt <= 1e-6) return false;
+
+        double distance =
+            newPose.getTranslation().getDistance(lastAcceptedPose.getTranslation());
+        double linearVelo = distance / dt;
+        double angularDelta =
+            Math.abs(
+                newPose.getRotation()
+                .minus(lastAcceptedPose.getRotation()).getRadians());
+        double angularVelo = angularDelta / dt;
+        double linearAccel =
+            (linearVelo - lastLinearVelocity) / dt;
+        double angularAccel = (angularVelo - lastAngularVelocity) / dt;
+        double linearJerk =
+            (linearAccel - lastLinearAccel) / dt;
+        double angularJerk = (angularAccel - lastAngularAccel) / dt;
+
+        Logger.recordOutput("QuestNav/LinearVel", linearVelo);
+        Logger.recordOutput("QuestNav/AngularVel", angularVelo);
+        Logger.recordOutput("QuestNav/LinearAccel", linearAccel);
+        Logger.recordOutput("QuestNav/AngularAccel", angularAccel);
+        Logger.recordOutput("QuestNav/LinearJerk", linearJerk);
+        Logger.recordOutput("QuestNav/AngularJerk", angularJerk);
+
+        return linearVelo <= MAX_LINEAR_VELOCITY.in(MetersPerSecond)
+            && angularVelo <= MAX_ANGULAR_VELOCITY.in(RadiansPerSecond)
+            && Math.abs(linearAccel) <= MAX_LINEAR_ACCEL.in(MetersPerSecondPerSecond)
+            && Math.abs(angularAccel) <= MAX_ANGULAR_ACCEL.in(RadiansPerSecondPerSecond)
+//            && Math.abs(linearJerk) <= MAX_LINEAR_JERK
+//            && Math.abs(angularJerk)  <= MAX_ANGULAR_JERK
+        ;
     }
 
     private boolean outOfVisionTolerance(Pose2d questPose, Pose2d visionPose) {
