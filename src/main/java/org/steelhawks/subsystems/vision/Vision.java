@@ -265,7 +265,7 @@ public class Vision extends SubsystemBase {
             if (DriverStation.isDisabled() && Robot.isFirstRun() && Constants.loggedValue("RobotPosesEmpty", !allRobotPoses.isEmpty())) {
                 questNav.setPose(allRobotPosesAccepted.get(0).toPose2d());
             }
-            questNav.periodic(allRobotPoses);
+            questNav.periodic();
             LoopTimeUtil.record("QuestNav");
         }
     }

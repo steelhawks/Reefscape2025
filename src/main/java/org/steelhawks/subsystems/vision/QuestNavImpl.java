@@ -64,7 +64,7 @@ public class QuestNavImpl {
         nav = new QuestNav();
     }
 
-    public void periodic(List<Pose3d> visionPoses) {
+    public void periodic() {
         // required for library to work
         nav.commandPeriodic();
 
