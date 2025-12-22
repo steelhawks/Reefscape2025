@@ -75,18 +75,7 @@ public class RobotContainer {
                         new Vision(
                             s_Swerve::accept,
                             false,
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[0],
-                                VisionConstants.robotToCamera()[0]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[1],
-                                VisionConstants.robotToCamera()[1]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[2],
-                                VisionConstants.robotToCamera()[2]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[3],
-                                VisionConstants.robotToCamera()[3]));
+                            VisionConstants.getIO());
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -114,7 +103,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()));
+                            VisionConstants.getIO());
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -139,8 +128,7 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
-                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()),
-                            new VisionIOLimelight(VisionConstants.cameraNames()[1], () -> s_Swerve.getRotation()));
+                            VisionConstants.getIO());
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -150,8 +138,8 @@ public class RobotContainer {
                     Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.Position.CORAL_STATION_BOTTOM.getPose());
                     Logger.recordOutput("Swerve/ModuleTranslations", Swerve.getModuleTranslations());
 
-                    for (int i = 0; i < VisionConstants.cameraNames().length; i++) {
-                        Logger.recordOutput("Camera/" + VisionConstants.cameraNames()[i], VisionConstants.robotToCamera()[i]);
+                    for (int i = 0; i < VisionConstants.getCameraConfig().length; i++) {
+                        Logger.recordOutput("Camera/" + VisionConstants.getCameraConfig()[i].name(), VisionConstants.getCameraConfig()[i].robotToCamera());
                     }
 
                     for (ReefUtil.CoralBranch branch : ReefUtil.CoralBranch.values()) {
@@ -169,18 +157,7 @@ public class RobotContainer {
                         new Vision(
                             s_Swerve::accept,
                             true,
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[0],
-                                VisionConstants.robotToCamera()[0],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[1],
-                                VisionConstants.robotToCamera()[1],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[2],
-                                VisionConstants.robotToCamera()[2],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
+                            VisionConstants.getIO());
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim());

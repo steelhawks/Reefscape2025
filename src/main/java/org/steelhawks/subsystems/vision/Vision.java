@@ -114,7 +114,7 @@ public class Vision extends SubsystemBase {
             if (Toggles.Vision.camerasEnabled.get(io[i].getName()).get()) {
                 io[i].updateInputs(inputs[i]);
             }
-            Logger.processInputs("Vision/Camera" + i, inputs[i]);
+            Logger.processInputs("Vision/" + io[i].getName(), inputs[i]);
         }
 
         boolean currPathfinding = RobotContainer.s_Swerve.isPathfinding();
@@ -199,9 +199,9 @@ public class Vision extends SubsystemBase {
                     linearStdDev *= LINEAR_STD_DEV_MEGATAG2_FACTOR;
                     angularStdDev *= ANGULAR_STD_DEV_MEGATAG2_FACTOR;
                 }
-                if (cameraIndex < CAMERA_STD_DEV_FACTORS.length) {
-                    linearStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
-                    angularStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
+                if (cameraIndex < VisionConstants.getCameraConfig().length) {
+                    linearStdDev *= getCameraConfig()[cameraIndex].stdDevFactors();
+                    angularStdDev *= getCameraConfig()[cameraIndex].stdDevFactors();
                 }
                 if (useQuestNav && !Robot.isFirstRun()) {
                     assert questNav != null;
