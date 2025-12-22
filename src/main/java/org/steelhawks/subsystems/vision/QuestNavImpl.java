@@ -8,10 +8,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.LinearAcceleration;
-import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.LinearAccelerationUnit;
+import edu.wpi.first.units.measure.*;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import org.littletonrobotics.junction.Logger;
@@ -48,8 +47,8 @@ public class QuestNavImpl {
         Constants.value(MetersPerSecondPerSecond.of(8.0), MetersPerSecondPerSecond.of(8.0));
     private static final AngularAcceleration MAX_ANGULAR_ACCEL =
         Constants.value(RadiansPerSecondPerSecond.of(20.0), RadiansPerSecondPerSecond.of(20.0));
-    private static final double MAX_LINEAR_JERK = Constants.value(40.0, 40.0);
-    private static final double MAX_ANGULAR_JERK = Constants.value(40.0, 40.0);
+    private static final Velocity<LinearAccelerationUnit> MAX_LINEAR_JERK = MetersPerSecondPerSecond.per(Second).of(40.0);
+    private static final Velocity<AngularAccelerationUnit> MAX_ANGULAR_JERK = RadiansPerSecondPerSecond.per(Second).of(40.0);
 
     private Pose2d lastAcceptedPose = null;
     private double lastTimestamp = -1.0;
