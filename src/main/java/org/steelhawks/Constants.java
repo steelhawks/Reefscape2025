@@ -169,23 +169,23 @@ public final class Constants {
 
     @SuppressWarnings("ConstantConditions")
     public static final class AutonConstants {
-        public static final LoggedTunableNumber TRANSLATION_KP = new LoggedTunableNumber("Swerve/TranslationkP", Constants.omega(5.0, 5.0));
-        public static final LoggedTunableNumber TRANSLATION_KI = new LoggedTunableNumber("Swerve/TranslationkI", Constants.omega(0.0, 0.0));
-        public static final LoggedTunableNumber TRANSLATION_KD = new LoggedTunableNumber("Swerve/TranslationkD", Constants.omega(0.1, 0.1));
+        public static final LoggedTunableNumber TRANSLATION_KP = new LoggedTunableNumber("Swerve/TranslationkP", Constants.value(0.0, 0.0, 5.0, 5.0));
+        public static final LoggedTunableNumber TRANSLATION_KI = new LoggedTunableNumber("Swerve/TranslationkI", Constants.value(0.0, 0.0, 0.0, 0.0));
+        public static final LoggedTunableNumber TRANSLATION_KD = new LoggedTunableNumber("Swerve/TranslationkD", Constants.value(0.0, 0.0, 0.1, 0.1));
 
-        public static final LoggedTunableNumber ROTATION_KP = new LoggedTunableNumber("Swerve/RotationkP", Constants.omega(5.0, 5.0));
-        public static final LoggedTunableNumber ROTATION_KI = new LoggedTunableNumber("Swerve/RotationkI", Constants.omega(0.0, 0.0));
-        public static final LoggedTunableNumber ROTATION_KD = new LoggedTunableNumber("Swerve/RotationkD", Constants.omega(0.1, 0.1));
+        public static final LoggedTunableNumber ROTATION_KP = new LoggedTunableNumber("Swerve/RotationkP", Constants.value(0.0, 0.0, 5.0, 5.0));
+        public static final LoggedTunableNumber ROTATION_KI = new LoggedTunableNumber("Swerve/RotationkI", Constants.value(0.0, 0.0, 0.0, 0.0));
+        public static final LoggedTunableNumber ROTATION_KD = new LoggedTunableNumber("Swerve/RotationkD", Constants.value(0.0, 0.0, 0.1, 0.1));
 
-        public static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("Swerve/AnglekP", Constants.omega(1.0, 2.5));
-        public static final LoggedTunableNumber ANGLE_KI = new LoggedTunableNumber("Swerve/AnglekI", Constants.omega(0.0, 0.0));
-        public static final LoggedTunableNumber ANGLE_KD = new LoggedTunableNumber("Swerve/AnglekD", Constants.omega(0.0, 1.0));
+        public static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("Swerve/AnglekP", Constants.value(0.0, 0.0, 1.0, 2.5));
+        public static final LoggedTunableNumber ANGLE_KI = new LoggedTunableNumber("Swerve/AnglekI", Constants.value(0.0, 0.0, 0.0, 0.0));
+        public static final LoggedTunableNumber ANGLE_KD = new LoggedTunableNumber("Swerve/AnglekD", Constants.value(0.0, 0.0, 0.0, 1.0));
 
         // Pathfinder
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = Constants.omega(5.0, 0.0);
-        public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = Constants.omega(5.5, 0.0);
-        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Constants.omega(Units.degreesToRadians(540.0), 0.0);
-        public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Constants.omega(Units.degreesToRadians(920.0), 0.0);
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = Constants.value(0.0, 0.0, 5.0, 0.0);
+        public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = Constants.value(0.0, 0.0, 5.5, 0.0);
+        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Constants.value(0.0, 0.0, Units.degreesToRadians(540.0), 0.0);
+        public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Constants.value(0.0, 0.0, Units.degreesToRadians(920.0), 0.0);
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
                 MAX_VELOCITY_METERS_PER_SECOND,
