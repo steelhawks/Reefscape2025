@@ -73,9 +73,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstants.BackRight));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
-                            false,
-                            VisionConstants.getIO());
+                            s_Swerve::accept, false);
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -102,8 +100,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstantsAlpha.BackRight));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
-                            VisionConstants.getIO());
+                            s_Swerve::accept);
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -126,9 +123,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstantsHawkRider.BackLeft),
                             new ModuleIOTalonFX(TunerConstantsHawkRider.BackRight));
                     s_Vision =
-                        new Vision(
-                            s_Swerve::accept,
-                            VisionConstants.getIO());
+                        new Vision(s_Swerve::accept);
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -155,9 +150,7 @@ public class RobotContainer {
                             new ModuleIOSim(Swerve.getDriveSimulation().getModules()[3]));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
-                            true,
-                            VisionConstants.getIO());
+                            s_Swerve::accept, true);
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim());
@@ -184,12 +177,11 @@ public class RobotContainer {
                     new ModuleIO() {},
                     new ModuleIO() {});
 
+            s_Vision =
+                new Vision(s_Swerve::accept);
+
             switch (Constants.getRobot()) {
                 case OMEGABOT, ALPHABOT -> {
-                    s_Vision =
-                        new Vision(
-                            s_Swerve::accept,
-                            new VisionIO() {});
                     s_Claw =
                         new Claw(
                             new BeamIO() {},
@@ -198,24 +190,6 @@ public class RobotContainer {
                         new Align(
                             new AlignIO() {});
                 }
-
-                case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
-                    s_Vision =
-                        new Vision(
-                            s_Swerve::accept,
-                            new VisionIO() {},
-                            new VisionIO() {});
-            }
-
-            if (Constants.getRobot() == RobotType.OMEGABOT) {
-                s_Vision =
-                    new Vision(
-                        s_Swerve::accept,
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {});
             }
             s_Elevator =
                 new Elevator(

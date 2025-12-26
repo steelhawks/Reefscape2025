@@ -33,7 +33,7 @@ public class ObjectVisionIOLimelight implements ObjectVisionIO {
         inputs.connected =
             ((RobotController.getFPGATime() - latencySubscriber.getLastChange()) / 1000) < 250;
 
-        inputs.observations.
+//        inputs.observations.
 
         // solve for observation
         List<ObjectVisionIO.ObjectObservation> observations = new LinkedList<>();

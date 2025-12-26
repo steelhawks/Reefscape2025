@@ -35,14 +35,14 @@ public class Vision extends SubsystemBase {
 
     private final QuestNavImpl questNav;
 
-    public Vision(VisionConsumer consumer, VisionIO... io) {
-        this(consumer, false, io);
+    public Vision(VisionConsumer consumer) {
+        this(consumer, false);
     }
 
-    public Vision(VisionConsumer consumer, boolean useQuestNav, VisionIO... io) {
+    public Vision(VisionConsumer consumer, boolean useQuestNav) {
         this.consumer = consumer;
         this.useQuestNav = useQuestNav;
-        this.io = io;
+        this.io = VisionConstants.getIO();
 
         if (useQuestNav) {
             questNav = new QuestNavImpl(consumer);
