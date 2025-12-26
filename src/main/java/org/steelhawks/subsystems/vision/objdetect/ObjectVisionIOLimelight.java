@@ -1,10 +1,13 @@
 package org.steelhawks.subsystems.vision.objdetect;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
+import org.steelhawks.util.LimelightHelpers;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,11 +36,38 @@ public class ObjectVisionIOLimelight implements ObjectVisionIO {
         inputs.connected =
             ((RobotController.getFPGATime() - latencySubscriber.getLastChange()) / 1000) < 250;
 
-//        inputs.observations.
+        List<ObjectObservation> observations = new LinkedList<>();
+        LimelightHelpers.RawDetection[] detections =
+            LimelightHelpers.getRawDetections(name);
 
-        // solve for observation
-        List<ObjectVisionIO.ObjectObservation> observations = new LinkedList<>();
-
+        for (LimelightHelpers.RawDetection detection : detections) {
+            String label =
+                detection.classId == 0 ? "coral" : "other";
+            // pack corners into tx ty arrays
+            double[] tx = {
+                detection.corner0_X,
+                detection.corner1_X,
+                detection.corner2_X,
+                detection.corner3_X
+            };
+            double[] ty = {
+                detection.corner0_Y,
+                detection.corner1_Y,
+                detection.corner2_Y,
+                detection.corner3_Y
+            };
+            double confidence = detection.ta; // make an algo later
+            double limelightLatencySec = latencySubscriber.get() / 1000.0;
+            double timestamp = RobotController.getFPGATime() / 1e6 - limelightLatencySec;
+            observations.add(
+                new ObjectObservation(
+                    label, confidence, tx, ty,
+                    detection.ta,
+                    timestamp // timestamp in seconds
+                )
+            );
+        }
+        inputs.observations = observations.toArray(new ObjectObservation[0]);
     }
 
     @Override

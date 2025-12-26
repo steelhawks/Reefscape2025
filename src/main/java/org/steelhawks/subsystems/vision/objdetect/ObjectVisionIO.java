@@ -1,23 +1,23 @@
 package org.steelhawks.subsystems.vision.objdetect;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ObjectVisionIO {
 
     record ObjectObservation(
-        String label,           // "note", "cone", etc
-        double confidence,      // 0–1
-        Rotation2d tx,          // horizontal offset
-        Rotation2d ty,          // vertical offset
-        double area,            // or bounding box area
-        double distanceMeters,  // optional but useful
+        String label,
+        double confidence,
+        double[] tx,
+        double[] ty,
+        double area,
         double timestamp
     ) {}
 
     @AutoLog
     class ObjectVisionIOInputs {
         public boolean connected = false;
+        public ObjectObservation latestTargetObservation =
+            new ObjectObservation("", 0.0, new double[0], new double[0], 0.0, 0.0);
         public ObjectObservation[] observations = new ObjectObservation[0];
     }
 

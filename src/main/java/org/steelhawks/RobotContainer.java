@@ -32,6 +32,7 @@ import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVision;
 import org.steelhawks.util.DoublePressTrigger;
 
 import java.util.Objects;
@@ -43,6 +44,7 @@ public class RobotContainer {
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve = null;
     public static Vision s_Vision = null;
+    public static ObjectVision s_ObjVision = null;
     public static Elevator s_Elevator = null;
     public static Claw s_Claw = null;
     public static Align s_Align = null;

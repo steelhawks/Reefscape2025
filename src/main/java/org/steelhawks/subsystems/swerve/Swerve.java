@@ -18,10 +18,8 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -32,6 +30,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -42,6 +41,8 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.steelhawks.Constants.*;
+
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
@@ -55,6 +56,7 @@ import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
 import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVision;
 import org.steelhawks.util.LocalADStarAK;
 import org.steelhawks.util.LoggedTunableNumber;
 import org.steelhawks.util.LoopTimeUtil;
@@ -68,6 +70,7 @@ public class Swerve extends SubsystemBase {
 
     public static final double ODOMETRY_FREQUENCY =
         Constants.getCANBus().isNetworkFD() ? 250.0 : 100.0;
+    private static final double POSE_BUFFER_SIZE_SEC = 2.0;
     public static final double DRIVE_BASE_RADIUS;
 
     // PathPlanner config constants
@@ -102,6 +105,10 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDrivePoseEstimator mPoseEstimator =
         new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+    private final SwerveDriveOdometry odometry =
+        new SwerveDriveOdometry(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+    private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
+        TimeInterpolatableBuffer.createBuffer(POSE_BUFFER_SIZE_SEC);
 
     private final ProfiledPIDController mAlignController;
     private final Debouncer mAlignDebouncer;
@@ -456,6 +463,9 @@ public class Swerve extends SubsystemBase {
 
             // Apply update
             mPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+            Pose2d odometryOnlyPose =
+                odometry.update(rawGyroRotation, modulePositions);
+            poseBuffer.addSample(sampleTimestamps[i], odometryOnlyPose);
         }
 
         FieldConstants.FIELD_2D.setRobotPose(getPose());
@@ -631,6 +641,18 @@ public class Swerve extends SubsystemBase {
         return mPoseEstimator.getEstimatedPosition();
     }
 
+    @AutoLogOutput(key = "Odometry/RobotWheelOdom")
+    public Pose2d getWheelOdomPose() {
+        return odometry.getPoseMeters();
+    }
+
+    /**
+     * Returns a pose at a certain timestamp. Interpolates inbetween to find.
+     */
+    public Optional<Pose2d> getPoseAtTime(double timestamp) {
+        return poseBuffer.getSample(timestamp);
+    }
+
     /**
      * Returns the current odometry rotation.
      */
@@ -665,6 +687,14 @@ public class Swerve extends SubsystemBase {
             DRIVE_SIMULATION.setSimulationWorldPose(pose);
         }
         mPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+        odometry.resetPosition(rawGyroRotation, getModulePositions(), pose);
+
+        // reset buffer b/c of discontinuous jump
+        poseBuffer.clear();
+        poseBuffer.addSample(Timer.getFPGATimestamp(), pose);
+        if (RobotContainer.s_ObjVision != null) {
+            RobotContainer.s_ObjVision.reset();
+        }
     }
 
     /**
