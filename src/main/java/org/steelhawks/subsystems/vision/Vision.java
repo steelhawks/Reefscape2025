@@ -12,7 +12,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.steelhawks.Constants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
@@ -22,8 +21,9 @@ import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.util.LoopTimeUtil;
+import org.steelhawks.util.VirtualSubsystem;
 
-public class Vision extends SubsystemBase {
+public class Vision extends VirtualSubsystem {
     private final VisionConsumer consumer;
     private final VisionIO[] io;
     private final VisionIOInputsAutoLogged[] inputs;

@@ -4,18 +4,18 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.vision.VisionConstants;
 import org.steelhawks.util.LoggedTunableNumber;
+import org.steelhawks.util.VirtualSubsystem;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ObjectVision extends SubsystemBase {
+public class ObjectVision extends VirtualSubsystem {
 
     private static final double coralOverlap = 0.5; // meters
     private static final double coralMaxAge = 10.0; // seconds
