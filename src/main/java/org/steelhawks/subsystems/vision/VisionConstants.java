@@ -192,8 +192,8 @@ public class VisionConstants {
         for (int i = 0; i < config.length; i++) {
             if (RobotBase.isReal()) {
                 switch (config[i].cameraType) {
-                    case LIMELIGHT -> io[i] = new ObjectVisionIOLimelight(config[i].name);
-                    case PHOTON -> io[i] = new ObjectVisionIOPhoton(config[i].name, config[i].robotToCamera);
+                    case LIMELIGHT -> io[i] = new ObjectVisionIOLimelight(config[i].name, i);
+                    case PHOTON -> io[i] = new ObjectVisionIOPhoton(config[i].name, i, config[i].robotToCamera);
                 }
             } else if (Constants.getRobot() == Constants.RobotType.SIMBOT && !RobotBase.isReal()) {
                 io[i] = new ObjectVisionSim(

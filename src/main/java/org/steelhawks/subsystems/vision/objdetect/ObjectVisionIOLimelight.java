@@ -12,14 +12,16 @@ import java.util.List;
 public class ObjectVisionIOLimelight implements ObjectVisionIO {
 
     private final String name;
+    private final int camIndex;
     private final DoubleSubscriber latencySubscriber;
     private final DoubleSubscriber txSubscriber;
     private final DoubleSubscriber tySubscriber;
     private final DoubleSubscriber taSubscriber; // target area
     private final IntegerSubscriber targetValidSubscriber;
 
-    public ObjectVisionIOLimelight(String name) {
+    public ObjectVisionIOLimelight(String name, int camIndex) {
         this.name = name;
+        this.camIndex = camIndex;
         var table = NetworkTableInstance.getDefault().getTable(name);
         latencySubscriber = table.getDoubleTopic("tl").subscribe(0.0);
         txSubscriber = table.getDoubleTopic("tx").subscribe(0.0);
@@ -38,8 +40,6 @@ public class ObjectVisionIOLimelight implements ObjectVisionIO {
             LimelightHelpers.getRawDetections(name);
 
         for (LimelightHelpers.RawDetection detection : detections) {
-            String label =
-                detection.classId == 0 ? "coral" : "other";
             // pack corners into tx ty arrays
             double[] tx = {
                 detection.corner0_X,
@@ -53,12 +53,14 @@ public class ObjectVisionIOLimelight implements ObjectVisionIO {
                 detection.corner2_Y,
                 detection.corner3_Y
             };
-            double confidence = detection.ta; // make an algo later
             double limelightLatencySec = latencySubscriber.get() / 1000.0;
             double timestamp = RobotController.getFPGATime() / 1e6 - limelightLatencySec;
             observations.add(
                 new ObjectObservation(
-                    label, confidence, tx, ty,
+                    camIndex, detection.classId,
+                    new DetectionInfo(detection),
+                    0.0, // TODO 0.0 for limelight, photon vision might just give you a confidence value in code but im not sure confirm and fix
+                    tx, ty,
                     detection.ta,
                     timestamp // timestamp in seconds
                 )
