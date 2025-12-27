@@ -93,9 +93,22 @@ public class ObjectVision extends SubsystemBase {
         Transform3d robotToCamera =
             Objects.requireNonNull(VisionConstants.getObjDetectConfig())[observation.camIndex()].robotToCamera();
 
-        // find object midpoint
-        double tx = (observation.tx()[2] + observation.tx()[3]) / 2.0;
-        double ty = (observation.ty()[2] + observation.ty()[3]) / 2.0;
+        // find object midpoint OLD WAY ONLY WORKS FOR LIMELIGHT
+//        double tx = (observation.info().tx()[2] + observation.info().tx()[3]) / 2.0;
+//        double ty = (observation.info().ty()[2] + observation.info().ty()[3]) / 2.0;
+
+        // bounding box center, works for both limelight and photon,
+        // where photon doesnt guarantee the same corner layout, no particular order
+        double[] txs = observation.info().tx();
+        double[] tys = observation.info().ty();
+
+        double minX = Arrays.stream(txs).min().orElse(0.0);
+        double maxX = Arrays.stream(txs).max().orElse(0.0);
+        double minY = Arrays.stream(tys).min().orElse(0.0);
+        double maxY = Arrays.stream(tys).max().orElse(0.0);
+
+        double tx = (minX + maxX) / 2.0;
+        double ty = (minY + maxY) / 2.0;
 
         double cameraHeight = robotToCamera.getZ();
         double cameraPitch = robotToCamera.getRotation().getY();
@@ -136,7 +149,10 @@ public class ObjectVision extends SubsystemBase {
             allObservations.addAll(Arrays.asList(inputs[i].observations));
         }
         allObservations.stream()
-            .filter(o -> calcConfidence(o.info(), o.camIndex()) >= confidenceThreshold.get())
+            .filter(o -> (Objects.requireNonNull(VisionConstants.getObjDetectConfig())[o.camIndex()]
+                .cameraType().equals(VisionConstants.CameraConfig.CameraType.LIMELIGHT)
+                    ? calcConfidence(o.info(), o.camIndex()) : o.confidence()) >= confidenceThreshold.get()
+            )
             .sorted(Comparator.comparingDouble(ObjectVisionIO.ObjectObservation::timestamp))
             .forEach(this::addCoralObservationToPose);
 

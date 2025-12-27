@@ -1,18 +1,15 @@
 package org.steelhawks.subsystems.vision.objdetect;
 
 import org.littletonrobotics.junction.AutoLog;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import org.steelhawks.util.LimelightHelpers;
 
 public interface ObjectVisionIO {
 
     record ObjectObservation(
         int camIndex,
-        int classId,
         DetectionInfo info,
-        double confidence, // TODO if Photon doesnt give you a confidence val just remove this and calc on your own
-        double[] tx,
-        double[] ty,
-        double area,
+        double confidence, // keeping because photonvision gives us its own confidence, so no need to calculate it
         double timestamp
     ) {}
 
@@ -30,14 +27,27 @@ public interface ObjectVisionIO {
                 new double[] {raw.corner0_Y, raw.corner1_Y, raw.corner2_Y, raw.corner3_Y}
             );
         }
+        public DetectionInfo(PhotonTrackedTarget target) {
+            this(
+                target.getDetectedObjectClassID(),
+                target.getArea(),
+                target.getDetectedCorners().stream()
+                    .limit(4)
+                    .mapToDouble(c -> c.x)
+                    .toArray(),
+                target.getDetectedCorners().stream()
+                    .limit(4)
+                    .mapToDouble(c -> c.y)
+                    .toArray()
+            );
+        }
     }
-
 
     @AutoLog
     class ObjectVisionIOInputs {
         public boolean connected = false;
         public ObjectObservation latestTargetObservation =
-            new ObjectObservation(0, 0, new DetectionInfo(0, 0.0, new double[0], new double[0]), 0.0, new double[0], new double[0], 0.0, 0.0);
+            new ObjectObservation(0, new DetectionInfo(0, 0.0, new double[0], new double[0]), 0.0, 0.0);
         public ObjectObservation[] observations = new ObjectObservation[0];
     }
 

@@ -40,28 +40,13 @@ public class ObjectVisionIOLimelight implements ObjectVisionIO {
             LimelightHelpers.getRawDetections(name);
 
         for (LimelightHelpers.RawDetection detection : detections) {
-            // pack corners into tx ty arrays
-            double[] tx = {
-                detection.corner0_X,
-                detection.corner1_X,
-                detection.corner2_X,
-                detection.corner3_X
-            };
-            double[] ty = {
-                detection.corner0_Y,
-                detection.corner1_Y,
-                detection.corner2_Y,
-                detection.corner3_Y
-            };
             double limelightLatencySec = latencySubscriber.get() / 1000.0;
             double timestamp = RobotController.getFPGATime() / 1e6 - limelightLatencySec;
             observations.add(
                 new ObjectObservation(
-                    camIndex, detection.classId,
+                    camIndex,
                     new DetectionInfo(detection),
                     0.0, // TODO 0.0 for limelight, photon vision might just give you a confidence value in code but im not sure confirm and fix
-                    tx, ty,
-                    detection.ta,
                     timestamp // timestamp in seconds
                 )
             );
