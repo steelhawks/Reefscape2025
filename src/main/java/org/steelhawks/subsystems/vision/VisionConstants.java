@@ -10,6 +10,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVisionIO;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVisionIOLimelight;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVisionIOPhoton;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVisionSim;
 
 public class VisionConstants {
     // AprilTag layout
@@ -112,6 +116,15 @@ public class VisionConstants {
         )
     };
 
+    private static final CameraConfig[] OMEGA_OBJ_DETECT_CONFIG = {
+        new CameraConfig(
+            "limelight",
+            Constants.fromOnshapeCoordinates(4.469, 9.261, 21.578, 15.0, -20.0, 0.0),
+            0.0,
+            CameraType.LIMELIGHT
+        )
+    };
+
     private static final CameraConfig[] ALPHA_CAMERA_CONFIG = {
         new CameraConfig(
             "limelight-coral",
@@ -144,6 +157,13 @@ public class VisionConstants {
         };
     }
 
+    public static CameraConfig[] getObjDetectConfig() {
+        return switch (Constants.getRobot()) {
+            case SIMBOT, OMEGABOT -> OMEGA_OBJ_DETECT_CONFIG;
+            default -> null;
+        };
+    }
+
     public static VisionIO[] getIO() {
         CameraConfig[] config = getCameraConfig();
         VisionIO[] io = new VisionIO[config.length];
@@ -160,6 +180,28 @@ public class VisionConstants {
                     Swerve.getDriveSimulation()::getSimulatedDriveTrainPose);
             } else if (Constants.getRobot() != Constants.RobotType.SIMBOT && !RobotBase.isReal()) {
                 io[i] = new VisionIO() {};
+            }
+        }
+        return io;
+    }
+
+    public static ObjectVisionIO[] getObjIO() {
+        CameraConfig[] config = getObjDetectConfig();
+        assert config != null;
+        ObjectVisionIO[] io = new ObjectVisionIO[config.length];
+        for (int i = 0; i < config.length; i++) {
+            if (RobotBase.isReal()) {
+                switch (config[i].cameraType) {
+                    case LIMELIGHT -> io[i] = new ObjectVisionIOLimelight(config[i].name);
+                    case PHOTON -> io[i] = new ObjectVisionIOPhoton(config[i].name, config[i].robotToCamera);
+                }
+            } else if (Constants.getRobot() == Constants.RobotType.SIMBOT && !RobotBase.isReal()) {
+                io[i] = new ObjectVisionSim(
+                    config[i].name,
+                    config[i].robotToCamera,
+                    Swerve.getDriveSimulation()::getSimulatedDriveTrainPose);
+            } else if (Constants.getRobot() != Constants.RobotType.SIMBOT && !RobotBase.isReal()) {
+                io[i] = new ObjectVisionIO() {};
             }
         }
         return io;

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.subsystems.vision.VisionConstants;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,8 +28,8 @@ public class ObjectVision extends SubsystemBase {
     private final ArrayList<ObjectVisionIO.ObjectObservation> allObservations = new ArrayList<>();
     private Set<CoralPose> coralPoses = new HashSet<>();
 
-    public ObjectVision(ObjectVisionIO... io) {
-        this.io = io;
+    public ObjectVision() {
+        this.io = VisionConstants.getObjIO();
         this.inputs = new ObjectVisionIOInputsAutoLogged[io.length];
         for (int i = 0; i < inputs.length; i++) {
             inputs[i] = new ObjectVisionIOInputsAutoLogged();

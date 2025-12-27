@@ -76,6 +76,8 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept, false);
+                    s_ObjVision =
+                        new ObjectVision();
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -153,6 +155,8 @@ public class RobotContainer {
                     s_Vision =
                         new Vision(
                             s_Swerve::accept, true);
+                    s_ObjVision =
+                        new ObjectVision();
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim());
