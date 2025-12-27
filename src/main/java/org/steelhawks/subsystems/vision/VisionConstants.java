@@ -95,9 +95,9 @@ public class VisionConstants {
                         // Up-Down: 6.900835
                         // CHANGE DEPENDING HOW HIGH THE CAMERA IS MOUNTED ON THE BEAM
                         // This assumes that the camera takes up holes 7 and 8 in the beam, counted from the top
-                        Units.inchesToMeters(3.134462),
-                        Units.inchesToMeters(-9.062338),
-                        Units.inchesToMeters(6.900835),
+                        Units.inchesToMeters(3.134462), // y
+                        Units.inchesToMeters(-9.062338), // -x
+                        Units.inchesToMeters(6.900835), // -z
                         new Rotation3d(
                             Units.degreesToRadians(0),
                             Units.degreesToRadians(-15),

@@ -2,6 +2,10 @@ package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -279,5 +283,34 @@ public final class Constants {
             Logger.recordOutput("Debug/" + key, obj.toString());
         }
         return obj;
+    }
+
+    /**
+     * Automatically returns a Transform3d that correctly converts the Onshape coordinate system into the WPILib coordinate system.
+     * <br>
+     * <br>
+     * Learn more <a href="https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html">here</a> about the WPILib coordinate system.
+     * @param x From Onshape
+     * @param y From Onshape
+     * @param z From Onshape
+     * @param roll From Onshape
+     * @param pitch From Onshape
+     * @param yaw From Onshape
+     * @return The WPILib coordinate system ready Transform3d
+     */
+    public static Transform3d fromOnshapeCoordinates(
+        double x, double y, double z,
+        double roll, double pitch, double yaw
+    ) {
+        return new Transform3d(
+            Units.inchesToMeters(y),
+            Units.inchesToMeters(-x),
+            Units.inchesToMeters(-z),
+            new Rotation3d(
+                Units.degreesToRadians(roll),
+                Units.degreesToRadians(pitch),
+                Units.degreesToRadians(yaw  )
+            )
+        );
     }
 }
