@@ -1,4 +1,4 @@
-package org.steelhawks.subsystems;
+package org.steelhawks.subsystems.led;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -121,10 +121,10 @@ public class LED extends SubsystemBase {
         BACKWARD
     }
 
-    private static final LED INSTANCE = new LED();
+    private static final LED INSTANCE = null;
 
     public static LED getInstance() {
-        return INSTANCE;
+        return null;
     }
 
     private LED() {

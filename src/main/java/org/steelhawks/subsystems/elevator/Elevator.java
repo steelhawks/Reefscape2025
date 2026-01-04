@@ -16,9 +16,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.*;
 import org.steelhawks.Constants.RobotType;
-import org.steelhawks.subsystems.LED;
-import org.steelhawks.subsystems.LED.LEDColor;
-import org.steelhawks.util.Conversions;
 import org.steelhawks.util.LoggedTunableNumber;
 
 import java.util.function.DoubleSupplier;
@@ -283,7 +280,7 @@ public class Elevator extends SubsystemBase {
     public Command setDesiredState(ElevatorConstants.State state) {
         return Commands.runOnce(
             () -> {
-                LED.getInstance().flashCommand(LEDColor.WHITE, 0.1, 1.0).schedule();
+//                LED.getInstance().flashCommand(LEDColor.WHITE, 0.1, 1.0).schedule();
                 inputs.goal = MathUtil.clamp(state.getAngle().getRotations(), 0, ElevatorConstants.MAX_ROTATIONS);
                 goal = new TrapezoidProfile.State(inputs.goal, 0.0);
                 desiredGoal = state;
