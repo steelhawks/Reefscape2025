@@ -46,7 +46,7 @@ public class ObjectVisionIOLimelight implements ObjectVisionIO {
                 new ObjectObservation(
                     camIndex,
                     new DetectionInfo(detection),
-                    0.0, // TODO 0.0 for limelight, photon vision might just give you a confidence value in code but im not sure confirm and fix
+                    0.0, // 0.0 because limelight doesn't give you a confidence score, we calculate it ourselves
                     timestamp // timestamp in seconds
                 )
             );

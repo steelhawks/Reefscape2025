@@ -200,8 +200,8 @@ public class Vision extends VirtualSubsystem {
                     angularStdDev *= ANGULAR_STD_DEV_MEGATAG2_FACTOR;
                 }
                 if (cameraIndex < VisionConstants.getCameraConfig().length) {
-                    linearStdDev *= getCameraConfig()[cameraIndex].stdDevFactors();
-                    angularStdDev *= getCameraConfig()[cameraIndex].stdDevFactors();
+                    linearStdDev *= getCameraConfig()[cameraIndex].factors().getFactors()[0];
+                    angularStdDev *= getCameraConfig()[cameraIndex].factors().getFactors()[1];
                 }
                 if (useQuestNav && !Robot.isFirstRun()) {
                     assert questNav != null;

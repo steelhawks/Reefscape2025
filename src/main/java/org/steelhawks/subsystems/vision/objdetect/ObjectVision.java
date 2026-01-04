@@ -67,9 +67,9 @@ public class ObjectVision extends VirtualSubsystem {
         double txAvg = (d.tx()[0] + d.tx()[1] + d.tx()[2] + d.tx()[3]) / 4.0;
         double angleScore = Math.cos(txAvg); // roughly favors smaller offsets
 
-        double w1 = 0.5; // how much the area matters to confidence
-        double w2 = 0.3; // how much the shape matters to confidence
-        double w3 = 0.2; // how much the angle matters to confidence
+        double w1 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[0];
+        double w2 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[1];
+        double w3 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[2];
 
         return MathUtil.clamp(Constants.loggedValue(logName + "w1", w1 * areaScore) +
             Constants.loggedValue(logName + "w2", w2 * ratio) +

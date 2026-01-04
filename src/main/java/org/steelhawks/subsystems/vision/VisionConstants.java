@@ -28,11 +28,60 @@ public class VisionConstants {
         6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22
     };
 
+    public interface Factors {
+        default Double[] getFactors() {
+            return null;
+        }
+
+        class ObjFactors implements Factors {
+            private final Double[] factors;
+
+            /**
+             * Only used for Limelight, to calculate confidence score.
+             *
+             * @param w1 How much the angle matters to confidence
+             * @param w2 How much the shape matters to confidence
+             * @param w3 How much the area matters to confidence
+             */
+            public ObjFactors(double w1, double w2, double w3) {
+                factors = new Double[] { w1, w2, w3 };
+            }
+
+            public ObjFactors() {
+                this(0.0, 0.0, 0.0);
+            }
+
+            @Override
+            public Double[] getFactors() {
+                return factors;
+            }
+        }
+
+        class StdDevFactors implements Factors {
+            private final Double[] factors;
+
+            public StdDevFactors(double stdDevLinear, double stdDevAngular) {
+                factors = new Double[] {
+                    stdDevLinear, stdDevAngular
+                };
+            }
+
+            public StdDevFactors(double stdDevLinear) {
+                this(stdDevLinear, stdDevLinear);
+            }
+
+            @Override
+            public Double[] getFactors() {
+                return factors;
+            }
+        }
+    }
+
     /**
-     * @param stdDevFactors Standard deviation multipliers for each camera (Adjust to trust some cameras more than others)
+     * @param factors Standard deviation multipliers for each camera (Adjust to trust some cameras more than others) or for calculating object confidence
      */
     public record CameraConfig(
-        String name, Transform3d robotToCamera, double stdDevFactors, VisionConstants.CameraConfig.CameraType cameraType) {
+        String name, Transform3d robotToCamera, Factors factors, VisionConstants.CameraConfig.CameraType cameraType) {
         public enum CameraType {
             LIMELIGHT,
             PHOTON,
@@ -55,7 +104,7 @@ public class VisionConstants {
                     Units.degreesToRadians(0.058),
                     Units.degreesToRadians(-15),
                     Units.degreesToRadians(-15))),
-            1.0,
+            new Factors.StdDevFactors(1.0),
             CameraType.PHOTON
         ),
 
@@ -75,7 +124,7 @@ public class VisionConstants {
                     Units.degreesToRadians(0),
                     Units.degreesToRadians(-15),
                     Units.degreesToRadians(30))),
-            1.0,
+            new Factors.StdDevFactors(1.0),
             CameraType.PHOTON
         ),
 
@@ -93,7 +142,7 @@ public class VisionConstants {
                     Units.degreesToRadians(0),
                     Units.degreesToRadians(0),
                     Units.degreesToRadians(-120))),
-            8.0,
+            new Factors.StdDevFactors(8.0),
             CameraType.PHOTON
         ),
 
@@ -111,7 +160,7 @@ public class VisionConstants {
                     Units.degreesToRadians(0),
                     Units.degreesToRadians(0),
                     Units.degreesToRadians(90))),
-            9.0,
+            new Factors.StdDevFactors(9.0),
             CameraType.PHOTON
         )
     };
@@ -120,7 +169,7 @@ public class VisionConstants {
         new CameraConfig(
             "limelight",
             Constants.fromOnshapeCoordinates(4.469, 9.261, 21.578, 15.0, -20.0, 0.0),
-            0.0,
+            new Factors.ObjFactors(0.5, 0.3, 0.2),
             CameraType.LIMELIGHT
         )
     };
@@ -129,7 +178,7 @@ public class VisionConstants {
         new CameraConfig(
             "limelight-coral",
             new Transform3d(),
-            3.0,
+            new Factors.StdDevFactors(3.0),
             CameraType.LIMELIGHT
         )
     };
@@ -138,13 +187,13 @@ public class VisionConstants {
         new CameraConfig(
             "limelight-shooter",
             new Transform3d(),
-            1.2,
+            new Factors.StdDevFactors(1.2),
             CameraType.LIMELIGHT
         ),
         new CameraConfig(
             "limelight",
             new Transform3d(),
-            1.3,
+            new Factors.StdDevFactors(1.3),
             CameraType.LIMELIGHT
         )
     };
