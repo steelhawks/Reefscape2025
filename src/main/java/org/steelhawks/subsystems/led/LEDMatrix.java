@@ -47,6 +47,7 @@ public class LEDMatrix extends SubsystemBase {
         public static final Color MAGENTA = new Color(255, 0, 255);
         public static final Color ORANGE = new Color(255, 165, 0);
         public static final Color PURPLE = new Color(128, 0, 128);
+        public static final Color PINK = new Color(255, 192, 203);
 
         public Color blend(Color other, double ratio) {
             ratio = Math.max(0, Math.min(1, ratio));

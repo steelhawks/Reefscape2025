@@ -14,7 +14,6 @@ import org.steelhawks.commands.*;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
-import org.steelhawks.subsystems.led.LED.LEDColor;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.steelhawks.Constants.*;
@@ -30,6 +29,7 @@ import org.steelhawks.subsystems.claw.beambreak.BeamIOSim;
 import org.steelhawks.subsystems.elevator.ElevatorIOSim;
 import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
+import org.steelhawks.subsystems.led.LEDMatrix.Color;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
 import org.steelhawks.util.DoublePressTrigger;
@@ -306,12 +306,12 @@ public class RobotContainer {
     private void configureTriggers() {
         s_Elevator.atLimit()
             .onTrue(
-                s_LEDMatrix.flashCommand(LEDColor.PURPLE, 0.1, 1).ignoringDisable(false));
+                s_LEDMatrix.flashCommand(Color.PURPLE, 0.1, 1).ignoringDisable(false));
 
         new Trigger(() -> s_Claw.hasCoral())
             .onTrue(
                 Commands.parallel(
-                    s_LEDMatrix.flashCommand(LEDColor.GREEN, 0.1, 0.5),
+                    s_LEDMatrix.flashCommand(Color.GREEN, 0.1, 0.5),
                     new VibrateController(1.0, 1.0, driver))
                 .ignoringDisable(false));
 
@@ -319,7 +319,7 @@ public class RobotContainer {
             new Trigger(() -> s_AlgaeClaw.hasAlgae())
                 .onTrue(
                     Commands.parallel(
-                        s_LEDMatrix.flashCommand(LEDColor.GREEN, 0.1, 1.0),
+                        s_LEDMatrix.flashCommand(Color.GREEN, 0.1, 1.0),
                         new VibrateController(1.0, 1.0, driver))
                     .ignoringDisable(false));
         }
@@ -341,7 +341,7 @@ public class RobotContainer {
                     if (!s_Elevator.isLocked()) {
                         Commands.parallel(
                             new VibrateController(1.0, 1.0, driver),
-                            s_LEDMatrix.flashCommand(LEDColor.RED, 0.1, 1.0)).schedule();
+                            s_LEDMatrix.flashCommand(Color.RED, 0.1, 1.0)).schedule();
                         return;
                     }
 
@@ -404,8 +404,8 @@ public class RobotContainer {
             .alongWith(
                 new VibrateController(driver),
                 Commands.either(
-                    s_LEDMatrix.flashCommand(LEDColor.GREEN, 0.2, 2),
-                    s_LEDMatrix.flashCommand(LEDColor.RED, 0.2, 2),
+                    s_LEDMatrix.flashCommand(Color.GREEN, 0.2, 2),
+                    s_LEDMatrix.flashCommand(Color.RED, 0.2, 2),
                     () -> s_Swerve.isSlowMode()).withInterruptBehavior(InterruptionBehavior.kCancelSelf)));
 
         driver.rightStick()
@@ -440,12 +440,12 @@ public class RobotContainer {
         driver.leftTrigger()
             .whileTrue(
                 s_Claw.shootCoral()
-                .alongWith(s_LEDMatrix.flashCommand(LEDColor.WHITE, 0.2, 2.0).repeatedly()));
+                .alongWith(s_LEDMatrix.flashCommand(Color.WHITE, 0.2, 2.0).repeatedly()));
 
         driver.povLeft()
             .whileTrue(
                 s_Claw.reverseCoral()
-                .alongWith(s_LEDMatrix.flashCommand(LEDColor.PINK, 0.2, 2.0).repeatedly()));
+                .alongWith(s_LEDMatrix.flashCommand(Color.PINK, 0.2, 2.0).repeatedly()));
 
         driver.povDown()
             .whileTrue(
@@ -504,7 +504,7 @@ public class RobotContainer {
                         ReefState.removeScoredCoral(lastPosition);
                         Commands.parallel(
                             new VibrateController(1.0, 0.25, driver),
-                            s_LEDMatrix.flashCommand(LEDColor.GREEN, 0.2, 2.0)).schedule();
+                            s_LEDMatrix.flashCommand(Color.GREEN, 0.2, 2.0)).schedule();
                     }
                 }))
             .onFalse(
@@ -513,9 +513,9 @@ public class RobotContainer {
                         Toggles.autoMark.set(!Toggles.autoMark.get());
                         autoMarkingDisabled.set(!Toggles.autoMark.get());
                         if (Toggles.autoMark.get()) {
-                            s_LEDMatrix.flashCommand(LEDColor.GREEN, 0.2, 2.0).schedule();
+                            s_LEDMatrix.flashCommand(Color.GREEN, 0.2, 2.0).schedule();
                         } else {
-                            s_LEDMatrix.flashCommand(LEDColor.RED, 0.2, 2.0).schedule();
+                            s_LEDMatrix.flashCommand(Color.RED, 0.2, 2.0).schedule();
                         }
                     }
                     toggleTriggered = false;
@@ -532,7 +532,7 @@ public class RobotContainer {
                         .getDistance(s_Swerve.getPose().getTranslation()) <= 1.5
                     ) {
                         ReefState.scoreCoral(ReefUtil.getClosestCoralBranch(), s_Elevator.getState());
-                        s_LEDMatrix.flashCommand(LEDColor.BLUE, 0.2, 2.0).schedule();
+                        s_LEDMatrix.flashCommand(Color.BLUE, 0.2, 2.0).schedule();
                     }
                 }));
     }
