@@ -261,6 +261,7 @@ public class RobotContainer {
 
 //        s_LEDMatrix.rainbowWaveCommand(3).schedule();
         s_LEDMatrix.fireCommand(50, 120).schedule();
+//        s_LEDMatrix.pacmanCommand().schedule();
 //        s_LEDMatrix.bouncingBallCommand(LEDMatrix.Color.GREEN, 3).schedule();
 //        s_LEDMatrix.scrollingTextCommand("STEEL HAWKS", LEDMatrix.Color.RED, 2).schedule();
 //        s_LEDMatrix.plasmaCommand(3).schedule();

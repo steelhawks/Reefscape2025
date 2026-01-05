@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.*;
 import org.steelhawks.Constants.LEDConstants;
+import org.steelhawks.subsystems.led.anim.FrameAnimation;
+import org.steelhawks.subsystems.led.anim.PacMan;
 
 /**
  * LED Matrix subsystem for controlling 2D LED arrays with animations
@@ -767,6 +769,16 @@ public class LEDMatrix extends SubsystemBase {
 
     public Command bouncingBallCommand(Color color, int size) {
         return Commands.runOnce(() -> playAnimation(new BouncingBall(color, size)), this)
+            .ignoringDisable(true);
+    }
+
+    public Command pacmanCommand() {
+        return Commands.runOnce(() -> playAnimation(new PacMan(width, height)), this)
+            .ignoringDisable(true);
+    }
+
+    public Command frameAnimationCommand(FrameAnimation animation) {
+        return Commands.runOnce(() -> playAnimation(animation), this)
             .ignoringDisable(true);
     }
 
