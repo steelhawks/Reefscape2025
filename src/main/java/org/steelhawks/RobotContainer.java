@@ -111,6 +111,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstantsAlpha.FrontRight),
                             new ModuleIOTalonFX(TunerConstantsAlpha.BackLeft),
                             new ModuleIOTalonFX(TunerConstantsAlpha.BackRight));
+                    s_Elevator = new Elevator(new ElevatorIO() {});
                     s_Vision =
                         new Vision(
                             s_Swerve::accept,
@@ -240,7 +241,7 @@ public class RobotContainer {
             }
         }
         new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
-        Autos.init();
+        // Autos.init();
 
         if (Constants.getRobot() != RobotType.ALPHABOT) {
             checkIfDevicesConnected();

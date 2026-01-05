@@ -100,7 +100,7 @@ public class QuestNavImpl {
                     || Constants.loggedValue("PhysicallyRealisticMotion", !isPhysicallyFeasible(robotPose, frame.dataTimestamp()))
                     || Constants.loggedValue("QuestTracking", !nav.isTracking())
                     || Constants.loggedValue("QuestConnected", !nav.isConnected());
-                Logger.recordOutput("QuestNav/UnfilteredPose", robotPose);
+                Logger.recordOutput("QuestNav/UnfilteredPose3d", frame.questPose3d());
                 if (rejectPose) {
                     allQuestPosesRejected.add(robotPose);
                 } else {

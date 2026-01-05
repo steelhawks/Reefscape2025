@@ -46,27 +46,28 @@ public class ElevatorConstants {
     public static final double SPROCKET_RAD = // the driving drum
         Units.inchesToMeters(1.888);
 
-    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(25.0, 10.0);
-    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(46.0, 20.0);
+    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.value(0.0,10.0, 25.0);
+    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.value(0.0,20.0, 46.0);
     public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
-    public static final Double MANUAL_ELEVATOR_RAMP_RATE = Constants.omega(0.6 * MANUAL_ELEVATOR_INCREMENT, 0.8 * MANUAL_ELEVATOR_INCREMENT);
+    public static final Double MANUAL_ELEVATOR_RAMP_RATE = Constants.value(0.0, 0.0,0.6 * MANUAL_ELEVATOR_INCREMENT, 0.8 * MANUAL_ELEVATOR_INCREMENT);
 
-    public static final LoggedTunableNumber KP = new LoggedTunableNumber("Elevator/kP", Constants.omega(500.0, 6.0));
+    public static final LoggedTunableNumber KP = new LoggedTunableNumber("Elevator/kP", Constants.value(0.0, 0.0, 500.0, 6.0));
     public static final double KI = 0.0;
-    public static final LoggedTunableNumber KD = new LoggedTunableNumber("Elevator/kD", Constants.omega(40.0, 0.4));
+    public static final LoggedTunableNumber KD = new LoggedTunableNumber("Elevator/kD", Constants.value(0.0, 0.0,40.0, 0.4));
 
     public static final double ELEVATOR_DISTANCE_INTERPOLATOR_MAX = 0.6;
     public static final double SHIMMY_VOLTS = -5.0;
     public static final double HOMING_VOLTS = -3.0;
 
     public static final Double[] kS = {
-        Constants.omega(1.0, 0.0),
+        Constants.value(0.0, 0.0, 1.0),
         0.0,
         0.0
     };
 
     public static final Double[] kV = {
-        Constants.omega(
+        Constants.value(
+            0.0,
         0.0, 0.0),
         0.0,
         0.0
@@ -75,7 +76,7 @@ public class ElevatorConstants {
     };
 
     public static final Double[] kG = {
-        Constants.omega(6.0, 0.0),
+        Constants.value(0.0, 0.0, 6.0),
         0.0,
         0.0
     };
