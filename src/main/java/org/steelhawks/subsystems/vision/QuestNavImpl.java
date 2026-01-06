@@ -8,8 +8,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.measure.*;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
@@ -47,8 +45,8 @@ public class QuestNavImpl {
         Constants.value(MetersPerSecondPerSecond.of(8.0), MetersPerSecondPerSecond.of(8.0));
     private static final AngularAcceleration MAX_ANGULAR_ACCEL =
         Constants.value(RadiansPerSecondPerSecond.of(20.0), RadiansPerSecondPerSecond.of(20.0));
-    private static final Velocity<LinearAccelerationUnit> MAX_LINEAR_JERK = MetersPerSecondPerSecond.per(Second).of(40.0);
-    private static final Velocity<AngularAccelerationUnit> MAX_ANGULAR_JERK = RadiansPerSecondPerSecond.per(Second).of(40.0);
+    private static final double MAX_LINEAR_JERK = 40.0; // m/s^3
+    private static final double MAX_ANGULAR_JERK = 40.0; // rad/s^3
 
     private Pose2d lastAcceptedPose = null;
     private double lastTimestamp = -1.0;
@@ -92,15 +90,16 @@ public class QuestNavImpl {
                         .transformBy(ROBOT_TO_QUEST.inverse()).toPose2d();
                 // filtering / compare questnav position to vision positioning
                 final boolean rejectPose =
-                    Constants.loggedValue("HasInitialPose", !hasInitialPose)
-                    || Constants.loggedValue("InXFieldMin",robotPose.getX() < 0.0)
-                    || Constants.loggedValue("InXFieldMax", robotPose.getX() > APRIL_TAG_LAYOUT.getFieldLength())
-                    || Constants.loggedValue("InYFieldMin", robotPose.getY() < 0.0)
-                    || Constants.loggedValue("InYFieldMax", robotPose.getY() > APRIL_TAG_LAYOUT.getFieldWidth())
-                    || Constants.loggedValue("PhysicallyRealisticMotion", !isPhysicallyFeasible(robotPose, frame.dataTimestamp()))
-                    || Constants.loggedValue("QuestTracking", !nav.isTracking())
-                    || Constants.loggedValue("QuestConnected", !nav.isConnected());
+                    Constants.loggedValue("QuestReject/NoInitialPose", !hasInitialPose)
+                        || Constants.loggedValue("QuestReject/OutOfXFieldMin", robotPose.getX() < 0.0)
+                        || Constants.loggedValue("QuestReject/OutOfXFieldMax", robotPose.getX() > APRIL_TAG_LAYOUT.getFieldLength())
+                        || Constants.loggedValue("QuestReject/OutOfYFieldMin", robotPose.getY() < 0.0)
+                        || Constants.loggedValue("QuestReject/OutOfYFieldMax", robotPose.getY() > APRIL_TAG_LAYOUT.getFieldWidth())
+                        || Constants.loggedValue("QuestReject/NotPhysicallyFeasible", !isPhysicallyFeasible(robotPose, frame.dataTimestamp()))
+                        || Constants.loggedValue("QuestReject/NotTracking", !nav.isTracking())
+                        || Constants.loggedValue("QuestReject/NotConnected", !nav.isConnected());
                 Logger.recordOutput("QuestNav/UnfilteredPose3d", frame.questPose3d());
+                Logger.recordOutput("QuestNav/UnfilteredPose2d", robotPose);
                 if (rejectPose) {
                     allQuestPosesRejected.add(robotPose);
                 } else {
@@ -159,11 +158,11 @@ public class QuestNavImpl {
                     continue;
                 }
                 consumer.accept(robotPose, frame.dataTimestamp(), STD_DEV);
-
-                Logger.recordOutput("QuestNav/AllPoses", allQuestPoses.toArray(new Pose2d[0]));
-                Logger.recordOutput("QuestNav/RejectedPoses", allQuestPosesRejected.toArray(new Pose2d[0]));
-                Logger.recordOutput("QuestNav/AcceptedPoses", allQuestPosesAccepted.toArray(new Pose2d[0]));
             }
+
+            Logger.recordOutput("QuestNav/AllPoses", allQuestPoses.toArray(new Pose2d[0]));
+            Logger.recordOutput("QuestNav/RejectedPoses", allQuestPosesRejected.toArray(new Pose2d[0]));
+            Logger.recordOutput("QuestNav/AcceptedPoses", allQuestPosesAccepted.toArray(new Pose2d[0]));
         }
     }
 
@@ -173,7 +172,7 @@ public class QuestNavImpl {
         }
 
         double dt = timestamp - lastTimestamp;
-        if (dt <= 1e-6) return false;
+        if (dt <= 1e-6) return true; // Allow rapid updates
 
         double distance =
             newPose.getTranslation().getDistance(lastAcceptedPose.getTranslation());
@@ -181,7 +180,7 @@ public class QuestNavImpl {
         double angularDelta =
             Math.abs(
                 newPose.getRotation()
-                .minus(lastAcceptedPose.getRotation()).getRadians());
+                    .minus(lastAcceptedPose.getRotation()).getRadians());
         double angularVelo = angularDelta / dt;
         double linearAccel =
             (linearVelo - lastLinearVelocity) / dt;
@@ -201,16 +200,20 @@ public class QuestNavImpl {
             && angularVelo <= MAX_ANGULAR_VELOCITY.in(RadiansPerSecond)
             && Math.abs(linearAccel) <= MAX_LINEAR_ACCEL.in(MetersPerSecondPerSecond)
             && Math.abs(angularAccel) <= MAX_ANGULAR_ACCEL.in(RadiansPerSecondPerSecond)
-//            && Math.abs(linearJerk) <= MAX_LINEAR_JERK
-//            && Math.abs(angularJerk)  <= MAX_ANGULAR_JERK
-        ;
+            && Math.abs(linearJerk) <= MAX_LINEAR_JERK
+            && Math.abs(angularJerk) <= MAX_ANGULAR_JERK;
     }
 
     private boolean outOfVisionTolerance(Pose2d questPose, Pose2d visionPose) {
-        return Constants.loggedValue("VisionCheck/InXTolWithVision", !(Math.abs(questPose.getX() - visionPose.getX()) <= VISION_XY_DEVIATION_TOLERANCE))
-            || Constants.loggedValue("VisionCheck/InYTolWithVision", !(Math.abs(questPose.getY() - visionPose.getY()) <= VISION_XY_DEVIATION_TOLERANCE))
-            || Constants.loggedValue("VisionCheck/InThetaTolWithVision", !(Math.abs(questPose.getRotation().getRadians() - visionPose.getRotation().getRadians())
-                <= VISION_THETA_DEVIATION_TOLERANCE));
+        boolean outOfXTol = Math.abs(questPose.getX() - visionPose.getX()) > VISION_XY_DEVIATION_TOLERANCE;
+        boolean outOfYTol = Math.abs(questPose.getY() - visionPose.getY()) > VISION_XY_DEVIATION_TOLERANCE;
+        boolean outOfThetaTol = Math.abs(questPose.getRotation().getRadians() - visionPose.getRotation().getRadians()) > VISION_THETA_DEVIATION_TOLERANCE;
+
+        Constants.loggedValue("VisionCheck/OutOfXTol", outOfXTol);
+        Constants.loggedValue("VisionCheck/OutOfYTol", outOfYTol);
+        Constants.loggedValue("VisionCheck/OutOfThetaTol", outOfThetaTol);
+
+        return outOfXTol || outOfYTol || outOfThetaTol;
     }
 
     public boolean isRunning() {
