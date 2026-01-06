@@ -241,8 +241,9 @@ public class RobotContainer {
             }
         }
         new Alert("Use Vision is Off", AlertType.kWarning).set(!Toggles.Vision.visionEnabled.get());
-        // Autos.init();
-
+        if (Constants.getRobot() == RobotType.OMEGABOT) {
+            Autos.init();
+        }
         if (Constants.getRobot() != RobotType.ALPHABOT) {
             checkIfDevicesConnected();
             setManualToggled(false);
