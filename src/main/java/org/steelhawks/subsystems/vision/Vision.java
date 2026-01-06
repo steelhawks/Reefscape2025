@@ -212,7 +212,9 @@ public class Vision extends SubsystemBase {
                 }
                 if (useQuestNav && !Robot.isFirstRun()) {
                     assert questNav != null;
-                    if (questNav.isRunning()) {
+                    if (questNav.hasPhysicsViolation()) {
+                        Logger.recordOutput("Vision/UsingVisionDueToQuestNavViolation", true);
+                    } else if (questNav.isRunning()) {
                         linearStdDev = 2601_2601;
                         angularStdDev = 2601_2601;
                     }
@@ -261,14 +263,45 @@ public class Vision extends SubsystemBase {
         LoopTimeUtil.record("Vision");
 
         if (questNav != null) {
-            // make it so that in debug mode you can automatically reset pose from vision when disabled/ or make it a toggle
-            if (DriverStation.isDisabled() && Robot.isFirstRun() && Constants.loggedValue("RobotPosesEmpty", !allRobotPosesAccepted.isEmpty())) {
+            // check if questnav needs to be reset b/c of physics violation
+            if (questNav.needsReset() && !allRobotPosesAccepted.isEmpty()) {
+                Pose3d bestPose = null;
+                double bestConfidence = Double.MAX_VALUE;
+
+                for (int i = 0; i < io.length; i++) {
+                    for (var observation : inputs[i].poseObservations) {
+                        // prefer multi-tag w low ambiguity
+                        if (observation.tagCount() >= 2 && observation.ambiguity() < 0.2) {
+                            double confidence = observation.ambiguity() *
+                                Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
+                            if (confidence < bestConfidence) {
+                                bestConfidence = confidence;
+                                bestPose = observation.pose();
+                            }
+                        }
+                    }
+                }
+
+                if (bestPose != null) {
+                    Logger.recordOutput("Vision/QuestNavResetTriggered", true);
+                    Logger.recordOutput("Vision/QuestNavResetConfidence", bestConfidence);
+                    questNav.resetWithPose(bestPose.toPose2d());
+                } else {
+                    // retry later, clear flag
+                    questNav.clearResetFlag();
+                    Logger.recordOutput("Vision/QuestNavResetSkipped", true);
+                }
+            }
+
+            // init on first run
+            if (DriverStation.isDisabled() && Robot.isFirstRun() &&
+                Constants.loggedValue("RobotPosesEmpty", !allRobotPosesAccepted.isEmpty())
+            ) {
                 questNav.setPose(allRobotPosesAccepted.get(0).toPose2d());
-//                questNav.setPose(new Pose2d());
             }
             questNav.periodic();
-            LoopTimeUtil.record("QuestNav");
         }
+        LoopTimeUtil.record("QuestNav");
     }
 
     @FunctionalInterface

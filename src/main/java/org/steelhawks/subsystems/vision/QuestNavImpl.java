@@ -56,9 +56,27 @@ public class QuestNavImpl {
     private double lastAngularAccel = 0.0;
     private boolean hasInitialPose = false;
 
+    private static final double RESET_COOLDOWN = 1.0; // seconds between resets
+    private double lastResetTime = -1.0;
+    private boolean needsReset = false;
+    private boolean physicsViolationDetected = false;
+
     public QuestNavImpl(Vision.VisionConsumer consumer) {
         this.consumer = consumer;
         nav = new QuestNav();
+    }
+
+    public boolean needsReset() {
+        return needsReset;
+    }
+
+    public void clearResetFlag() {
+        needsReset = false;
+        physicsViolationDetected = false;
+    }
+
+    public boolean hasPhysicsViolation() {
+        return physicsViolationDetected;
     }
 
     public void periodic() {
@@ -70,6 +88,7 @@ public class QuestNavImpl {
         Logger.recordOutput("QuestNav/FrameCount", nav.getFrameCount().orElse(0));
         Logger.recordOutput("QuestNav/Battery", nav.getBatteryPercent().orElse(0));
         Logger.recordOutput("QuestNav/Latency", nav.getLatency());
+        Logger.recordOutput("QuestNav/PhysicsViolation", physicsViolationDetected);
 
         List<PoseFrame> allPoseFrames = new LinkedList<>();
         List<Pose2d> allQuestPoses = new LinkedList<>();
@@ -88,6 +107,19 @@ public class QuestNavImpl {
                 Pose2d robotPose =
                     frame.questPose3d()
                         .transformBy(ROBOT_TO_QUEST.inverse()).toPose2d();
+
+                boolean isPhysicallyFeasible = isPhysicallyFeasible(robotPose, frame.dataTimestamp());
+
+                // Check for physics violations - trigger reset immediately
+                if (!isPhysicallyFeasible && hasInitialPose) {
+                    double currentTime = frame.dataTimestamp();
+                    if (lastResetTime < 0 || (currentTime - lastResetTime) > RESET_COOLDOWN) {
+                        physicsViolationDetected = true;
+                        needsReset = true;
+                        Logger.recordOutput("QuestNav/PhysicsViolationTriggered", true);
+                    }
+                }
+
                 // filtering / compare questnav position to vision positioning
                 final boolean rejectPose =
                     Constants.loggedValue("QuestReject/NoInitialPose", !hasInitialPose)
@@ -95,11 +127,10 @@ public class QuestNavImpl {
                         || Constants.loggedValue("QuestReject/OutOfXFieldMax", robotPose.getX() > APRIL_TAG_LAYOUT.getFieldLength())
                         || Constants.loggedValue("QuestReject/OutOfYFieldMin", robotPose.getY() < 0.0)
                         || Constants.loggedValue("QuestReject/OutOfYFieldMax", robotPose.getY() > APRIL_TAG_LAYOUT.getFieldWidth())
-                        || Constants.loggedValue("QuestReject/NotPhysicallyFeasible", !isPhysicallyFeasible(robotPose, frame.dataTimestamp()))
+                        || Constants.loggedValue("QuestReject/NotPhysicallyFeasible", !isPhysicallyFeasible)
                         || Constants.loggedValue("QuestReject/NotTracking", !nav.isTracking())
                         || Constants.loggedValue("QuestReject/NotConnected", !nav.isConnected());
                 Logger.recordOutput("QuestNav/UnfilteredPose3d", frame.questPose3d());
-                Logger.recordOutput("QuestNav/UnfilteredPose2d", robotPose);
                 if (rejectPose) {
                     allQuestPosesRejected.add(robotPose);
                 } else {
@@ -157,13 +188,40 @@ public class QuestNavImpl {
                 if (rejectPose) {
                     continue;
                 }
-                consumer.accept(robotPose, frame.dataTimestamp(), STD_DEV);
+
+                // Only accept QuestNav poses if no physics violation detected
+                if (!physicsViolationDetected) {
+                    consumer.accept(robotPose, frame.dataTimestamp(), STD_DEV);
+                }
             }
 
+            // Log pose arrays once after processing all frames
             Logger.recordOutput("QuestNav/AllPoses", allQuestPoses.toArray(new Pose2d[0]));
             Logger.recordOutput("QuestNav/RejectedPoses", allQuestPosesRejected.toArray(new Pose2d[0]));
             Logger.recordOutput("QuestNav/AcceptedPoses", allQuestPosesAccepted.toArray(new Pose2d[0]));
         }
+    }
+
+    public void resetWithPose(Pose2d pose) {
+        Logger.recordOutput("QuestNav/ResetExecuted", true);
+        Logger.recordOutput("QuestNav/ResetPose", pose);
+
+        setPose(pose);
+        needsReset = false;
+        physicsViolationDetected = false;
+        lastResetTime = Logger.getRealTimestamp() / 1e6; // Convert to seconds
+
+        // Reset derivative tracking
+        lastAcceptedPose = pose;
+        lastTimestamp = Logger.getRealTimestamp() / 1e6;
+        lastLinearVelocity = 0.0;
+        lastAngularVelocity = 0.0;
+        lastLinearAccel = 0.0;
+        lastAngularAccel = 0.0;
+    }
+
+    public Pose2d getLastAcceptedPose() {
+        return lastAcceptedPose;
     }
 
     private boolean isPhysicallyFeasible(Pose2d newPose, double timestamp) {
