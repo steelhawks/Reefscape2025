@@ -262,9 +262,9 @@ public class Vision extends SubsystemBase {
 
         if (questNav != null) {
             // make it so that in debug mode you can automatically reset pose from vision when disabled/ or make it a toggle
-            if (DriverStation.isDisabled() && Robot.isFirstRun() && Constants.loggedValue("RobotPosesEmpty", !allRobotPoses.isEmpty())) {
-//                questNav.setPose(allRobotPosesAccepted.get(0).toPose2d());
-                questNav.setPose(new Pose2d());
+            if (DriverStation.isDisabled() && Robot.isFirstRun() && Constants.loggedValue("RobotPosesEmpty", !allRobotPosesAccepted.isEmpty())) {
+                questNav.setPose(allRobotPosesAccepted.get(0).toPose2d());
+//                questNav.setPose(new Pose2d());
             }
             questNav.periodic();
             LoopTimeUtil.record("QuestNav");
