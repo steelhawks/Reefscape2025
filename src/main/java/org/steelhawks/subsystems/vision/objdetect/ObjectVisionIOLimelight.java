@@ -46,7 +46,7 @@ public class ObjectVisionIOLimelight implements ObjectVisionIO {
                 new ObjectObservation(
                     camIndex,
                     new DetectionInfo(detection),
-                    0.0, // 0.0 because limelight doesn't give you a confidence score, we calculate it ourselves
+                    0.48, // 0.0 because limelight doesn't give you a confidence score, we calculate it ourselves
                     timestamp // timestamp in seconds
                 )
             );

@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 public class ObjectVision extends VirtualSubsystem {
 
-    private static final double coralOverlap = 0.5; // meters
-    private static final double coralMaxAge = 10.0; // seconds
+    private static final double coralOverlap = 0.1; // meters
+    private static final double coralMaxAge = 5.0; // seconds
 
     private static final LoggedTunableNumber maxArea =
         new LoggedTunableNumber("ObjectVision/MaxArea", 20.0);
@@ -67,20 +67,21 @@ public class ObjectVision extends VirtualSubsystem {
         double txAvg = (d.tx()[0] + d.tx()[1] + d.tx()[2] + d.tx()[3]) / 4.0;
         double angleScore = Math.cos(txAvg); // roughly favors smaller offsets
 
-        double w1 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[0];
-        double w2 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[1];
-        double w3 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[2];
+//        double w1 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[0];
+//        double w2 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[1];
+//        double w3 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[2];
 
-        return MathUtil.clamp(Constants.loggedValue(logName + "w1", w1 * areaScore) +
-            Constants.loggedValue(logName + "w2", w2 * ratio) +
-                Constants.loggedValue(logName + "w3", w3 * angleScore), 0.0, 1.0);
+//        return MathUtil.clamp(Constants.loggedValue(logName + "w1", w1 * areaScore) +
+//            Constants.loggedValue(logName + "w2", w2 * ratio) +
+//                Constants.loggedValue(logName + "w3", w3 * angleScore), 0.0, 1.0);
+        return 1.0;
     }
 
 
     private void addCoralObservationToPose(ObjectVisionIO.ObjectObservation observation) {
         double now = Timer.getFPGATimestamp();
         Optional<Pose2d> oldWheelOdomPose = RobotContainer.s_Swerve.getPoseAtTime(observation.timestamp());
-        if (oldWheelOdomPose.isEmpty()) {
+        if (Constants.loggedValue("CoralObservation/WheelOdomEmpty", oldWheelOdomPose.isEmpty())) {
             return;
         }
         // latency compensation via interpolation
@@ -115,7 +116,7 @@ public class ObjectVision extends VirtualSubsystem {
 
         // vert height from camera to target
         double verticalAngle = -cameraPitch - ty;
-        if (verticalAngle <= 0) { // target above horizontal is invalid
+        if (Constants.loggedValue("CoralObservation/VerticalAngleError", verticalAngle <= 0)) { // target above horizontal is invalid
             return;
         }
         double targetHeight = 0.0; // coral is on the ground so target height should be 0.0
@@ -149,13 +150,15 @@ public class ObjectVision extends VirtualSubsystem {
             allObservations.addAll(Arrays.asList(inputs[i].observations));
         }
         allObservations.stream()
-            .filter(o -> (Objects.requireNonNull(VisionConstants.getObjDetectConfig())[o.camIndex()]
-                .cameraType().equals(VisionConstants.CameraConfig.CameraType.LIMELIGHT)
-                    ? calcConfidence(o.info(), o.camIndex()) : o.confidence()) >= confidenceThreshold.get()
-            )
+            .filter(o -> o.confidence() >= confidenceThreshold.get())
             .sorted(Comparator.comparingDouble(ObjectVisionIO.ObjectObservation::timestamp))
             .forEach(this::addCoralObservationToPose);
 
+//        Logger.recordOutput("CoralDetections/Detections", coralPoses.toArray(new CoralPose[0]));
+        coralPoses.stream()
+            .forEach(o -> {
+                Logger.recordOutput("CoralDetections/Detection", new Pose2d(o.translation, new Rotation2d()));
+            });
         coralObjects.setPoses(
             coralPoses.stream()
                 .map(coral -> new Pose2d(coral.translation, new Rotation2d())) // zero rotation

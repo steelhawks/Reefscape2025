@@ -13,7 +13,7 @@ public interface Toggles {
     LoggedNetworkBoolean autoMark =
         new LoggedNetworkBoolean("Toggles/AutoMark", true);
     LoggedNetworkBoolean debugMode =
-        new LoggedNetworkBoolean("Toggles/DebugMode", false);
+        new LoggedNetworkBoolean("Toggles/DebugMode", true);
     LoggedNetworkBoolean tuningMode =
         new LoggedNetworkBoolean("Toggles/TuningMode", false);
     LoggedNetworkBoolean motionMagicEnabled =

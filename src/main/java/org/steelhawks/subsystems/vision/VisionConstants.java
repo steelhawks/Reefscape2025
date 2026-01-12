@@ -1,5 +1,6 @@
 package org.steelhawks.subsystems.vision;
 
+import org.dyn4j.geometry.Rotation;
 import org.steelhawks.subsystems.vision.VisionConstants.CameraConfig.CameraType;
 import edu.wpi.first.wpilibj.RobotBase;
 import org.steelhawks.Constants;
@@ -167,8 +168,19 @@ public class VisionConstants {
 
     private static final CameraConfig[] OMEGA_OBJ_DETECT_CONFIG = {
         new CameraConfig(
-            "limelight",
-            Constants.fromOnshapeCoordinates(4.469, 9.261, 21.578, 15.0, -20.0, 0.0),
+            "limelight-coral",
+//            Constants.fromOnshapeCoordinates(4.469, 9.261, 21.578, 15.0, -20.0, 0.0),
+//            Constants.fromOnshapeCoordinates(5.531, -15.261, -23.578 - 1.414, 15.0, -20.0, 0.0),
+            new Transform3d(
+                Units.inchesToMeters(-5.531),
+                Units.inchesToMeters(-15.261),
+                Units.inchesToMeters(23.578 + 1.414),
+                new Rotation3d(
+                    0.0,
+                    Units.degreesToRadians(20.0),
+                    Units.degreesToRadians(15.0)
+                )
+            ),
             new Factors.ObjFactors(0.5, 0.3, 0.2),
             CameraType.LIMELIGHT
         )
