@@ -44,40 +44,6 @@ public class ObjectVision extends VirtualSubsystem {
         }
     }
 
-    /*
-     * NEED TO TUNE MAX AREA
-     * NEED TO TUNE W1, W2, W3
-     * Log values to tune properly
-     */
-    public static double calcConfidence(ObjectVisionIO.DetectionInfo d, int cameraIndex) {
-        String logName = "ObjectVision/" +
-            Objects.requireNonNull(VisionConstants.getObjDetectConfig())[cameraIndex].name() + "/";
-
-        // areaScore: normalized 0–1
-        double areaScore = Math.min(d.area() / maxArea.get(), 1.0);
-
-        // shapeScore: 0 = skewed, 1 = rectangle
-        double width = Math.abs(d.tx()[0] - d.tx()[1]);
-        double height = Math.abs(d.ty()[0] - d.ty()[2]);
-        double diag1 = Math.hypot(d.tx()[0] - d.tx()[2], d.ty()[0] - d.ty()[2]);
-        double diag2 = Math.hypot(d.tx()[1] - d.tx()[3], d.ty()[1] - d.ty()[3]);
-        double ratio = Math.min(diag1, diag2) / Math.max(diag1, diag2); // 0–1, shapeScore
-
-        // angleScore: penalize extreme horizontal angles
-        double txAvg = (d.tx()[0] + d.tx()[1] + d.tx()[2] + d.tx()[3]) / 4.0;
-        double angleScore = Math.cos(txAvg); // roughly favors smaller offsets
-
-//        double w1 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[0];
-//        double w2 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[1];
-//        double w3 = VisionConstants.getCameraConfig()[cameraIndex].factors().getFactors()[2];
-
-//        return MathUtil.clamp(Constants.loggedValue(logName + "w1", w1 * areaScore) +
-//            Constants.loggedValue(logName + "w2", w2 * ratio) +
-//                Constants.loggedValue(logName + "w3", w3 * angleScore), 0.0, 1.0);
-        return 1.0;
-    }
-
-
     private void addCoralObservationToPose(ObjectVisionIO.ObjectObservation observation) {
         double now = Timer.getFPGATimestamp();
         Optional<Pose2d> oldWheelOdomPose = RobotContainer.s_Swerve.getPoseAtTime(observation.timestamp());
@@ -115,12 +81,12 @@ public class ObjectVision extends VirtualSubsystem {
         double cameraPitch = robotToCamera.getRotation().getY();
 
         // vert height from camera to target
-        double verticalAngle = -cameraPitch - ty;
-        if (Constants.loggedValue("CoralObservation/VerticalAngleError", verticalAngle <= 0)) { // target above horizontal is invalid
+        double verticalAngleFromHorizontal = cameraPitch - ty; // apparently cameraPitch should not be negated
+        if (Constants.loggedValue("CoralObservation/VerticalAngleError", verticalAngleFromHorizontal <= 0)) { // target above horizontal is invalid
             return;
         }
         double targetHeight = 0.0; // coral is on the ground so target height should be 0.0
-        double forwardDistance = (cameraHeight - targetHeight) / Math.tan(verticalAngle); // distance along camera forward axis
+        double forwardDistance = (cameraHeight - targetHeight) / Math.tan(verticalAngleFromHorizontal); // distance along camera forward axis
         double lateralCorrection = 1.0 / Math.cos(-tx); // correction for horizontal angle to get lateral distance
         double cameraToObjectNorm = forwardDistance * lateralCorrection;
 
@@ -154,11 +120,8 @@ public class ObjectVision extends VirtualSubsystem {
             .sorted(Comparator.comparingDouble(ObjectVisionIO.ObjectObservation::timestamp))
             .forEach(this::addCoralObservationToPose);
 
-//        Logger.recordOutput("CoralDetections/Detections", coralPoses.toArray(new CoralPose[0]));
         coralPoses.stream()
-            .forEach(o -> {
-                Logger.recordOutput("CoralDetections/Detection", new Pose2d(o.translation, new Rotation2d()));
-            });
+            .forEach(o -> Logger.recordOutput("CoralDetections/Detection", new Pose2d(o.translation, new Rotation2d())));
         coralObjects.setPoses(
             coralPoses.stream()
                 .map(coral -> new Pose2d(coral.translation, new Rotation2d())) // zero rotation
