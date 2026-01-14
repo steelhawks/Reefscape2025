@@ -172,11 +172,11 @@ public class VisionConstants {
 //            Constants.fromOnshapeCoordinates(4.469, 9.261, 21.578, 15.0, -20.0, 0.0),
 //            Constants.fromOnshapeCoordinates(5.531, -15.261, -23.578 - 1.414, 15.0, -20.0, 0.0),
             new Transform3d(
-                Units.inchesToMeters(-5.531),
-                Units.inchesToMeters(-15.261),
-                Units.inchesToMeters(23.578 + 1.414),
+                Units.inchesToMeters(15.261),
+                Units.inchesToMeters(5.531),
+                Units.inchesToMeters(23.578 + 1.414),  // height (keep as is)
                 new Rotation3d(
-                    0.0,
+                    Units.degreesToRadians(0.0),
                     Units.degreesToRadians(20.0),
                     Units.degreesToRadians(15.0)
                 )
