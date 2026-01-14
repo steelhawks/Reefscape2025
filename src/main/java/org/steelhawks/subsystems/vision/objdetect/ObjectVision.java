@@ -94,9 +94,9 @@ public class ObjectVision extends VirtualSubsystem {
         Logger.recordOutput("CoralObservation/centerY_normalized", centerY);
 
         // Convert normalized coordinates to angles
-        // Limelight 3 FOV at 1280x800: ~63.3° horizontal, ~49.7° vertical
-        double horizontalFOV = 63.3; // degrees
-        double verticalFOV = 49.7;   // degrees
+        // limelight 4 H:82° V:56.2°
+        double horizontalFOV = 82; // degrees
+        double verticalFOV = 56.2;   // degrees
 
         double tx = centerX * (horizontalFOV / 2.0); // angle in degrees
         double ty = centerY * (verticalFOV / 2.0);   // angle in degrees
