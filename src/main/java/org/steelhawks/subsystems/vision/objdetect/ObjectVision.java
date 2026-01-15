@@ -23,6 +23,8 @@ public class ObjectVision extends VirtualSubsystem {
         new LoggedTunableNumber("ObjectVision/MaxArea", 20.0);
     private static final LoggedTunableNumber confidenceThreshold =
         new LoggedTunableNumber("ObjectVision/ConfidenceThreshold", 0.3);
+    private static final LoggedTunableNumber maxDetectableObjects =
+        new LoggedTunableNumber("ObjectVision/MaxDetectableObjects", 5);
 
     private final ObjectVisionIO[] io;
     private final ObjectVisionIOInputsAutoLogged[] inputs;
@@ -33,7 +35,7 @@ public class ObjectVision extends VirtualSubsystem {
 
     private final FieldObject2d coralObjects = FieldConstants.FIELD_2D.getObject("Corals");
     private final ArrayList<ObjectVisionIO.ObjectObservation> allObservations = new ArrayList<>();
-    private final Set<CoralPose> coralPoses = new HashSet<>();
+    private final LinkedList<CoralPose> coralPoses = new LinkedList<>();
 
     public ObjectVision() {
         this.io = VisionConstants.getObjIO();
@@ -46,7 +48,7 @@ public class ObjectVision extends VirtualSubsystem {
     private void addCoralObservationToPose(ObjectVisionIO.ObjectObservation observation) {
         double now = Timer.getFPGATimestamp();
         Optional<Pose2d> oldWheelOdomPose = RobotContainer.s_Swerve.getPoseAtTime(observation.timestamp());
-        if (Constants.loggedValue("CoralObservation/WheelOdomEmpty", oldWheelOdomPose.isEmpty())) {
+        if (Constants.loggedValue("CoralProcessing/WheelOdomEmpty", oldWheelOdomPose.isEmpty())) {
             return;
         }
         var estimatedPose = RobotContainer.s_Swerve.getPose();
@@ -60,8 +62,8 @@ public class ObjectVision extends VirtualSubsystem {
         double[] txCorners = observation.info().tx();  // degrees
         double[] tyCorners = observation.info().ty();  // degrees
 
-        Constants.loggedValue("CoralObservation/TxCorners_degrees", txCorners);
-        Constants.loggedValue("CoralObservation/TyCorners_degrees", tyCorners);
+        Constants.loggedValue("CoralProcessing/TxCorners_degrees", txCorners);
+        Constants.loggedValue("CoralProcessing/TyCorners_degrees", tyCorners);
 
         // bounding box center in deg
         double minX = Math.min(Math.min(txCorners[0], txCorners[1]),
@@ -77,18 +79,18 @@ public class ObjectVision extends VirtualSubsystem {
         double tx = (minX + maxX) / 2.0;
         double ty = (minY + maxY) / 2.0;
 
-        Constants.loggedValue("CoralObservation/tx_degrees", tx);
-        Constants.loggedValue("CoralObservation/ty_degrees", ty);
+        Constants.loggedValue("CoralProcessing/tx_degrees", tx);
+        Constants.loggedValue("CoralProcessing/ty_degrees", ty);
 
         // trig
         double cameraHeight = robotToCamera.getZ();
         double cameraPitch = robotToCamera.getRotation().getY(); // radians
-        Constants.loggedValue("CoralObservation/cameraPitch_radians", cameraPitch);
+        Constants.loggedValue("CoralProcessing/cameraPitch_radians", cameraPitch);
         double tyRadians = Math.toRadians(ty);
         double verticalAngleFromHorizontal = cameraPitch + tyRadians;
-        Constants.loggedValue("CoralObservation/AngleFromHorizontal_radians", verticalAngleFromHorizontal);
-        Constants.loggedValue("CoralObservation/AngleFromHorizontal_degrees", Math.toDegrees(verticalAngleFromHorizontal));
-        if (Constants.loggedValue("CoralObservation/VerticalAngleError", verticalAngleFromHorizontal <= 0)) {
+        Constants.loggedValue("CoralProcessing/AngleFromHorizontal_radians", verticalAngleFromHorizontal);
+        Constants.loggedValue("CoralProcessing/AngleFromHorizontal_degrees", Math.toDegrees(verticalAngleFromHorizontal));
+        if (Constants.loggedValue("CoralProcessing/VerticalAngleError", verticalAngleFromHorizontal <= 0)) {
             return;
         }
         double targetHeight = 0.0;
@@ -98,7 +100,7 @@ public class ObjectVision extends VirtualSubsystem {
             new Translation2d(
                 forwardDistance * Math.cos(txRadians),
                 forwardDistance * Math.sin(txRadians));
-        Constants.loggedValue("CoralObservation/cameraToCoralInCameraFrame",
+        Constants.loggedValue("CoralProcessing/cameraToCoralInCameraFrame",
             new Pose2d(cameraToCoralInCameraFrame, new Rotation2d()));
 
         Transform2d robotToCamera2d = new Transform2d(
@@ -106,18 +108,25 @@ public class ObjectVision extends VirtualSubsystem {
             robotToCamera.getRotation().toRotation2d());
         Pose2d fieldToCamera = fieldToRobot.transformBy(robotToCamera2d);
 
-        Constants.loggedValue("CoralObservation/fieldToRobot", fieldToRobot);
-        Constants.loggedValue("CoralObservation/fieldToCamera", fieldToCamera);
-        Constants.loggedValue("CoralObservation/forwardDistance", forwardDistance);
+        Constants.loggedValue("CoralProcessing/fieldToRobot", fieldToRobot);
+        Constants.loggedValue("CoralProcessing/fieldToCamera", fieldToCamera);
+        Constants.loggedValue("CoralProcessing/forwardDistance", forwardDistance);
 
         Pose2d fieldToCoral = fieldToCamera
             .transformBy(new Transform2d(cameraToCoralInCameraFrame, new Rotation2d()));
-        Constants.loggedValue("CoralObservation/fieldToCoral", fieldToCoral);
+        Constants.loggedValue("CoralProcessing/fieldToCoral", fieldToCoral);
         CoralPose coralPose = new CoralPose(fieldToCoral.getTranslation(), observation.timestamp());
         coralPoses.removeIf(
             c -> c.translation.getDistance(fieldToCoral.getTranslation()) <= coralOverlap
                 || now - c.timestamp > coralMaxAge);
         coralPoses.add(coralPose);
+
+        // fifo
+        while (coralPoses.size() > (int) maxDetectableObjects.get()) {
+            CoralPose removed = coralPoses.removeFirst();
+            Logger.recordOutput("CoralProcessing/RemovedOldest",
+                new Pose2d(removed.translation, new Rotation2d()));
+        }
     }
 
     @Override
