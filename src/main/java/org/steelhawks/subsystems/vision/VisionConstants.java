@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.RobotContainer;
 import org.steelhawks.subsystems.swerve.Swerve;
+import org.steelhawks.subsystems.vision.VisionConstants.Factors.ObjFactors.LimelightFactors;
 import org.steelhawks.subsystems.vision.objdetect.ObjectVisionIO;
 import org.steelhawks.subsystems.vision.objdetect.ObjectVisionIOLimelight;
 import org.steelhawks.subsystems.vision.objdetect.ObjectVisionIOPhoton;
@@ -37,19 +38,46 @@ public class VisionConstants {
         class ObjFactors implements Factors {
             private final Double[] factors;
 
+            public enum LimelightFactors {
+                LIMELIGHT_4(82.0, 56.2),
+                LIMELIGHT_3(62.5, 48.9),
+                LIMELIGHT_2(62.5, 48.9)
+                ;
+
+                private final double horizontalFov;
+                private final double verticalFov;
+
+                LimelightFactors(double horizontalFov, double verticalFov) {
+                    this.horizontalFov = horizontalFov;
+                    this.verticalFov = verticalFov;
+                }
+            }
+
             /**
-             * Only used for Limelight, to calculate confidence score.
+             * Only used for Limelight
              *
-             * @param w1 How much the angle matters to confidence
-             * @param w2 How much the shape matters to confidence
-             * @param w3 How much the area matters to confidence
+             * @param horizontalFov The horizontal FOV of the camera.
+             * @param verticalFov The vertical FOV of the camera.
+             * @param resolutionWidth The current resolution width selected in the Limelight config page.
+             * @param resolutionHeight The current resolution height selected in the Limelight config page.
+             * @param confidence The confidence level set in the Limelight config page.
              */
-            public ObjFactors(double w1, double w2, double w3) {
-                factors = new Double[] { w1, w2, w3 };
+            public ObjFactors(double confidence, double horizontalFov, double verticalFov, double resolutionWidth, double resolutionHeight) {
+                factors = new Double[] {
+                    confidence,
+                    horizontalFov,
+                    verticalFov,
+                    resolutionWidth,
+                    resolutionHeight
+                };
+            }
+
+            public ObjFactors(double confidence, LimelightFactors fov, double resolutionWidth, double resolutionHeight) {
+                this(confidence, fov.horizontalFov, fov.verticalFov, resolutionWidth, resolutionHeight);
             }
 
             public ObjFactors() {
-                this(0.0, 0.0, 0.0);
+                this(0.0, 0.0, 0.0, 0.0, 0.0);
             }
 
             @Override
@@ -181,7 +209,7 @@ public class VisionConstants {
                     Units.degreesToRadians(15.0)
                 )
             ),
-            new Factors.ObjFactors(0.5, 0.3, 0.2),
+            new Factors.ObjFactors(0.48, LimelightFactors.LIMELIGHT_4, 1280.0, 800.0),
             CameraType.LIMELIGHT
         )
     };

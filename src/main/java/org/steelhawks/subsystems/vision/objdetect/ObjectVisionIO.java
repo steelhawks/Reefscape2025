@@ -9,7 +9,7 @@ public interface ObjectVisionIO {
     record ObjectObservation(
         int camIndex,
         DetectionInfo info,
-        double confidence, // keeping because photonvision gives us its own confidence, so no need to calculate it
+        double confidence,
         double timestamp
     ) {}
 
@@ -19,6 +19,14 @@ public interface ObjectVisionIO {
         double[] tx,      // Corner X positions
         double[] ty       // Corner Y positions
     ) {
+        public DetectionInfo(LimelightHelpers.RawDetection raw, double[] txs, double[] tys) {
+            this(
+                raw.classId,
+                raw.ta,
+                txs,
+                tys
+            );
+        }
         public DetectionInfo(LimelightHelpers.RawDetection raw) {
             this(
                 raw.classId,

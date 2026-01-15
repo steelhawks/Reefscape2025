@@ -1,6 +1,5 @@
 package org.steelhawks.subsystems.vision.objdetect;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
@@ -50,8 +49,6 @@ public class ObjectVision extends VirtualSubsystem {
         if (Constants.loggedValue("CoralObservation/WheelOdomEmpty", oldWheelOdomPose.isEmpty())) {
             return;
         }
-
-        // latency compensation via interpolation
         var estimatedPose = RobotContainer.s_Swerve.getPose();
         var wheelOdometryPose = RobotContainer.s_Swerve.getWheelOdomPose();
         Pose2d fieldToRobot =
@@ -59,14 +56,14 @@ public class ObjectVision extends VirtualSubsystem {
         Transform3d robotToCamera =
             Objects.requireNonNull(VisionConstants.getObjDetectConfig())[observation.camIndex()].robotToCamera();
 
-        // Get bounding box corners in PIXEL coordinates
-        double[] txCorners = observation.info().tx();
-        double[] tyCorners = observation.info().ty();
+        // in angle coordinates
+        double[] txCorners = observation.info().tx();  // degrees
+        double[] tyCorners = observation.info().ty();  // degrees
 
-        Logger.recordOutput("CoralObservation/TxCorners", txCorners);
-        Logger.recordOutput("CoralObservation/TyCorners", tyCorners);
+        Constants.loggedValue("CoralObservation/TxCorners_degrees", txCorners);
+        Constants.loggedValue("CoralObservation/TyCorners_degrees", tyCorners);
 
-        // Find bounding box center in pixels
+        // bounding box center in deg
         double minX = Math.min(Math.min(txCorners[0], txCorners[1]),
             Math.min(txCorners[2], txCorners[3]));
         double maxX = Math.max(Math.max(txCorners[0], txCorners[1]),
@@ -76,95 +73,47 @@ public class ObjectVision extends VirtualSubsystem {
         double maxY = Math.max(Math.max(tyCorners[0], tyCorners[1]),
             Math.max(tyCorners[2], tyCorners[3]));
 
-        double centerX_pixels = (minX + maxX) / 2.0;
-        double centerY_pixels = (minY + maxY) / 2.0;
+        // in degrees
+        double tx = (minX + maxX) / 2.0;
+        double ty = (minY + maxY) / 2.0;
 
-        // Limelight resolution: 1280x800
-        double resolutionWidth = 1280.0;
-        double resolutionHeight = 800.0;
+        Constants.loggedValue("CoralObservation/tx_degrees", tx);
+        Constants.loggedValue("CoralObservation/ty_degrees", ty);
 
-        // Convert pixels to normalized coordinates [-1, 1]
-        // Center of image is at (width/2, height/2)
-        double centerX = (centerX_pixels - resolutionWidth / 2.0) / (resolutionWidth / 2.0);
-        double centerY = -(centerY_pixels - resolutionHeight / 2.0) / (resolutionHeight / 2.0); // negative because Y increases downward in pixels
-
-        Logger.recordOutput("CoralObservation/centerX_pixels", centerX_pixels);
-        Logger.recordOutput("CoralObservation/centerY_pixels", centerY_pixels);
-        Logger.recordOutput("CoralObservation/centerX_normalized", centerX);
-        Logger.recordOutput("CoralObservation/centerY_normalized", centerY);
-
-        // Convert normalized coordinates to angles
-        // limelight 4 H:82° V:56.2°
-        double horizontalFOV = 82; // degrees
-        double verticalFOV = 56.2;   // degrees
-
-        double tx = centerX * (horizontalFOV / 2.0); // angle in degrees
-        double ty = centerY * (verticalFOV / 2.0);   // angle in degrees
-
+        // trig
         double cameraHeight = robotToCamera.getZ();
-        double cameraPitch = robotToCamera.getRotation().getY(); // in radians
-
-        // Debug logging
-        Logger.recordOutput("CoralObservation/tx_degrees", tx);
-        Logger.recordOutput("CoralObservation/ty_degrees", ty);
-        Logger.recordOutput("CoralObservation/cameraPitch_radians", cameraPitch);
-
-        // Convert ty from degrees to radians
+        double cameraPitch = robotToCamera.getRotation().getY(); // radians
+        Constants.loggedValue("CoralObservation/cameraPitch_radians", cameraPitch);
         double tyRadians = Math.toRadians(ty);
-
-        // Calculate vertical angle from horizontal
-        // cameraPitch is camera tilt (positive = up), ty is offset from camera center
         double verticalAngleFromHorizontal = cameraPitch + tyRadians;
-
-        Logger.recordOutput("CoralObservation/AngleFromHorizontal_radians", verticalAngleFromHorizontal);
-        Logger.recordOutput("CoralObservation/AngleFromHorizontal_degrees", Math.toDegrees(verticalAngleFromHorizontal));
-
-        // Target must be below horizontal to be valid
+        Constants.loggedValue("CoralObservation/AngleFromHorizontal_radians", verticalAngleFromHorizontal);
+        Constants.loggedValue("CoralObservation/AngleFromHorizontal_degrees", Math.toDegrees(verticalAngleFromHorizontal));
         if (Constants.loggedValue("CoralObservation/VerticalAngleError", verticalAngleFromHorizontal <= 0)) {
             return;
         }
-
-        double targetHeight = 0.0; // coral is on the ground
+        double targetHeight = 0.0;
         double forwardDistance = (cameraHeight - targetHeight) / Math.tan(verticalAngleFromHorizontal);
-
-        // Calculate the translation from camera to coral in CAMERA reference frame
         double txRadians = Math.toRadians(tx);
-
-        // Create vector from camera to coral in camera's frame
-        // X-axis is forward, Y-axis is left
-        Translation2d cameraToCoralInCameraFrame = new Translation2d(
-            forwardDistance * Math.cos(txRadians),  // forward component
-            forwardDistance * Math.sin(txRadians)   // lateral component
-        );
-
-        Logger.recordOutput("CoralObservation/cameraToCoralInCameraFrame",
+        Translation2d cameraToCoralInCameraFrame =
+            new Translation2d(
+                forwardDistance * Math.cos(txRadians),
+                forwardDistance * Math.sin(txRadians));
+        Constants.loggedValue("CoralObservation/cameraToCoralInCameraFrame",
             new Pose2d(cameraToCoralInCameraFrame, new Rotation2d()));
 
-        // Transform camera pose to field coordinates
         Transform2d robotToCamera2d = new Transform2d(
             robotToCamera.getTranslation().toTranslation2d(),
             robotToCamera.getRotation().toRotation2d());
         Pose2d fieldToCamera = fieldToRobot.transformBy(robotToCamera2d);
 
-        // Debug logging
-        Logger.recordOutput("CoralObservation/robotToCamera2d", robotToCamera2d);
-        Logger.recordOutput("CoralObservation/cameraYaw_degrees",
-            Math.toDegrees(robotToCamera.getRotation().getZ()));
-        Logger.recordOutput("CoralObservation/fieldToRobot", fieldToRobot);
-        Logger.recordOutput("CoralObservation/fieldToCamera", fieldToCamera);
-        Logger.recordOutput("CoralObservation/forwardDistance", forwardDistance);
-        Logger.recordOutput("CoralObservation/txRadians", txRadians);
+        Constants.loggedValue("CoralObservation/fieldToRobot", fieldToRobot);
+        Constants.loggedValue("CoralObservation/fieldToCamera", fieldToCamera);
+        Constants.loggedValue("CoralObservation/forwardDistance", forwardDistance);
 
-        // Transform the camera-frame vector to field frame
-        Pose2d fieldToCoral = fieldToCamera.transformBy(
-            new Transform2d(cameraToCoralInCameraFrame, new Rotation2d())
-        );
-
-        Logger.recordOutput("CoralObservation/fieldToCoral", fieldToCoral);
-
+        Pose2d fieldToCoral = fieldToCamera
+            .transformBy(new Transform2d(cameraToCoralInCameraFrame, new Rotation2d()));
+        Constants.loggedValue("CoralObservation/fieldToCoral", fieldToCoral);
         CoralPose coralPose = new CoralPose(fieldToCoral.getTranslation(), observation.timestamp());
-
-        // Remove overlapping corals and old detections
         coralPoses.removeIf(
             c -> c.translation.getDistance(fieldToCoral.getTranslation()) <= coralOverlap
                 || now - c.timestamp > coralMaxAge);
@@ -183,8 +132,8 @@ public class ObjectVision extends VirtualSubsystem {
             .sorted(Comparator.comparingDouble(ObjectVisionIO.ObjectObservation::timestamp))
             .forEach(this::addCoralObservationToPose);
 
-        coralPoses.stream()
-            .forEach(o -> Logger.recordOutput("CoralDetections/Detection", new Pose2d(o.translation, new Rotation2d())));
+        coralPoses.forEach(o ->
+            Logger.recordOutput("CoralDetections/Detection", new Pose2d(o.translation, new Rotation2d())));
         coralObjects.setPoses(
             coralPoses.stream()
                 .map(coral -> new Pose2d(coral.translation, new Rotation2d())) // zero rotation
