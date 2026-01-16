@@ -32,6 +32,7 @@ import org.steelhawks.subsystems.elevator.*;
 import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.*;
 import org.steelhawks.subsystems.vision.*;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVision;
 import org.steelhawks.util.DoublePressTrigger;
 
 import java.util.Objects;
@@ -43,6 +44,7 @@ public class RobotContainer {
     private final LED s_LED = LED.getInstance();
     public static Swerve s_Swerve = null;
     public static Vision s_Vision = null;
+    public static ObjectVision s_ObjVision = null;
     public static Elevator s_Elevator = null;
     public static Claw s_Claw = null;
     public static Align s_Align = null;
@@ -73,20 +75,9 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstants.BackRight));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
-                            false,
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[0],
-                                VisionConstants.robotToCamera()[0]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[1],
-                                VisionConstants.robotToCamera()[1]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[2],
-                                VisionConstants.robotToCamera()[2]),
-                            new VisionIOPhoton(
-                                VisionConstants.cameraNames()[3],
-                                VisionConstants.robotToCamera()[3]));
+                            s_Swerve::accept, false);
+                    s_ObjVision =
+                        new ObjectVision();
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -113,8 +104,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstantsAlpha.BackRight));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
-                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()));
+                            s_Swerve::accept);
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -137,10 +127,7 @@ public class RobotContainer {
                             new ModuleIOTalonFX(TunerConstantsHawkRider.BackLeft),
                             new ModuleIOTalonFX(TunerConstantsHawkRider.BackRight));
                     s_Vision =
-                        new Vision(
-                            s_Swerve::accept,
-                            new VisionIOLimelight(VisionConstants.cameraNames()[0], () -> s_Swerve.getRotation()),
-                            new VisionIOLimelight(VisionConstants.cameraNames()[1], () -> s_Swerve.getRotation()));
+                        new Vision(s_Swerve::accept);
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOTalonFX());
@@ -150,8 +137,8 @@ public class RobotContainer {
                     Logger.recordOutput("Pose/CoralStationBottom", FieldConstants.Position.CORAL_STATION_BOTTOM.getPose());
                     Logger.recordOutput("Swerve/ModuleTranslations", Swerve.getModuleTranslations());
 
-                    for (int i = 0; i < VisionConstants.cameraNames().length; i++) {
-                        Logger.recordOutput("Camera/" + VisionConstants.cameraNames()[i], VisionConstants.robotToCamera()[i]);
+                    for (int i = 0; i < VisionConstants.getCameraConfig().length; i++) {
+                        Logger.recordOutput("Camera/" + VisionConstants.getCameraConfig()[i].name(), VisionConstants.getCameraConfig()[i].robotToCamera());
                     }
 
                     for (ReefUtil.CoralBranch branch : ReefUtil.CoralBranch.values()) {
@@ -167,20 +154,9 @@ public class RobotContainer {
                             new ModuleIOSim(Swerve.getDriveSimulation().getModules()[3]));
                     s_Vision =
                         new Vision(
-                            s_Swerve::accept,
-                            true,
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[0],
-                                VisionConstants.robotToCamera()[0],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[1],
-                                VisionConstants.robotToCamera()[1],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose),
-                            new VisionIOPhotonSim(
-                                VisionConstants.cameraNames()[2],
-                                VisionConstants.robotToCamera()[2],
-                                Swerve.getDriveSimulation()::getSimulatedDriveTrainPose));
+                            s_Swerve::accept, true);
+                    s_ObjVision =
+                        new ObjectVision();
                     s_Elevator =
                         new Elevator(
                             new ElevatorIOSim());
@@ -207,12 +183,11 @@ public class RobotContainer {
                     new ModuleIO() {},
                     new ModuleIO() {});
 
+            s_Vision =
+                new Vision(s_Swerve::accept);
+
             switch (Constants.getRobot()) {
                 case OMEGABOT, ALPHABOT -> {
-                    s_Vision =
-                        new Vision(
-                            s_Swerve::accept,
-                            new VisionIO() {});
                     s_Claw =
                         new Claw(
                             new BeamIO() {},
@@ -221,24 +196,6 @@ public class RobotContainer {
                         new Align(
                             new AlignIO() {});
                 }
-
-                case HAWKRIDER -> // hawkrider has 2 limelights and an orange pi running pv
-                    s_Vision =
-                        new Vision(
-                            s_Swerve::accept,
-                            new VisionIO() {},
-                            new VisionIO() {});
-            }
-
-            if (Constants.getRobot() == RobotType.OMEGABOT) {
-                s_Vision =
-                    new Vision(
-                        s_Swerve::accept,
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {},
-                        new VisionIO() {});
             }
             s_Elevator =
                 new Elevator(

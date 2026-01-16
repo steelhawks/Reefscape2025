@@ -12,7 +12,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.steelhawks.Constants;
 import org.steelhawks.Robot;
 import org.steelhawks.RobotContainer;
@@ -22,8 +21,9 @@ import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.util.LoopTimeUtil;
+import org.steelhawks.util.VirtualSubsystem;
 
-public class Vision extends SubsystemBase {
+public class Vision extends VirtualSubsystem {
     private final VisionConsumer consumer;
     private final VisionIO[] io;
     private final VisionIOInputsAutoLogged[] inputs;
@@ -35,14 +35,14 @@ public class Vision extends SubsystemBase {
 
     private final QuestNavImpl questNav;
 
-    public Vision(VisionConsumer consumer, VisionIO... io) {
-        this(consumer, false, io);
+    public Vision(VisionConsumer consumer) {
+        this(consumer, false);
     }
 
-    public Vision(VisionConsumer consumer, boolean useQuestNav, VisionIO... io) {
+    public Vision(VisionConsumer consumer, boolean useQuestNav) {
         this.consumer = consumer;
         this.useQuestNav = useQuestNav;
-        this.io = io;
+        this.io = VisionConstants.getIO();
 
         if (useQuestNav) {
             questNav = new QuestNavImpl(consumer);
@@ -114,7 +114,7 @@ public class Vision extends SubsystemBase {
             if (Toggles.Vision.camerasEnabled.get(io[i].getName()).get()) {
                 io[i].updateInputs(inputs[i]);
             }
-            Logger.processInputs("Vision/Camera" + i, inputs[i]);
+            Logger.processInputs("Vision/" + io[i].getName(), inputs[i]);
         }
 
         boolean currPathfinding = RobotContainer.s_Swerve.isPathfinding();
@@ -199,9 +199,9 @@ public class Vision extends SubsystemBase {
                     linearStdDev *= LINEAR_STD_DEV_MEGATAG2_FACTOR;
                     angularStdDev *= ANGULAR_STD_DEV_MEGATAG2_FACTOR;
                 }
-                if (cameraIndex < CAMERA_STD_DEV_FACTORS.length) {
-                    linearStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
-                    angularStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
+                if (cameraIndex < VisionConstants.getCameraConfig().length) {
+                    linearStdDev *= getCameraConfig()[cameraIndex].factors().getFactors()[0];
+                    angularStdDev *= getCameraConfig()[cameraIndex].factors().getFactors()[1];
                 }
                 if (useQuestNav && !Robot.isFirstRun()) {
                     assert questNav != null;

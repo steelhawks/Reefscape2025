@@ -45,7 +45,7 @@ public final class Constants {
     }
 
     // Change this based on what robot is being used.
-    private static final RobotType ROBOT = RobotType.SIMBOT;
+    private static final RobotType ROBOT = RobotType.OMEGABOT;
 
     /**
      * The robot type.
@@ -309,7 +309,7 @@ public final class Constants {
             new Rotation3d(
                 Units.degreesToRadians(roll),
                 Units.degreesToRadians(pitch),
-                Units.degreesToRadians(yaw  )
+                Units.degreesToRadians(yaw)
             )
         );
     }

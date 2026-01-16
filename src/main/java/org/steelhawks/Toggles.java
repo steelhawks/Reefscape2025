@@ -13,7 +13,7 @@ public interface Toggles {
     LoggedNetworkBoolean autoMark =
         new LoggedNetworkBoolean("Toggles/AutoMark", true);
     LoggedNetworkBoolean debugMode =
-        new LoggedNetworkBoolean("Toggles/DebugMode", false);
+        new LoggedNetworkBoolean("Toggles/DebugMode", true);
     LoggedNetworkBoolean tuningMode =
         new LoggedNetworkBoolean("Toggles/TuningMode", false);
     LoggedNetworkBoolean motionMagicEnabled =
@@ -29,8 +29,8 @@ public interface Toggles {
 
         static {
             camerasEnabled = new HashMap<>();
-            for (String name : VisionConstants.cameraNames()) {
-                camerasEnabled.put(name, new LoggedNetworkBoolean("Toggles/" + name + "Enabled", true));
+            for (VisionConstants.CameraConfig config : VisionConstants.getCameraConfig()) {
+                camerasEnabled.put(config.name(), new LoggedNetworkBoolean("Toggles/" + config.name() + "Enabled", true));
             }
         }
     }
