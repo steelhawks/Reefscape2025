@@ -87,7 +87,7 @@ public class ObjectVision extends VirtualSubsystem {
         double cameraPitch = robotToCamera.getRotation().getY(); // radians
         Constants.loggedValue("CoralProcessing/cameraPitch_radians", cameraPitch);
         double tyRadians = Math.toRadians(ty);
-        double verticalAngleFromHorizontal = cameraPitch + tyRadians;
+        double verticalAngleFromHorizontal = -cameraPitch - tyRadians;
         Constants.loggedValue("CoralProcessing/AngleFromHorizontal_radians", verticalAngleFromHorizontal);
         Constants.loggedValue("CoralProcessing/AngleFromHorizontal_degrees", Math.toDegrees(verticalAngleFromHorizontal));
         if (Constants.loggedValue("CoralProcessing/VerticalAngleError", verticalAngleFromHorizontal <= 0)) {

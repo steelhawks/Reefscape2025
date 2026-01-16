@@ -205,11 +205,11 @@ public class VisionConstants {
                 Units.inchesToMeters(23.578 + 1.414),  // height (keep as is)
                 new Rotation3d(
                     Units.degreesToRadians(0.0),
-                    Units.degreesToRadians(20.0),
+                    Units.degreesToRadians(-20.0),
                     Units.degreesToRadians(15.0)
                 )
             ),
-            new Factors.ObjFactors(0.48, LimelightFactors.LIMELIGHT_4, 1280.0, 800.0),
+            new Factors.ObjFactors(0.8, LimelightFactors.LIMELIGHT_4, 1280.0, 800.0),
             CameraType.LIMELIGHT
         )
     };
