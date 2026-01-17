@@ -1,0 +1,76 @@
+package org.steelhawks.commands.autos;
+
+import edu.wpi.first.wpilibj2.command.Commands;
+import org.steelhawks.ReefUtil;
+import org.steelhawks.commands.SuperStructure;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.util.AllianceFlip;
+import org.steelhawks.util.autonbuilder.StartEndPosition;
+
+import static org.steelhawks.Autos.followTrajectory;
+
+public class RC2 extends AutoRoutine {
+    public RC2() {
+        super(
+            "RC2",
+            Commands.runOnce(() -> s_Swerve.setPose(AllianceFlip.apply(StartEndPosition.RC2.getPose()))),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.L4),
+            followTrajectory("RC2 to BR1"),
+            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BR1.getScorePose(ElevatorConstants.State.L4)).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
+            Commands.deadline(
+                Commands.waitSeconds(ELEVATOR_TIMEOUT),
+                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
+                s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
+            followTrajectory("BR2 to Lower Source"),
+            Commands.waitUntil(s_Claw::hasCoral),
+            Commands.parallel(
+                followTrajectory("Lower Source to BL2"),
+                Commands.sequence(
+                    Commands.waitSeconds(WAIT_TIME_BEFORE_ELEVATOR_UP),
+                    SuperStructure.elevatorToPosition(ElevatorConstants.State.L2)
+                )
+            ),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.L4),
+            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL2.getScorePose(ElevatorConstants.State.L4)).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
+            Commands.deadline(
+                Commands.waitSeconds(ELEVATOR_TIMEOUT),
+                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
+                s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
+            followTrajectory("BL2 to Lower Source"),
+            Commands.waitUntil(s_Claw::hasCoral),
+            Commands.parallel(
+                followTrajectory("Lower Source to BL1"),
+                Commands.sequence(
+                    Commands.waitSeconds(WAIT_TIME_BEFORE_ELEVATOR_UP),
+                    SuperStructure.elevatorToPosition(ElevatorConstants.State.L2)
+                )
+            ),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.L4),
+            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.BL1.getScorePose(ElevatorConstants.State.L4)).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
+            Commands.deadline(
+                Commands.waitSeconds(ELEVATOR_TIMEOUT),
+                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
+                s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME),
+            followTrajectory("BL1 to Lower Source"),
+            Commands.waitUntil(s_Claw::hasCoral),
+            Commands.parallel(
+                followTrajectory("Lower Source to L2"),
+                Commands.sequence(
+                    Commands.waitSeconds(WAIT_TIME_BEFORE_ELEVATOR_UP),
+                    SuperStructure.elevatorToPosition(ElevatorConstants.State.L2)
+                )
+            ),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.L4),
+            new SwerveDriveAlignment(() -> ReefUtil.CoralBranch.L2.getScorePose(ElevatorConstants.State.L4)).withTimeout(AUTO_ALIGNMENT_TIMEOUT),
+            Commands.deadline(
+                Commands.waitSeconds(ELEVATOR_TIMEOUT),
+                Commands.waitUntil(s_Elevator.atThisGoal(desiredScoreLevel))),
+                s_Claw.shootCoral().withTimeout(SHOOT_TIMEOUT),
+            SuperStructure.elevatorToPosition(ElevatorConstants.State.HOME)
+        );
+    }
+}

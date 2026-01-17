@@ -1,5 +1,6 @@
 package org.steelhawks.util;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -9,10 +10,18 @@ import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Seconds;
 
-public class PhoenixUtil {
+public final class PhoenixUtil extends VirtualSubsystem {
 
     private static double lastStateChangeTime = Timer.getFPGATimestamp();
     private static boolean lastSwitchState = false;
+
+    /** Signals for synchronized refresh. */
+    private static BaseStatusSignal[] canivoreSignals = new BaseStatusSignal[0];
+    private static BaseStatusSignal[] rioSignals = new BaseStatusSignal[0];
+
+    private PhoenixUtil() {
+        throw new InstantiationError("PhoenixUtil is a utility class and cannot be instantiated.");
+    }
 
     /**
      * Attempts to check if a DigitalInput is connected by checking if the state has changed.
@@ -55,5 +64,36 @@ public class PhoenixUtil {
         }
 
         return odometryTimeStamps;
+    }
+
+    /** Registers a set of signals for synchronized refresh. */
+    public static void registerSignals(boolean canivore, BaseStatusSignal... signals) {
+        if (canivore) {
+            BaseStatusSignal[] newSignals = new BaseStatusSignal[canivoreSignals.length + signals.length];
+            System.arraycopy(canivoreSignals, 0, newSignals, 0, canivoreSignals.length);
+            System.arraycopy(signals, 0, newSignals, canivoreSignals.length, signals.length);
+            canivoreSignals = newSignals;
+        } else {
+            BaseStatusSignal[] newSignals = new BaseStatusSignal[rioSignals.length + signals.length];
+            System.arraycopy(rioSignals, 0, newSignals, 0, rioSignals.length);
+            System.arraycopy(signals, 0, newSignals, rioSignals.length, signals.length);
+            rioSignals = newSignals;
+        }
+    }
+
+    /** Refresh all registered signals. */
+    public static void refreshAll() {
+        if (canivoreSignals.length > 0) {
+            BaseStatusSignal.refreshAll(canivoreSignals);
+        }
+        if (rioSignals.length > 0) {
+            BaseStatusSignal.refreshAll(rioSignals);
+        }
+    }
+
+    @Override
+    public void periodic() {
+        refreshAll();
+        LoopTimeUtil.record("PhoenixUtil");
     }
 }

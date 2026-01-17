@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-import org.steelhawks.Constants;
+import org.steelhawks.Toggles;
 
 /**
  * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
@@ -57,7 +57,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
         if (!hasDefault) {
             hasDefault = true;
             this.defaultValue = defaultValue;
-            if (Constants.TUNING_MODE) {
+            if (Toggles.tuningMode.get()) {
                 dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
             }
         }
@@ -72,7 +72,10 @@ public class LoggedTunableNumber implements DoubleSupplier {
         if (!hasDefault) {
             return 0.0;
         } else {
-            return Constants.TUNING_MODE ? dashboardNumber.get() : defaultValue;
+            if (dashboardNumber == null) {
+                dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
+            }
+            return Toggles.tuningMode.get() ? dashboardNumber.get() : defaultValue;
         }
     }
 

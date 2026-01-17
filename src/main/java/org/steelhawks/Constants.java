@@ -2,22 +2,24 @@ package org.steelhawks;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
-import org.steelhawks.subsystems.vision.VisionConstants;
+import org.littletonrobotics.junction.Logger;
+import org.steelhawks.util.LoggedTunableNumber;
+
 
 public final class Constants {
 
     public static final double ENDGAME_PERIOD = 20;
     public static final double MATCH_TIME_SECONDS = 150;
-
-    public static final boolean USE_MOTION_MAGIC = false;
-    public static final boolean TUNING_MODE = false;
 
     public static final int POWER_DISTRIBUTION_CAN_ID =
         getRobot() == RobotType.ALPHABOT
@@ -27,7 +29,7 @@ public final class Constants {
         getRobot() == RobotType.ALPHABOT
             ? PowerDistribution.ModuleType.kCTRE
             : PowerDistribution.ModuleType.kRev;
-    public static final double SIM_UPDATE_LOOP = 0.020;
+    public static final double UPDATE_LOOP_DT = 0.020;
 
     public enum Mode {
         REAL,
@@ -64,7 +66,7 @@ public final class Constants {
 
     public static final String ROBOT_NAME =
         switch (ROBOT) {
-            case OMEGABOT -> "Omega";
+            case OMEGABOT -> "Chimera";
             case ALPHABOT -> "Alpha";
             case HAWKRIDER -> "Hawk Rider";
             case SIMBOT -> "Simulation";
@@ -95,240 +97,220 @@ public final class Constants {
         };
     }
 
-    /**
-     * Constants for the operator interface.
-     */
+    public static final class RobotConstants {
+        public static final double BAD_BATTERY_THRESHOLD = 11.6;
+        public static final double ROBOT_LENGTH_WITH_BUMPERS = Units.inchesToMeters(30.0 + (3.125 * 2.0));
+
+        public static final double FLOOR_TO_CLAW_HEIGHT =
+            Units.inchesToMeters(2.5 + 4.5 + (10.25 / 2.0) - 1.0 + 23.132);
+
+        // for distance between robot center and claw
+
+        // BEFORE HVR CHANGES
+        // public static final double CLAW_OFFSET = -Units.inchesToMeters(9.836467);
+        // public static final double CLAW_OFFSET_SMALL_COMPONENT = 0.1249231309;
+        // public static final double CLAW_OFFSET_BIG_COMPONENT = 0.21637320975937756890536690206266;
+
+        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(-4.75); // -4.204645
+        // AFTER HVR CHANGES. X and Y axes are based on Onshape coordinate system, NOT WPIlib coordinate system
+            // This was found by taking the average of:
+            // 0.649976 (the width-wise distance between the left hex shaft of the claw, and the center of the robot)
+	        // 7.759314 (the width-wise distance between the right hex shaft of the claw, and the center of the robot)
+//        public static final double CLAW_Y_OFFSET = Units.inchesToMeters(7.4789835);
+            // This was found by taking the average of:
+            // 10.783720 (the length-wise distance between the bottom front lip of the coral in the coral intake, and the center of the robot)
+            // 4.174247 (the length-wise distance between the top back lip of the coral in the coral intake, and the center of the robot)
+
+        public static final double ALGAE_CLAW_Y_OFFSET = -Units.inchesToMeters(5.081);
+//        public static final double ALGAE_CLAW_Y_OFFSET = -Units.inchesToMeters(3.0);
+        public static final double DIST_CLEAR_FROM_REEF = Units.inchesToMeters(13.0);
+
+        public static final double CLIMB_Y_OFFSET = Units.inchesToMeters(12 + (3.0 / 8.0));
+        public static final double DISTANCE_FROM_CAGE = Units.inchesToMeters(10.0);
+    }
+
     public static final class OIConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
+        public static final int BUTTON_BOARD_PORT = 2;
+
+        public static final int HOME_BUTTON_PORT = 3;
+        public static final int SHOOT_BUTTON_PORT = 12;
+        public static final int L1_BUTTON_PORT = 1;
+        public static final int L2_BUTTON_PORT = 4;
+        public static final int L3_BUTTON_PORT = 7;
+        public static final int L4_BUTTON_PORT = 10;
     }
 
-    /**
-     * Constants for the field.
-     */
-    public static final class FieldConstants {
-
-//        public static final Distance FIELD_LENGTH = Inches.of(690.876);
-//        public static final Distance FIELD_WIDTH = Inches.of(317);
-
-        public static final double FIELD_LENGTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldLength();
-        public static final double FIELD_WIDTH = VisionConstants.APRIL_TAG_LAYOUT.getFieldWidth();
-
-        /*
-         * To properly use the auto flip feature, the poses MUST be for the blue alliance.
-         * The auto flip feature will automatically flip the poses for the red alliance.
-         */
-        public static final Pose2d BLUE_STARTING_POSE =
-            new Pose2d(new Translation2d(0, 0), new Rotation2d());
-        public static final Pose2d REEF_POSE =
-            new Pose2d(4.459432, 4.023238, new Rotation2d());
-
-        // Reef Sections
-//        public static final Pose2d LEFT_SECTION =
-//            new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI));
-//        public static final Pose2d TOP_LEFT_SECTION =
-//            new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3));
-//        public static final Pose2d BOTTOM_LEFT_SECTION =
-//            new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3));
-
-//        public static final Pose2d RIGHT_SECTION =
-//            new Pose2d(5.321046, 4.025900, new Rotation2d());
-//        public static final Pose2d TOP_RIGHT_SECTION =
-//            new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3));
-//        public static final Pose2d BOTTOM_RIGHT_SECTION =
-//            new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3));
-
-//        public static final Pose2d PROCESSOR =
-//            new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2));
-
-//        public static final Pose2d CORAL_STATION_BOTTOM =
-//            new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI));
-        // y: 0.955011
-        // .94rad, -.94rad
-
-//        public static final Pose2d CORAL_STATION_TOP =
-//            new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI));
-
-        public enum Position {
-            LEFT_SECTION(new Pose2d(3.657600, 4.025900, new Rotation2d(Math.PI))),
-            TOP_LEFT_SECTION(new Pose2d(4.073906, 4.745481, new Rotation2d(2 * Math.PI / 3))),
-            BOTTOM_LEFT_SECTION(new Pose2d(4.073906, 3.306318, new Rotation2d(-2 * Math.PI / 3))),
-            RIGHT_SECTION(new Pose2d(5.321046, 4.025900, new Rotation2d())),
-            TOP_RIGHT_SECTION(new Pose2d(4.904739, 4.745481, new Rotation2d(Math.PI / 3))),
-            BOTTOM_RIGHT_SECTION(new Pose2d(4.904739, 3.306318, new Rotation2d(-Math.PI / 3))),
-            PROCESSOR(new Pose2d(5.987542, 0.407114, new Rotation2d(Math.PI / 2))),
-            CORAL_STATION_BOTTOM(new Pose2d(1.007676, 1, new Rotation2d(0.94 + Math.PI))),
-            CORAL_STATION_TOP(new Pose2d(1.007676, 6.96480, new Rotation2d(-0.94 + Math.PI)));
-
-            private final Pose2d pose;
-
-            Position(Pose2d pose) {
-                this.pose = pose;
-            }
-
-            public Pose2d getPose() {
-                return pose;
-            }
-        }
-    }
-
-    /**
-     * Constants for the physical auton selector.
-     */
-    public static final class SelectorConstants {}
-
-    /**
-     * Constants for controller deadbands.
-     */
     public static final class Deadbands {
         public static final double DRIVE_DEADBAND = 0.3;
         public static final double ELEVATOR_DEADBAND = 0.05;
         public static final double PIVOT_DEADBAND = 0.1;
+        public static final double REVERSE_CORAL_DEADBAND = 0.1;
+        public static final double BRANCH_OVERRIDE_DEADBAND = 0.3;
+
+        // auto align deadbands
+        public static final double SWERVE_DEADBAND = 0.05;
     }
 
     public static final class LEDConstants {
+        public static final int PORT;
+        public static final int LENGTH;
 
-        public static final LEDConstants DEFAULT =
-            new LEDConstants(0, 40);
-
-        public static final LEDConstants OMEGA =
-            new LEDConstants(0, 41);
-        public static final LEDConstants ALPHA = DEFAULT;
-        public static final LEDConstants HAWKRIDER = DEFAULT;
-
-        public final int PORT;
-        public final int LENGTH;
-
-        private LEDConstants(
-            int port, int length
-        ) {
-            PORT = port;
-            LENGTH = length;
+        static {
+            switch (getRobot()) {
+                case ALPHABOT, HAWKRIDER -> {
+                    PORT = 0;
+                    LENGTH = 40;
+                }
+                default -> {
+                    PORT = 0;
+                    LENGTH = 80;
+                }
+            }
         }
     }
 
-    /**
-     * Constants for autonomous driving functions.
-     */
+    @SuppressWarnings("ConstantConditions")
     public static final class AutonConstants {
+        public static final LoggedTunableNumber TRANSLATION_KP = new LoggedTunableNumber("Swerve/TranslationkP", Constants.omega(5.0, 5.0));
+        public static final LoggedTunableNumber TRANSLATION_KI = new LoggedTunableNumber("Swerve/TranslationkI", Constants.omega(0.0, 0.0));
+        public static final LoggedTunableNumber TRANSLATION_KD = new LoggedTunableNumber("Swerve/TranslationkD", Constants.omega(0.1, 0.1));
 
-        public static final AutonConstants OMEGA =
-            new AutonConstants(
-                5.0,
-                0.0,
-                0.0,
-                5.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                15,
-                20,
-                3,
-                4,
-                5,
-                8);
+        public static final LoggedTunableNumber ROTATION_KP = new LoggedTunableNumber("Swerve/RotationkP", Constants.omega(5.0, 5.0));
+        public static final LoggedTunableNumber ROTATION_KI = new LoggedTunableNumber("Swerve/RotationkI", Constants.omega(0.0, 0.0));
+        public static final LoggedTunableNumber ROTATION_KD = new LoggedTunableNumber("Swerve/RotationkD", Constants.omega(0.1, 0.1));
 
-        public static final AutonConstants ALPHA = new AutonConstants(
-            5,
-            0.0,
-            0.0,
-            5,
-            0.0,
-            0.0,
-            3,
-            0.0,
-            0.0,
-            15,
-            20,
-            3,
-            4,
-            5,
-            8);
-
-        public static final AutonConstants HAWKRIDER = new AutonConstants(
-            10,
-            5.0,
-            0.0,
-            5,
-            0.0,
-            0.0,
-            3,
-            0.0,
-            0.0,
-            15,
-            20,
-            1,
-            2,
-            5,
-            8);
-
-        public final double TRANSLATION_KP;
-        public final double TRANSLATION_KI;
-        public final double TRANSLATION_KD;
-
-        public final double ROTATION_KP;
-        public final double ROTATION_KI;
-        public final double ROTATION_KD;
-
-        public final double AUTO_ALIGN_KP;
-        public final double AUTO_ALIGN_KI;
-        public final double AUTO_ALIGN_KD;
-        public final double ANGLE_MAX_VELOCITY;
-        public final double ANGLE_MAX_ACCELERATION;
+        public static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("Swerve/AnglekP", Constants.omega(1.0, 2.5));
+        public static final LoggedTunableNumber ANGLE_KI = new LoggedTunableNumber("Swerve/AnglekI", Constants.omega(0.0, 0.0));
+        public static final LoggedTunableNumber ANGLE_KD = new LoggedTunableNumber("Swerve/AnglekD", Constants.omega(0.0, 1.0));
 
         // Pathfinder
-        public final double MAX_VELOCITY_METERS_PER_SECOND;
-        public final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
-        public final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-        public final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = Constants.omega(5.0, 0.0);
+        public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = Constants.omega(5.5, 0.0);
+        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Constants.omega(Units.degreesToRadians(540.0), 0.0);
+        public static final double MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = Constants.omega(Units.degreesToRadians(920.0), 0.0);
 
-        public final PathConstraints CONSTRAINTS;
+        public static final PathConstraints CONSTRAINTS = new PathConstraints(
+                MAX_VELOCITY_METERS_PER_SECOND,
+                MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
+                MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
+    }
 
-        public AutonConstants(
-            double translationKp,
-            double translationKi,
-            double translationKd,
-            double rotationKp,
-            double rotationKi,
-            double rotationKd,
-            double autoAlignKp,
-            double autoAlignKi,
-            double autoAlignKd,
-            double angleMaxVelocity,
-            double angleMaxAcceleration,
-            double maxVelocityMetersPerSecond,
-            double maxAccelerationMetersPerSecondSquared,
-            double maxAngularVelocityRadiansPerSecond,
-            double maxAngularAccelerationRadiansPerSecondSquared
-        ) {
-            TRANSLATION_KP = translationKp;
-            TRANSLATION_KI = translationKi;
-            TRANSLATION_KD = translationKd;
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     *
+     * @param hawkrider The HawkRider constant value
+     * @param alpha The Alpha constant value
+     * @param omega The Omega constant value
+     * @param sim The simulation constant value
+     * @return The correct constant
+     */
+    public static <T> T value(T hawkrider, T alpha, T omega, T sim) {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> alpha;
+            case OMEGABOT -> omega;
+            case HAWKRIDER -> hawkrider;
+            case SIMBOT -> sim;
+        };
+    }
 
-            ROTATION_KP = rotationKp;
-            ROTATION_KI = rotationKi;
-            ROTATION_KD = rotationKd;
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     *
+     * @param hawkrider The HawkRider constant value
+     * @param alpha The Alpha constant value
+     * @param omega The Omega constant value
+     * @return The correct constant
+     */
+    public static <T> T value(T hawkrider, T alpha, T omega) {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> alpha;
+            case OMEGABOT, SIMBOT -> omega;
+            case HAWKRIDER -> hawkrider;
+        };
+    }
 
-            AUTO_ALIGN_KP = autoAlignKp;
-            AUTO_ALIGN_KI = autoAlignKi;
-            AUTO_ALIGN_KD = autoAlignKd;
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     * In SIMBOT, the omega constant is used.
+     *
+     * @param alpha The Alpha constant value
+     * @param omega The Omega constant value
+     * @return The correct constant
+     */
+    public static <T> T value(T alpha, T omega) {
+        return switch (Constants.getRobot()) {
+            case ALPHABOT -> alpha;
+            case OMEGABOT, SIMBOT -> omega;
+            default -> null;
+        };
+    }
 
-            ANGLE_MAX_VELOCITY = angleMaxVelocity;
-            ANGLE_MAX_ACCELERATION = angleMaxAcceleration;
+    /**
+     * Automatically returns the correct constant based on which robot type it is running on.
+     * This utility does not send the simulation value for replay mode, making replay mode work properly.
+     *
+     * @param omega The Omega constant value
+     * @param sim The sim constant value
+     * @return The correct constant
+     */
+    public static <T> T omega(T omega, T sim) {
+        return switch (Constants.getRobot()) {
+            case OMEGABOT -> omega;
+            case SIMBOT -> sim;
+            default -> null;
+        };
+    }
 
-            MAX_VELOCITY_METERS_PER_SECOND = maxVelocityMetersPerSecond;
-            MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = maxAccelerationMetersPerSecondSquared;
-            MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = maxAngularVelocityRadiansPerSecond;
-            MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = maxAngularAccelerationRadiansPerSecondSquared;
-
-            CONSTRAINTS =
-                new PathConstraints(
-                    MAX_VELOCITY_METERS_PER_SECOND,
-                    MAX_ACCELERATION_METERS_PER_SECOND_SQUARED,
-                    MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                    MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED);
+    public static <T> T requireNonNullConst(T obj) {
+        if (obj == null) {
+            DriverStation.reportWarning(
+                "Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.", false);
+            throw new IllegalCallerException(
+                "\"Robot chosen does not have this constant configured. Please null this subsystem if this was intentional.\"");
         }
+        return obj;
+    }
+
+    public static <T> T loggedValue(String key, T obj) {
+        requireNonNullConst(obj);
+        if (Toggles.debugMode.get()) {
+            Logger.recordOutput("Debug/" + key, obj.toString());
+        }
+        return obj;
+    }
+
+    /**
+     * Automatically returns a Transform3d that correctly converts the Onshape coordinate system into the WPILib coordinate system.
+     * <br>
+     * <br>
+     * Learn more <a href="https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html">here</a> about the WPILib coordinate system.
+     * @param x From Onshape
+     * @param y From Onshape
+     * @param z From Onshape
+     * @param roll From Onshape
+     * @param pitch From Onshape
+     * @param yaw From Onshape
+     * @return The WPILib coordinate system ready Transform3d
+     */
+    public static Transform3d fromOnshapeCoordinates(
+        double x, double y, double z,
+        double roll, double pitch, double yaw
+    ) {
+        return new Transform3d(
+            Units.inchesToMeters(y),
+            Units.inchesToMeters(-x),
+            Units.inchesToMeters(-z),
+            new Rotation3d(
+                Units.degreesToRadians(roll),
+                Units.degreesToRadians(pitch),
+                Units.degreesToRadians(yaw)
+            )
+        );
     }
 }

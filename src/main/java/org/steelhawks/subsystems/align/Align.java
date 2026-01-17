@@ -1,6 +1,5 @@
 package org.steelhawks.subsystems.align;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -11,22 +10,31 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
-import org.steelhawks.Constants;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.steelhawks.Constants.AutonConstants;
+import org.steelhawks.FieldConstants;
+import org.steelhawks.ReefState;
+import org.steelhawks.ReefUtil;
+import org.steelhawks.ReefUtil.CoralBranch;
+import org.steelhawks.commands.DriveCommands;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.commands.align.FusedSwerveDriveAlignment;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.subsystems.LED;
+import org.steelhawks.subsystems.LED.LEDColor;
+import org.steelhawks.subsystems.elevator.ElevatorConstants.State;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
-import org.steelhawks.util.HolonomicController;
 import org.steelhawks.util.VirtualSubsystem;
 import java.util.List;
 import java.util.Set;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class Align extends VirtualSubsystem {
 
@@ -57,6 +65,9 @@ public class Align extends VirtualSubsystem {
     private static final double LEFT_ALIGN_THRESHOLD = 0.39;
     private static final double RIGHT_ALIGN_THRESHOLD = 0.34500000000000003;
 
+    private static final LoggedDashboardChooser<FieldConstants.Cage> cageChooser =
+        new LoggedDashboardChooser<>("Cage Chooser");
+
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
     private final AlignIOInputsAutoLogged inputs = new AlignIOInputsAutoLogged();
     private final AlignIO io;
@@ -71,6 +82,10 @@ public class Align extends VirtualSubsystem {
 
     public Align(AlignIO io) {
         this.io = io;
+
+        cageChooser.addOption("Left", FieldConstants.Cage.LEFT);
+        cageChooser.addOption("Right", FieldConstants.Cage.RIGHT);
+        cageChooser.addOption("Center", FieldConstants.Cage.CENTER);
 
         mLeftController =
             new PIDController(LEFT_KP, LEFT_KI, LEFT_KD);
@@ -100,13 +115,6 @@ public class Align extends VirtualSubsystem {
     }
 
     public static PathPlannerPath directPath(Pose2d goal) {
-        final AutonConstants constants;
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = AutonConstants.ALPHA;
-            case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
-            default -> constants = AutonConstants.OMEGA;
-        }
-
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(s_Swerve.getPose(), goal);
         double speed =
             Math.hypot(
@@ -115,153 +123,34 @@ public class Align extends VirtualSubsystem {
         PathPlannerPath path =
             new PathPlannerPath(
                 waypoints,
-                constants.CONSTRAINTS,
+                AutonConstants.CONSTRAINTS,
                 new IdealStartingState(speed, s_Swerve.getRotation()),
                 new GoalEndState(0, goal.getRotation()));
         path.preventFlipping = false;
         return path;
     }
 
-    public static Command directPathFollow(Pose2d goal) { // fix this
-        return Commands.defer(
-            () ->
-                AutoBuilder.followPath(directPath(goal))
-                    .withInterruptBehavior(Command.InterruptionBehavior.kCancelSelf)
-                    .andThen(
-                        Commands.run(() -> s_Swerve.runVelocity(
-                            ChassisSpeeds.fromFieldRelativeSpeeds(
-                                HolonomicController.calculate(goal),
-                                AllianceFlip.shouldFlip()
-                                    ? s_Swerve.getRotation().plus(new Rotation2d(Math.PI))
-                                    : s_Swerve.getRotation())))), // pathplanner isnt precise enough so we gotta fix it ourselves
-            Set.of(s_Swerve));
+    public static Command directPathFollow(Supplier<Pose2d> goal, boolean endsWhenAligned) {
+        return DriveCommands.driveToPosition(goal.get())
+            .andThen(new SwerveDriveAlignment(goal, endsWhenAligned));
     }
 
-    //    public static Command alignRobotToAprilTag(Camera... cameras) {
-//
-//        alignXController.setTolerance(
-//            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().tolerance().get());
-//        alignYController.setTolerance(
-//            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().tolerance().get());
-//
-//        return Commands.runOnce(
-//            () -> {
-//                for (Camera camera : cameras) {
-//                    if (camera.getCameraDuties().contains(CameraDuty.REEF_LOCALIZATION)) {
-//                        camera.setValidTags(RobotState.getReefAlignData().closestReefTag());
-//                    }
-//                }
-//                V1_Gamma_LEDs.setAutoAligning(true);
-//            })
-//        .andThen(
-//            Commands.run(
-//                () -> {
-//                    ChassisSpeeds speeds;
-//                    if (RobotState.getReefAlignData().closestReefTag() != -1) {
-//                        double xSpeed = 0.0;
-//                        double ySpeed = 0.0;
-//
-//                        double ex =
-//                            RobotState.getReefAlignData().setpoint().getX()
-//                                - RobotState.getRobotPoseReef().getX();
-//                        double ey =
-//                            RobotState.getReefAlignData().setpoint().getY()
-//                                - RobotState.getRobotPoseReef().getY();
-//
-//                        // Rotate errors into the reef post's coordinate frame
-//                        double ex_prime =
-//                            ex
-//                                * Math.cos(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians())
-//                                + ey
-//                                * Math.sin(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians());
-//                        double ey_prime =
-//                            -ex
-//                                * Math.sin(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians())
-//                                + ey
-//                                * Math.cos(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians());
-//
-//                        if (!alignXController.atSetpoint())
-//                            xSpeed = alignXController.calculate(0, ex_prime);
-//                        else alignXController.reset(ex_prime);
-//                        if (!alignYController.atSetpoint())
-//                            ySpeed = alignYController.calculate(0, ey_prime);
-//                        else alignYController.reset(ey_prime);
-//
-//                        Logger.recordOutput("xSpeed", -xSpeed);
-//                        Logger.recordOutput("ySpeed", -ySpeed);
-//
-//                        // Re-rotate the speeds into field relative coordinate frame
-//                        double adjustedXSpeed =
-//                            xSpeed
-//                                * Math.cos(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians())
-//                                - ySpeed
-//                                * Math.sin(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians());
-//                        double adjustedYSpeed =
-//                            xSpeed
-//                                * Math.sin(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians())
-//                                + ySpeed
-//                                * Math.cos(
-//                                RobotState.getReefAlignData()
-//                                    .setpoint()
-//                                    .getRotation()
-//                                    .getRadians());
-//
-//                        speeds =
-//                            ChassisSpeeds.fromFieldRelativeSpeeds(
-//                                -adjustedXSpeed,
-//                                -adjustedYSpeed,
-//                                thetaSpeedCalculate(),
-//                                RobotState.getRobotPoseReef()
-//                                    .getRotation()
-//                                    .plus(new Rotation2d(Math.PI)));
-//                    } else {
-//                        speeds = new ChassisSpeeds();
-//                    }
-//                    s_Swerve.runVelocity(speeds);
-//                },
-//                s_Swerve)
-//            .until(() -> RobotState.getReefAlignData().atSetpoint())
-//            .finallyDo(
-//                () -> {
-//                    s_Swerve.runVelocity(new ChassisSpeeds());
-//                    alignHeadingController.reset(
-//                        RobotState.getRobotPoseReef().getRotation().getRadians());
-//                    alignXController.reset(RobotState.getRobotPoseReef().getX());
-//                    alignYController.reset(RobotState.getRobotPoseReef().getY());
-//                    for (Camera camera : cameras) {
-//                        camera.setValidTags(FieldConstants.validTags);
-//                    }
-//                    V1_Gamma_LEDs.setAutoAligning(false);
-//                }));
-//    }
+    public static Command directPathFollow(Pose2d goal, boolean endsWhenAligned) {
+        return DriveCommands.driveToPosition(goal)
+            .andThen(new SwerveDriveAlignment(goal, endsWhenAligned));
+    }
+
+    public static Command alignWithSetpoint(CoralBranch branch, State level, boolean endsWhenAligned) {
+        return DriveCommands.driveToPosition(branch.getStagingPose(level))
+            .andThen(new SwerveDriveAlignment(getDynamicBranchDistance(new ReefState.ScoreGoal(level, branch)), endsWhenAligned).withTimeout(1.0));
+    }
+
+    private static Supplier<Pose2d> getDynamicBranchDistance(ReefState.ScoreGoal goal) {
+        return () ->
+            RobotContainer.s_Swerve.isStalling()
+                ? goal.branch().getScorePose(goal.state(), Units.inchesToMeters(3.5))
+                : goal.branch().getScorePose(goal.state());
+    }
 
     public Command forwardUntil(Rotation2d angle) {
         return Commands.run(
@@ -289,7 +178,7 @@ public class Align extends VirtualSubsystem {
                             : s_Swerve.getRotation()));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mDistanceController.atSetpoint()))
-        .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
+        .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
     public Command alignLeft(Rotation2d angle) {
@@ -306,7 +195,7 @@ public class Align extends VirtualSubsystem {
                         alignOutput));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mLeftController.atSetpoint()))
-        .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
+        .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
     }
 
     public Command alignRight(Rotation2d angle) {
@@ -323,6 +212,67 @@ public class Align extends VirtualSubsystem {
                         0.0));
             }, s_Swerve)
         .until(() -> mDebouncer.calculate(mRightController.atSetpoint()))
-        .finallyDo(() -> LED.getInstance().flashCommand(LED.LEDColor.GREEN, .2, 2));
+        .finallyDo(() -> LED.getInstance().flashCommand(LEDColor.GREEN, .2, 2));
+    }
+
+    public Command alignToClosestReef(State level) {
+        return Commands.defer(
+            () -> directPathFollow(() -> ReefUtil.getClosestCoralBranch().getScorePose(level), false),
+            Set.of(s_Swerve));
+    }
+
+    public Command alignToClosestReefWithFusedInput(State level, DoubleSupplier joystickAxis) {
+        return alignToClosestReefWithFusedInput(level, joystickAxis, false);
+    }
+
+    public Command alignToClosestReefWithFusedInput(State level, DoubleSupplier joystickAxis, boolean endsWhenAligned) {
+        return Commands.defer(
+            () -> new SwerveDriveAlignment(() -> ReefUtil.getCoralBranchWithFusedDriverInput(joystickAxis).get().getScorePose(level), endsWhenAligned),
+            Set.of(s_Swerve));
+    }
+
+    public Command alignToClosestAlgae() {
+        return Commands.defer(
+            () -> directPathFollow(() -> ReefUtil.getClosestAlgae().getRetrievePose(), false),
+            Set.of(s_Swerve));
+    }
+
+    public Command alignToClosestCoralStation(DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+        return Commands.defer(
+            () -> DriveCommands.driveToPosition(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine())
+                .andThen(new FusedSwerveDriveAlignment(FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine(), xSupplier, ySupplier)),
+            Set.of(s_Swerve)).withName("Drive to Coral Station");
+    }
+
+    public Command alignToClosestBargePoint(DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+        return Commands.defer(
+            () -> DriveCommands.driveToPosition(FieldConstants.Barge.SCORE.getClearancePose())
+                .andThen(new FusedSwerveDriveAlignment(FieldConstants.Barge.SCORE.getClearancePose(), xSupplier, ySupplier)),
+            Set.of(s_Swerve));
+    }
+
+    public Command alignToClosestCage() {
+        return alignToCage(FieldConstants.getClosestCage());
+    }
+
+    public Command alignToSelectedCage() {
+        return Commands.defer(
+            () -> cageChooser.get() != null
+                ? alignToCage(cageChooser.get())
+                : alignToClosestCage(),
+            Set.of(s_Swerve));
+    }
+
+    public Command alignToCage(FieldConstants.Cage cage) {
+        return Commands.defer(
+            () -> directPathFollow(cage::getClimbPose, true)
+                .andThen(
+                    Commands.run(
+                            () -> s_Swerve.runVelocity(
+                                new ChassisSpeeds(-0.3, 0.0, 0.0)))
+                        .withTimeout(1.0)
+                        .finallyDo(s_Swerve::stopWithX),
+                    LED.getInstance().flashCommand(LEDColor.GREEN, 0.2, 3.0)),
+            Set.of(s_Swerve));
     }
 }

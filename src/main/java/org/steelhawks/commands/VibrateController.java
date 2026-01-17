@@ -63,12 +63,7 @@ public class VibrateController extends InstantCommand {
     public boolean isFinished() {
         return timer.hasElapsed(seconds);
     }
-
-    @Override
-    public boolean runsWhenDisabled() {
-        return true;
-    }
-
+    
     @Override
     public void end(boolean interrupted) {
         timer.stop();

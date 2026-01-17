@@ -17,8 +17,6 @@ import org.steelhawks.subsystems.climb.ClimbConstants;
 
 public class ShallowClimbIOTalonFX implements ShallowClimbIO {
 
-    private final ClimbConstants constants;
-
     private final TalonFX mClimbMotor;
 
     private final StatusSignal<Angle> climbPosition;
@@ -28,18 +26,12 @@ public class ShallowClimbIOTalonFX implements ShallowClimbIO {
     private final StatusSignal<Temperature> climbTemp;
 
     public ShallowClimbIOTalonFX() {
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = ClimbConstants.ALPHA;
-            case HAWKRIDER -> constants = ClimbConstants.HAWKRIDER;
-            default -> constants = ClimbConstants.OMEGA;
-        }
-
-        mClimbMotor = new TalonFX(constants.SHALLOW_MOTOR_ID, Constants.getCANBus());
+        mClimbMotor = new TalonFX(ClimbConstants.SHALLOW_MOTOR_ID, Constants.getCANBus());
 
         var config =
             new TalonFXConfiguration()
                 .withFeedback(new FeedbackConfigs()
-                    .withSensorToMechanismRatio(constants.SHALLOW_GEAR_RATIO))
+                    .withSensorToMechanismRatio(ClimbConstants.SHALLOW_GEAR_RATIO))
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(InvertedValue.CounterClockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake));

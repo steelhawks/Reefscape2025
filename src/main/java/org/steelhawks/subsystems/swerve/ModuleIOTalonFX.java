@@ -20,6 +20,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import org.steelhawks.Constants;
+import org.steelhawks.Toggles;
+
 import java.util.Queue;
 
 
@@ -92,8 +94,8 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.DriveMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        driveTalon.getConfigurator().apply(driveConfig);
-        driveTalon.setPosition(0.0);
+        tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig));
+        tryUntilOk(5, () -> driveTalon.setPosition(0.0));
 
         // Configure turn motor
         var turnConfig = new TalonFXConfiguration();
@@ -105,6 +107,13 @@ public class ModuleIOTalonFX implements ModuleIO {
                 case RemoteCANcoder -> FeedbackSensorSourceValue.RemoteCANcoder;
                 case FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder;
                 case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
+                case FusedCANdiPWM1 -> FeedbackSensorSourceValue.FusedCANdiPWM1;
+                case FusedCANdiPWM2 -> FeedbackSensorSourceValue.FusedCANdiPWM2;
+                case SyncCANdiPWM1 -> FeedbackSensorSourceValue.SyncCANdiPWM1;
+                case SyncCANdiPWM2 -> FeedbackSensorSourceValue.SyncCANdiPWM2;
+                case RemoteCANdiPWM1 -> FeedbackSensorSourceValue.RemoteCANdiPWM1;
+                case RemoteCANdiPWM2 -> FeedbackSensorSourceValue.RemoteCANdiPWM2;
+                case TalonFXS_PulseWidth -> null;
             };
         turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
         turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
@@ -117,7 +126,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.SteerMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        turnTalon.getConfigurator().apply(turnConfig);
+        tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig));
 
         // Configure CANCoder
         CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
@@ -126,7 +135,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             constants.EncoderInverted
                 ? SensorDirectionValue.Clockwise_Positive
                 : SensorDirectionValue.CounterClockwise_Positive;
-        cancoder.getConfigurator().apply(cancoderConfig);
+        tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig));
 
         // Create timestamp queue
         timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
@@ -177,7 +186,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             BaseStatusSignal.refreshAll(turnMagnetBad, turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
         var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
 
-        // turn inputs
+        // drive inputs
         inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
         inputs.drivePositionRad = Units.rotationsToRadians(drivePosition.getValueAsDouble());
         inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
@@ -244,11 +253,27 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void setTurnPosition(Rotation2d rotation) {
         turnTalon.setControl(
             switch (constants.SteerMotorClosedLoopOutput) {
-                case Voltage -> Constants.USE_MOTION_MAGIC ?
+                case Voltage -> Toggles.motionMagicEnabled.get() ?
                     positionVoltageRequestMotionMagic.withPosition(rotation.getRotations()) :
                         positionVoltageRequest.withPosition(rotation.getRotations());
                 case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
                     rotation.getRotations());
             });
+    }
+
+    @Override
+    public void setDrivePID(double drivekP, double drivekI, double drivekD) {
+        constants.DriveMotorGains.kP = drivekP;
+        constants.DriveMotorGains.kI = drivekI;
+        constants.DriveMotorGains.kD = drivekD;
+        tryUntilOk(5, () -> driveTalon.getConfigurator().apply(constants.DriveMotorGains));
+    }
+
+    @Override
+    public void setSteerPID(double steerkP, double steerkI, double steerkD) {
+        constants.SteerMotorGains.kP = steerkP;
+        constants.SteerMotorGains.kI = steerkI;
+        constants.SteerMotorGains.kD = steerkD;
+        tryUntilOk(5, () -> turnTalon.getConfigurator().apply(constants.SteerMotorGains));
     }
 }

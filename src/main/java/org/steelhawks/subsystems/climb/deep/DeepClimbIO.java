@@ -8,19 +8,12 @@ public interface DeepClimbIO {
     class DeepClimbIOInputs {
         public double goal = 0;
 
-        public boolean topConnected = false;
-        public double topClimbPositionRad = 0;
-        public double topClimbVelocityRadPerSec = 0;
-        public double topClimbAppliedVolts = 0;
-        public double topClimbCurrentAmps = 0;
-        public double topClimbTempCelsius = 0;
-
-        public boolean bottomConnected = false;
-        public double bottomClimbPositionRad = 0;
-        public double bottomClimbVelocityRadPerSec = 0;
-        public double bottomClimbAppliedVolts = 0;
-        public double bottomClimbCurrentAmps = 0;
-        public double bottomClimbTempCelsius = 0;
+        public boolean connected = false;
+        public double climbPositionRad = 0;
+        public double climbVelocityRadPerSec = 0;
+        public double climbAppliedVolts = 0;
+        public double climbCurrentAmps = 0;
+        public double climbTempCelsius = 0;
 
         public boolean encoderConnected = false;
         public boolean magnetGood = false;

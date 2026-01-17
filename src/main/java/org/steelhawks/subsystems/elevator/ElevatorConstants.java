@@ -1,186 +1,88 @@
 package org.steelhawks.subsystems.elevator;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import org.steelhawks.Constants;
+import org.steelhawks.util.LoggedTunableNumber;
 
-import java.util.Arrays;
-
-public final class ElevatorConstants {
+@SuppressWarnings("ConstantConditions")
+public class ElevatorConstants {
 
     public enum State {
-        L4(59.905784718904, 23.299634187195004, Units.rotationsToRadians(3.0)), // Before claw raise: 24.21 
-        L3(35.3237425930366, 13.956157208183564, Units.rotationsToRadians(2.0)), // Slightly too high: 14.394875713518857 // Before claw raise: 14.947108797157687 
-        L2(19.376478322177476, 8.308039947188632, Units.rotationsToRadians(1.0)), // Before claw raise: 9.10417597610128 
-        L1(11.3936423020206, 4.947855031325136, Units.rotationsToRadians(0.5)),
-        HOME(0, 0, 0),
+        L4(Units.radiansToRotations(23.299634187195004)),
+        L3(2.146240234375),
+        L2(1.1181640625),
+        L1(Units.radiansToRotations(4.947855031325136)),
+        L1_JUMP(Units.radiansToRotations(4.947855031325136 + 5.0)),
+        HOME(0.0),
 
+        // move elevator up so claw is not blocking the climb and cage
+        PREPARE_CLIMB(Units.radiansToRotations(10.0)),
         // This is the "HOME" position the elevator goes to, before manually going down to the ACTUAL home position at the bottom bar
-        HOME_ABOVE_BAR(0, 1, 0),
+        HOME_ABOVE_BAR(Units.radiansToRotations(1.0)),
+        BARGE_SCORE(Units.radiansToRotations(24.0)),
 
         // Algae Knockout Positions
-        KNOCK_L2(0, 0, 0),
-        KNOCK_L3(0, 0, 0);
+        KNOCK_L2(Units.radiansToRotations(5.0)),
+        KNOCK_L3(Units.radiansToRotations(12.038681223326511));
 
-        private final double alphaRadians;
         private final double omegaRadians;
-        private final double hawkriderRadians;
 
-        State(double alpha, double omega, double hawkrider) {
-            this.alphaRadians = alpha;
+        State(double omega) {
             this.omegaRadians = omega;
-            this.hawkriderRadians = hawkrider;
         }
 
-        public double getRadians() {
-            switch (Constants.getRobot()) {
-                case ALPHABOT:
-                    return alphaRadians;
-                case OMEGABOT:
-                    return omegaRadians;
-                case HAWKRIDER:
-                    return hawkriderRadians;
-                default:
-                    return 0;
-            }
+        public Rotation2d getAngle() {
+            return Rotation2d.fromRotations(omegaRadians);
         }
     }
 
-    public static final ElevatorConstants DEFAULT =
-        new ElevatorConstants(
-            0,
-            20,
-            21,
-            22,
-            1,
-            0,
-            0.15,
-            2.6,
-            3.9,
-            0,
-            0.001,
-            5.2,
-            8,
-            0.005,
-            0.5,
-            Units.rotationsToRadians(3));
+    public static final int LEFT_MOTOR_ID = 13;
+    public static final int RIGHT_MOTOR_ID = 14;
 
-    public static final ElevatorConstants OMEGA =
-        new ElevatorConstants(
-            0,
-            13,
-            14,
-            16,
-            25,
-            0.23,
-            0.175,
-            (((2.0 - 1.0) / (4.086524818927348 - 1.8346410223112268)) + ((1.0 - 0.5) / (1.8346410223112268 - 0.6381360077604268))) / 2.0,
-            5.5, // 2.75
-            0,
-            0.2, //0.15
-            35,
-            70,
-            0.02,
-            0.55,
-            // 24.21235275598696);
-            // 24.435);
-            24.663);
+    public static final double MAX_ROTATIONS = Units.radiansToRotations(24.0);
+    public static final double TOLERANCE = Units.radiansToRotations(0.03);
+    public static final double REDUCTION = 25.0 / 1.0;
+    public static final double SPROCKET_RAD = // the driving drum
+        Units.inchesToMeters(1.888);
 
-    public static final ElevatorConstants ALPHA =
-        new ElevatorConstants(
-            0,
-            14,
-            15,
-            -1,
-            10,
-            0.18,
-            0.18625,
-            Arrays.stream(new double[]{
-                (2.0 - 1) / (10.593671321138238 - 4.652870525814727),
-            }).average().orElse(0.0),
-            2.6,
-            0,
-            0.01, // 0.126
-            100,
-            110,
-            Units.rotationsToRadians(0.005),
-            0.65, // 0.55
-            60); // 60
+    public static final Double MAX_VELOCITY_ROT_PER_SEC = Constants.omega(25.0, 10.0);
+    public static final Double MAX_ACCELERATION_ROT_PER_SEC_2 = Constants.omega(46.0, 20.0);
+    public static final Double MANUAL_ELEVATOR_INCREMENT = 0.65;
+    public static final Double MANUAL_ELEVATOR_RAMP_RATE = Constants.omega(0.6 * MANUAL_ELEVATOR_INCREMENT, 0.8 * MANUAL_ELEVATOR_INCREMENT);
 
-    public static final ElevatorConstants HAWKRIDER =
-        new ElevatorConstants(
-        0,
-        20,
-        21,
-        22,
-        1,
-        0.15,
-        0.09,
-        0.6,
-        9.1,
-        0,
-        0.002,
-        5.2,
-        8,
-        Units.rotationsToRadians(.005),
-        0.5,
-        18.5);
+    public static final LoggedTunableNumber KP = new LoggedTunableNumber("Elevator/kP", Constants.omega(500.0, 6.0));
+    public static final double KI = 0.0;
+    public static final LoggedTunableNumber KD = new LoggedTunableNumber("Elevator/kD", Constants.omega(40.0, 0.4));
 
-    public final int LIMIT_SWITCH_ID;
-    public final int LEFT_ID;
-    public final int RIGHT_ID;
-    public final int CANCODER_ID;
+    public static final double ELEVATOR_DISTANCE_INTERPOLATOR_MAX = 0.6;
+    public static final double SHIMMY_VOLTS = -5.0;
+    public static final double HOMING_VOLTS = -3.0;
 
-    public final double GEAR_RATIO;
+    public static final Double[] kS = {
+        Constants.omega(1.0, 0.0),
+        0.0,
+        0.0
+    };
 
-    public final double KS;
-    public final double KG;
-    public final double KV;
+    public static final Double[] kV = {
+        Constants.omega(
+        0.0, 0.0),
+        0.0,
+        0.0
 
-    public final double KP;
-    public final double KI;
-    public final double KD;
 
-    public final double MAX_VELOCITY_PER_SEC;
-    public final double MAX_ACCELERATION_PER_SEC_SQUARED;
+    };
 
-    public final double TOLERANCE;
-    public final double MANUAL_ELEVATOR_INCREMENT;
+    public static final Double[] kG = {
+        Constants.omega(6.0, 0.0),
+        0.0,
+        0.0
+    };
 
-    public final double MAX_RADIANS;
-
-    public ElevatorConstants(
-        int limitSwitchId,
-        int leftMotorId,
-        int rightMotorId,
-        int canCoderId,
-        double gearRatio,
-        double kS,
-        double kG,
-        double kV,
-        double kP,
-        double kI,
-        double kD,
-        double maxVelocityPerSec,
-        double maxAccelerationPerSecSquared,
-        double tolerance,
-        double manualElevatorIncrement,
-        double maxRadians
-    ) {
-        LIMIT_SWITCH_ID = limitSwitchId;
-        LEFT_ID = leftMotorId;
-        RIGHT_ID = rightMotorId;
-        CANCODER_ID = canCoderId;
-        GEAR_RATIO = gearRatio;
-        KS = kS;
-        KG = kG;
-        KV = kV;
-        KP = kP;
-        KI = kI;
-        KD = kD;
-        MAX_VELOCITY_PER_SEC = maxVelocityPerSec;
-        MAX_ACCELERATION_PER_SEC_SQUARED = maxAccelerationPerSecSquared;
-        TOLERANCE = tolerance;
-        MANUAL_ELEVATOR_INCREMENT = manualElevatorIncrement;
-        MAX_RADIANS = maxRadians;
-    }
+    public static final Double[] kA = {
+        0.0,
+        0.0,
+        0.0
+    };
 }

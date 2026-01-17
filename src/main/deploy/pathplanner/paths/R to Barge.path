@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 6.002897727272727,
+        "y": 3.920298295454545
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.126754280377845,
+        "y": 4.273300343364072
+      },
+      "isLocked": false,
+      "linkedName": "R"
+    },
+    {
+      "anchor": {
+        "x": 7.631147641782406,
+        "y": 4.824002097800926
+      },
+      "prevControl": {
+        "x": 6.594876467262027,
+        "y": 4.881306196405039
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Barge"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 920.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Algae",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}

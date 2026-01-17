@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BC3 to R2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R2 to Upper Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Source to L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L2 to Upper Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Source to L1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L1 to Upper Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Source to TL2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "2025 Reefscape Autonomous",
+  "choreoAuto": false
+}

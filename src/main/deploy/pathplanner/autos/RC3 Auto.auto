@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RC3 to BL2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BL2 to Lower Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Source to BL1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BL1 to Lower Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Source to L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L2 to Lower Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Source to L1"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "2025 Reefscape Autonomous",
+  "choreoAuto": false
+}

@@ -11,21 +11,44 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.DriverStation;
+import org.steelhawks.Constants;
+import org.steelhawks.Robot;
+import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
+import org.steelhawks.util.LoopTimeUtil;
+import org.steelhawks.util.VirtualSubsystem;
 
-public class Vision extends SubsystemBase {
+public class Vision extends VirtualSubsystem {
     private final VisionConsumer consumer;
     private final VisionIO[] io;
     private final VisionIOInputsAutoLogged[] inputs;
     private final Alert[] disconnectedAlerts;
 
-    public Vision(VisionConsumer consumer, VisionIO... io) {
+    private static int[] allowedTagIds;
+    private boolean prevPathfinding;
+    private final boolean useQuestNav;
+
+    private final QuestNavImpl questNav;
+
+    public Vision(VisionConsumer consumer) {
+        this(consumer, false);
+    }
+
+    public Vision(VisionConsumer consumer, boolean useQuestNav) {
         this.consumer = consumer;
-        this.io = io;
+        this.useQuestNav = useQuestNav;
+        this.io = VisionConstants.getIO();
+
+        if (useQuestNav) {
+            questNav = new QuestNavImpl(consumer);
+        } else {
+            questNav = null;
+        }
 
         // Initialize inputs
         this.inputs = new VisionIOInputsAutoLogged[io.length];
@@ -38,8 +61,15 @@ public class Vision extends SubsystemBase {
         for (int i = 0; i < inputs.length; i++) {
             disconnectedAlerts[i] =
                 new Alert(
-                    "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+                    "Vision camera " + i + " is disconnected.", AlertType.kWarning);
         }
+
+        prevPathfinding = RobotContainer.s_Swerve.isPathfinding();
+        whitelistTagIds(prevPathfinding ? ONLY_REEF_TAGS : ALL_ALLOWED_TAGS);
+    }
+
+    public static void whitelistTagIds(int... tagIds) {
+        allowedTagIds = tagIds;
     }
 
     /**
@@ -52,6 +82,15 @@ public class Vision extends SubsystemBase {
     }
 
     /**
+     * Returns the fiducial ID of the best target.
+     *
+     * @param cameraIndex The index of the camera to use.
+     */
+    public int getTargetId(int cameraIndex) {
+        return inputs[cameraIndex].latestTargetObservation.fiducialId();
+    }
+
+    /**
      * Returns the Y angle to the best target, which can be used for simple servoing with vision.
      *
      * @param cameraIndex The index of the camera to use.
@@ -60,11 +99,28 @@ public class Vision extends SubsystemBase {
         return inputs[cameraIndex].latestTargetObservation.ty();
     }
 
+    /**
+     * Returns true if an AprilTag target is in view.
+     *
+     * @param cameraIndex The index of the camera to use.
+     */
+    public boolean hasTarget(int cameraIndex) {
+        return inputs[cameraIndex].latestTargetObservation.fiducialId() != -1;
+    }
+
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
-            io[i].updateInputs(inputs[i]);
-            Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+            if (Toggles.Vision.camerasEnabled.get(io[i].getName()).get()) {
+                io[i].updateInputs(inputs[i]);
+            }
+            Logger.processInputs("Vision/" + io[i].getName(), inputs[i]);
+        }
+
+        boolean currPathfinding = RobotContainer.s_Swerve.isPathfinding();
+        if (currPathfinding != prevPathfinding) {
+            prevPathfinding = currPathfinding;
+            whitelistTagIds(currPathfinding ? ONLY_REEF_TAGS : ALL_ALLOWED_TAGS);
         }
 
         // Initialize logging values
@@ -75,6 +131,10 @@ public class Vision extends SubsystemBase {
 
         // Loop over cameras
         for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+            if (!Toggles.Vision.camerasEnabled.get(io[cameraIndex].getName()).get()) {
+                continue;
+            }
+
             // Update disconnected alert
             disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
@@ -86,6 +146,17 @@ public class Vision extends SubsystemBase {
 
             // Add tag poses
             for (int tagId : inputs[cameraIndex].tagIds) {
+                // Check if tag ID is whitelisted
+                boolean isWhitelisted = false;
+                for (int allowedTagId : allowedTagIds) {
+                    if (tagId == allowedTagId) {
+                        isWhitelisted = true;
+                        break;
+                    }
+                }
+                if (!isWhitelisted) {
+                    return;
+                }
                 var tagPose = APRIL_TAG_LAYOUT.getTagPose(tagId);
                 if (tagPose.isPresent()) {
                     tagPoses.add(tagPose.get());
@@ -97,10 +168,8 @@ public class Vision extends SubsystemBase {
                 // Check whether to reject pose
                 boolean rejectPose =
                     observation.tagCount() == 0 // Must have at least one tag
-                        || (observation.tagCount() == 1
-                        && observation.ambiguity() > MAX_AMBIGUITY) // Cannot be high ambiguity
-                        || Math.abs(observation.pose().getZ())
-                        > MAX_ZERROR // Must have realistic Z coordinate
+                        || (observation.tagCount() == 1 && observation.ambiguity() > MAX_AMBIGUITY) // Cannot be high ambiguity
+                        || Math.abs(observation.pose().getZ()) > MAX_ZERROR // Must have realistic Z coordinate
 
                         // Must be within the field boundaries
                         || observation.pose().getX() < 0.0
@@ -130,9 +199,16 @@ public class Vision extends SubsystemBase {
                     linearStdDev *= LINEAR_STD_DEV_MEGATAG2_FACTOR;
                     angularStdDev *= ANGULAR_STD_DEV_MEGATAG2_FACTOR;
                 }
-                if (cameraIndex < CAMERA_STD_DEV_FACTORS.length) {
-                    linearStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
-                    angularStdDev *= CAMERA_STD_DEV_FACTORS[cameraIndex];
+                if (cameraIndex < VisionConstants.getCameraConfig().length) {
+                    linearStdDev *= getCameraConfig()[cameraIndex].factors().getFactors()[0];
+                    angularStdDev *= getCameraConfig()[cameraIndex].factors().getFactors()[1];
+                }
+                if (useQuestNav && !Robot.isFirstRun()) {
+                    assert questNav != null;
+                    if (questNav.isRunning()) {
+                        linearStdDev = 2601_2601;
+                        angularStdDev = 2601_2601;
+                    }
                 }
 
                 // Send vision observation
@@ -141,19 +217,21 @@ public class Vision extends SubsystemBase {
                     observation.timestamp(),
                     VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
             }
+            LoopTimeUtil.record("Normal Vision");
+
 
             // Log camera datadata
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
+                "Vision/Camera" + cameraIndex + "/TagPoses",
                 tagPoses.toArray(new Pose3d[tagPoses.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
+                "Vision/Camera" + cameraIndex + "/RobotPoses",
                 robotPoses.toArray(new Pose3d[robotPoses.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
+                "Vision/Camera" + cameraIndex + "/RobotPosesAccepted",
                 robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
             Logger.recordOutput(
-                "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
+                "Vision/Camera" + cameraIndex + "/RobotPosesRejected",
                 robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
             allTagPoses.addAll(tagPoses);
             allRobotPoses.addAll(robotPoses);
@@ -172,11 +250,22 @@ public class Vision extends SubsystemBase {
         Logger.recordOutput(
             "Vision/Summary/RobotPosesRejected",
             allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+
+        LoopTimeUtil.record("Vision");
+
+        if (questNav != null) {
+            // make it so that in debug mode you can automatically reset pose from vision when disabled/ or make it a toggle
+            if (DriverStation.isDisabled() && Robot.isFirstRun() && Constants.loggedValue("RobotPosesEmpty", !allRobotPoses.isEmpty())) {
+                questNav.setPose(allRobotPosesAccepted.get(0).toPose2d());
+            }
+            questNav.periodic(allRobotPoses);
+            LoopTimeUtil.record("QuestNav");
+        }
     }
 
     @FunctionalInterface
-    public static interface VisionConsumer {
-        public void accept(
+    public interface VisionConsumer {
+        void accept(
             Pose2d visionRobotPoseMeters,
             double timestampSeconds,
             Matrix<N3, N1> visionMeasurementStdDevs);

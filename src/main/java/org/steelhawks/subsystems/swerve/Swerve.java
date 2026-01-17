@@ -2,24 +2,24 @@ package org.steelhawks.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
-import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -30,10 +30,10 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -41,28 +41,36 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.steelhawks.Constants.*;
+
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.steelhawks.Constants;
-import org.steelhawks.Constants.Mode;
+import org.steelhawks.FieldConstants;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
-import org.steelhawks.util.HolonomicController;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.subsystems.vision.objdetect.ObjectVision;
 import org.steelhawks.util.LocalADStarAK;
+import org.steelhawks.util.LoggedTunableNumber;
+import org.steelhawks.util.LoopTimeUtil;
 
 public class Swerve extends SubsystemBase {
 
     private static final double SLOW_SPEED_MULTIPLIER = 0.3;
-    private static double SPEED_MULTIPLIER = 1.0;
+    private static final double SPEED_MULTIPLIER = 1.0;
     private boolean isPathfinding = false;
+    private boolean requestSlowMode = false;
 
     public static final double ODOMETRY_FREQUENCY =
         Constants.getCANBus().isNetworkFD() ? 250.0 : 100.0;
+    private static final double POSE_BUFFER_SIZE_SEC = 2.0;
     public static final double DRIVE_BASE_RADIUS;
 
     // PathPlanner config constants
@@ -97,6 +105,10 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDrivePoseEstimator mPoseEstimator =
         new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+    private final SwerveDriveOdometry odometry =
+        new SwerveDriveOdometry(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+    private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
+        TimeInterpolatableBuffer.createBuffer(POSE_BUFFER_SIZE_SEC);
 
     private final ProfiledPIDController mAlignController;
     private final Debouncer mAlignDebouncer;
@@ -196,8 +208,7 @@ public class Swerve extends SubsystemBase {
                         Math.max(
                             Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                             Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-                Logger.recordOutput("Swerve/DriveBaseRadius", DRIVE_BASE_RADIUS);
-                ROBOT_MASS_KG = Units.lbsToKilograms(131.2);
+                ROBOT_MASS_KG = Units.lbsToKilograms(108.4 + 11.4 + 14);
                 ROBOT_MOI = (1.0 / 12.0) * ROBOT_MASS_KG * (2 * Math.pow(Units.inchesToMeters(25), 2));
                 WHEEL_COF = COTS.WHEELS.COLSONS.cof;
                 PP_CONFIG =
@@ -215,20 +226,18 @@ public class Swerve extends SubsystemBase {
                         getModuleTranslations());
                 MAPLE_SIM_CONFIG =
                     DriveTrainSimulationConfig.Default()
-                        .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
-                        .withCustomModuleTranslations(getModuleTranslations())
-                        .withGyro(COTS.ofPigeon2())
-                        .withSwerveModule(
-                            new SwerveModuleSimulationConfig(
-                                DCMotor.getKrakenX60(1),
-                                DCMotor.getKrakenX60(1),
-                                TunerConstants.FrontLeft.DriveMotorGearRatio,
-                                TunerConstants.FrontLeft.SteerMotorGearRatio,
-                                Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
-                                Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-                                Meters.of(TunerConstants.FrontLeft.WheelRadius),
-                                KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
-                                WHEEL_COF));
+                    // Specify gyro type (for realistic gyro drifting and error simulation)
+                    .withGyro(COTS.ofPigeon2())
+                    // Specify swerve module (for realistic swerve dynamics)
+                    .withSwerveModule(COTS.ofMark4n(
+                        DCMotor.getKrakenX60Foc(1),
+                        DCMotor.getKrakenX60Foc(1),
+                        COTS.WHEELS.COLSONS.cof,
+                        3)) // L3 Gear ratio
+                    // Configures the track length and track width (spacing between swerve modules)
+                    .withTrackLengthTrackWidth(Inches.of(25), Inches.of(25))
+                    // Configures the bumper size (dimensions of the robot bumper)
+                    .withBumperSize(Inches.of(36), Inches.of(36));
             }
         }
 
@@ -238,10 +247,13 @@ public class Swerve extends SubsystemBase {
         } else {
             DRIVE_SIMULATION = null;
         }
+
+        Logger.recordOutput("Swerve/DriveBaseRadius", DRIVE_BASE_RADIUS);
+        Logger.recordOutput("Swerve/MomentOfInertia", ROBOT_MOI);
     }
 
     public static SwerveDriveSimulation getDriveSimulation() {
-        return RobotBase.isSimulation() ? DRIVE_SIMULATION : null;
+        return DRIVE_SIMULATION;
     }
 
     public void updatePhysicsSimulation() {
@@ -305,15 +317,6 @@ public class Swerve extends SubsystemBase {
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
 
-        // Configure AutoBuilder for PathPlanner
-        final AutonConstants constants;
-
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = AutonConstants.ALPHA;
-            case HAWKRIDER -> constants = AutonConstants.HAWKRIDER;
-            default -> constants = AutonConstants.OMEGA;
-        }
-
         AutoBuilder.configure(
             this::getPose,
             this::setPose,
@@ -321,23 +324,26 @@ public class Swerve extends SubsystemBase {
             this::runVelocity,
             new PPHolonomicDriveController(
                 new PIDConstants(
-                    constants.TRANSLATION_KP,
-                    constants.TRANSLATION_KI, constants.TRANSLATION_KD),
+                    AutonConstants.TRANSLATION_KP.get(),
+                    AutonConstants.TRANSLATION_KI.get(),
+                    AutonConstants.TRANSLATION_KD.get()),
                 new PIDConstants(
-                    constants.ROTATION_KP,
-                    constants.ROTATION_KI, constants.ROTATION_KD)),
+                    AutonConstants.ROTATION_KP.get(),
+                    AutonConstants.ROTATION_KI.get(),
+                    AutonConstants.ROTATION_KD.get())),
             PP_CONFIG,
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
             this);
 
         Pathfinding.setPathfinder(new LocalADStarAK());
         PathPlannerLogging.setLogActivePathCallback(
-            (activePath) ->
+            (activePath) -> {
+                FieldConstants.FIELD_2D.getObject("Path").setPoses(activePath);
                 Logger.recordOutput(
-                    "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()])));
+                    "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+            });
         PathPlannerLogging.setLogTargetPoseCallback(
-            (targetPose) ->
-                Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
+            (targetPose) -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
 
         driveSysId =
             new SysIdRoutine(
@@ -371,23 +377,30 @@ public class Swerve extends SubsystemBase {
 
         mAlignController =
             new ProfiledPIDController(
-                constants.ROTATION_KP,
-                constants.ROTATION_KI,
-                constants.ROTATION_KD,
+                AutonConstants.ANGLE_KP.get(),
+                AutonConstants.ANGLE_KI.get(),
+                AutonConstants.ANGLE_KD.get(),
                 new TrapezoidProfile.Constraints(
-                    constants.ANGLE_MAX_VELOCITY,
-                    constants.ANGLE_MAX_ACCELERATION));
+                    AutonConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                    AutonConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
         mAlignController.enableContinuousInput(-Math.PI, Math.PI);
-        mAlignDebouncer = new Debouncer(1, DebounceType.kRising);
+        mAlignController.setTolerance(Units.degreesToRadians(3));
+        mAlignDebouncer = new Debouncer(0.5, DebounceType.kRising);
+
+        // warm up pathplanner lib
+        FollowPathCommand.warmupCommand().schedule();
+        PathfindingCommand.warmupCommand().schedule();
     }
 
     public ProfiledPIDController getAlign() {
         return mAlignController;
     }
 
-    public Trigger alignAtGoal() {
-        return new Trigger(
-            () -> mAlignDebouncer.calculate(mAlignController.atGoal()));
+    @AutoLogOutput(key = "Swerve/AlignAtGoal")
+    public boolean alignAtGoal() {
+        double goal = mAlignController.getGoal().position;
+        double angleDifference = MathUtil.angleModulus(goal - getPose().getRotation().getRadians());
+        return mAlignDebouncer.calculate(Math.abs(angleDifference) <= Units.degreesToRadians(5));
     }
 
     @Override
@@ -399,6 +412,13 @@ public class Swerve extends SubsystemBase {
             module.periodic();
         }
         odometryLock.unlock();
+
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            mAlignController.setPID(
+                AutonConstants.ANGLE_KP.get(),
+                AutonConstants.ANGLE_KI.get(),
+                AutonConstants.ANGLE_KD.get());
+        }, AutonConstants.ANGLE_KP, AutonConstants.ANGLE_KI, AutonConstants.ANGLE_KD);
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {
@@ -443,13 +463,16 @@ public class Swerve extends SubsystemBase {
 
             // Apply update
             mPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+            Pose2d odometryOnlyPose =
+                odometry.update(rawGyroRotation, modulePositions);
+            poseBuffer.addSample(sampleTimestamps[i], odometryOnlyPose);
         }
 
+        FieldConstants.FIELD_2D.setRobotPose(getPose());
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
-    }
-
-    public void followChoreoTrajectory(SwerveSample sample) {
-        runVelocity(HolonomicController.calculate(sample));
+        Logger.recordOutput("Swerve/ChassisSpeedLimiterMetersPerSecond",
+            TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * RobotContainer.s_Elevator.getSpeedMultiplierBasedOnElevator());
+        LoopTimeUtil.record("Swerve");
     }
 
     /**
@@ -492,7 +515,7 @@ public class Swerve extends SubsystemBase {
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs) {
 
-        if (!RobotContainer.useVision) return;
+        if (!Toggles.Vision.visionEnabled.get()) return;
 
         mPoseEstimator.addVisionMeasurement(
             visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
@@ -546,6 +569,13 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
+     * Returns the robot's acceleration in the X direction relative to the robot.
+     */
+    public double getRobotRelativeXAccelGs() {
+        return gyroInputs.accelerationXInGs * getPose().getRotation().getCos();
+    }
+
+    /**
      * Returns the module states (turn angles and drive velocities) for all of the modules.
      */
     @AutoLogOutput(key = "SwerveStates/Measured")
@@ -578,7 +608,7 @@ public class Swerve extends SubsystemBase {
 
     @AutoLogOutput(key = "Swerve/Is Slow Mode")
     public boolean isSlowMode() {
-        return SPEED_MULTIPLIER == SLOW_SPEED_MULTIPLIER;
+        return requestSlowMode;
     }
 
     /**
@@ -609,6 +639,18 @@ public class Swerve extends SubsystemBase {
     @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
         return mPoseEstimator.getEstimatedPosition();
+    }
+
+    @AutoLogOutput(key = "Odometry/RobotWheelOdom")
+    public Pose2d getWheelOdomPose() {
+        return odometry.getPoseMeters();
+    }
+
+    /**
+     * Returns a pose at a certain timestamp. Interpolates inbetween to find.
+     */
+    public Optional<Pose2d> getPoseAtTime(double timestamp) {
+        return poseBuffer.getSample(timestamp);
     }
 
     /**
@@ -645,6 +687,14 @@ public class Swerve extends SubsystemBase {
             DRIVE_SIMULATION.setSimulationWorldPose(pose);
         }
         mPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+        odometry.resetPosition(rawGyroRotation, getModulePositions(), pose);
+
+        // reset buffer b/c of discontinuous jump
+        poseBuffer.clear();
+        poseBuffer.addSample(Timer.getFPGATimestamp(), pose);
+        if (RobotContainer.s_ObjVision != null) {
+            RobotContainer.s_ObjVision.reset();
+        }
     }
 
     /**
@@ -662,7 +712,10 @@ public class Swerve extends SubsystemBase {
      * Returns the speed multiplier.
      */
     public double getSpeedMultiplier() {
-        return SPEED_MULTIPLIER;
+        return RobotContainer.s_Elevator.atThisGoal(ElevatorConstants.State.HOME).getAsBoolean()
+            ? (requestSlowMode ? SLOW_SPEED_MULTIPLIER : SPEED_MULTIPLIER)
+            : RobotContainer.s_Elevator.getSpeedMultiplierBasedOnElevator();
+
     }
 
     /**
@@ -703,8 +756,8 @@ public class Swerve extends SubsystemBase {
         isPathfinding = pathfinding;
     }
 
-    public Trigger isPathfinding() {
-        return new Trigger(() -> isPathfinding);
+    public boolean isPathfinding() {
+        return isPathfinding;
     }
 
     ///////////////////////
@@ -712,8 +765,7 @@ public class Swerve extends SubsystemBase {
     ///////////////////////
 
     public Command toggleMultiplier() {
-        return Commands.runOnce(() ->
-            SPEED_MULTIPLIER = isSlowMode() ? 1.0 : SLOW_SPEED_MULTIPLIER);
+        return Commands.runOnce(() -> requestSlowMode = !requestSlowMode);
     }
 
     public Command zeroHeading() {
@@ -798,5 +850,14 @@ public class Swerve extends SubsystemBase {
     public Command testZeroedModules() {
         return Commands.run(
             () -> runDriveCharacterization(0.0), this);
+    }
+
+    public boolean isStalling() {
+        for (int i = 0; i < 4; i++) {
+            if (swerveModules[i].getIsStalling()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

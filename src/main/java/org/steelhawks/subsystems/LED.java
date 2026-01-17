@@ -8,11 +8,11 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
-import org.steelhawks.Constants;
 import org.steelhawks.Constants.LEDConstants;
 
 import java.util.function.BooleanSupplier;
 
+@SuppressWarnings("unused")
 public class LED extends SubsystemBase {
 
     private static final double RAPID_FLASH_TIMEOUT = .25;
@@ -55,6 +55,7 @@ public class LED extends SubsystemBase {
         public final int g;
         public final int b;
 
+        @Override
         public String toString() {
             return switch (this) {
                 case PURPLE -> "PURPLE";
@@ -127,19 +128,11 @@ public class LED extends SubsystemBase {
     }
 
     private LED() {
-        LEDConstants constants;
+        strip2Start = LEDConstants.LENGTH / 2;
+        stripLength = LEDConstants.LENGTH / 2;
 
-        switch (Constants.getRobot()) {
-            case ALPHABOT -> constants = LEDConstants.ALPHA;
-            case HAWKRIDER -> constants = LEDConstants.HAWKRIDER;
-            default -> constants = LEDConstants.OMEGA;
-        }
-
-        strip2Start = constants.LENGTH / 2;
-        stripLength = constants.LENGTH / 2;
-
-        LEDStrip = new AddressableLED(constants.PORT);
-        LEDBuffer = new AddressableLEDBuffer(constants.LENGTH);
+        LEDStrip = new AddressableLED(LEDConstants.PORT);
+        LEDBuffer = new AddressableLEDBuffer(LEDConstants.LENGTH);
 
         LEDStrip.setLength(LEDBuffer.getLength());
 
@@ -147,22 +140,7 @@ public class LED extends SubsystemBase {
         LEDStrip.start();
     }
 
-    /**
-     * A helper command that removes and cancels any existing default command before replacing it with
-     * a new one.
-     *
-     * @param defaultCommand the default command you want to set
-     */
-    public void setDefaultLighting(Command defaultCommand) {
-        if (getDefaultCommand() != null) {
-            getDefaultCommand().cancel();
-            removeDefaultCommand();
-        }
-
-        setDefaultCommand(defaultCommand);
-    }
-
-    private void setColor(LEDColor color) {
+    public void setColor(LEDColor color) {
         for (int i = 0; i < LEDBuffer.getLength(); i++) {
             LEDBuffer.setRGB(i, color.r, color.g, color.b);
         }
@@ -171,7 +149,7 @@ public class LED extends SubsystemBase {
         LEDStrip.setData(LEDBuffer);
     }
 
-    private void pulse(LEDColor color, double interval) {
+    public void pulse(LEDColor color, double interval) {
         double timestamp = Timer.getFPGATimestamp();
 
         if (timestamp - lastChange > interval) {
@@ -186,7 +164,7 @@ public class LED extends SubsystemBase {
         }
     }
 
-    private void wave(LEDColor color) {
+    public void wave(LEDColor color) {
         for (int i = 0; i < stripLength; i++) {
             if ((i >= waveIndex && i < waveIndex + waveLength)
                 || (waveIndex + waveLength > stripLength && i < (waveIndex + waveLength) % stripLength)) {
@@ -205,7 +183,7 @@ public class LED extends SubsystemBase {
         this.LEDStrip.setData(this.LEDBuffer);
     }
 
-    private void bounceWave(LEDColor color) {
+    public void bounceWave(LEDColor color) {
         for (int i = 0; i < stripLength; i++) {
             if (i >= bounceWaveIndex && i < bounceWaveIndex + bounceWaveLength) {
                 this.LEDBuffer.setRGB(i, color.r, color.g, color.b);
@@ -232,7 +210,7 @@ public class LED extends SubsystemBase {
         this.LEDStrip.setData(this.LEDBuffer);
     }
 
-    private void fade(LEDColor color) {
+    public void fade(LEDColor color) {
         for (int i = 0; i < LEDBuffer.getLength(); i++) {
             LEDBuffer.setRGB(
                 i,
@@ -275,6 +253,26 @@ public class LED extends SubsystemBase {
         rainbowStart += 3;
         rainbowStart %= 180;
     }
+
+    public void blockyRainbow() {
+        int stretchFactor = 5;
+
+        for (int i = 0; i < stripLength; i++) {
+            i %= stripLength;
+
+            final var hue = (rainbowStart + ((i / stretchFactor) * 180 / (stripLength / stretchFactor))) % 180;
+
+            LEDBuffer.setHSV(i, hue, 255, 128);
+            LEDBuffer.setHSV(i + strip2Start, hue, 255, 128);
+        }
+
+        currentColor = LEDColor.OFF;
+        LEDStrip.setData(LEDBuffer);
+
+        rainbowStart += 3;
+        rainbowStart %= 180;
+    }
+
 
     private boolean fillDirectionForward = true;
     private int fillIndex = 0;
@@ -326,6 +324,10 @@ public class LED extends SubsystemBase {
         return Commands.run(this::rainbow, this);
     }
 
+    public Command getBlockyRainbowCommand() {
+        return Commands.run(this::blockyRainbow, this);
+    }
+
     /**
      * Constructs a command that flashes the LEDs. Most useful for indicators
      *
@@ -335,7 +337,8 @@ public class LED extends SubsystemBase {
      */
     public Command flashCommand(LEDColor color, double interval, double time) {
         return new ParallelDeadlineGroup(
-            new WaitCommand(time), Commands.run(() -> this.pulse(color, interval), this));
+            new WaitCommand(time), Commands.run(() -> this.pulse(color, interval), this))
+            .ignoringDisable(true);
     }
 
     /**
@@ -360,7 +363,8 @@ public class LED extends SubsystemBase {
      */
     public Command flashUntilCommand(LEDColor color, double interval, BooleanSupplier condition) {
         return new ParallelDeadlineGroup(
-            new WaitUntilCommand(condition), Commands.run(() -> this.pulse(color, interval), this));
+            new WaitUntilCommand(condition), Commands.run(() -> this.pulse(color, interval), this))
+            .ignoringDisable(true);
     }
 
     /**

@@ -4,10 +4,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.RobotController;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,6 +14,7 @@ import java.util.function.Supplier;
 
 /** IO implementation for real Limelight hardware. */
 public class VisionIOLimelight implements VisionIO {
+    private final String name;
     private final Supplier<Rotation2d> rotationSupplier;
     private final DoubleArrayPublisher orientationPublisher;
 
@@ -25,6 +23,8 @@ public class VisionIOLimelight implements VisionIO {
     private final DoubleSubscriber tySubscriber;
     private final DoubleArraySubscriber megatag1Subscriber;
     private final DoubleArraySubscriber megatag2Subscriber;
+    private final IntegerSubscriber fiducialIdSubscriber;
+    private final IntegerSubscriber targetValidSubscriber;
 
     /**
      * Creates a new VisionIOLimelight.
@@ -33,6 +33,7 @@ public class VisionIOLimelight implements VisionIO {
      * @param rotationSupplier Supplier for the current estimated rotation, used for MegaTag 2.
      */
     public VisionIOLimelight(String name, Supplier<Rotation2d> rotationSupplier) {
+        this.name = name;
         var table = NetworkTableInstance.getDefault().getTable(name);
         this.rotationSupplier = rotationSupplier;
         orientationPublisher = table.getDoubleArrayTopic("robot_orientation_set").publish();
@@ -42,6 +43,13 @@ public class VisionIOLimelight implements VisionIO {
         megatag1Subscriber = table.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[] {});
         megatag2Subscriber =
             table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
+        fiducialIdSubscriber = table.getIntegerTopic("tid").subscribe(0);
+        targetValidSubscriber = table.getIntegerTopic("tv").subscribe(0);
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -51,9 +59,15 @@ public class VisionIOLimelight implements VisionIO {
             ((RobotController.getFPGATime() - latencySubscriber.getLastChange()) / 1000) < 250;
 
         // Update target observation
-        inputs.latestTargetObservation =
-            new TargetObservation(
-                Rotation2d.fromDegrees(txSubscriber.get()), Rotation2d.fromDegrees(tySubscriber.get()));
+        if ((int)targetValidSubscriber.get() == 1) {
+            inputs.latestTargetObservation =
+                new TargetObservation(
+                    Rotation2d.fromDegrees(txSubscriber.get()), Rotation2d.fromDegrees(tySubscriber.get()), (int)fiducialIdSubscriber.get());
+        } else {
+            inputs.latestTargetObservation =
+                new TargetObservation(
+                    new Rotation2d(), new Rotation2d(), -1);
+        }
 
         // Update orientation for MegaTag 2
         orientationPublisher.accept(

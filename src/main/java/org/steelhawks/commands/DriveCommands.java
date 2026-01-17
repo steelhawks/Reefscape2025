@@ -1,6 +1,7 @@
 package org.steelhawks.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,17 +20,20 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
 import org.steelhawks.Constants.*;
 import org.steelhawks.RobotContainer;
+import org.steelhawks.Toggles;
 import org.steelhawks.subsystems.swerve.Swerve;
 import org.steelhawks.util.AllianceFlip;
 
 public class DriveCommands {
 
+    private static final SlewRateLimiter joystickLimiter = new SlewRateLimiter(0.8);
     private static final Swerve s_Swerve = RobotContainer.s_Swerve;
 
     private static final double FF_START_DELAY = 2.0; // Secs
@@ -59,7 +63,13 @@ public class DriveCommands {
         return Commands.run(
             () -> {
                 Translation2d linearVelocity =
-                    getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    getLinearVelocityFromJoysticks(
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(xSupplier.getAsDouble())
+                            : xSupplier.getAsDouble(),
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(ySupplier.getAsDouble())
+                            : ySupplier.getAsDouble());
 
                 double omega =
                     MathUtil.applyDeadband(omegaSupplier.getAsDouble(), Deadbands.DRIVE_DEADBAND);
@@ -80,12 +90,19 @@ public class DriveCommands {
         DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
         ProfiledPIDController alignController = s_Swerve.getAlign();
 
-        return Commands.run(
+        return Commands.defer(() ->
+            Commands.run(
             () -> {
                 Rotation2d validatedTarget = AllianceFlip.apply(rotationSupplier.get());
 
                 Translation2d linearVelocity =
-                    getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+                    getLinearVelocityFromJoysticks(
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(xSupplier.getAsDouble())
+                            : xSupplier.getAsDouble(),
+                        Toggles.rateLimitSwerveEnabled.get()
+                            ? joystickLimiter.calculate(ySupplier.getAsDouble())
+                            : ySupplier.getAsDouble());
 
                 double omega =
                     alignController.calculate(
@@ -94,7 +111,8 @@ public class DriveCommands {
                 runVelocity(linearVelocity, omega);
             }, s_Swerve)
                 .beforeStarting(() -> alignController.reset(s_Swerve.getRotation().getRadians()))
-                    .withName("Align to Angle");
+                    .withName("Align to Angle"),
+            Set.of(s_Swerve));
     }
 
     private static void runVelocity(Translation2d linearVelocity, double omega) {
@@ -116,30 +134,41 @@ public class DriveCommands {
      *
      * @param target        The target position the robot should drive to. Make sure this is a blue alliance
      *                      pose if you want it to be flipped correctly.
+     * @param constraints The constraints the robot should follow during this procedure
+     * @param emergencyStop The supplier that will stop the command if it returns true.
+     * @return The command to drive to the target position.
+     */
+    public static Command driveToPosition(Pose2d target, PathConstraints constraints, BooleanSupplier emergencyStop) {
+        return AutoBuilder.pathfindToPose(target, constraints)
+            .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
+            .beforeStarting(() -> s_Swerve.setPathfinding(true))
+            .finallyDo(() -> s_Swerve.setPathfinding(false))
+            .withName("Drive to Position");
+    }
+
+    /**
+     * Command to drive to a specific position.
+     *
+     * @param target        The target position the robot should drive to. Make sure this is a blue alliance
+     *                      pose if you want it to be flipped correctly.
      * @param emergencyStop The supplier that will stop the command if it returns true.
      * @return The command to drive to the target position.
      */
     public static Command driveToPosition(Pose2d target, BooleanSupplier emergencyStop) {
-        return AutoBuilder.pathfindToPose(target, AutonConstants.HAWKRIDER.CONSTRAINTS)
-            .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
-                .beforeStarting(() -> s_Swerve.setPathfinding(true))
-                    .finallyDo(() -> s_Swerve.setPathfinding(false))
-                        .withName("Drive to Position");
+        return driveToPosition(target, AutonConstants.CONSTRAINTS, emergencyStop);
     }
 
     /**
-     * Command to drive to a specific path.
+     * Command to drive to a specific position. This command will not stop until it reaches the target
+     * position.
      *
-     * @param path          The path the robot should drive to and then follow.
-     * @param emergencyStop The supplier that will stop the command if it returns true.
-     * @return The command to drive to the target path.
+     * @param target The target position the robot should drive to. Make sure this is a blue alliance
+     *               pose if you want it to be flipped correctly.
+     * @param constraints The constraints the robot should follow during this procedure.
+     * @return The command to drive to the target position.
      */
-    public static Command driveToPath(PathPlannerPath path, BooleanSupplier emergencyStop) {
-        return AutoBuilder.pathfindThenFollowPath(path, AutonConstants.HAWKRIDER.CONSTRAINTS)
-            .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
-                .beforeStarting(() -> s_Swerve.setPathfinding(true))
-                    .finallyDo(() -> s_Swerve.setPathfinding(false))
-                        .withName("Drive to Path");
+    public static Command driveToPosition(Pose2d target, PathConstraints constraints) {
+        return driveToPosition(target, constraints, () -> false);
     }
 
     /**
@@ -152,6 +181,21 @@ public class DriveCommands {
      */
     public static Command driveToPosition(Pose2d target) {
         return driveToPosition(target, () -> false);
+    }
+
+    /**
+     * Command to drive to a specific path.
+     *
+     * @param path          The path the robot should drive to and then follow.
+     * @param emergencyStop The supplier that will stop the command if it returns true.
+     * @return The command to drive to the target path.
+     */
+    public static Command driveToPath(PathPlannerPath path, BooleanSupplier emergencyStop) {
+        return AutoBuilder.pathfindThenFollowPath(path, AutonConstants.CONSTRAINTS)
+            .onlyWhile(() -> s_Swerve.shouldContinuePathfinding(emergencyStop))
+                .beforeStarting(() -> s_Swerve.setPathfinding(true))
+                    .finallyDo(() -> s_Swerve.setPathfinding(false))
+                        .withName("Drive to Path");
     }
 
     /**

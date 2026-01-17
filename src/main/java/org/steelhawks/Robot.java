@@ -1,37 +1,58 @@
 package org.steelhawks;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.steelhawks.commands.align.SwerveDriveAlignment;
 import org.steelhawks.generated.TunerConstants;
 import org.steelhawks.generated.TunerConstantsAlpha;
 import org.steelhawks.generated.TunerConstantsHawkRider;
-import org.steelhawks.subsystems.LED;
 import org.steelhawks.Constants.Mode;
-import org.steelhawks.util.OperatorDashboard;
+import org.steelhawks.subsystems.elevator.ElevatorConstants;
+import org.steelhawks.subsystems.vision.VisionConstants;
+import org.steelhawks.util.Elastic;
+import org.steelhawks.util.LoopTimeUtil;
 import org.steelhawks.util.VirtualSubsystem;
+import org.steelhawks.util.autonbuilder.StartEndPosition;
+
+import java.lang.reflect.Field;
+import java.util.Set;
+
+import static org.steelhawks.Constants.RobotType.*;
+
 
 public class Robot extends LoggedRobot {
 
+    private static final double loopOverrunWarningTimeout = 0.2;
     private static RobotState mState = RobotState.DISABLED;
     private final RobotContainer robotContainer;
+    private static boolean isFirstRun = true;
     private Command autonomousCommand;
+
+    private final CANBus canivoreBus = new CANBus("canivore");
+    private final CANBus rioBus = new CANBus();
 
     public enum RobotState {
         DISABLED,
@@ -49,8 +70,20 @@ public class Robot extends LoggedRobot {
         return mState;
     }
 
+    public static boolean isFirstRun() {
+        return isFirstRun;
+    }
+
     @SuppressWarnings("resource")
     public Robot() {
+        VisionConstants.APRIL_TAG_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide); // apriltag field layout is slow, so invoke it to warmup even though blue is default
+        SignalLogger.enableAutoLogging(false); // dont log when on fms
+        LiveWindow.disableAllTelemetry();
+        for (int i = 5800; i < 5810; i++) {
+            PortForwarder.add(i, "10.26.1.11", i);
+            PortForwarder.add(i, "10.26.1.12", i);
+        }
+
         // record GIT data
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -83,7 +116,6 @@ public class Robot extends LoggedRobot {
         Logger.recordMetadata("Robot", Constants.ROBOT_NAME);
         Logger.recordMetadata("Robot Mode", Constants.getMode().toString());
         Logger.recordMetadata("Robot Type", Constants.getRobot().toString());
-        Logger.recordMetadata("Robot in Tuning Mode", String.valueOf(Constants.TUNING_MODE));
 
         // Set up data receivers & replay source
         switch (Constants.getMode()) {
@@ -106,6 +138,17 @@ public class Robot extends LoggedRobot {
         }
 
         Logger.start();
+
+        // Adjust loop overrun warning timeout
+        try {
+            Field watchdogField = IterativeRobotBase.class.getDeclaredField("m_watchdog");
+            watchdogField.setAccessible(true);
+            Watchdog watchdog = (Watchdog) watchdogField.get(this);
+            watchdog.setTimeout(loopOverrunWarningTimeout);
+        } catch (Exception e) {
+            DriverStation.reportWarning("Failed to disable loop overrun warnings.", false);
+        }
+        CommandScheduler.getInstance().setPeriod(loopOverrunWarningTimeout);
 
         // Check for valid swerve config
         var modules =
@@ -142,54 +185,82 @@ public class Robot extends LoggedRobot {
         }
 
         robotContainer = new RobotContainer();
-        OperatorDashboard.INSTANCE.initialize();
+        ReefState.hasOverriden(); // invoke just in case
+
+        if (Constants.getRobot() == SIMBOT) {
+            DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
+            DriverStationSim.notifyNewData();
+        }
+
+//        Threads.setCurrentThreadPriority(true, 10);
     }
 
     @Override
     public void robotPeriodic() {
         VirtualSubsystem.periodicAll();
-
-        // Switch thread to high priority to improve loop timing
-        Threads.setCurrentThreadPriority(true, 99);
+        LoopTimeUtil.record("VirtualPeriodic");
         CommandScheduler.getInstance().run();
-        // Return to normal thread priority
-        Threads.setCurrentThreadPriority(false, 10);
+        LoopTimeUtil.record("Commands");
+
+        if (Constants.getRobot() == SIMBOT || Toggles.debugMode.get())
+            updateSimPoseVisualizer();
+
+        Logger.recordOutput("CANbus/CANivoreUsage", canivoreBus.getStatus().BusUtilization);
+        Logger.recordOutput("CANbus/RioUsage", rioBus.getStatus().BusUtilization);
+        LoopTimeUtil.record("RobotPeriodic");
+    }
+
+    private void updateSimPoseVisualizer() {
+        Logger.recordOutput("Align/ClosestReef", ReefUtil.getClosestCoralBranch().getScorePose(ElevatorConstants.State.L4));
+        Logger.recordOutput("Align/ClosestAlgae", ReefUtil.getClosestAlgae().getRetrievePose());
+        Logger.recordOutput("Align/ClosestAlgaeClearance", ReefUtil.getClosestAlgae().getClearancePose());
+        Logger.recordOutput("Align/ClosestCoralStation", FieldConstants.getClosestCoralStation().getIntakePoseViaPointToLine());
+        Logger.recordOutput("Align/Left", FieldConstants.Cage.LEFT.getClimbPose());
+        Logger.recordOutput("Align/Right", FieldConstants.Cage.RIGHT.getClimbPose());
+        Logger.recordOutput("Align/Center", FieldConstants.Cage.CENTER.getClimbPose());
+        Logger.recordOutput("Align/ClosestBargePoint", FieldConstants.Barge.SCORE.getClearancePose());
+        Logger.recordOutput("Align/StagingPositionReef", ReefUtil.getClosestCoralBranch().getStagingPose(ElevatorConstants.State.L4));
+
+        Logger.recordOutput("Clearances/ClearFromElevator", Clearances.AlgaeClawClearances.isClearFromElevatorCrossbeam());
+
+        Logger.recordOutput("Align/MaximizeScore", ReefState.getNextBestScorePosition());
+        Logger.recordOutput("Align/CoralRP", ReefState.getNextForCoralRP());
+        Logger.recordOutput("Align/QuickestScorer", ReefState.getQuickestScoring());
+        Logger.recordOutput("Align/DynamicRoutine", ReefState.dynamicScoreRoutine());
+
+        Logger.recordOutput("Align/AutoStagingPosition", ReefUtil.getClosestCoralBranch().getAutonSlowDrivePose(ElevatorConstants.State.L4));
+        Logger.recordOutput("Align/MaximizeScore", ReefState.getNextBestScorePosition());
+        Logger.recordOutput("Align/CoralRP", ReefState.getNextForCoralRP());
+        Logger.recordOutput("Align/QuickestScorer", ReefState.getQuickestScoring());
+        Logger.recordOutput("Align/DynamicRoutine", ReefState.dynamicScoreRoutine());
+    }
+
+    public void resetPoseSim() {
+        if (Constants.getMode() == Mode.SIM) {
+            RobotContainer.s_Swerve.resetSimulation(
+                StartEndPosition.valueOf(Autos.getAuto().getName()).getPose());
+        }
     }
 
     @Override
     public void disabledInit() {
         setState(RobotState.DISABLED);
-
-        if (Constants.getMode() == Mode.SIM) {
-            robotContainer.s_Swerve.resetSimulation(
-                new Pose2d(
-                    3,
-                    3,
-                    new Rotation2d()));
-        }
-    }
-
-    @Override
-    public void disabledPeriodic() {
-        LED.getInstance().rainbow();
+        resetPoseSim();
     }
 
     @Override
     public void disabledExit() {
-        if (DriverStation.isDSAttached()) {
-            robotContainer.waitForDs();
-        }
+        isFirstRun = false;
     }
 
     @Override
     public void autonomousInit() {
         setState(RobotState.AUTON);
-       autonomousCommand = Autos.getAuto();
-        // autonomousCommand = Autos.getTestPath();
+        Elastic.selectTab("Autonomous");
+        autonomousCommand = Autos.getAuto();
 
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null)
             autonomousCommand.schedule();
-        }
     }
 
     @Override
@@ -198,9 +269,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         setState(RobotState.TELEOP);
-        if (autonomousCommand != null) {
+        Elastic.selectTab("Teleoperated");
+        if (autonomousCommand != null)
             autonomousCommand.cancel();
-        }
     }
 
     @Override
@@ -218,14 +289,14 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationInit() {
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.s_Swerve.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
+            RobotContainer.s_Swerve.resetSimulation(new Pose2d(3, 3, new Rotation2d()));
         }
     }
 
     @Override
     public void simulationPeriodic() {
         if (Constants.getMode() == Mode.SIM) {
-            robotContainer.s_Swerve.updatePhysicsSimulation();
+            RobotContainer.s_Swerve.updatePhysicsSimulation();
         }
     }
 }
